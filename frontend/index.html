@@ -17,6 +17,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/frontend/simulator.css">
 
   <style>
     /* =========================================================
@@ -1741,16 +1742,19 @@
 
     <!-- Service Pills -->
     <div class="service-pills-row">
-      <div class="service-pill active" onclick="switchView('home')">
+      <div class="service-pill active" id="pill-home" onclick="switchView('home')">
         <span>🏷️</span> BDE Store
       </div>
-      <div class="service-pill" onclick="switchView('estimator')">
+      <div class="service-pill" id="pill-simulator" onclick="switchView('simulator')">
+        <span>🎨</span> 3D Studio
+      </div>
+      <div class="service-pill" id="pill-estimator" onclick="switchView('estimator')">
         <span>📐</span> Ply Calculator
       </div>
-      <div class="service-pill" onclick="switchView('mistris')">
+      <div class="service-pill" id="pill-mistris" onclick="switchView('mistris')">
         <span>🪚</span> Find Mistri
       </div>
-      <div class="service-pill" onclick="switchView('showcase')">
+      <div class="service-pill" id="pill-showcase" onclick="switchView('showcase')">
         <span>📸</span> Photo Gallery
       </div>
       <div class="service-pill" onclick="openStaffErpGate()" title="Showroom Staff &amp; Management Access">
@@ -1849,6 +1853,14 @@
             <p class="slide-sub">Scratch-resistant & anti-fingerprint finishes</p>
           </div>
           <button class="slide-action-btn" onclick="selectCategory('Laminate')">Explore Mica →</button>
+        </div>
+        <div class="hero-slide" style="background: linear-gradient(135deg, #1E1B4B 0%, #4338CA 100%);">
+          <div>
+            <div class="slide-badge" style="background: #FEF08A; color: #854D0E;">✨ New 3D Studio Simulator</div>
+            <h2 class="slide-heading" style="color: #FFFFFF;">Visualize Your Wardrobe, Bed & TV Unit!</h2>
+            <p class="slide-sub" style="color: #C7D2FE;">Mix & match laminates in real-time with instant ply calculations</p>
+          </div>
+          <button class="slide-action-btn" style="background: #FEF08A; color: #1E1B4B;" onclick="switchView('simulator')">Launch 3D Studio →</button>
         </div>
       </div>
     </div>
@@ -1965,6 +1977,223 @@
         <!-- Option 2: Get Expert Carpenter Help -->
         <button class="btn-calc-opt2" onclick="handleFindCarpenterForEstimate()">
           <span>🪚</span> Option 2: Get Expert Carpenter Help
+        </button>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- =========================================================
+       VIEW: INTERACTIVE 3D FURNITURE & LAMINATE STUDIO SIMULATOR
+       ========================================================= -->
+  <section id="view-simulator" style="display: none;" class="simulator-container">
+    <div class="sim-card">
+      <!-- Header -->
+      <div class="sim-header">
+        <div class="sim-header-info">
+          <div class="sim-header-icon">🎨</div>
+          <div class="sim-header-text">
+            <h2>3D Furniture &amp; Laminate Studio</h2>
+            <p>Customize structures, test laminates &amp; calculate ply requirements in real-time</p>
+          </div>
+        </div>
+        <div class="sim-puja-badge">🪔 Durga Puja Studio Edition</div>
+      </div>
+
+      <!-- 1. Structure Selection (6 Furniture Templates) -->
+      <div style="font-size: 11.5px; font-weight: 800; color: #475569; margin-bottom: 6px;">
+        1. CHOOSE FURNITURE STRUCTURE
+      </div>
+      <div class="sim-struct-carousel">
+        <div class="sim-struct-pill active" data-struct="wardrobe" onclick="simSelectStructure('wardrobe')">
+          <span class="pill-icon">🚪</span>
+          <span>4-Door Wardrobe</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="almirah" onclick="simSelectStructure('almirah')">
+          <span class="pill-icon">🗄️</span>
+          <span>Classic Almirah (Mirror)</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="bed" onclick="simSelectStructure('bed')">
+          <span class="pill-icon">🛏️</span>
+          <span>Box Bed / Divan</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="tvunit" onclick="simSelectStructure('tvunit')">
+          <span class="pill-icon">📺</span>
+          <span>Floating TV Unit</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="dressing" onclick="simSelectStructure('dressing')">
+          <span class="pill-icon">🪞</span>
+          <span>LED Dressing Vanity</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="office" onclick="simSelectStructure('office')">
+          <span class="pill-icon">💼</span>
+          <span>Executive Office Desk</span>
+        </div>
+      </div>
+
+      <!-- 2. Interactive Showroom Viewport Canvas -->
+      <div class="sim-viewport-card">
+        <div class="sim-viewport-toolbar">
+          <div class="sim-ctrl-group">
+            <button id="btn-sim-doors" class="sim-ctrl-btn" onclick="simToggleDoors()">
+              🚪 Open Doors
+            </button>
+            <button id="btn-sim-light" class="sim-ctrl-btn active" onclick="simToggleLighting()">
+              💡 3000K Spotlights
+            </button>
+            <button id="btn-sim-wireframe" class="sim-ctrl-btn" onclick="simToggleWireframe()">
+              📐 Tech Specs
+            </button>
+          </div>
+          <div class="sim-ctrl-group">
+            <button class="sim-ctrl-btn" onclick="simDownloadSnapshot()" title="Save PNG with BDE Watermark">
+              📸 Save Photo
+            </button>
+          </div>
+        </div>
+
+        <!-- SVG Live Stage Viewport -->
+        <div id="sim-svg-stage" class="sim-stage-container">
+          <!-- Live SVG injected by simulator.js -->
+        </div>
+      </div>
+
+      <!-- 3. Dual-Zone Material Swatch Selector -->
+      <div class="sim-zone-selector-card">
+        <div style="font-size: 11.5px; font-weight: 800; color: #475569; margin-bottom: 8px;">
+          2. SELECT LAMINATE FINISH &amp; ZONE
+        </div>
+
+        <!-- Zone Tabs: Zone A (Carcass/Body) vs Zone B (Shutters/Fronts) -->
+        <div class="sim-zone-tabs-row">
+          <div class="sim-zone-tab" data-zone="A" onclick="simSelectZone('A')">
+            <div class="zone-title">Zone A: Body / Carcass</div>
+            <div id="sim-zone-label-a" class="zone-swatch-name">Royal Burma Teak</div>
+          </div>
+          <div class="sim-zone-tab active" data-zone="B" onclick="simSelectZone('B')">
+            <div class="zone-title">Zone B: Shutters / Fronts</div>
+            <div id="sim-zone-label-b" class="zone-swatch-name">Carrara White Marble</div>
+          </div>
+        </div>
+
+        <!-- Swatch Palettes -->
+        <!-- Woodgrain Collection -->
+        <div class="sim-swatch-group">
+          <div class="sim-swatch-group-title">🪵 Natural Woodgrain &amp; Veneer Textures</div>
+          <div class="sim-swatch-grid">
+            <div class="sim-swatch-circle" data-swatch-id="teak" onclick="simSelectLaminate('teak')" title="Royal Burma Teak (BDE-801)" style="background: #b47b48; background-image: repeating-linear-gradient(45deg, #8d5626, #8d5626 4px, #b47b48 4px, #b47b48 12px);"></div>
+            <div class="sim-swatch-circle" data-swatch-id="walnut" onclick="simSelectLaminate('walnut')" title="Smoked American Walnut (BDE-805)" style="background: #4a2e1b; background-image: repeating-linear-gradient(45deg, #311c0f, #311c0f 4px, #4a2e1b 4px, #4a2e1b 12px);"></div>
+            <div class="sim-swatch-circle" data-swatch-id="oak" onclick="simSelectLaminate('oak')" title="Scandinavian White Oak (BDE-809)" style="background: #d6c0a2; background-image: repeating-linear-gradient(90deg, #bfaa8f, #bfaa8f 2px, #d6c0a2 2px, #d6c0a2 8px);"></div>
+            <div class="sim-swatch-circle" data-swatch-id="wenge" onclick="simSelectLaminate('wenge')" title="Ebony Dark Wenge (BDE-814)" style="background: #241c18; background-image: repeating-linear-gradient(90deg, #120d0a, #120d0a 3px, #241c18 3px, #241c18 6px);"></div>
+            <div class="sim-swatch-circle" data-swatch-id="rosewood" onclick="simSelectLaminate('rosewood')" title="Sheesham Rosewood (BDE-820)" style="background: #7a2e20; background-image: repeating-linear-gradient(45deg, #4a180e, #4a180e 4px, #7a2e20 4px, #7a2e20 10px);"></div>
+          </div>
+        </div>
+
+        <!-- Italian Marble & Stone Collection -->
+        <div class="sim-swatch-group">
+          <div class="sim-swatch-group-title">🏛️ Italian Stone &amp; High-Gloss Marble</div>
+          <div class="sim-swatch-grid">
+            <div class="sim-swatch-circle selected" data-swatch-id="carrara" onclick="simSelectLaminate('carrara')" title="Carrara White Marble (BDE-901)" style="background: #f8fafc; border: 1.5px solid #cbd5e1; background-image: radial-gradient(#cbd5e1 15%, transparent 16%); background-size: 8px 8px;"></div>
+            <div class="sim-swatch-circle" data-swatch-id="marquina" onclick="simSelectLaminate('marquina')" title="Nero Marquina Black (BDE-908)" style="background: #0f172a; background-image: repeating-linear-gradient(45deg, #ca8a04, #ca8a04 1px, #0f172a 1px, #0f172a 14px);"></div>
+            <div class="sim-swatch-circle" data-swatch-id="travertine" onclick="simSelectLaminate('travertine')" title="Roman Travertine (BDE-915)" style="background: #e7dec8; background-image: repeating-linear-gradient(0deg, #d5c8ab, #d5c8ab 2px, #e7dec8 2px, #e7dec8 10px);"></div>
+          </div>
+        </div>
+
+        <!-- Modern Super-Matte Solids -->
+        <div class="sim-swatch-group">
+          <div class="sim-swatch-group-title">🎨 Modern Super-Matte Solids</div>
+          <div class="sim-swatch-grid">
+            <div class="sim-swatch-circle" data-swatch-id="charcoal" onclick="simSelectLaminate('charcoal')" title="Slate Charcoal Matte (BDE-701)" style="background: #334155;"></div>
+            <div class="sim-swatch-circle" data-swatch-id="white" onclick="simSelectLaminate('white')" title="Nordic Off-White / Pearl (BDE-704)" style="background: #fdfbf7; border: 1px solid #cbd5e1;"></div>
+            <div class="sim-swatch-circle" data-swatch-id="sage" onclick="simSelectLaminate('sage')" title="Earthy Sage Green (BDE-711)" style="background: #627264;"></div>
+            <div class="sim-swatch-circle" data-swatch-id="navy" onclick="simSelectLaminate('navy')" title="Royal Midnight Navy (BDE-718)" style="background: #1e293b;"></div>
+            <div class="sim-swatch-circle" data-swatch-id="terracotta" onclick="simSelectLaminate('terracotta')" title="Tuscan Terracotta (BDE-725)" style="background: #b85d43;"></div>
+          </div>
+        </div>
+
+        <!-- 3D Fluted Louvers & Metallics -->
+        <div class="sim-swatch-group">
+          <div class="sim-swatch-group-title">📐 3D Fluted Louvers &amp; Metallic Accents</div>
+          <div class="sim-swatch-grid">
+            <div class="sim-swatch-circle" data-swatch-id="fluted_wood" onclick="simSelectLaminate('fluted_wood')" title="Fluted Teak Louvers (BDE-601)" style="background: repeating-linear-gradient(90deg, #c4854d, #c4854d 4px, #78471e 4px, #78471e 8px);"></div>
+            <div class="sim-swatch-circle" data-swatch-id="fluted_charcoal" onclick="simSelectLaminate('fluted_charcoal')" title="Fluted Midnight Louver (BDE-608)" style="background: repeating-linear-gradient(90deg, #334155, #334155 4px, #0f172a 4px, #0f172a 8px);"></div>
+            <div class="sim-swatch-circle" data-swatch-id="metallic_brass" onclick="simSelectLaminate('metallic_brass')" title="Brushed Champagne Brass (BDE-501)" style="background: linear-gradient(135deg, #d4af37 0%, #fef08a 50%, #a16207 100%);"></div>
+          </div>
+        </div>
+
+        <!-- Hardware & Handle Finish Selection -->
+        <div style="font-size: 11.5px; font-weight: 800; color: #475569; margin: 12px 0 6px 0;">
+          3. HARDWARE &amp; PROFILE HANDLE FINISH
+        </div>
+        <div class="sim-hardware-row">
+          <div class="sim-hw-btn active" data-hw="gold" onclick="simSelectHardware('gold')">
+            <span>✨</span> Champagne Gold
+          </div>
+          <div class="sim-hw-btn" data-hw="black" onclick="simSelectHardware('black')">
+            <span>🖤</span> Matte Black
+          </div>
+          <div class="sim-hw-btn" data-hw="chrome" onclick="simSelectHardware('chrome')">
+            <span>🔘</span> Polished Chrome
+          </div>
+          <div class="sim-hw-btn" data-hw="concealed" onclick="simSelectHardware('concealed')">
+            <span>➖</span> J-Profile Minimal
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Plywood Grade & Material Selection Bridge -->
+      <div class="sim-bom-container">
+        <div class="sim-bom-header">
+          <h3 id="sim-bom-title">📋 Estimated Materials Needed</h3>
+          <span class="sim-counter-pill">Onda Counter Rates</span>
+        </div>
+
+        <div class="sim-grade-select-row">
+          <div class="sim-select-group">
+            <label>Plywood Grade</label>
+            <select class="sim-select-box" onchange="simChangePlyGrade(this.value)">
+              <option value="marine" selected>Club Waterproof Marine (IS:710)</option>
+              <option value="commercial">Tycon BWR Commercial (IS:303)</option>
+            </select>
+          </div>
+          <div class="sim-select-group">
+            <label>Laminate Thickness</label>
+            <select class="sim-select-box" onchange="simChangeLaminateType(this.value)">
+              <option value="gloss" selected>1.0mm Premium Gloss / Suede</option>
+              <option value="matt">0.8mm Standard Matt Liner</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Injected BOM Items List -->
+        <div id="sim-bom-items" style="margin-bottom: 10px;">
+          <!-- Injected via simulator.js -->
+        </div>
+
+        <!-- Grand Total Banner -->
+        <div class="sim-total-banner">
+          <div class="sim-total-left">
+            <h4>Approx. BDE Material Cost</h4>
+            <div id="sim-grand-total" class="grand-price">₹18,450</div>
+            <div class="note">Includes 10% standard retail margin + Onda depot discount</div>
+          </div>
+          <div style="font-size: 32px;">🪵</div>
+        </div>
+      </div>
+
+      <!-- 5. High-Conversion Lead Capture Actions -->
+      <div class="sim-actions-grid">
+        <button class="btn-sim-wa" onclick="simSendToWhatsApp()">
+          <span style="font-size: 18px;">💬</span> WhatsApp Design &amp; BOM to Dipanjan
+        </button>
+        <button class="btn-sim-dl" onclick="simDownloadSnapshot()">
+          <span style="font-size: 18px;">📸</span> Download 3D Snapshot (PNG)
+        </button>
+        <button class="btn-sim-mistri" onclick="simFindMistri()">
+          <span>🪚</span> Find Verified Onda Mistri
+        </button>
+        <button class="btn-sim-coupon" onclick="simClaimDiscount()">
+          <span>🎟️</span> Claim 5% Studio Discount Code
         </button>
       </div>
     </div>
@@ -2180,6 +2409,14 @@
         <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
       </svg>
       <span class="nav-label">Home</span>
+    </div>
+
+    <div class="nav-tab" id="tab-simulator" onclick="switchView('simulator')">
+      <div class="nav-indicator"></div>
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+      </svg>
+      <span class="nav-label">3D Studio</span>
     </div>
 
     <div class="nav-tab" id="tab-estimator" onclick="switchView('estimator')">
@@ -2594,6 +2831,9 @@
 
       // Update Service Pills
       document.querySelectorAll('.service-pill').forEach(p => p.classList.remove('active'));
+      const activePill = document.getElementById(`pill-${viewName}`);
+      if (activePill) activePill.classList.add('active');
+
       // Update Bottom Tabs
       document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
 
@@ -2601,10 +2841,14 @@
       if (targetTab) targetTab.classList.add('active');
 
       // Hide all views
-      ['home', 'estimator', 'mistris', 'showcase', 'account'].forEach(v => {
+      ['home', 'simulator', 'estimator', 'mistris', 'showcase', 'account'].forEach(v => {
         const el = document.getElementById(`view-${v}`);
         if (el) el.style.display = (v === viewName) ? 'block' : 'none';
       });
+
+      if (viewName === 'simulator' && window.updateSimulatorUI) {
+        window.updateSimulatorUI();
+      }
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -3224,5 +3468,7 @@
       }, 3200);
     }
   </script>
+  <!-- 3D Furniture & Laminate Studio Simulator Engine -->
+  <script src="/frontend/simulator.js"></script>
 </body>
 </html>
