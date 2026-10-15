@@ -1415,10 +1415,10 @@
       <svg id="sim-live-svg" viewBox="0 0 740 500" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style="display: block; user-select: none;">
         ${defs}
         <!-- Studio Background Wall -->
-        <rect width="740" height="500" fill="#f8fafc" />
+        <rect width="740" height="500" fill="#0d1117" />
         <!-- Floor Baseline Horizon -->
-        <line x1="0" y1="430" x2="740" y2="430" stroke="#cbd5e1" stroke-width="1.5" />
-        <rect y="430" width="740" height="70" fill="#f1f5f9" />
+        <line x1="0" y1="430" x2="740" y2="430" stroke="rgba(245, 158, 11, 0.25)" stroke-width="1.5" />
+        <rect y="430" width="740" height="70" fill="#161b22" />
 
         <!-- Human 5.5 ft Scale Silhouette -->
         ${humanSvg}
@@ -1437,7 +1437,7 @@
         ` : ''}
 
         <!-- Watermark -->
-        <text x="16" y="488" font-size="10" font-weight="900" fill="#94a3b8" opacity="0.75" letter-spacing="1">
+        <text x="16" y="488" font-size="10" font-weight="900" fill="#f59e0b" opacity="0.6" letter-spacing="1">
           BABA DUGDHESWAR ENTERPRISE • ONDA SHOWROOM 3D STUDIO
         </text>
       </svg>
@@ -1726,11 +1726,11 @@
 
     if (bomListEl) {
       bomListEl.innerHTML = bom.items.map(it => `
-        <div class="bom-item-row" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed #e2e8f0; font-size: 12px;">
-          <div style="font-weight: 600; color: #1e293b; max-width: 62%;">
+        <div class="bom-item-row" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed rgba(245, 158, 11, 0.2); font-size: 12px;">
+          <div style="font-weight: 600; color: #f0f6fc; max-width: 62%;">
             ${it.name}
           </div>
-          <div style="font-weight: 800; color: #4338ca; background: #eef2ff; border: 1px solid #c7d2fe; padding: 3px 9px; border-radius: 6px; font-size: 11.5px; white-space: nowrap;">
+          <div style="font-weight: 800; color: #fbbf24; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); padding: 3px 9px; border-radius: 6px; font-size: 11.5px; white-space: nowrap;">
             ${it.qty}
           </div>
         </div>

@@ -4,33 +4,33 @@
    ========================================================================== */
 
 :root[data-theme="dark"] {
-  --bg: #060911;
-  --bg-mesh: radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.10) 0px, transparent 50%),
-             radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
-             radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
-  --surface-card: rgba(17, 24, 39, 0.78);
-  --surface-elevated: rgba(30, 41, 59, 0.55);
-  --surface-border: rgba(255, 255, 255, 0.08);
-  --surface-highlight: rgba(255, 255, 255, 0.14);
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --primary: #38bdf8;
-  --primary-hover: #0ea5e9;
-  --primary-glow: rgba(56, 189, 248, 0.28);
+  --bg: #0d1117;
+  --bg-mesh: radial-gradient(at 0% 0%, rgba(245, 158, 11, 0.08) 0px, transparent 50%),
+             radial-gradient(at 100% 0%, rgba(217, 119, 6, 0.06) 0px, transparent 50%),
+             radial-gradient(at 50% 100%, rgba(146, 64, 14, 0.05) 0px, transparent 50%);
+  --surface-card: rgba(22, 27, 34, 0.78);
+  --surface-elevated: rgba(33, 38, 45, 0.85);
+  --surface-border: rgba(245, 158, 11, 0.2);
+  --surface-highlight: rgba(245, 158, 11, 0.35);
+  --text-main: #f0f6fc;
+  --text-muted: #8b949e;
+  --primary: #f59e0b;
+  --primary-hover: #d97706;
+  --primary-glow: rgba(245, 158, 11, 0.35);
   --emerald: #10b981;
   --emerald-bg: rgba(16, 185, 129, 0.14);
   --amber: #f59e0b;
-  --amber-bg: rgba(245, 158, 11, 0.14);
+  --amber-bg: rgba(245, 158, 11, 0.16);
   --rose: #f43f5e;
   --rose-bg: rgba(244, 63, 94, 0.15);
-  --indigo: #818cf8;
-  --input-bg: rgba(9, 14, 23, 0.85);
-  --thead-bg: rgba(15, 23, 42, 0.95);
-  --sheet-banner-bg: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0284c7 100%);
-  --sheet-kpi-bg: rgba(15, 23, 42, 0.7);
-  --sheet-kpi-text: #f8fafc;
-  --sheet-th-bg: #162a45;
-  --card-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6), 0 0 1px 1px rgba(255, 255, 255, 0.05) inset;
+  --indigo: #d97706;
+  --input-bg: rgba(13, 17, 23, 0.85);
+  --thead-bg: rgba(22, 27, 34, 0.95);
+  --sheet-banner-bg: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #78350f 100%);
+  --sheet-kpi-bg: rgba(22, 27, 34, 0.75);
+  --sheet-kpi-text: #f0f6fc;
+  --sheet-th-bg: #161b22;
+  --card-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 1px 1px rgba(245, 158, 11, 0.15) inset;
   --radius: 14px;
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;

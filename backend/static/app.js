@@ -57,7 +57,7 @@ function showToast(message, type = "success") {
     success: { border: "#10b981", bg: "rgba(6, 78, 59, 0.92)", icon: "✅" },
     warning: { border: "#f59e0b", bg: "rgba(120, 53, 15, 0.92)", icon: "⚠️" },
     error:   { border: "#f43f5e", bg: "rgba(136, 19, 55, 0.92)", icon: "❌" },
-    info:    { border: "#38bdf8", bg: "rgba(12, 74, 110, 0.92)", icon: "ℹ️" }
+    info:    { border: "#fbbf24", bg: "rgba(22, 27, 34, 0.95)", icon: "🪵" }
   };
   const c = colors[type] || colors.info;
 
@@ -1151,8 +1151,8 @@ async function loadExecutiveBI() {
             {
               label: 'Revenue (₹)',
               data: d.monthly_trends.map(m => m.revenue),
-              backgroundColor: 'rgba(56, 189, 248, 0.5)',
-              borderColor: '#38bdf8',
+              backgroundColor: 'rgba(245, 158, 11, 0.45)',
+              borderColor: '#f59e0b',
               borderRadius: 6,
               borderWidth: 1.5
             },
@@ -1191,8 +1191,8 @@ async function loadExecutiveBI() {
             {
               label: 'Revenue (₹)',
               data: d.category_breakdown.map(c => c.revenue),
-              backgroundColor: 'rgba(129, 140, 248, 0.5)',
-              borderColor: '#818cf8',
+              backgroundColor: 'rgba(251, 191, 36, 0.45)',
+              borderColor: '#fbbf24',
               borderRadius: 5,
               borderWidth: 1.5
             },
