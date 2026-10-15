@@ -233,8 +233,8 @@ def serve_offline_data():
 # ========================================================
 # SHOWROOM STAFF & MANAGEMENT CONSOLE SECURITY ENGINE
 # ========================================================
-ADMIN_PASSCODE = os.getenv("ADMIN_PASSCODE", os.getenv("ADMIN_PIN", "Dip@1993"))
-STAFF_PASSCODE = os.getenv("STAFF_PASSCODE", "BDE@1234")
+ADMIN_PASSCODE = (os.getenv("ADMIN_PASSCODE") or os.getenv("ADMIN_PIN") or "Dip@1993").strip()
+STAFF_PASSCODE = (os.getenv("STAFF_PASSCODE") or "BDE@1234").strip()
 SECRET_KEY = os.getenv("SECRET_KEY", "bde-security-onda-bankura-2026")
 
 def create_session_token(role: str) -> str:
