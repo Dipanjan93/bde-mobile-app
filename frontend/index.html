@@ -2000,7 +2000,7 @@
         <div class="sim-puja-badge">🪔 Durga Puja Studio Edition</div>
       </div>
 
-      <!-- 1. Structure Selection (6 Furniture Templates) -->
+      <!-- 1. Structure Selection (9 Furniture Templates) -->
       <div style="font-size: 11.5px; font-weight: 800; color: #475569; margin-bottom: 6px;">
         1. CHOOSE FURNITURE STRUCTURE
       </div>
@@ -2008,6 +2008,18 @@
         <div class="sim-struct-pill active" data-struct="wardrobe" onclick="simSelectStructure('wardrobe')">
           <span class="pill-icon">🚪</span>
           <span>4-Door Wardrobe</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="wardrobe6" onclick="simSelectStructure('wardrobe6')">
+          <span class="pill-icon">🚪🚪</span>
+          <span>Master 6-Door Wardrobe</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="fullwall" onclick="simSelectStructure('fullwall')">
+          <span class="pill-icon">🏛️</span>
+          <span>Full-Wall Storage Suite</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="kitchen" onclick="simSelectStructure('kitchen')">
+          <span class="pill-icon">🍳</span>
+          <span>Modular Kitchen</span>
         </div>
         <div class="sim-struct-pill" data-struct="almirah" onclick="simSelectStructure('almirah')">
           <span class="pill-icon">🗄️</span>
@@ -2028,6 +2040,63 @@
         <div class="sim-struct-pill" data-struct="office" onclick="simSelectStructure('office')">
           <span class="pill-icon">💼</span>
           <span>Executive Office Desk</span>
+        </div>
+      </div>
+
+      <!-- Custom Dimensions & Wall Configuration Panel (for Full-Wall, 6-Door, Kitchen, Wardrobe) -->
+      <div id="sim-custom-dim-panel" class="sim-dim-panel" style="display: none;">
+        <div class="sim-dim-panel-header">
+          <div class="sim-dim-title">
+            <span>📐</span> Custom Dimensions &amp; Wall Layout
+          </div>
+          <span style="font-size: 11px; color: #4338CA; font-weight: 700;">Live Sheet Recalculation</span>
+        </div>
+
+        <div class="sim-dim-sliders-grid">
+          <!-- Width Slider -->
+          <div class="sim-slider-box">
+            <div class="sim-slider-label-row">
+              <span>Wall / Unit Width</span>
+              <span id="sim-dim-width-val" class="sim-slider-val">12.0 ft</span>
+            </div>
+            <input type="range" id="sim-slider-width" class="sim-range-slider" min="6" max="18" step="0.5" value="12" oninput="simSetDimensionWidth(this.value)">
+            <div class="sim-quick-presets-row">
+              <button class="sim-preset-btn" onclick="simSetDimensionWidth(8)">8 ft</button>
+              <button class="sim-preset-btn" onclick="simSetDimensionWidth(10)">10 ft</button>
+              <button class="sim-preset-btn" onclick="simSetDimensionWidth(12)">12 ft</button>
+              <button class="sim-preset-btn" onclick="simSetDimensionWidth(14)">14 ft</button>
+              <button class="sim-preset-btn" onclick="simSetDimensionWidth(16)">16 ft</button>
+            </div>
+          </div>
+
+          <!-- Height Slider -->
+          <div class="sim-slider-box">
+            <div class="sim-slider-label-row">
+              <span>Ceiling Height (Floor-to-Ceiling)</span>
+              <span id="sim-dim-height-val" class="sim-slider-val">8.5 ft</span>
+            </div>
+            <input type="range" id="sim-slider-height" class="sim-range-slider" min="6.5" max="11" step="0.5" value="8.5" oninput="simSetDimensionHeight(this.value)">
+            <div class="sim-quick-presets-row">
+              <button class="sim-preset-btn" onclick="simSetDimensionHeight(7)">7 ft</button>
+              <button class="sim-preset-btn" onclick="simSetDimensionHeight(8)">8 ft</button>
+              <button class="sim-preset-btn" onclick="simSetDimensionHeight(8.5)">8.5 ft (Loft)</button>
+              <button class="sim-preset-btn" onclick="simSetDimensionHeight(9)">9 ft</button>
+              <button class="sim-preset-btn" onclick="simSetDimensionHeight(10)">10 ft</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Full-Wall Storage Rack Layout Presets -->
+        <div id="sim-rack-config-row" class="sim-rack-config-row" style="display: none;">
+          <div class="sim-config-pill active" data-config="standard" onclick="simSetFullWallConfig('standard')">
+            🗄️ Wardrobe + Center Display Rack + Cabinet
+          </div>
+          <div class="sim-config-pill" data-config="entertainment" onclick="simSetFullWallConfig('entertainment')">
+            📺 Dual Wardrobes + Center Open Niche
+          </div>
+          <div class="sim-config-pill" data-config="full_wardrobe" onclick="simSetFullWallConfig('full_wardrobe')">
+            🚪 Full Continuous Wardrobe Wall + Lofts
+          </div>
         </div>
       </div>
 
