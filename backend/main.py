@@ -233,8 +233,8 @@ def serve_offline_data():
 # ========================================================
 # SHOWROOM STAFF & MANAGEMENT CONSOLE SECURITY ENGINE
 # ========================================================
-ADMIN_PASSCODE = os.getenv("ADMIN_PIN", os.getenv("ADMIN_PASSCODE", "Dip@1993"))
-STAFF_PASSCODE = os.getenv("STAFF_PASSCODE", os.getenv("STAFF_PIN", "BDE@1234"))
+ADMIN_PASSCODE = os.getenv("ADMIN_PASSCODE", os.getenv("ADMIN_PIN", "Dip@1993"))
+STAFF_PASSCODE = os.getenv("STAFF_PASSCODE", "BDE@1234")
 SECRET_KEY = os.getenv("SECRET_KEY", "bde-security-onda-bankura-2026")
 
 def create_session_token(role: str) -> str:
@@ -282,12 +282,9 @@ def authenticate_passcode(pin_clean: str):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Security passcode is required."
         )
-    if pin_clean == ADMIN_PASSCODE:
+    if ADMIN_PASSCODE and pin_clean == ADMIN_PASSCODE:
         return "owner", "Proprietor (Dipanjan)"
-    elif (
-        pin_clean == STAFF_PASSCODE
-        or pin_clean.lower() in ["1993", "bde1993", "bde@1993", "staff1993", "bde@1234"]
-    ):
+    elif STAFF_PASSCODE and pin_clean == STAFF_PASSCODE:
         return "staff", "Counter Staff"
     else:
         raise HTTPException(

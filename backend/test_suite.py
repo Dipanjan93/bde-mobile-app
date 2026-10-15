@@ -107,9 +107,9 @@ def main():
     }
     test_endpoint("Submit Testimonial (POST /api/testimonials)", f"{BASE_URL}/api/testimonials", method="POST", data=test_data)
 
-    # 11. Staff / Manager Passcode Verification
+    # 11. Staff / Manager Passcode Verification (Strict Validation)
     staff_auth = test_endpoint(
-        "Staff Verification (POST /api/staff/verify - Staff)",
+        "Staff Verification (POST /api/staff/verify - Valid Staff)",
         f"{BASE_URL}/api/staff/verify",
         method="POST",
         data={"passcode": "BDE@1234"}
@@ -118,13 +118,32 @@ def main():
         print(f"       Verification: Staff Role: {staff_auth.get('role')}, Authenticated: {staff_auth.get('authenticated')}")
 
     owner_auth = test_endpoint(
-        "Staff Verification (POST /api/staff/verify - Owner)",
+        "Staff Verification (POST /api/staff/verify - Valid Owner)",
         f"{BASE_URL}/api/staff/verify",
         method="POST",
         data={"passcode": "Dip@1993"}
     )
     if isinstance(owner_auth, dict):
         print(f"       Verification: Owner Role: {owner_auth.get('role')}, Token length: {len(owner_auth.get('token', ''))}")
+
+    # Verify that numeric shortcuts like '1993' are rejected with 401
+    for bad_code in ["1993", "bde1993", "1234", "admin"]:
+        try:
+            req = urllib.request.Request(
+                f"{BASE_URL}/api/staff/verify",
+                data=json.dumps({"passcode": bad_code}).encode("utf-8"),
+                headers={"Content-Type": "application/json"},
+                method="POST"
+            )
+            urllib.request.urlopen(req, timeout=5)
+            print(f"[FAIL] Bad passcode '{bad_code}' was unexpectedly accepted!")
+        except urllib.error.HTTPError as e:
+            if e.code == 401:
+                print(f"[200] Strict Rejection Check: '{bad_code}' correctly rejected with HTTP 401 Unauthorized")
+            else:
+                print(f"[WARN] Bad passcode '{bad_code}' returned HTTP {e.code}")
+        except Exception as e:
+            print(f"[FAIL] Error checking '{bad_code}': {e}")
 
     # 12. Offline Data JS
     test_endpoint("Offline Data JS (/offline_data.js)", f"{BASE_URL}/offline_data.js")
