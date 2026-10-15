@@ -6,10 +6,11 @@ from collections import defaultdict
 import hmac
 import hashlib
 import time
+import base64
 
 os.environ["DISABLE_SQLALCHEMY_CEXT"] = "1"
 
-from fastapi import FastAPI, HTTPException, Depends, status, Query, Request
+from fastapi import FastAPI, HTTPException, Depends, status, Query, Request, UploadFile, File, Form
 from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -221,6 +222,13 @@ def serve_sw():
     if os.path.exists(sw_path):
         return FileResponse(sw_path, media_type="application/javascript")
     return Response(content="// sw", media_type="application/javascript")
+
+@app.get("/offline_data.js")
+def serve_offline_data():
+    offline_path = os.path.join(FRONTEND_DIR, "offline_data.js")
+    if os.path.exists(offline_path):
+        return FileResponse(offline_path, media_type="application/javascript")
+    return Response(content="// offline data", media_type="application/javascript")
 
 # ========================================================
 # SHOWROOM STAFF & MANAGEMENT CONSOLE SECURITY ENGINE
@@ -643,6 +651,51 @@ def submit_testimonial(item: schemas.TestimonialCreate, db: Session = Depends(ge
     return {
         "success": True,
         "id": record.id,
+        "message": msg
+    }
+
+@app.post("/api/upload/photo")
+@app.post("/api/testimonials/upload")
+async def upload_testimonial_photo(
+    file: UploadFile = File(...),
+    customer_name: Optional[str] = Form("Valued Customer"),
+    customer_phone: Optional[str] = Form(""),
+    customer_location: Optional[str] = Form("Onda, Bankura"),
+    project_title: Optional[str] = Form("Finished Furniture Project"),
+    carpenter_name: Optional[str] = Form("BDE Mistri"),
+    invoice_no: Optional[str] = Form(None),
+    cashback_upi: Optional[str] = Form(None),
+    db: Session = Depends(get_db)
+):
+    contents = await file.read()
+    if not contents:
+        raise HTTPException(status_code=400, detail="Empty photo uploaded.")
+    mime_type = file.content_type or "image/jpeg"
+    b64_data = base64.b64encode(contents).decode("utf-8")
+    data_url = f"data:{mime_type};base64,{b64_data}"
+
+    record = models.CustomerTestimonial(
+        customer_name=(customer_name or "Valued Customer").strip(),
+        customer_phone=(customer_phone or "").strip(),
+        customer_location=(customer_location or "Onda, Bankura").strip(),
+        project_title=(project_title or "Finished Furniture Project").strip(),
+        carpenter_name=(carpenter_name or "BDE Mistri").strip(),
+        image_base64=data_url,
+        is_approved=True,
+        invoice_no=invoice_no.strip() if invoice_no else None,
+        cashback_upi=cashback_upi.strip() if cashback_upi else None,
+        cashback_status="Pending Review",
+        created_at=datetime.utcnow()
+    )
+    db.add(record)
+    db.commit()
+    db.refresh(record)
+
+    msg = f"Photo for Bill #{invoice_no} uploaded and permanently saved in Neon PostgreSQL!" if invoice_no else "Photo uploaded and permanently saved in Neon PostgreSQL!"
+    return {
+        "success": True,
+        "id": record.id,
+        "image_base64": data_url,
         "message": msg
     }
 

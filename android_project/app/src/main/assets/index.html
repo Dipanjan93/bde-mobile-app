@@ -2282,29 +2282,61 @@
       <p style="font-size: 11.5px; color: var(--text-muted); font-weight: 600;">Real homes in Bankura built with Baba Dugdheswar materials</p>
     </div>
 
-    <!-- Upload Card with HTML5 Canvas Compression -->
-    <div class="showcase-upload-card">
-      <div style="font-size: 32px; margin-bottom: 6px;">📸</div>
-      <h3>Share Your Finished Furniture & Win!</h3>
-      <p>Submit photos of your wardrobe, bed, or kitchen and receive an exclusive Onda Showroom Gift Voucher!</p>
-      
-      <input type="file" id="camera-file-input" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+    <!-- Upload Card with HTML5 Canvas Compression & Bill QR Cashback -->
+    <div class="showcase-upload-card" id="showcase-cashback-card">
+      <div style="font-size: 32px; margin-bottom: 6px;">🎁</div>
+      <h3 style="font-size: 16px;">Scan &amp; Upload Finished Furniture to Get Cashback!</h3>
+      <p style="margin-bottom: 8px;">
+        Did you purchase plywood or hardware from Baba Dugdheswar Enterprise? Upload photo of your completed wardrobe, modular kitchen, bed, or almirah to receive <strong>instant Cashback / Store Credit</strong> credited directly to your UPI!
+      </p>
+      <div style="font-size: 11px; color: #4C1D95; font-style: italic; margin-bottom: 12px; font-weight: 600;">
+        (আমাদের থেকে প্লাইউড ও হার্ডওয়্যার কিনে আসবাব তৈরি করেছেন? ছবি আপলোড করে পান নিশ্চিত ক্যাশব্যাক!)
+      </div>
+
+      <!-- Verified Bill Badge (shown when scanned from printed QR code) -->
+      <div id="cb-verified-banner" style="display: none; background: #DCFCE7; border: 1.5px solid #86EFAC; color: #166534; padding: 8px 12px; border-radius: 10px; font-size: 12px; font-weight: 700; margin-bottom: 12px;">
+        🎉 Verified BDE Cash Memo: <span id="cb-bill-no-badge" style="font-family: monospace; font-size: 13px;"></span> &bull; Cashback Eligible
+      </div>
+
+      <input type="file" id="camera-file-input" accept="image/*" capture="environment" style="display: none;" onchange="handleFileSelect(event)">
       <button class="btn-choose-photo" onclick="triggerPhotoUpload()">
-        <span>📷</span> Take / Choose Photo
+        <span>📷</span> Take / Choose Furniture Photo
       </button>
 
-      <!-- Client-side compressed preview -->
+      <!-- Client-side compressed preview & Cashback Form -->
       <div id="upload-preview-wrap" class="upload-preview-wrap">
         <img id="compressed-preview-img" src="" alt="Compressed Preview">
-        <div class="field-group" style="margin-bottom: 8px;">
-          <input type="text" id="upload-project-title" class="field-input" placeholder="Project Title (e.g. Master Bedroom Sliding Wardrobe)">
+        <div style="background: rgba(255,255,255,0.7); border: 1px solid #E9D5FF; padding: 12px; border-radius: 12px; margin-bottom: 10px;">
+          <div class="field-group" style="margin-bottom: 8px;">
+            <label style="font-size: 11px; font-weight: 700; color: #6B21A8; display: block; margin-bottom: 3px;">Bill / Invoice Number (from your printed Cash Memo)</label>
+            <input type="text" id="upload-invoice-no" class="field-input" placeholder="e.g. INV-2026-0042">
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <div class="field-group">
+              <label style="font-size: 11px; font-weight: 700; color: #6B21A8; display: block; margin-bottom: 3px;">Your Full Name</label>
+              <input type="text" id="upload-customer-name" class="field-input" placeholder="e.g. Debabrata Roy">
+            </div>
+            <div class="field-group">
+              <label style="font-size: 11px; font-weight: 700; color: #6B21A8; display: block; margin-bottom: 3px;">Phone Number *</label>
+              <input type="tel" id="upload-customer-phone" class="field-input" placeholder="e.g. 9434198273">
+            </div>
+          </div>
+          <div class="field-group" style="margin-bottom: 8px;">
+            <label style="font-size: 11px; font-weight: 700; color: #047857; display: block; margin-bottom: 3px;">💸 UPI ID / GPay / PhonePe for Cashback Transfer *</label>
+            <input type="text" id="upload-cashback-upi" class="field-input" placeholder="e.g. 9434198273@ybl or your-upi-id">
+          </div>
+          <div class="field-group" style="margin-bottom: 8px;">
+            <label style="font-size: 11px; font-weight: 700; color: #6B21A8; display: block; margin-bottom: 3px;">Furniture Project Title</label>
+            <input type="text" id="upload-project-title" class="field-input" placeholder="e.g. 4-Door Master Bedroom Sliding Wardrobe">
+          </div>
+          <div class="field-group" style="margin-bottom: 12px;">
+            <label style="font-size: 11px; font-weight: 700; color: #6B21A8; display: block; margin-bottom: 3px;">Carpenter / Mistri Name</label>
+            <input type="text" id="upload-carpenter-name" class="field-input" placeholder="e.g. Mistri Swapan Sutradhar">
+          </div>
+          <button class="btn-auth-submit" onclick="submitCompressedTestimonial()" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%);">
+            🎁 Submit Photo &amp; Claim Cashback
+          </button>
         </div>
-        <div class="field-group" style="margin-bottom: 8px;">
-          <input type="text" id="upload-carpenter-name" class="field-input" placeholder="Carpenter Name (e.g. Mistri Tapan Karmakar)">
-        </div>
-        <button class="btn-auth-submit" onclick="submitCompressedTestimonial()">
-          Submit For Showcase & Win Coupon
-        </button>
       </div>
     </div>
 
@@ -2502,7 +2534,7 @@
        JAVASCRIPT LOGIC & FASTAPI INTEGRATION
        ========================================================= -->
   <!-- Offline Data Fallback for standalone APK and spotty connectivity -->
-  <script src="/frontend/offline_data.js"></script>
+  <script src="/frontend/offline_data.js" onerror="this.onerror=null;this.src='offline_data.js';"></script>
   <script>
     // State Store
     const STATE = {
@@ -2552,6 +2584,39 @@
       // 5. Setup Search Bar Event Listeners
       setupSearch();
 
+      // 6. Check URL parameters for Bill QR code scanning (Cashback Upload)
+      const urlParams = new URLSearchParams(window.location.search);
+      const tabParam = urlParams.get('tab');
+      const invParam = urlParams.get('inv');
+      const phoneParam = urlParams.get('phone');
+      const nameParam = urlParams.get('name');
+
+      if (tabParam === 'showcase' || invParam) {
+        switchView('showcase');
+        if (invParam) {
+          const invInput = document.getElementById('upload-invoice-no');
+          if (invInput) invInput.value = invParam;
+          const banner = document.getElementById('cb-verified-banner');
+          const badge = document.getElementById('cb-bill-no-badge');
+          if (banner && badge) {
+            badge.textContent = '#' + invParam;
+            banner.style.display = 'block';
+          }
+        }
+        if (phoneParam) {
+          const phoneInput = document.getElementById('upload-customer-phone');
+          if (phoneInput) phoneInput.value = phoneParam;
+        }
+        if (nameParam) {
+          const nameInput = document.getElementById('upload-customer-name');
+          if (nameInput) nameInput.value = nameParam;
+        }
+        setTimeout(() => {
+          const card = document.getElementById('showcase-cashback-card');
+          if (card) card.scrollIntoView({ behavior: 'smooth' });
+        }, 350);
+      }
+
       // 7. Register Service Worker if supported
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').catch(() => {});
@@ -2559,57 +2624,127 @@
     });
 
     /* =========================================================
-       API FETCHERS (Live Network First -> Embedded Offline Fallback)
+       API FETCHERS (Live Network First -> Resilient Offline Fallback)
        ========================================================= */
     async function loadCatalog() {
-      try {
-        const res = await fetch('/api/catalog');
-        if (!res.ok) throw new Error('Network error loading catalogue');
-        STATE.catalog = await res.json();
+      // 1. Immediately render offline catalogue so the user never sees an infinite spinner
+      if (window.BDE_OFFLINE_CATALOG && window.BDE_OFFLINE_CATALOG.length > 0 && (!STATE.catalog || STATE.catalog.length === 0)) {
+        STATE.catalog = window.BDE_OFFLINE_CATALOG;
         renderProducts(STATE.catalog);
-      } catch (err) {
-        console.warn('Using offline embedded catalogue:', err);
-        if (window.BDE_OFFLINE_CATALOG && window.BDE_OFFLINE_CATALOG.length > 0) {
-          STATE.catalog = window.BDE_OFFLINE_CATALOG;
+      }
+
+      // 2. 5-second cold-start timeout for Render / Neon wakeups
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+      try {
+        const res = await fetch('/api/catalog', { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const liveCatalog = await res.json();
+        if (Array.isArray(liveCatalog) && liveCatalog.length > 0) {
+          STATE.catalog = liveCatalog;
           renderProducts(STATE.catalog);
-        } else {
+        }
+      } catch (err) {
+        clearTimeout(timeoutId);
+        console.warn('Backend cold start / offline fallback:', err);
+        if (window.BDE_OFFLINE_CATALOG && window.BDE_OFFLINE_CATALOG.length > 0) {
+          if (!STATE.catalog || STATE.catalog.length === 0) {
+            STATE.catalog = window.BDE_OFFLINE_CATALOG;
+            renderProducts(STATE.catalog);
+          }
+        } else if (!STATE.catalog || STATE.catalog.length === 0) {
           document.getElementById('product-grid').innerHTML = `
             <div style="grid-column: span 2; text-align: center; padding: 30px;">
-              <p style="color: #EF4444; font-weight: 700;">Could not connect to Onda Depot catalogue.</p>
-              <button onclick="loadCatalog()" style="margin-top: 10px; padding: 6px 14px; border-radius: 8px; border: 1px solid #CBD5E1; background: #fff;">Retry</button>
+              <p style="color: #64748B; font-weight: 600;">Onda Depot server is waking up...</p>
+              <button onclick="loadCatalog()" style="margin-top: 10px; padding: 6px 14px; border-radius: 8px; border: 1px solid #CBD5E1; background: #fff; cursor: pointer;">Refresh Catalogue</button>
             </div>
           `;
         }
+        // Silently retry in the background once Render/Neon wakes up
+        setTimeout(async () => {
+          try {
+            const retryRes = await fetch('/api/catalog');
+            if (retryRes.ok) {
+              const fresh = await retryRes.json();
+              if (Array.isArray(fresh) && fresh.length > 0) {
+                STATE.catalog = fresh;
+                renderProducts(STATE.catalog);
+              }
+            }
+          } catch (e) {}
+        }, 8000);
       }
     }
 
     async function loadCarpenters(village = '') {
+      // 1. Immediately render offline carpenters list
+      if (window.BDE_OFFLINE_CARPENTERS && window.BDE_OFFLINE_CARPENTERS.length > 0 && (!STATE.carpenters || STATE.carpenters.length === 0)) {
+        let list = window.BDE_OFFLINE_CARPENTERS;
+        if (village && village !== 'All') {
+          list = list.filter(c => c.village.toLowerCase().includes(village.toLowerCase()));
+        }
+        STATE.carpenters = list;
+        renderCarpenters(list);
+      }
+
+      // 2. 5-second cold-start timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
       try {
         const url = village && village !== 'All' ? `/api/carpenters?village=${encodeURIComponent(village)}` : '/api/carpenters';
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('Network error loading carpenters');
-        STATE.carpenters = await res.json();
-        renderCarpenters(STATE.carpenters);
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const liveCarpenters = await res.json();
+        if (Array.isArray(liveCarpenters) && liveCarpenters.length > 0) {
+          STATE.carpenters = liveCarpenters;
+          renderCarpenters(STATE.carpenters);
+        }
       } catch (err) {
-        console.warn('Using offline carpenters list:', err);
+        clearTimeout(timeoutId);
+        console.warn('Backend cold start / offline carpenters fallback:', err);
         if (window.BDE_OFFLINE_CARPENTERS) {
           let list = window.BDE_OFFLINE_CARPENTERS;
           if (village && village !== 'All') {
             list = list.filter(c => c.village.toLowerCase().includes(village.toLowerCase()));
           }
-          STATE.carpenters = list;
-          renderCarpenters(list);
+          if (!STATE.carpenters || STATE.carpenters.length === 0) {
+            STATE.carpenters = list;
+            renderCarpenters(list);
+          }
         }
+        // Silently retry in the background
+        setTimeout(async () => {
+          try {
+            const url = village && village !== 'All' ? `/api/carpenters?village=${encodeURIComponent(village)}` : '/api/carpenters';
+            const retryRes = await fetch(url);
+            if (retryRes.ok) {
+              const fresh = await retryRes.json();
+              if (Array.isArray(fresh) && fresh.length > 0) {
+                STATE.carpenters = fresh;
+                renderCarpenters(STATE.carpenters);
+              }
+            }
+          } catch (e) {}
+        }, 8000);
       }
     }
 
     async function loadTestimonials() {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
       try {
-        const res = await fetch('/api/testimonials');
+        const res = await fetch('/api/testimonials', { signal: controller.signal });
+        clearTimeout(timeoutId);
         if (!res.ok) throw new Error('Failed to load testimonials');
         STATE.testimonials = await res.json();
         renderTestimonials(STATE.testimonials);
       } catch (err) {
+        clearTimeout(timeoutId);
         console.warn('Using default testimonials showcase:', err);
         const defaults = [
           { project_title: '4-Door Master Bedroom Sliding Wardrobe', customer_name: 'Subhasis Mondal', customer_location: 'Punisole, Bankura', carpenter_name: 'Tapan Karmakar', image_base64: '' },
@@ -2939,11 +3074,7 @@
        6. CUSTOMER PHOTO SHOWCASE WITH CLIENT-SIDE CANVAS COMPRESSION
        ========================================================= */
     function triggerPhotoUpload() {
-      if (!STATE.user) {
-        STATE.pendingAction = () => triggerPhotoUpload();
-        triggerAuthSheet('photo');
-        return;
-      }
+      // Direct access so scanning customers can instantly choose photo
       document.getElementById('camera-file-input').click();
     }
 
@@ -2957,7 +3088,7 @@
       reader.onload = function(e) {
         const img = new Image();
         img.onload = function() {
-          // HTML5 Canvas client-side compression to max 1200px width/height & 0.8 quality
+          // HTML5 Canvas client-side compression to max 1200px width/height & 0.82 quality
           const canvas = document.createElement('canvas');
           let width = img.width;
           let height = img.height;
@@ -2987,7 +3118,16 @@
           // Display preview
           document.getElementById('compressed-preview-img').src = compressedDataUrl;
           document.getElementById('upload-preview-wrap').style.display = 'block';
-          showToast('Photo ready for submission!');
+
+          // Pre-fill user data if available
+          if (STATE.user) {
+            const nameEl = document.getElementById('upload-customer-name');
+            const phoneEl = document.getElementById('upload-customer-phone');
+            if (nameEl && !nameEl.value) nameEl.value = STATE.user.name || '';
+            if (phoneEl && !phoneEl.value) phoneEl.value = STATE.user.phone || '';
+          }
+
+          showToast('Photo ready! Fill details below to claim cashback.');
         };
         img.src = e.target.result;
       };
@@ -2996,20 +3136,39 @@
 
     async function submitCompressedTestimonial() {
       if (!STATE.compressedBase64) {
-        showToast('Please select a photo first');
+        showToast('Please select a photo of your finished furniture first.');
         return;
       }
 
-      const title = document.getElementById('upload-project-title').value.trim() || 'Home Furniture Project';
-      const carpenter = document.getElementById('upload-carpenter-name').value.trim() || 'Local BDE Mistri';
+      const invoiceNo = (document.getElementById('upload-invoice-no').value || '').trim();
+      const custName = (document.getElementById('upload-customer-name').value || '').trim() || (STATE.user && STATE.user.name) || 'Valued Customer';
+      const custPhone = (document.getElementById('upload-customer-phone').value || '').trim() || (STATE.user && STATE.user.phone) || '';
+      const upiId = (document.getElementById('upload-cashback-upi').value || '').trim();
+      const title = (document.getElementById('upload-project-title').value || '').trim() || 'Home Furniture Project';
+      const carpenter = (document.getElementById('upload-carpenter-name').value || '').trim() || 'Local BDE Mistri';
+
+      if (!custPhone) {
+        showToast('Please enter your mobile phone number for cashback confirmation.');
+        document.getElementById('upload-customer-phone').focus();
+        return;
+      }
+
+      // Auto-save user to localStorage so they are remembered
+      if (!STATE.user) {
+        STATE.user = { name: custName, phone: custPhone, location: 'Onda, Bankura' };
+        localStorage.setItem('bde_user', JSON.stringify(STATE.user));
+        updateUserUI();
+      }
 
       const payload = {
-        customer_name: STATE.user.name,
-        customer_phone: STATE.user.phone,
-        customer_location: STATE.user.location || 'Onda, Bankura',
+        customer_name: custName,
+        customer_phone: custPhone,
+        customer_location: (STATE.user && STATE.user.location) || 'Onda, Bankura',
         project_title: title,
         carpenter_name: carpenter,
-        image_base64: STATE.compressedBase64
+        image_base64: STATE.compressedBase64,
+        invoice_no: invoiceNo || null,
+        cashback_upi: upiId || null
       };
 
       try {
@@ -3020,11 +3179,13 @@
         });
         const data = await res.json();
         if (data.success) {
-          showToast('🎉 Photo submitted! Winning entry coupon will arrive on WhatsApp.');
+          showToast(data.message || '🎉 Photo submitted! Your cashback will be verified & credited within 24-48 hours.');
           document.getElementById('upload-preview-wrap').style.display = 'none';
           document.getElementById('camera-file-input').value = '';
           STATE.compressedBase64 = null;
           loadTestimonials();
+        } else {
+          showToast(data.message || 'Submission failed.');
         }
       } catch (err) {
         console.error(err);
@@ -3183,10 +3344,10 @@
       }
 
       try {
-        const res = await fetch('/api/auth/console-login', {
+        const res = await fetch('/api/staff/verify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pin: pin, remember: true })
+          body: JSON.stringify({ passcode: pin, remember: true })
         });
 
         if (!res.ok) {

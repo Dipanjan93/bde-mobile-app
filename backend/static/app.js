@@ -12,14 +12,23 @@ function getAuthHeaders() {
   return t ? { 'x-bde-auth': t, 'Authorization': `Bearer ${t}` } : {};
 }
 
-async function authFetch(url, options = {}) {
+async function authFetch(url, options = {}, timeoutMs = 6000) {
   options.headers = options.headers || {};
   const t = getStoredToken();
   if (t) {
     options.headers['x-bde-auth'] = t;
     options.headers['Authorization'] = `Bearer ${t}`;
   }
-  return fetch(url, options);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    clearTimeout(timeoutId);
+    return res;
+  } catch(err) {
+    clearTimeout(timeoutId);
+    throw err;
+  }
 }
 
 let productsCache = [];
@@ -413,6 +422,13 @@ function switchTab(name) {
 
 /* --- Inventory & Products --- */
 async function loadInventory() {
+  if ((!productsCache || productsCache.length === 0) && window.BDE_OFFLINE_CATALOG) {
+    productsCache = window.BDE_OFFLINE_CATALOG;
+    populateCategoryDropdown();
+    renderInventory(productsCache);
+    renderRates(productsCache);
+    populateDropdowns();
+  }
   try {
     const res = await authFetch(`${API_BASE}/products`);
     productsCache = await res.json();
@@ -420,7 +436,16 @@ async function loadInventory() {
     renderInventory(productsCache);
     renderRates(productsCache);
     populateDropdowns();
-  } catch(e) { console.error("Could not fetch inventory", e); }
+  } catch(e) {
+    console.warn("Could not fetch inventory live, checking offline fallback", e);
+    if ((!productsCache || productsCache.length === 0) && window.BDE_OFFLINE_CATALOG) {
+      productsCache = window.BDE_OFFLINE_CATALOG;
+      populateCategoryDropdown();
+      renderInventory(productsCache);
+      renderRates(productsCache);
+      populateDropdowns();
+    }
+  }
 }
 
 function populateCategoryDropdown() {

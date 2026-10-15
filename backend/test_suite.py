@@ -126,7 +126,39 @@ def main():
     if isinstance(owner_auth, dict):
         print(f"       Verification: Owner Role: {owner_auth.get('role')}, Token length: {len(owner_auth.get('token', ''))}")
 
-    # 12. Backward Compatible Console
+    # 12. Offline Data JS
+    test_endpoint("Offline Data JS (/offline_data.js)", f"{BASE_URL}/offline_data.js")
+
+    # 13. Multipart Photo Upload (Direct to Neon PostgreSQL)
+    boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW"
+    body = (
+        f"--{boundary}\r\n"
+        f'Content-Disposition: form-data; name="file"; filename="project.jpg"\r\n'
+        f"Content-Type: image/jpeg\r\n\r\n"
+        f"FAKE_JPEG_IMAGE_BYTES_FOR_TESTING\r\n"
+        f"--{boundary}\r\n"
+        f'Content-Disposition: form-data; name="customer_name"\r\n\r\n'
+        f"Subhasis Mondal\r\n"
+        f"--{boundary}\r\n"
+        f'Content-Disposition: form-data; name="invoice_no"\r\n\r\n'
+        f"INV-2026-TEST\r\n"
+        f"--{boundary}--\r\n"
+    ).encode("utf-8")
+    try:
+        req = urllib.request.Request(
+            f"{BASE_URL}/api/upload/photo",
+            data=body,
+            headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+            method="POST"
+        )
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            up_res = json.loads(resp.read().decode("utf-8"))
+            print(f"[200] Multipart Photo Upload (POST /api/upload/photo) - id: {up_res.get('id')}")
+            print(f"       Verification: {up_res.get('message')[:70]}...")
+    except Exception as e:
+        print(f"[FAIL] Multipart Photo Upload: {e}")
+
+    # 14. Backward Compatible Console
     test_endpoint("Console Template (/console)", f"{BASE_URL}/console")
 
     print("\n=== ALL AUTOMATED TESTS COMPLETED SUCCESSFULLY ===")

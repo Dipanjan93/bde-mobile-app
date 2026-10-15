@@ -2534,7 +2534,7 @@
        JAVASCRIPT LOGIC & FASTAPI INTEGRATION
        ========================================================= -->
   <!-- Offline Data Fallback for standalone APK and spotty connectivity -->
-  <script src="/frontend/offline_data.js"></script>
+  <script src="/frontend/offline_data.js" onerror="this.onerror=null;this.src='offline_data.js';"></script>
   <script>
     // State Store
     const STATE = {
@@ -2624,57 +2624,127 @@
     });
 
     /* =========================================================
-       API FETCHERS (Live Network First -> Embedded Offline Fallback)
+       API FETCHERS (Live Network First -> Resilient Offline Fallback)
        ========================================================= */
     async function loadCatalog() {
-      try {
-        const res = await fetch('/api/catalog');
-        if (!res.ok) throw new Error('Network error loading catalogue');
-        STATE.catalog = await res.json();
+      // 1. Immediately render offline catalogue so the user never sees an infinite spinner
+      if (window.BDE_OFFLINE_CATALOG && window.BDE_OFFLINE_CATALOG.length > 0 && (!STATE.catalog || STATE.catalog.length === 0)) {
+        STATE.catalog = window.BDE_OFFLINE_CATALOG;
         renderProducts(STATE.catalog);
-      } catch (err) {
-        console.warn('Using offline embedded catalogue:', err);
-        if (window.BDE_OFFLINE_CATALOG && window.BDE_OFFLINE_CATALOG.length > 0) {
-          STATE.catalog = window.BDE_OFFLINE_CATALOG;
+      }
+
+      // 2. 5-second cold-start timeout for Render / Neon wakeups
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+      try {
+        const res = await fetch('/api/catalog', { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const liveCatalog = await res.json();
+        if (Array.isArray(liveCatalog) && liveCatalog.length > 0) {
+          STATE.catalog = liveCatalog;
           renderProducts(STATE.catalog);
-        } else {
+        }
+      } catch (err) {
+        clearTimeout(timeoutId);
+        console.warn('Backend cold start / offline fallback:', err);
+        if (window.BDE_OFFLINE_CATALOG && window.BDE_OFFLINE_CATALOG.length > 0) {
+          if (!STATE.catalog || STATE.catalog.length === 0) {
+            STATE.catalog = window.BDE_OFFLINE_CATALOG;
+            renderProducts(STATE.catalog);
+          }
+        } else if (!STATE.catalog || STATE.catalog.length === 0) {
           document.getElementById('product-grid').innerHTML = `
             <div style="grid-column: span 2; text-align: center; padding: 30px;">
-              <p style="color: #EF4444; font-weight: 700;">Could not connect to Onda Depot catalogue.</p>
-              <button onclick="loadCatalog()" style="margin-top: 10px; padding: 6px 14px; border-radius: 8px; border: 1px solid #CBD5E1; background: #fff;">Retry</button>
+              <p style="color: #64748B; font-weight: 600;">Onda Depot server is waking up...</p>
+              <button onclick="loadCatalog()" style="margin-top: 10px; padding: 6px 14px; border-radius: 8px; border: 1px solid #CBD5E1; background: #fff; cursor: pointer;">Refresh Catalogue</button>
             </div>
           `;
         }
+        // Silently retry in the background once Render/Neon wakes up
+        setTimeout(async () => {
+          try {
+            const retryRes = await fetch('/api/catalog');
+            if (retryRes.ok) {
+              const fresh = await retryRes.json();
+              if (Array.isArray(fresh) && fresh.length > 0) {
+                STATE.catalog = fresh;
+                renderProducts(STATE.catalog);
+              }
+            }
+          } catch (e) {}
+        }, 8000);
       }
     }
 
     async function loadCarpenters(village = '') {
+      // 1. Immediately render offline carpenters list
+      if (window.BDE_OFFLINE_CARPENTERS && window.BDE_OFFLINE_CARPENTERS.length > 0 && (!STATE.carpenters || STATE.carpenters.length === 0)) {
+        let list = window.BDE_OFFLINE_CARPENTERS;
+        if (village && village !== 'All') {
+          list = list.filter(c => c.village.toLowerCase().includes(village.toLowerCase()));
+        }
+        STATE.carpenters = list;
+        renderCarpenters(list);
+      }
+
+      // 2. 5-second cold-start timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
       try {
         const url = village && village !== 'All' ? `/api/carpenters?village=${encodeURIComponent(village)}` : '/api/carpenters';
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('Network error loading carpenters');
-        STATE.carpenters = await res.json();
-        renderCarpenters(STATE.carpenters);
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const liveCarpenters = await res.json();
+        if (Array.isArray(liveCarpenters) && liveCarpenters.length > 0) {
+          STATE.carpenters = liveCarpenters;
+          renderCarpenters(STATE.carpenters);
+        }
       } catch (err) {
-        console.warn('Using offline carpenters list:', err);
+        clearTimeout(timeoutId);
+        console.warn('Backend cold start / offline carpenters fallback:', err);
         if (window.BDE_OFFLINE_CARPENTERS) {
           let list = window.BDE_OFFLINE_CARPENTERS;
           if (village && village !== 'All') {
             list = list.filter(c => c.village.toLowerCase().includes(village.toLowerCase()));
           }
-          STATE.carpenters = list;
-          renderCarpenters(list);
+          if (!STATE.carpenters || STATE.carpenters.length === 0) {
+            STATE.carpenters = list;
+            renderCarpenters(list);
+          }
         }
+        // Silently retry in the background
+        setTimeout(async () => {
+          try {
+            const url = village && village !== 'All' ? `/api/carpenters?village=${encodeURIComponent(village)}` : '/api/carpenters';
+            const retryRes = await fetch(url);
+            if (retryRes.ok) {
+              const fresh = await retryRes.json();
+              if (Array.isArray(fresh) && fresh.length > 0) {
+                STATE.carpenters = fresh;
+                renderCarpenters(STATE.carpenters);
+              }
+            }
+          } catch (e) {}
+        }, 8000);
       }
     }
 
     async function loadTestimonials() {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
       try {
-        const res = await fetch('/api/testimonials');
+        const res = await fetch('/api/testimonials', { signal: controller.signal });
+        clearTimeout(timeoutId);
         if (!res.ok) throw new Error('Failed to load testimonials');
         STATE.testimonials = await res.json();
         renderTestimonials(STATE.testimonials);
       } catch (err) {
+        clearTimeout(timeoutId);
         console.warn('Using default testimonials showcase:', err);
         const defaults = [
           { project_title: '4-Door Master Bedroom Sliding Wardrobe', customer_name: 'Subhasis Mondal', customer_location: 'Punisole, Bankura', carpenter_name: 'Tapan Karmakar', image_base64: '' },
