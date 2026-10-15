@@ -1,6 +1,27 @@
 const API_BASE = "";
 const ADMIN_PIN = "Dip@1993";
+let currentRole = null; // 'owner' | 'staff'
+let currentUserName = "";
 let isAdmin = false;
+
+function getStoredToken() {
+  return localStorage.getItem('bde_auth_token') || '';
+}
+
+function getAuthHeaders() {
+  const t = getStoredToken();
+  return t ? { 'x-bde-auth': t, 'Authorization': `Bearer ${t}` } : {};
+}
+
+async function authFetch(url, options = {}) {
+  options.headers = options.headers || {};
+  const t = getStoredToken();
+  if (t) {
+    options.headers['x-bde-auth'] = t;
+    options.headers['Authorization'] = `Bearer ${t}`;
+  }
+  return fetch(url, options);
+}
 
 let productsCache = [];
 let customersCache = [];
@@ -117,7 +138,185 @@ function toggleTheme() {
   showToast(`Switched to ${next === 'light' ? 'Day' : 'Dark'} Mode`, "info");
 }
 
-/* --- Admin PIN Security --- */
+/* --- Showroom Staff & Manager Security Gate Engine --- */
+function toggleGatePinVisibility() {
+  const pinInput = document.getElementById('gatePinInput');
+  if (!pinInput) return;
+  pinInput.type = pinInput.type === 'password' ? 'text' : 'password';
+}
+
+async function handleConsoleLogin(e) {
+  if (e) e.preventDefault();
+  const pinInput = document.getElementById('gatePinInput');
+  const errEl = document.getElementById('gateErrorMsg');
+  const card = document.getElementById('authGateCard');
+  const remember = document.getElementById('gateRememberMe')?.checked ?? true;
+  const pin = (pinInput?.value || "").trim();
+
+  if (!pin) {
+    if (errEl) {
+      errEl.textContent = "Please enter your security passcode.";
+      errEl.classList.add('show');
+    }
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/console-login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pin, remember })
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      const msg = errData.detail || "Incorrect security passcode.";
+      if (errEl) {
+        errEl.textContent = `❌ ${msg}`;
+        errEl.classList.add('show');
+      }
+      if (card) {
+        card.classList.remove('shake-anim');
+        void card.offsetWidth;
+        card.classList.add('shake-anim');
+      }
+      if (pinInput) {
+        pinInput.value = "";
+        pinInput.focus();
+      }
+      return;
+    }
+
+    const data = await res.json();
+    localStorage.setItem('bde_auth_token', data.token);
+    localStorage.setItem('bde_auth_role', data.role);
+    localStorage.setItem('bde_auth_name', data.name);
+
+    if (errEl) errEl.classList.remove('show');
+    showToast(`Access granted! Welcome, ${data.name}.`, "success");
+    unlockConsoleUI(data.role, data.name);
+  } catch (err) {
+    if (errEl) {
+      errEl.textContent = "Network error connecting to auth server.";
+      errEl.classList.add('show');
+    }
+  }
+}
+
+function unlockConsoleUI(role, name) {
+  currentRole = role;
+  currentUserName = name;
+  isAdmin = (role === 'owner');
+
+  const gate = document.getElementById('consoleAuthGate');
+  const app = document.getElementById('consoleApp');
+  const badge = document.getElementById('sessionUserBadge');
+  const lockBtn = document.getElementById('lockConsoleBtn');
+  const authBtn = document.getElementById('authBtn');
+
+  if (gate) gate.style.display = 'none';
+  if (app) app.style.display = 'block';
+
+  if (badge) {
+    badge.style.display = 'inline-flex';
+    badge.textContent = role === 'owner' ? `👑 ${name}` : `👨‍💼 ${name}`;
+  }
+  if (lockBtn) lockBtn.style.display = 'inline-flex';
+
+  if (isAdmin) {
+    document.body.classList.add('admin-unlocked');
+    if (authBtn) {
+      authBtn.textContent = "🔓 Admin Active (Lock)";
+      authBtn.classList.replace('btn-secondary', 'btn-danger');
+    }
+  } else {
+    document.body.classList.remove('admin-unlocked');
+    if (authBtn) {
+      authBtn.textContent = "🔒 Staff Mode (Unlock Admin)";
+      authBtn.classList.replace('btn-danger', 'btn-secondary');
+    }
+  }
+
+  // Load store data now that session is authenticated
+  loadCustomers();
+  loadInventory();
+  loadSalesHistory();
+  loadDues();
+  loadWebsiteInquiries();
+  if (!window._inquiriesInterval) {
+    window._inquiriesInterval = setInterval(loadWebsiteInquiries, 25000);
+  }
+  if (isAdmin) {
+    loadExecutiveBI();
+  }
+}
+
+async function checkConsoleAuth() {
+  const token = getStoredToken();
+  if (!token) {
+    const gate = document.getElementById('consoleAuthGate');
+    const app = document.getElementById('consoleApp');
+    if (gate) gate.style.display = 'flex';
+    if (app) app.style.display = 'none';
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/verify-session`, {
+      headers: { 'x-bde-auth': token }
+    });
+    const data = await res.json();
+    if (data.authenticated) {
+      unlockConsoleUI(data.role, data.name);
+    } else {
+      localStorage.removeItem('bde_auth_token');
+      localStorage.removeItem('bde_auth_role');
+      localStorage.removeItem('bde_auth_name');
+      const gate = document.getElementById('consoleAuthGate');
+      const app = document.getElementById('consoleApp');
+      if (gate) gate.style.display = 'flex';
+      if (app) app.style.display = 'none';
+    }
+  } catch (e) {
+    const role = localStorage.getItem('bde_auth_role');
+    const name = localStorage.getItem('bde_auth_name') || 'Staff';
+    if (token && role) {
+      unlockConsoleUI(role, name);
+    } else {
+      const gate = document.getElementById('consoleAuthGate');
+      const app = document.getElementById('consoleApp');
+      if (gate) gate.style.display = 'flex';
+      if (app) app.style.display = 'none';
+    }
+  }
+}
+
+async function logoutConsole() {
+  try {
+    await fetch(`${API_BASE}/api/auth/console-logout`, { method: "POST" });
+  } catch (e) {}
+  localStorage.removeItem('bde_auth_token');
+  localStorage.removeItem('bde_auth_role');
+  localStorage.removeItem('bde_auth_name');
+  isAdmin = false;
+  currentRole = null;
+  document.body.classList.remove('admin-unlocked');
+
+  const gate = document.getElementById('consoleAuthGate');
+  const app = document.getElementById('consoleApp');
+  if (app) app.style.display = 'none';
+  if (gate) {
+    gate.style.display = 'flex';
+    const pinInput = document.getElementById('gatePinInput');
+    if (pinInput) {
+      pinInput.value = "";
+      pinInput.focus();
+    }
+  }
+  showToast("Console locked. Terminal secured.", "info");
+}
+
+/* --- Admin PIN Security (For Staff Mode Upgrade) --- */
 function handleAuthClick() {
   if (isAdmin) {
     isAdmin = false;
@@ -142,10 +341,13 @@ function verifyPin() {
     document.body.classList.add('admin-unlocked');
     document.getElementById('authBtn').textContent = "🔓 Admin Active (Lock)";
     document.getElementById('authBtn').classList.replace('btn-secondary', 'btn-danger');
+    const badge = document.getElementById('sessionUserBadge');
+    if (badge) badge.textContent = "👑 Proprietor (Dipanjan)";
     closePinModal();
     onProductSelectChange();
     renderRates(productsCache);
     renderHistory(historyCache);
+    loadExecutiveBI();
     showToast("Admin Mode Unlocked! Full Margins & BI Active.", "success");
   } else {
     showToast("Incorrect Security PIN", "error");
@@ -168,12 +370,13 @@ function switchTab(name) {
   if (name === 'exec') loadExecutiveBI();
   if (name === 'dues') loadDues();
   if (name === 'history') loadSalesHistory();
+  if (name === 'inquiries') loadWebsiteInquiries();
 }
 
 /* --- Inventory & Products --- */
 async function loadInventory() {
   try {
-    const res = await fetch(`${API_BASE}/products`);
+    const res = await authFetch(`${API_BASE}/products`);
     productsCache = await res.json();
     populateCategoryDropdown();
     renderInventory(productsCache);
@@ -289,7 +492,7 @@ function filterRates() {
 
 /* --- Customers & POS Dropdowns --- */
 async function loadCustomers() {
-  const res = await fetch(`${API_BASE}/customers`);
+  const res = await authFetch(`${API_BASE}/customers`);
   customersCache = await res.json();
   populateDropdowns();
 }
@@ -454,7 +657,7 @@ async function finalizeMultiItemSale() {
     }))
   };
 
-  const res = await fetch(`${API_BASE}/sales/multi`, {
+  const res = await authFetch(`${API_BASE}/sales/multi`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
@@ -511,7 +714,7 @@ async function finalizeMultiItemSale() {
 /* --- Khata / Due Ledger --- */
 async function loadDues() {
   try {
-    const res = await fetch(`${API_BASE}/dues/summary`);
+    const res = await authFetch(`${API_BASE}/dues/summary`);
     duesCache = await res.json();
     renderDues(duesCache);
   } catch(e) { console.error(e); }
@@ -567,7 +770,7 @@ async function submitDuePayment() {
   const amount = parseFloat(document.getElementById('payAmountInput').value);
   if (!amount || amount <= 0) return showToast("Enter a valid payment sum.", "warning");
 
-  const res = await fetch(`${API_BASE}/dues/pay`, {
+  const res = await authFetch(`${API_BASE}/dues/pay`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ customer_id: custId, amount: amount })
@@ -633,7 +836,7 @@ function renderBroadcastList() {
 /* --- Sales History --- */
 async function loadSalesHistory() {
   try {
-    const res = await fetch(`${API_BASE}/invoices/history`);
+    const res = await authFetch(`${API_BASE}/invoices/history`);
     historyCache = await res.json();
     renderHistory(historyCache);
   } catch(e) { console.error(e); }
@@ -682,7 +885,7 @@ function filterHistory() {
 /* --- Executive BI --- */
 async function loadExecutiveBI() {
   try {
-    const res = await fetch(`${API_BASE}/analytics/executive-summary`);
+    const res = await authFetch(`${API_BASE}/analytics/executive-summary`);
     const d = await res.json();
 
     // 1. Today's Counter Pulse (Galla)
@@ -934,7 +1137,7 @@ async function saveNewProduct() {
   if (!payload.sku || !payload.name || !payload.category || !payload.selling_price) {
     return showToast("Missing required fields (SKU, Name, Category, Selling Rate).", "warning");
   }
-  const res = await fetch(`${API_BASE}/products`, {
+  const res = await authFetch(`${API_BASE}/products`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
@@ -984,7 +1187,7 @@ async function submitPurchase() {
   };
 
   try {
-    const res = await fetch(`${API_BASE}/purchases`, {
+    const res = await authFetch(`${API_BASE}/purchases`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -1050,7 +1253,7 @@ async function saveCustomer(e) {
   const method = editId ? "PUT" : "POST";
 
   try {
-    const res = await fetch(url, {
+    const res = await authFetch(url, {
       method: method,
       headers: { "Content-Type": "application/json", "Accept": "application/json" },
       body: JSON.stringify({ name, phone, address, category })
@@ -1074,7 +1277,7 @@ async function saveCustomer(e) {
 }
 
 async function seedMasterCatalogue() {
-  const res = await fetch(`${API_BASE}/seed-catalogue`, { method: "POST" });
+  const res = await authFetch(`${API_BASE}/seed-catalogue`, { method: "POST" });
   const data = await res.json();
   showToast(data.message, "success");
   loadInventory();
@@ -1140,12 +1343,9 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-// App Initialization
+// App Initialization with Security Gate
 applyTheme(localStorage.getItem('bde_theme') || 'dark');
-loadCustomers();
-loadInventory();
-loadSalesHistory();
-loadDues();
+checkConsoleAuth();
 
 /* --- Live Search & Select Filter for Customer & Product Dropdowns --- */
 function filterPosCustomers() {
@@ -1218,42 +1418,232 @@ function filterPurProducts() {
   onPurProductChange();
 }
 
-/* --- Load Website Quote Inquiries from Customer Storefront --- */
+/* --- Website Quote Inquiries Management (Search, Filter, Action & Dismiss) --- */
+let websiteInquiriesCache = [];
+let currentInquiryFilter = 'Pending'; // 'Pending' | 'Resolved' | 'All'
+let currentInquirySearch = '';
+
 async function loadWebsiteInquiries() {
   const tbody = document.getElementById('websiteInquiriesBody');
   if (!tbody) return;
   try {
-    const res = await fetch('/quote-inquiries');
+    const res = await authFetch('/quote-inquiries?status=all');
     const data = await res.json();
-    if (!data || data.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:28px; color:var(--text-muted);">No customer website inquiries received yet.</td></tr>`;
-      return;
+    websiteInquiriesCache = Array.isArray(data) ? data : [];
+
+    // Update Counts & Badges
+    const pendingCount = websiteInquiriesCache.filter(q => (q.status || 'Pending').toLowerCase() === 'pending').length;
+    const resolvedCount = websiteInquiriesCache.filter(q => (q.status || '').toLowerCase() === 'resolved').length;
+    const allCount = websiteInquiriesCache.length;
+
+    const navBadge = document.getElementById('inquiriesCountBadge');
+    if (navBadge) {
+      if (pendingCount > 0) {
+        navBadge.textContent = pendingCount;
+        navBadge.style.display = 'inline-block';
+      } else {
+        navBadge.style.display = 'none';
+      }
     }
-    tbody.innerHTML = data.map(q => {
-      const cleanPhone = (q.phone || '').replace(/\D/g, '');
-      const waPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
-      const replyMsg = encodeURIComponent(
-        `Namaskar ${q.customer_name},\nThank you for your material inquiry at *Baba Dugdheswar Enterprise (Onda, Bankura)*.\n\nRegarding your requested items:\n${q.requested_items}\n\nHere is our best quotation:`
-      );
-      return `
-        <tr>
-          <td class="mono">#Q-${q.id}</td>
-          <td style="font-size:12px; color:var(--text-muted);">${q.created_at}</td>
-          <td style="font-weight:700;">${q.customer_name}</td>
-          <td><span class="badge">${q.quote_type}</span></td>
-          <td class="mono">${q.phone}</td>
-          <td>${q.delivery_locality}</td>
-          <td style="white-space:pre-wrap; font-size:12px; max-width:340px;">${q.requested_items}</td>
-          <td style="text-align:right;">
-            <a href="https://wa.me/${waPhone}?text=${replyMsg}" target="_blank" class="btn" style="padding:6px 12px; font-size:11.5px; text-decoration:none;">
-              💬 Reply Quote on WhatsApp
-            </a>
-          </td>
-        </tr>
-      `;
-    }).join('');
+
+    const elP = document.getElementById('inqPendingCount');
+    const elR = document.getElementById('inqResolvedCount');
+    const elA = document.getElementById('inqAllCount');
+    if (elP) elP.textContent = pendingCount;
+    if (elR) elR.textContent = resolvedCount;
+    if (elA) elA.textContent = allCount;
+
+    renderWebsiteInquiries();
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--rose);">Failed to load inquiries.</td></tr>`;
+    console.error('Failed to load inquiries:', err);
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--rose);">Failed to load inquiries from server.</td></tr>`;
+  }
+}
+
+function setInquiryStatusFilter(status) {
+  currentInquiryFilter = status;
+  ['inqFilterPending', 'inqFilterResolved', 'inqFilterAll'].forEach(id => {
+    const b = document.getElementById(id);
+    if (b) b.classList.remove('active');
+  });
+  const activeBtn = document.getElementById(`inqFilter${status}`);
+  if (activeBtn) activeBtn.classList.add('active');
+  renderWebsiteInquiries();
+}
+
+function onInquirySearchChange() {
+  const input = document.getElementById('inquirySearchInput');
+  currentInquirySearch = input ? input.value.trim().toLowerCase() : '';
+  renderWebsiteInquiries();
+}
+
+function renderWebsiteInquiries() {
+  const tbody = document.getElementById('websiteInquiriesBody');
+  if (!tbody) return;
+
+  let filtered = websiteInquiriesCache.slice();
+
+  // 1. Status Filter
+  if (currentInquiryFilter === 'Pending') {
+    filtered = filtered.filter(q => (q.status || 'Pending').toLowerCase() === 'pending');
+  } else if (currentInquiryFilter === 'Resolved') {
+    filtered = filtered.filter(q => (q.status || '').toLowerCase() === 'resolved');
+  }
+
+  // 2. Search Filter
+  if (currentInquirySearch) {
+    const term = currentInquirySearch;
+    filtered = filtered.filter(q => {
+      const qid = String(q.id || '');
+      const name = (q.customer_name || '').toLowerCase();
+      const phone = (q.phone || '').toLowerCase();
+      const loc = (q.delivery_locality || '').toLowerCase();
+      const items = (q.requested_items || '').toLowerCase();
+      const type = (q.quote_type || '').toLowerCase();
+      return qid.includes(term) || name.includes(term) || phone.includes(term) || 
+             loc.includes(term) || items.includes(term) || type.includes(term);
+    });
+  }
+
+  if (filtered.length === 0) {
+    const emptyMsg = currentInquirySearch 
+      ? `No inquiries matching "${currentInquirySearch}".`
+      : (currentInquiryFilter === 'Pending' 
+          ? `🎉 All clear! No pending customer enquiries right now.` 
+          : `No ${currentInquiryFilter.toLowerCase()} enquiries found.`);
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:32px; color:var(--text-muted); font-size:13px;">${emptyMsg}</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(q => {
+    const cleanPhone = (q.phone || '').replace(/\D/g, '');
+    const waPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
+    const isResolved = (q.status || '').toLowerCase() === 'resolved';
+
+    // Type badge color
+    let typeBadgeStyle = 'background: #312E81; color: #C7D2FE;';
+    if ((q.quote_type || '').includes('3D')) typeBadgeStyle = 'background: #581C87; color: #E9D5FF;';
+    if ((q.quote_type || '').includes('Carpenter')) typeBadgeStyle = 'background: #78350F; color: #FDE68A;';
+    if ((q.quote_type || '').includes('Product')) typeBadgeStyle = 'background: #064E3B; color: #A7F3D0;';
+
+    const replyMsg = encodeURIComponent(
+      `Namaskar ${q.customer_name},\nThank you for reaching out to *Baba Dugdheswar Enterprise (Onda, Bankura)*.\n\nRegarding your enquiry for:\n${q.requested_items}\n\nWe have checked Onda Depot stock and here are the details:`
+    );
+
+    return `
+      <tr id="inqRow-${q.id}" style="${isResolved ? 'opacity:0.85;' : ''}">
+        <td class="mono"><strong>#Q-${q.id}</strong></td>
+        <td style="font-size:11.5px; color:var(--text-muted);">${q.created_at}</td>
+        <td style="font-weight:700;">
+          ${q.customer_name}
+          ${isResolved ? '<span style="display:inline-block; margin-left:4px; font-size:10px; background:#059669; color:#fff; padding:1px 6px; border-radius:4px;">Resolved</span>' : ''}
+        </td>
+        <td><span class="badge" style="${typeBadgeStyle} font-size:11px; padding:3px 8px; border-radius:6px;">${q.quote_type}</span></td>
+        <td class="mono" style="font-size:12px;"><a href="tel:${q.phone}" style="color:var(--text-main); text-decoration:none;">📞 ${q.phone}</a></td>
+        <td style="font-size:12px;">📍 ${q.delivery_locality}</td>
+        <td style="white-space:pre-wrap; font-size:11.5px; max-width:320px; line-height:1.4;">${q.requested_items}</td>
+        <td style="text-align:right;">
+          <div style="display:flex; gap:6px; justify-content:flex-end; align-items:center;">
+            <button class="btn" style="padding:6px 10px; font-size:11px;" onclick="actionAndReplyInquiry(${q.id}, '${waPhone}', '${encodeURIComponent(q.customer_name)}', '${replyMsg}')" title="Reply on WhatsApp and automatically remove from active enquiries">
+              💬 Reply &amp; Resolve
+            </button>
+            ${!isResolved ? `
+              <button class="btn btn-secondary" style="padding:6px 9px; font-size:11px;" onclick="resolveInquiry(${q.id})" title="Mark enquiry as resolved (removes from active view)">
+                ✅ Done
+              </button>
+            ` : `
+              <button class="btn btn-secondary" style="padding:6px 9px; font-size:11px;" onclick="reopenInquiry(${q.id})" title="Move back to Pending">
+                ↩️ Reopen
+              </button>
+            `}
+            <button class="btn btn-danger" style="padding:6px 8px; font-size:11px;" onclick="deleteInquiry(${q.id})" title="Delete enquiry permanently">
+              🗑️
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+async function actionAndReplyInquiry(id, waPhone, encodedName, replyMsg) {
+  const waUrl = `https://wa.me/${waPhone}?text=${replyMsg}`;
+  window.open(waUrl, '_blank');
+  
+  // Mark resolved so it disappears from the active view immediately
+  await resolveInquiry(id, true);
+}
+
+async function resolveInquiry(id, silent = false) {
+  // Optimistic UI update
+  const item = websiteInquiriesCache.find(q => q.id === id);
+  if (item) {
+    item.status = 'Resolved';
+  }
+  renderWebsiteInquiries();
+
+  try {
+    const res = await authFetch(`/quote-inquiries/${id}/resolve`, { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+      if (!silent) showToast(`✅ Inquiry #Q-${id} resolved & removed from active list!`);
+      // Update badge counts
+      const pendingCount = websiteInquiriesCache.filter(q => (q.status || 'Pending').toLowerCase() === 'pending').length;
+      const elP = document.getElementById('inqPendingCount');
+      const elR = document.getElementById('inqResolvedCount');
+      if (elP) elP.textContent = pendingCount;
+      if (elR) elR.textContent = websiteInquiriesCache.length - pendingCount;
+      const navBadge = document.getElementById('inquiriesCountBadge');
+      if (navBadge) {
+        if (pendingCount > 0) {
+          navBadge.textContent = pendingCount;
+          navBadge.style.display = 'inline-block';
+        } else {
+          navBadge.style.display = 'none';
+        }
+      }
+    }
+  } catch(e) {
+    console.error('Error resolving inquiry:', e);
+    showToast('Failed to resolve inquiry on server.', 'error');
+    loadWebsiteInquiries();
+  }
+}
+
+async function reopenInquiry(id) {
+  const item = websiteInquiriesCache.find(q => q.id === id);
+  if (item) item.status = 'Pending';
+  renderWebsiteInquiries();
+
+  try {
+    const res = await authFetch(`/quote-inquiries/${id}/reopen`, { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+      showToast(`Inquiry #Q-${id} moved back to Pending!`);
+      loadWebsiteInquiries();
+    }
+  } catch(e) {
+    console.error('Error reopening inquiry:', e);
+    loadWebsiteInquiries();
+  }
+}
+
+async function deleteInquiry(id) {
+  if (!confirm(`Are you sure you want to permanently delete Inquiry #Q-${id}?`)) return;
+  
+  websiteInquiriesCache = websiteInquiriesCache.filter(q => q.id !== id);
+  renderWebsiteInquiries();
+
+  try {
+    const res = await authFetch(`/quote-inquiries/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (data.success) {
+      showToast(`Inquiry #Q-${id} deleted.`);
+      loadWebsiteInquiries();
+    }
+  } catch(e) {
+    console.error('Error deleting inquiry:', e);
+    loadWebsiteInquiries();
   }
 }
 
@@ -1261,7 +1651,7 @@ async function loadAdminTestimonials() {
   const tbody = document.getElementById('adminTestimonialsBody');
   if (!tbody) return;
   try {
-    const res = await fetch('/testimonials/admin');
+    const res = await authFetch('/testimonials/admin');
     const data = await res.json();
     if (!data || data.length === 0) {
       tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--text-muted);">No customer photos uploaded yet.</td></tr>`;
@@ -1290,14 +1680,14 @@ async function loadAdminTestimonials() {
 }
 
 async function toggleTestimonialApprove(id) {
-  await fetch(`/testimonials/${id}/approve`, { method: 'POST' });
+  await authFetch(`/testimonials/${id}/approve`, { method: 'POST' });
   showToast("Photo visibility updated!", "success");
   loadAdminTestimonials();
 }
 
 async function deleteTestimonialAdmin(id) {
   if (!confirm("Delete this customer photo permanently?")) return;
-  await fetch(`/testimonials/${id}`, { method: 'DELETE' });
+  await authFetch(`/testimonials/${id}`, { method: 'DELETE' });
   showToast("Photo deleted.", "info");
   loadAdminTestimonials();
 }

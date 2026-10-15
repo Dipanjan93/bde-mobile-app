@@ -1418,51 +1418,232 @@ function filterPurProducts() {
   onPurProductChange();
 }
 
-/* --- Load Website Quote Inquiries from Customer Storefront --- */
+/* --- Website Quote Inquiries Management (Search, Filter, Action & Dismiss) --- */
+let websiteInquiriesCache = [];
+let currentInquiryFilter = 'Pending'; // 'Pending' | 'Resolved' | 'All'
+let currentInquirySearch = '';
+
 async function loadWebsiteInquiries() {
   const tbody = document.getElementById('websiteInquiriesBody');
   if (!tbody) return;
   try {
-    const res = await authFetch('/quote-inquiries');
+    const res = await authFetch('/quote-inquiries?status=all');
     const data = await res.json();
-    const badge = document.getElementById('inquiriesCountBadge');
-    if (badge) {
-      if (data && data.length > 0) {
-        badge.textContent = data.length;
-        badge.style.display = 'inline-block';
+    websiteInquiriesCache = Array.isArray(data) ? data : [];
+
+    // Update Counts & Badges
+    const pendingCount = websiteInquiriesCache.filter(q => (q.status || 'Pending').toLowerCase() === 'pending').length;
+    const resolvedCount = websiteInquiriesCache.filter(q => (q.status || '').toLowerCase() === 'resolved').length;
+    const allCount = websiteInquiriesCache.length;
+
+    const navBadge = document.getElementById('inquiriesCountBadge');
+    if (navBadge) {
+      if (pendingCount > 0) {
+        navBadge.textContent = pendingCount;
+        navBadge.style.display = 'inline-block';
       } else {
-        badge.style.display = 'none';
+        navBadge.style.display = 'none';
       }
     }
-    if (!data || data.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:28px; color:var(--text-muted);">No customer website inquiries received yet.</td></tr>`;
-      return;
-    }
-    tbody.innerHTML = data.map(q => {
-      const cleanPhone = (q.phone || '').replace(/\D/g, '');
-      const waPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
-      const replyMsg = encodeURIComponent(
-        `Namaskar ${q.customer_name},\nThank you for your material inquiry at *Baba Dugdheswar Enterprise (Onda, Bankura)*.\n\nRegarding your requested items:\n${q.requested_items}\n\nHere is our best quotation:`
-      );
-      return `
-        <tr>
-          <td class="mono">#Q-${q.id}</td>
-          <td style="font-size:12px; color:var(--text-muted);">${q.created_at}</td>
-          <td style="font-weight:700;">${q.customer_name}</td>
-          <td><span class="badge">${q.quote_type}</span></td>
-          <td class="mono">${q.phone}</td>
-          <td>${q.delivery_locality}</td>
-          <td style="white-space:pre-wrap; font-size:12px; max-width:340px;">${q.requested_items}</td>
-          <td style="text-align:right;">
-            <a href="https://wa.me/${waPhone}?text=${replyMsg}" target="_blank" class="btn" style="padding:6px 12px; font-size:11.5px; text-decoration:none;">
-              💬 Reply Quote on WhatsApp
-            </a>
-          </td>
-        </tr>
-      `;
-    }).join('');
+
+    const elP = document.getElementById('inqPendingCount');
+    const elR = document.getElementById('inqResolvedCount');
+    const elA = document.getElementById('inqAllCount');
+    if (elP) elP.textContent = pendingCount;
+    if (elR) elR.textContent = resolvedCount;
+    if (elA) elA.textContent = allCount;
+
+    renderWebsiteInquiries();
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--rose);">Failed to load inquiries.</td></tr>`;
+    console.error('Failed to load inquiries:', err);
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--rose);">Failed to load inquiries from server.</td></tr>`;
+  }
+}
+
+function setInquiryStatusFilter(status) {
+  currentInquiryFilter = status;
+  ['inqFilterPending', 'inqFilterResolved', 'inqFilterAll'].forEach(id => {
+    const b = document.getElementById(id);
+    if (b) b.classList.remove('active');
+  });
+  const activeBtn = document.getElementById(`inqFilter${status}`);
+  if (activeBtn) activeBtn.classList.add('active');
+  renderWebsiteInquiries();
+}
+
+function onInquirySearchChange() {
+  const input = document.getElementById('inquirySearchInput');
+  currentInquirySearch = input ? input.value.trim().toLowerCase() : '';
+  renderWebsiteInquiries();
+}
+
+function renderWebsiteInquiries() {
+  const tbody = document.getElementById('websiteInquiriesBody');
+  if (!tbody) return;
+
+  let filtered = websiteInquiriesCache.slice();
+
+  // 1. Status Filter
+  if (currentInquiryFilter === 'Pending') {
+    filtered = filtered.filter(q => (q.status || 'Pending').toLowerCase() === 'pending');
+  } else if (currentInquiryFilter === 'Resolved') {
+    filtered = filtered.filter(q => (q.status || '').toLowerCase() === 'resolved');
+  }
+
+  // 2. Search Filter
+  if (currentInquirySearch) {
+    const term = currentInquirySearch;
+    filtered = filtered.filter(q => {
+      const qid = String(q.id || '');
+      const name = (q.customer_name || '').toLowerCase();
+      const phone = (q.phone || '').toLowerCase();
+      const loc = (q.delivery_locality || '').toLowerCase();
+      const items = (q.requested_items || '').toLowerCase();
+      const type = (q.quote_type || '').toLowerCase();
+      return qid.includes(term) || name.includes(term) || phone.includes(term) || 
+             loc.includes(term) || items.includes(term) || type.includes(term);
+    });
+  }
+
+  if (filtered.length === 0) {
+    const emptyMsg = currentInquirySearch 
+      ? `No inquiries matching "${currentInquirySearch}".`
+      : (currentInquiryFilter === 'Pending' 
+          ? `🎉 All clear! No pending customer enquiries right now.` 
+          : `No ${currentInquiryFilter.toLowerCase()} enquiries found.`);
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:32px; color:var(--text-muted); font-size:13px;">${emptyMsg}</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(q => {
+    const cleanPhone = (q.phone || '').replace(/\D/g, '');
+    const waPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
+    const isResolved = (q.status || '').toLowerCase() === 'resolved';
+
+    // Type badge color
+    let typeBadgeStyle = 'background: #312E81; color: #C7D2FE;';
+    if ((q.quote_type || '').includes('3D')) typeBadgeStyle = 'background: #581C87; color: #E9D5FF;';
+    if ((q.quote_type || '').includes('Carpenter')) typeBadgeStyle = 'background: #78350F; color: #FDE68A;';
+    if ((q.quote_type || '').includes('Product')) typeBadgeStyle = 'background: #064E3B; color: #A7F3D0;';
+
+    const replyMsg = encodeURIComponent(
+      `Namaskar ${q.customer_name},\nThank you for reaching out to *Baba Dugdheswar Enterprise (Onda, Bankura)*.\n\nRegarding your enquiry for:\n${q.requested_items}\n\nWe have checked Onda Depot stock and here are the details:`
+    );
+
+    return `
+      <tr id="inqRow-${q.id}" style="${isResolved ? 'opacity:0.85;' : ''}">
+        <td class="mono"><strong>#Q-${q.id}</strong></td>
+        <td style="font-size:11.5px; color:var(--text-muted);">${q.created_at}</td>
+        <td style="font-weight:700;">
+          ${q.customer_name}
+          ${isResolved ? '<span style="display:inline-block; margin-left:4px; font-size:10px; background:#059669; color:#fff; padding:1px 6px; border-radius:4px;">Resolved</span>' : ''}
+        </td>
+        <td><span class="badge" style="${typeBadgeStyle} font-size:11px; padding:3px 8px; border-radius:6px;">${q.quote_type}</span></td>
+        <td class="mono" style="font-size:12px;"><a href="tel:${q.phone}" style="color:var(--text-main); text-decoration:none;">📞 ${q.phone}</a></td>
+        <td style="font-size:12px;">📍 ${q.delivery_locality}</td>
+        <td style="white-space:pre-wrap; font-size:11.5px; max-width:320px; line-height:1.4;">${q.requested_items}</td>
+        <td style="text-align:right;">
+          <div style="display:flex; gap:6px; justify-content:flex-end; align-items:center;">
+            <button class="btn" style="padding:6px 10px; font-size:11px;" onclick="actionAndReplyInquiry(${q.id}, '${waPhone}', '${encodeURIComponent(q.customer_name)}', '${replyMsg}')" title="Reply on WhatsApp and automatically remove from active enquiries">
+              💬 Reply &amp; Resolve
+            </button>
+            ${!isResolved ? `
+              <button class="btn btn-secondary" style="padding:6px 9px; font-size:11px;" onclick="resolveInquiry(${q.id})" title="Mark enquiry as resolved (removes from active view)">
+                ✅ Done
+              </button>
+            ` : `
+              <button class="btn btn-secondary" style="padding:6px 9px; font-size:11px;" onclick="reopenInquiry(${q.id})" title="Move back to Pending">
+                ↩️ Reopen
+              </button>
+            `}
+            <button class="btn btn-danger" style="padding:6px 8px; font-size:11px;" onclick="deleteInquiry(${q.id})" title="Delete enquiry permanently">
+              🗑️
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+async function actionAndReplyInquiry(id, waPhone, encodedName, replyMsg) {
+  const waUrl = `https://wa.me/${waPhone}?text=${replyMsg}`;
+  window.open(waUrl, '_blank');
+  
+  // Mark resolved so it disappears from the active view immediately
+  await resolveInquiry(id, true);
+}
+
+async function resolveInquiry(id, silent = false) {
+  // Optimistic UI update
+  const item = websiteInquiriesCache.find(q => q.id === id);
+  if (item) {
+    item.status = 'Resolved';
+  }
+  renderWebsiteInquiries();
+
+  try {
+    const res = await authFetch(`/quote-inquiries/${id}/resolve`, { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+      if (!silent) showToast(`✅ Inquiry #Q-${id} resolved & removed from active list!`);
+      // Update badge counts
+      const pendingCount = websiteInquiriesCache.filter(q => (q.status || 'Pending').toLowerCase() === 'pending').length;
+      const elP = document.getElementById('inqPendingCount');
+      const elR = document.getElementById('inqResolvedCount');
+      if (elP) elP.textContent = pendingCount;
+      if (elR) elR.textContent = websiteInquiriesCache.length - pendingCount;
+      const navBadge = document.getElementById('inquiriesCountBadge');
+      if (navBadge) {
+        if (pendingCount > 0) {
+          navBadge.textContent = pendingCount;
+          navBadge.style.display = 'inline-block';
+        } else {
+          navBadge.style.display = 'none';
+        }
+      }
+    }
+  } catch(e) {
+    console.error('Error resolving inquiry:', e);
+    showToast('Failed to resolve inquiry on server.', 'error');
+    loadWebsiteInquiries();
+  }
+}
+
+async function reopenInquiry(id) {
+  const item = websiteInquiriesCache.find(q => q.id === id);
+  if (item) item.status = 'Pending';
+  renderWebsiteInquiries();
+
+  try {
+    const res = await authFetch(`/quote-inquiries/${id}/reopen`, { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+      showToast(`Inquiry #Q-${id} moved back to Pending!`);
+      loadWebsiteInquiries();
+    }
+  } catch(e) {
+    console.error('Error reopening inquiry:', e);
+    loadWebsiteInquiries();
+  }
+}
+
+async function deleteInquiry(id) {
+  if (!confirm(`Are you sure you want to permanently delete Inquiry #Q-${id}?`)) return;
+  
+  websiteInquiriesCache = websiteInquiriesCache.filter(q => q.id !== id);
+  renderWebsiteInquiries();
+
+  try {
+    const res = await authFetch(`/quote-inquiries/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (data.success) {
+      showToast(`Inquiry #Q-${id} deleted.`);
+      loadWebsiteInquiries();
+    }
+  } catch(e) {
+    console.error('Error deleting inquiry:', e);
+    loadWebsiteInquiries();
   }
 }
 

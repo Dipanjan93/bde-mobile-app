@@ -444,6 +444,7 @@ def create_quote_request(q: schemas.QuoteRequestCreate, db: Session = Depends(ge
         delivery_locality=q.delivery_locality or "Onda",
         requested_items=q.materials_breakdown or f"{q.furniture_type} Estimation",
         notes=notes_combined,
+        status="Pending",
         created_at=datetime.utcnow()
     )
     db.add(inquiry)
@@ -533,6 +534,7 @@ def track_carpenter_call(call: schemas.CarpenterCallCreate, db: Session = Depend
         delivery_locality=call.customer_village or "Onda",
         requested_items=f"Verified Mistri Call Request: {carpenter.name} ({carpenter.village}) • Spec: {carpenter.specialties}",
         notes=f"Customer connected directly to carpenter {carpenter.name}",
+        status="Pending",
         created_at=datetime.utcnow()
     )
     db.add(inquiry)
@@ -1259,8 +1261,27 @@ def executive_summary(request: Request, db: Session = Depends(get_db)):
     }
 
 @app.get("/quote-inquiries")
-def get_website_quote_inquiries(db: Session = Depends(get_db)):
-    rows = db.query(models.QuoteInquiry).order_by(models.QuoteInquiry.id.desc()).limit(100).all()
+def get_website_quote_inquiries(
+    status: Optional[str] = None,
+    search: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    query = db.query(models.QuoteInquiry)
+    if status and status.lower() != "all":
+        if status.lower() == "pending":
+            query = query.filter((models.QuoteInquiry.status == "Pending") | (models.QuoteInquiry.status == None))
+        else:
+            query = query.filter(models.QuoteInquiry.status.ilike(status))
+    if search and search.strip():
+        term = f"%{search.strip()}%"
+        query = query.filter(
+            (models.QuoteInquiry.customer_name.ilike(term)) |
+            (models.QuoteInquiry.phone.ilike(term)) |
+            (models.QuoteInquiry.delivery_locality.ilike(term)) |
+            (models.QuoteInquiry.requested_items.ilike(term)) |
+            (models.QuoteInquiry.quote_type.ilike(term))
+        )
+    rows = query.order_by(models.QuoteInquiry.id.desc()).limit(200).all()
     return [
         {
             "id": r.id,
@@ -1270,10 +1291,38 @@ def get_website_quote_inquiries(db: Session = Depends(get_db)):
             "delivery_locality": r.delivery_locality or "Onda",
             "requested_items": r.requested_items,
             "notes": r.notes,
+            "status": r.status or "Pending",
             "created_at": r.created_at.strftime("%d %b %Y, %I:%M %p") if r.created_at else "Recent"
         }
         for r in rows
     ]
+
+@app.post("/quote-inquiries/{inquiry_id}/resolve")
+def resolve_quote_inquiry(inquiry_id: int, db: Session = Depends(get_db)):
+    inquiry = db.query(models.QuoteInquiry).filter(models.QuoteInquiry.id == inquiry_id).first()
+    if not inquiry:
+        raise HTTPException(status_code=404, detail="Inquiry not found")
+    inquiry.status = "Resolved"
+    db.commit()
+    return {"success": True, "message": f"Inquiry #Q-{inquiry_id} marked as resolved."}
+
+@app.post("/quote-inquiries/{inquiry_id}/reopen")
+def reopen_quote_inquiry(inquiry_id: int, db: Session = Depends(get_db)):
+    inquiry = db.query(models.QuoteInquiry).filter(models.QuoteInquiry.id == inquiry_id).first()
+    if not inquiry:
+        raise HTTPException(status_code=404, detail="Inquiry not found")
+    inquiry.status = "Pending"
+    db.commit()
+    return {"success": True, "message": f"Inquiry #Q-{inquiry_id} moved back to Pending."}
+
+@app.delete("/quote-inquiries/{inquiry_id}")
+def delete_quote_inquiry(inquiry_id: int, db: Session = Depends(get_db)):
+    inquiry = db.query(models.QuoteInquiry).filter(models.QuoteInquiry.id == inquiry_id).first()
+    if not inquiry:
+        raise HTTPException(status_code=404, detail="Inquiry not found")
+    db.delete(inquiry)
+    db.commit()
+    return {"success": True, "message": f"Inquiry #Q-{inquiry_id} deleted."}
 
 @app.get("/testimonials/admin")
 def get_all_testimonials_admin(db: Session = Depends(get_db)):

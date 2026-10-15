@@ -100,6 +100,7 @@ class QuoteInquiry(Base):
     delivery_locality = Column(String(150), default="Onda")
     requested_items = Column(Text, nullable=False)
     notes = Column(Text, nullable=True)
+    status = Column(String(30), default="Pending")
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
 
 class CustomerTestimonial(Base):

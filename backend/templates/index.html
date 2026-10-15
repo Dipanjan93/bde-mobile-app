@@ -643,13 +643,35 @@
 
   <!-- 9. Incoming Website Quote Inquiries -->
   <div id="tab-inquiries" class="panel">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; flex-wrap:wrap; gap:12px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 14px; flex-wrap:wrap; gap:12px;">
       <div>
-        <h3>🌐 Incoming Customer Website Inquiries</h3>
-        <p style="font-size: 12px; color: var(--text-muted);">Live quotation requests submitted by customers on your public showroom website</p>
+        <h3>🌐 Incoming Customer Website Enquiries</h3>
+        <p style="font-size: 12px; color: var(--text-muted);">Real-time inquiries submitted from your public storefront and 3D Studio</p>
       </div>
-      <button class="btn btn-secondary" onclick="loadWebsiteInquiries()">🔄 Refresh Inquiries</button>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button class="btn btn-secondary" onclick="loadWebsiteInquiries()">🔄 Refresh</button>
+      </div>
     </div>
+
+    <!-- Search Box & Filter Bar -->
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap; background:var(--surface); padding:10px 14px; border-radius:10px; border:1px solid var(--surface-border);">
+      <div style="flex:1; min-width:260px; position:relative;">
+        <input type="text" id="inquirySearchInput" placeholder="🔍 Search customer name, phone, village, items, or #ID..." style="width:100%; padding:8px 12px 8px 34px; border-radius:8px; border:1px solid var(--surface-border); background:var(--bg-main); color:var(--text-main); font-size:13px;" oninput="onInquirySearchChange()" />
+        <span style="position:absolute; left:11px; top:50%; transform:translateY(-50%); font-size:14px; opacity:0.6;">🔍</span>
+      </div>
+      <div style="display:flex; gap:6px;">
+        <button id="inqFilterPending" class="btn btn-secondary active" onclick="setInquiryStatusFilter('Pending')" style="font-size:12px; padding:6px 12px;">
+          ⏳ Pending (<span id="inqPendingCount">0</span>)
+        </button>
+        <button id="inqFilterResolved" class="btn btn-secondary" onclick="setInquiryStatusFilter('Resolved')" style="font-size:12px; padding:6px 12px;">
+          ✅ Resolved (<span id="inqResolvedCount">0</span>)
+        </button>
+        <button id="inqFilterAll" class="btn btn-secondary" onclick="setInquiryStatusFilter('All')" style="font-size:12px; padding:6px 12px;">
+          All (<span id="inqAllCount">0</span>)
+        </button>
+      </div>
+    </div>
+
     <div class="table-scroll">
       <table>
         <thead>
@@ -657,11 +679,11 @@
             <th>Inquiry #</th>
             <th>Date &amp; Time</th>
             <th>Customer Name</th>
-            <th>Profile</th>
+            <th>Type</th>
             <th>Phone</th>
             <th>Delivery Locality</th>
             <th>Requested Material List</th>
-            <th style="text-align:right;">Action</th>
+            <th style="text-align:right;">Actions</th>
           </tr>
         </thead>
         <tbody id="websiteInquiriesBody">
