@@ -139,28 +139,6 @@ function toggleTheme() {
 }
 
 /* --- Showroom Staff & Manager Security Gate Engine --- */
-let selectedGateRole = 'owner';
-
-function selectRole(role) {
-  selectedGateRole = role;
-  const ownerCard = document.getElementById('roleOwnerCard');
-  const staffCard = document.getElementById('roleStaffCard');
-  const pinInput = document.getElementById('gatePinInput');
-  const label = document.getElementById('gatePassLabel');
-
-  if (role === 'owner') {
-    ownerCard?.classList.add('active');
-    staffCard?.classList.remove('active');
-    if (label) label.textContent = "Proprietor Passcode / PIN";
-    if (pinInput) pinInput.placeholder = "Enter owner passcode...";
-  } else {
-    staffCard?.classList.add('active');
-    ownerCard?.classList.remove('active');
-    if (label) label.textContent = "Counter Staff Passcode / PIN";
-    if (pinInput) pinInput.placeholder = "Enter staff passcode (1993)...";
-  }
-}
-
 function toggleGatePinVisibility() {
   const pinInput = document.getElementById('gatePinInput');
   if (!pinInput) return;
@@ -177,7 +155,7 @@ async function handleConsoleLogin(e) {
 
   if (!pin) {
     if (errEl) {
-      errEl.textContent = "Please enter your passcode.";
+      errEl.textContent = "Please enter your security passcode.";
       errEl.classList.add('show');
     }
     return;
@@ -187,7 +165,7 @@ async function handleConsoleLogin(e) {
     const res = await fetch(`${API_BASE}/api/auth/console-login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pin, remember, role: selectedGateRole })
+      body: JSON.stringify({ pin, remember })
     });
 
     if (!res.ok) {

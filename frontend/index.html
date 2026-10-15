@@ -2149,22 +2149,10 @@
       </p>
     </div>
 
-    <div class="auth-input-group">
-      <label class="auth-input-label">Select Access Role</label>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px;">
-        <button type="button" id="storefrontRoleOwnerBtn" class="locality-btn selected" onclick="selectStorefrontRole('owner')">
-          👑 Owner / Manager
-        </button>
-        <button type="button" id="storefrontRoleStaffBtn" class="locality-btn" onclick="selectStorefrontRole('staff')">
-          👨‍💼 Counter Staff
-        </button>
-      </div>
-    </div>
-
     <div class="auth-input-group" style="position: relative;">
       <label class="auth-input-label">Security Passcode / PIN</label>
       <div style="position: relative; display: flex; align-items: center;">
-        <input type="password" id="storefrontStaffPin" class="auth-input" placeholder="Enter owner passcode..." autocomplete="current-password" style="padding-right: 42px;">
+        <input type="password" id="storefrontStaffPin" class="auth-input" placeholder="Enter security passcode..." autocomplete="current-password" style="padding-right: 42px;">
         <button type="button" onclick="toggleStorefrontPinEye()" style="position: absolute; right: 8px; background: none; border: none; font-size: 16px; cursor: pointer;">👁️</button>
       </div>
       <div id="storefrontStaffPinErr" style="color: #dc2626; font-size: 11.5px; font-weight: 700; margin-top: 5px; display: none;"></div>
@@ -3124,24 +3112,6 @@
     /* =========================================================
        SHOWROOM STAFF & MANAGER GATE HANDLERS
        ========================================================= */
-    let storefrontStaffRole = 'owner';
-
-    function selectStorefrontRole(role) {
-      storefrontStaffRole = role;
-      const ownerBtn = document.getElementById('storefrontRoleOwnerBtn');
-      const staffBtn = document.getElementById('storefrontRoleStaffBtn');
-      const input = document.getElementById('storefrontStaffPin');
-      if (role === 'owner') {
-        ownerBtn.classList.add('selected');
-        staffBtn.classList.remove('selected');
-        if (input) input.placeholder = "Enter owner passcode...";
-      } else {
-        staffBtn.classList.add('selected');
-        ownerBtn.classList.remove('selected');
-        if (input) input.placeholder = "Enter staff passcode (1993)...";
-      }
-    }
-
     function toggleStorefrontPinEye() {
       const input = document.getElementById('storefrontStaffPin');
       if (input) {
@@ -3173,6 +3143,7 @@
       const input = document.getElementById('storefrontStaffPin');
       if (input) {
         input.value = '';
+        input.placeholder = "Enter security passcode...";
         setTimeout(() => input.focus(), 250);
       }
     }
@@ -3194,7 +3165,7 @@
         const res = await fetch('/api/auth/console-login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pin: pin, remember: true, role: storefrontStaffRole })
+          body: JSON.stringify({ pin: pin, remember: true })
         });
 
         if (!res.ok) {

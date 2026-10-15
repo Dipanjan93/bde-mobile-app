@@ -81,32 +81,10 @@
     </div>
 
     <form id="consoleLoginForm" onsubmit="handleConsoleLogin(event)">
-      <div style="margin-bottom: 16px; text-align: left;">
-        <label class="field-label">Access Level</label>
-        <div class="role-grid">
-          <label class="role-card active" id="roleOwnerCard" onclick="selectRole('owner')">
-            <input type="radio" name="loginRole" value="owner" checked style="display:none;" />
-            <div class="role-icon">👑</div>
-            <div class="role-meta">
-              <span class="role-name">Owner / Proprietor</span>
-              <span class="role-sub">Executive BI &bull; Full Margins</span>
-            </div>
-          </label>
-          <label class="role-card" id="roleStaffCard" onclick="selectRole('staff')">
-            <input type="radio" name="loginRole" value="staff" style="display:none;" />
-            <div class="role-icon">👨‍💼</div>
-            <div class="role-meta">
-              <span class="role-name">Counter Staff</span>
-              <span class="role-sub">POS Billing &bull; Live Stock</span>
-            </div>
-          </label>
-        </div>
-      </div>
-
-      <div style="margin-bottom: 16px; text-align: left;">
+      <div style="margin-bottom: 20px; text-align: left;">
         <label class="field-label" id="gatePassLabel">Security Passcode / PIN</label>
         <div class="input-with-eye">
-          <input type="password" id="gatePinInput" placeholder="Enter security passcode..." class="auth-pin-input" required autocomplete="current-password" autofocus />
+          <input type="password" id="gatePinInput" placeholder="••••••••" class="auth-pin-input" required autocomplete="current-password" autofocus />
           <button type="button" class="eye-btn" onclick="toggleGatePinVisibility()" title="Show/Hide PIN">👁️</button>
         </div>
         <div id="gateErrorMsg" class="gate-error-message"></div>

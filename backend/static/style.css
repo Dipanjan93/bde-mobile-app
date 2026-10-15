@@ -576,25 +576,27 @@ body.admin-unlocked .admin-tab { display: inline-flex !important; }
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  background: rgba(15, 23, 42, 0.65);
-  border: 1px solid rgba(56, 189, 248, 0.25);
+  background: var(--surface-elevated);
+  border: 1px solid var(--surface-border);
   border-left: 4px solid var(--primary);
-  border-radius: 10px;
-  padding: 12px 14px;
+  border-radius: 12px;
+  padding: 14px 16px;
   text-align: left;
   margin-bottom: 22px;
-  font-size: 12px;
+  font-size: 12.5px;
   color: var(--text-muted);
 }
 .auth-gate-alert strong {
   display: block;
-  color: var(--primary);
-  margin-bottom: 2px;
-  font-size: 12.5px;
+  color: var(--text-main);
+  margin-bottom: 3px;
+  font-size: 13px;
+  font-weight: 700;
 }
 .auth-gate-alert p {
   margin: 0;
-  line-height: 1.45;
+  line-height: 1.5;
+  color: var(--text-muted);
 }
 
 .role-grid {
