@@ -946,6 +946,8 @@ def executive_summary(db: Session = Depends(get_db)):
     customers = db.query(models.Customer).all()
 
     prod_map = {p.id: p for p in products}
+    cust_map = {c.id: c for c in customers}
+    inv_map = {inv.id: inv for inv in invoices}
 
     total_revenue = sum(inv.total_amount for inv in invoices)
     total_paid = sum(inv.paid_amount for inv in invoices)
@@ -985,6 +987,164 @@ def executive_summary(db: Session = Depends(get_db)):
     ytd_cogs = sum(si.qty * si.unit_cost for si in sale_items if si.invoice_id in ytd_inv_ids)
     ytd_profit = ytd_revenue - ytd_cogs
 
+    # 2. Customer P&L + Segment Performance (Carpenter / Retailer / Contractor)
+    cust_pl = []
+    seg_map = defaultdict(lambda: {"revenue": 0.0, "profit": 0.0, "due": 0.0, "orders": 0})
+    for c in customers:
+        c_invs = [inv for inv in invoices if inv.customer_id == c.id]
+        if not c_invs:
+            continue
+        c_inv_ids = {inv.id for inv in c_invs}
+        c_rev = sum(inv.total_amount for inv in c_invs)
+        c_due = sum(inv.due_amount for inv in c_invs)
+        c_cogs = sum(si.qty * si.unit_cost for si in sale_items if si.invoice_id in c_inv_ids)
+        c_prof = c_rev - c_cogs
+        c_margin = (c_prof / c_rev * 100.0) if c_rev > 0 else 0.0
+        cat_name = c.category or "Retailer"
+
+        seg_map[cat_name]["revenue"] += c_rev
+        seg_map[cat_name]["profit"] += c_prof
+        seg_map[cat_name]["due"] += c_due
+        seg_map[cat_name]["orders"] += len(c_invs)
+
+        cust_pl.append({
+            "customer_name": c.name,
+            "category": cat_name,
+            "phone": c.phone,
+            "orders_count": len(c_invs),
+            "total_revenue": round(c_rev, 2),
+            "total_cogs": round(c_cogs, 2),
+            "net_profit": round(c_prof, 2),
+            "margin_pct": round(c_margin, 1)
+        })
+    cust_pl.sort(key=lambda x: x["net_profit"], reverse=True)
+
+    segment_breakdown = []
+    for seg, sdata in sorted(seg_map.items(), key=lambda x: x[1]["revenue"], reverse=True):
+        s_margin = (sdata["profit"] / sdata["revenue"] * 100.0) if sdata["revenue"] > 0 else 0.0
+        segment_breakdown.append({
+            "segment": seg,
+            "orders": sdata["orders"],
+            "revenue": round(sdata["revenue"], 2),
+            "profit": round(sdata["profit"], 2),
+            "due": round(sdata["due"], 2),
+            "margin_pct": round(s_margin, 1)
+        })
+
+    # 3. Category-Wise Revenue & Profit Breakdown + Top 10 Most Profitable SKUs
+    cat_metrics = defaultdict(lambda: {"revenue": 0.0, "cogs": 0.0, "qty": 0.0})
+    sku_metrics = defaultdict(lambda: {"qty_sold": 0.0, "revenue": 0.0, "cogs": 0.0})
+
+    for si in sale_items:
+        p = prod_map.get(si.product_id)
+        cat_label = (p.category if p and p.category else "General").strip()
+        line_rev = si.qty * si.unit_price
+        line_cost = si.qty * si.unit_cost
+
+        cat_metrics[cat_label]["revenue"] += line_rev
+        cat_metrics[cat_label]["cogs"] += line_cost
+        cat_metrics[cat_label]["qty"] += si.qty
+
+        if p:
+            sku_metrics[p.id]["qty_sold"] += si.qty
+            sku_metrics[p.id]["revenue"] += line_rev
+            sku_metrics[p.id]["cogs"] += line_cost
+
+    category_breakdown = []
+    for cat_name, cvals in sorted(cat_metrics.items(), key=lambda x: (x[1]["revenue"] - x[1]["cogs"]), reverse=True):
+        c_prof = cvals["revenue"] - cvals["cogs"]
+        c_marg = (c_prof / cvals["revenue"] * 100.0) if cvals["revenue"] > 0 else 0.0
+        category_breakdown.append({
+            "category": cat_name,
+            "revenue": round(cvals["revenue"], 2),
+            "profit": round(c_prof, 2),
+            "margin_pct": round(c_marg, 1)
+        })
+
+    top_products = []
+    for pid, svals in sku_metrics.items():
+        p = prod_map.get(pid)
+        if not p:
+            continue
+        s_prof = svals["revenue"] - svals["cogs"]
+        s_marg = (s_prof / svals["revenue"] * 100.0) if svals["revenue"] > 0 else 0.0
+        top_products.append({
+            "sku": p.sku,
+            "name": p.name,
+            "category": p.category or "General",
+            "unit": p.unit or "Pcs",
+            "qty_sold": round(svals["qty_sold"], 1),
+            "revenue": round(svals["revenue"], 2),
+            "profit": round(s_prof, 2),
+            "margin_pct": round(s_marg, 1)
+        })
+    top_products.sort(key=lambda x: x["profit"], reverse=True)
+    top_products = top_products[:10]
+
+    # 4. Dead / Unsold Stock & Locked Capital Alert
+    dead_stock_items = []
+    dead_stock_capital = 0.0
+    for p in products:
+        sold_qty = sku_metrics[p.id]["qty_sold"] if p.id in sku_metrics else 0.0
+        if sold_qty <= 0 and (p.stock_qty or 0) > 0:
+            val = round((p.stock_qty or 0) * (p.purchase_price or 0), 2)
+            dead_stock_capital += val
+            dead_stock_items.append({
+                "sku": p.sku,
+                "name": p.name,
+                "category": p.category or "General",
+                "brand": p.brand or "Standard",
+                "unit": p.unit or "Pcs",
+                "stock_qty": round(p.stock_qty, 1),
+                "purchase_price": round(p.purchase_price, 2),
+                "selling_price": round(p.selling_price, 2),
+                "locked_capital": val
+            })
+    dead_stock_items.sort(key=lambda x: x["locked_capital"], reverse=True)
+
+    # Monthly Trends (MoM)
+    months_dict = {}
+    for inv in invoices:
+        ist_dt = to_ist(inv.created_at)
+        m_key = ist_dt.strftime("%b %Y")
+        if m_key not in months_dict:
+            months_dict[m_key] = {"revenue": 0.0, "cogs": 0.0, "sort": ist_dt.strftime("%Y-%m")}
+        months_dict[m_key]["revenue"] += inv.total_amount
+
+    for si in sale_items:
+        inv = inv_map.get(si.invoice_id)
+        if inv:
+            ist_dt = to_ist(inv.created_at)
+            m_key = ist_dt.strftime("%b %Y")
+            if m_key in months_dict:
+                months_dict[m_key]["cogs"] += (si.qty * si.unit_cost)
+
+    sorted_months = sorted(months_dict.items(), key=lambda x: x[1]["sort"])
+    monthly_trends = []
+    for m_key, vals in sorted_months:
+        prof = vals["revenue"] - vals["cogs"]
+        margin = (prof / vals["revenue"] * 100) if vals["revenue"] > 0 else 0
+        monthly_trends.append({
+            "month": m_key,
+            "revenue": round(vals["revenue"], 2),
+            "profit": round(prof, 2),
+            "margin": round(margin, 1)
+        })
+
+    # Locality Distribution
+    loc_metrics = defaultdict(lambda: {"revenue": 0.0, "orders": 0})
+    for inv in invoices:
+        cust = cust_map.get(inv.customer_id)
+        loc = (cust.address if cust and cust.address else "Onda").strip()
+        loc_metrics[loc]["revenue"] += inv.total_amount
+        loc_metrics[loc]["orders"] += 1
+
+    location_breakdown = [{
+        "location": loc,
+        "revenue": round(data["revenue"], 2),
+        "orders": data["orders"]
+    } for loc, data in sorted(loc_metrics.items(), key=lambda x: x[1]["revenue"], reverse=True)]
+
     return {
         "total_revenue": round(total_revenue, 2),
         "total_paid": round(total_paid, 2),
@@ -1000,7 +1160,16 @@ def executive_summary(db: Session = Depends(get_db)):
         "mtd_revenue": round(mtd_revenue, 2),
         "mtd_profit": round(mtd_profit, 2),
         "ytd_revenue": round(ytd_revenue, 2),
-        "ytd_profit": round(ytd_profit, 2)
+        "ytd_profit": round(ytd_profit, 2),
+        "dead_stock_capital": round(dead_stock_capital, 2),
+        "dead_stock_count": len(dead_stock_items),
+        "monthly_trends": monthly_trends,
+        "location_breakdown": location_breakdown,
+        "category_breakdown": category_breakdown,
+        "segment_breakdown": segment_breakdown,
+        "top_products": top_products,
+        "dead_stock_items": dead_stock_items[:15],
+        "customer_pl": cust_pl
     }
 
 @app.get("/quote-inquiries")
