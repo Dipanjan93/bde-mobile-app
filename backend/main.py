@@ -384,32 +384,17 @@ def get_catalog(
 
     catalog_items = []
     for p in products:
-        # Calculate 10% marked up retail price as requested
-        base_s = float(p.selling_price or 0.0)
-        markup_price = round(base_s * 1.10, 2)
-        mrp = round(markup_price * 1.25, 2)
+        # NO PRICE DISPLAY on customer facing catalog as requested by owner
         sqft = float(p.sqft_per_piece or 0.0)
 
-        # Per sheet calculation for plywood / sheet materials
-        if (p.unit or "").lower() == "sqft" and sqft > 0:
-            sheet_price = round(markup_price * sqft, 2)
-            sheet_mrp = round(mrp * sqft, 2)
-            display_rate = f"₹{markup_price:,.2f} / sq.ft"
-            sheet_price_text = f"₹{sheet_price:,.0f} / sheet ({sqft:.0f} sq.ft)"
-        else:
-            sheet_price = markup_price
-            sheet_mrp = mrp
-            display_rate = f"₹{markup_price:,.2f} / {p.unit or 'Pcs'}"
-            sheet_price_text = f"₹{markup_price:,.2f}"
-
-        # Determine festive Durga Puja deal badge
+        # Determine festive Durga Puja quality badge
         name_lower = p.name.lower()
         cat_lower = (p.category or "").lower()
         if "marine" in name_lower or "club" in (p.brand or "").lower():
             badge = "IS:710 Waterproof"
             badge_color = "marine"
         elif "18" in name_lower and "ply" in cat_lower:
-            badge = "Puja Deal 15% OFF"
+            badge = "Premium 18mm"
             badge_color = "festive"
         elif "fevicol" in name_lower:
             badge = "Carpenter Choice"
@@ -418,10 +403,10 @@ def get_catalog(
             badge = "High Gloss 1mm"
             badge_color = "purple"
         elif p.stock_qty > 100:
-            badge = "Mega Counter Deal"
+            badge = "Depot Ready Stock"
             badge_color = "festive"
         else:
-            badge = "Puja Offer"
+            badge = "Genuine Certified"
             badge_color = "blue"
 
         catalog_items.append({
@@ -433,13 +418,6 @@ def get_catalog(
             "brand": p.brand or "Standard",
             "unit": p.unit or "Pcs",
             "sqft_per_piece": sqft,
-            "base_selling_price": base_s,
-            "customer_price": markup_price,
-            "mrp": mrp,
-            "sheet_price": sheet_price,
-            "sheet_mrp": sheet_mrp,
-            "display_rate": display_rate,
-            "sheet_price_text": sheet_price_text,
             "stock_qty": float(p.stock_qty or 0.0),
             "in_stock": (p.stock_qty or 0.0) > 0,
             "badge": badge,
@@ -448,11 +426,7 @@ def get_catalog(
         })
 
     # Optional sorting
-    if sort == "price_asc":
-        catalog_items.sort(key=lambda x: x["customer_price"])
-    elif sort == "price_desc":
-        catalog_items.sort(key=lambda x: x["customer_price"], reverse=True)
-    elif sort == "popular":
+    if sort == "popular":
         catalog_items.sort(key=lambda x: x["stock_qty"], reverse=True)
 
     return catalog_items
@@ -461,12 +435,12 @@ def get_catalog(
 # 2. POST /api/quote-request
 @app.post("/api/quote-request")
 def create_quote_request(q: schemas.QuoteRequestCreate, db: Session = Depends(get_db)):
-    notes_combined = f"Furniture: {q.furniture_type} | Dims: {q.dimensions} | Est. Cost: ₹{q.estimated_cost:,.2f} | {q.notes or ''}"
+    notes_combined = f"Furniture: {q.furniture_type} | Dims: {q.dimensions} | {q.notes or ''}"
     
     inquiry = models.QuoteInquiry(
         customer_name=q.customer_name.strip(),
         phone=q.phone.strip(),
-        quote_type=q.quote_type or "Calculator Estimate",
+        quote_type=q.quote_type or "Material Estimate",
         delivery_locality=q.delivery_locality or "Onda",
         requested_items=q.materials_breakdown or f"{q.furniture_type} Estimation",
         notes=notes_combined,
@@ -476,17 +450,16 @@ def create_quote_request(q: schemas.QuoteRequestCreate, db: Session = Depends(ge
     db.commit()
     db.refresh(inquiry)
 
-    # Format professional WhatsApp message for Baba Dugdheswar Enterprise
+    # Format professional WhatsApp message for Baba Dugdheswar Enterprise (Goods/Quantity only)
     wa_message = (
         f"Namaskar Baba Dugdheswar Enterprise! 🙏\n"
-        f"I would like to claim my Extra Counter Discount for my furniture project:\n\n"
+        f"I would like to enquire about materials for my furniture project:\n\n"
         f"👤 Customer: {q.customer_name.strip()}\n"
         f"📞 Phone: {q.phone.strip()}\n"
         f"📍 Locality: {q.delivery_locality}\n"
-        f"🪑 Furniture: {q.furniture_type} ({q.dimensions})\n"
-        f"💰 Approx Material Cost: ₹{q.estimated_cost:,.2f}\n\n"
-        f"📋 Materials Estimate:\n{q.materials_breakdown}\n\n"
-        f"Please share your best festive offer & delivery schedule to Onda/Bankura."
+        f"🪑 Furniture: {q.furniture_type} ({q.dimensions})\n\n"
+        f"📋 Materials Required:\n{q.materials_breakdown}\n\n"
+        f"Please check stock availability & delivery schedule from Onda Depot."
     )
     encoded_text = urllib.parse.quote(wa_message)
     whatsapp_url = f"https://wa.me/919867098952?text={encoded_text}"

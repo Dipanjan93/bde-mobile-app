@@ -1444,26 +1444,19 @@
     `;
   }
 
-  // --- BILL OF MATERIALS (BOM) & ESTIMATED RETAIL PRICING ENGINE ---
+  // --- BILL OF MATERIALS (BOM) & MATERIAL QUANTITY ENGINE ---
   function calculateSimulatorBom() {
     const s = window.SIM_STATE;
     const struct = s.structure;
     const dim = s.dimensions[struct] || { width: 6, height: 7 };
 
-    const ply18Rate = s.plyGrade === 'marine' ? 2464 : 2042;
-    const ply12Rate = s.plyGrade === 'marine' ? 2112 : 1690;
-    const ply6Rate = 1126;
-    const micaOuterRate = s.laminateType === 'gloss' ? 1254 : 1045;
-    const micaInnerRate = 560;
-    const fevicolRate = 352;
-
-    let p18 = 0, p12 = 0, p6 = 0, micaA = 0, micaB = 0, liner = 0, fevicolKg = 0, hwCost = 0, title = '';
+                        
+    let p18 = 0, p12 = 0, p6 = 0, micaA = 0, micaB = 0, liner = 0, fevicolKg = 0, title = '';
 
     if (struct === 'wardrobe2') {
       title = `${dim.width} × ${dim.height} ft 2-Door Compact Wardrobe`;
       p18 = 2.5; p12 = 1.0; p6 = 1.0; micaA = 1.5; micaB = 1.5; liner = 2.5; fevicolKg = 5;
-      hwCost = s.hardware === 'gold' ? 2200 : 1800;
-
+      
     } else if (struct === 'wardrobe') {
       title = `${dim.width} × ${dim.height} ft 4-Door Wardrobe`;
       p18 = dim.width >= 8 ? 6 : (dim.width >= 6 ? 4.5 : 3.5);
@@ -1471,14 +1464,12 @@
       p6 = dim.width >= 8 ? 2.5 : 2.0;
       micaA = 2.0; micaB = dim.width >= 8 ? 3.0 : 2.0;
       liner = micaA + micaB; fevicolKg = dim.width >= 8 ? 10 : 8;
-      hwCost = s.hardware === 'gold' ? 3200 : 2600;
-
+      
     } else if (struct === 'wardrobe6') {
       title = `${dim.width} × ${dim.height} ft Master 6-Door Wardrobe`;
       p18 = dim.height >= 8 ? 8.5 : 7.0;
       p12 = 3.5; p6 = 3.5; micaA = 3.0; micaB = 4.5; liner = 7.0; fevicolKg = 14;
-      hwCost = s.hardware === 'gold' ? 5200 : 4400;
-
+      
     } else if (struct === 'fullwall') {
       title = `${dim.width} × ${dim.height} ft Full-Wall Storage Suite`;
       const wallArea = (dim.width || 12) * (dim.height || 8.5);
@@ -1489,121 +1480,99 @@
       micaB = Math.round((wallArea / 22) * 10) / 10;
       liner = Math.round((micaA + micaB) * 10) / 10;
       fevicolKg = Math.round(dim.width * 1.5);
-      hwCost = Math.round(4200 + (dim.width * 280));
-
+      
     } else if (struct === 'almirah') {
       title = `${dim.width} × ${dim.height} ft Classic Almirah (with Mirror)`;
       p18 = 3.5; p12 = 1.5; p6 = 1.5; micaA = 1.5; micaB = 1.5; liner = 3.0; fevicolKg = 6;
-      hwCost = 2800;
-
+      
     } else if (struct === 'kitchen') {
       title = `${dim.width} × ${dim.height} ft Straight Modular Kitchen`;
       p18 = dim.width >= 10 ? 8 : 6.5;
       p12 = 3.0; p6 = 2.0; micaA = 2.0; micaB = 4.0; liner = 5.0; fevicolKg = 10;
-      hwCost = s.hardware === 'gold' ? 6200 : 5400;
-
+      
     } else if (struct === 'kitchen_l') {
       title = `${dim.width} × ${dim.height} ft L-Shaped Corner Kitchen`;
       p18 = dim.width >= 12 ? 9.5 : 8.0;
       p12 = 4.0; p6 = 2.5; micaA = 2.5; micaB = 4.5; liner = 6.0; fevicolKg = 12;
-      hwCost = s.hardware === 'gold' ? 6800 : 5800;
-
+      
     } else if (struct === 'kitchen_parallel') {
       title = `${dim.width} × ${dim.height} ft Parallel Galley Kitchen`;
       p18 = dim.width >= 12 ? 10.5 : 9.0;
       p12 = 4.5; p6 = 3.0; micaA = 3.0; micaB = 5.0; liner = 7.0; fevicolKg = 14;
-      hwCost = s.hardware === 'gold' ? 7400 : 6400;
-
+      
     } else if (struct === 'kitchen_island') {
       title = `${dim.width} × ${dim.height} ft Luxury Island Kitchen`;
       p18 = dim.width >= 12 ? 11.5 : 9.5;
       p12 = 4.5; p6 = 2.5; micaA = 3.5; micaB = 5.5; liner = 7.5; fevicolKg = 15;
-      hwCost = s.hardware === 'gold' ? 8200 : 7200;
-
+      
     } else if (struct === 'tvunit') {
       title = `${dim.width} × ${dim.height} ft Floating TV Unit`;
       p18 = 3.5; p12 = 1.0; p6 = 1.5; micaA = 1.5; micaB = 2.0; liner = 2.0; fevicolKg = 5;
-      hwCost = 2600;
-
+      
     } else if (struct === 'tvunit_console') {
       title = `${dim.width} × ${dim.height} ft Media Console & Towers`;
       p18 = dim.width >= 10 ? 6.0 : 5.0;
       p12 = 2.0; p6 = 2.5; micaA = 2.5; micaB = 3.0; liner = 3.5; fevicolKg = 7;
-      hwCost = s.hardware === 'gold' ? 3800 : 3200;
-
+      
     } else if (struct === 'tvunit_partition') {
       title = `${dim.width} × ${dim.height} ft Room Divider TV Wall`;
       p18 = dim.width >= 10 ? 6.5 : 5.5;
       p12 = 2.0; p6 = 1.5; micaA = 3.0; micaB = 3.0; liner = 4.0; fevicolKg = 8;
-      hwCost = s.hardware === 'gold' ? 4200 : 3500;
-
+      
     } else if (struct === 'bed') {
       title = `${dim.width} × ${dim.height} ft Hydraulic Box Bed`;
       p18 = dim.width >= 6 ? 4.5 : 3.5;
       p12 = 2.0; p6 = 0; micaA = 2.0; micaB = 1.5; liner = 2.0; fevicolKg = 6;
-      hwCost = 3500;
-
+      
     } else if (struct === 'bed_drawers') {
       title = `${dim.width} × ${dim.height} ft Storage Divan Bed`;
       p18 = dim.width >= 6 ? 5.0 : 4.0;
       p12 = 2.5; p6 = 1.0; micaA = 2.5; micaB = 2.0; liner = 3.0; fevicolKg = 7;
-      hwCost = s.hardware === 'gold' ? 3600 : 3000;
-
+      
     } else if (struct === 'dressing') {
       title = `${dim.width} × ${dim.height} ft LED Arch Vanity`;
       p18 = 2.5; p12 = 1.0; p6 = 1.0; micaA = 1.5; micaB = 1.0; liner = 2.0; fevicolKg = 4;
-      hwCost = 3200;
-
+      
     } else if (struct === 'dressing_tall') {
       title = `${dim.width} × ${dim.height} ft Full Vanity Station`;
       p18 = dim.width >= 5 ? 5.0 : 4.0;
       p12 = 1.5; p6 = 2.0; micaA = 2.0; micaB = 2.0; liner = 3.0; fevicolKg = 6;
-      hwCost = s.hardware === 'gold' ? 4200 : 3600;
-
+      
     } else if (struct === 'office') {
       title = `${dim.width} × ${dim.height} ft Executive Desk`;
       p18 = 2.5; p12 = 1.0; p6 = 0.5; micaA = 1.5; micaB = 1.0; liner = 1.5; fevicolKg = 4;
-      hwCost = 1800;
-
+      
     } else if (struct === 'office_lshape') {
       title = `${dim.width} × ${dim.height} ft L-Shaped Workstation`;
       p18 = dim.width >= 7 ? 5.5 : 4.5;
       p12 = 2.0; p6 = 1.0; micaA = 2.5; micaB = 2.0; liner = 3.0; fevicolKg = 6;
-      hwCost = s.hardware === 'gold' ? 2800 : 2200;
-
+      
     } else if (struct === 'office_study') {
       title = `${dim.width} × ${dim.height} ft Study Table & Bookshelf`;
       p18 = dim.width >= 5 ? 5.0 : 4.0;
       p12 = 1.5; p6 = 2.0; micaA = 2.0; micaB = 2.5; liner = 3.5; fevicolKg = 6;
-      hwCost = s.hardware === 'gold' ? 2400 : 1900;
-    }
+          }
 
     const totalMicaOuter = Math.round((micaA + micaB) * 10) / 10;
-    const costP18 = p18 * ply18Rate;
-    const costP12 = p12 * ply12Rate;
-    const costP6 = p6 * ply6Rate;
-    const costMicaOuter = totalMicaOuter * micaOuterRate;
-    const costLiner = liner * micaInnerRate;
-    const costGlue = fevicolKg * fevicolRate;
-    const grandTotal = Math.round(costP18 + costP12 + costP6 + costMicaOuter + costLiner + costGlue + hwCost);
-
+                            
     return {
       title,
       items: [
-        { name: `18mm ${s.plyGrade === 'marine' ? 'Marine IS:710' : 'BWR IS:303'} Ply (Carcass & Shutters)`, qty: `${p18} Sheets (8x4)`, cost: costP18 },
-        { name: `12mm ${s.plyGrade === 'marine' ? 'Marine IS:710' : 'BWR IS:303'} Ply (Internal Shelves/Drawers)`, qty: `${p12} Sheets (8x4)`, cost: costP12 },
-        ...(p6 > 0 ? [{ name: '6mm Marine Ply (Back Paneling)', qty: `${p6} Sheets (8x4)`, cost: costP6 }] : []),
-        { name: `1.0mm Decorative Outer Sunmica (Zones A & B)`, qty: `${totalMicaOuter} Sheets`, cost: costMicaOuter },
-        { name: `0.8mm White Inner Liner Sunmica`, qty: `${liner} Sheets`, cost: costLiner },
-        { name: `Fevicol Marine / SH Synthetic Adhesive`, qty: `${fevicolKg} Kg`, cost: costGlue },
-        { name: `Hardware Fitting Pack (${s.hardware.toUpperCase()} Finish)`, qty: `1 Complete Kit`, cost: hwCost }
+        { name: `18mm ${s.plyGrade === 'marine' ? 'Marine IS:710' : 'BWR IS:303'} Ply (Carcass & Shutters)`, qty: `${p18} Sheets (8x4)` },
+        { name: `12mm ${s.plyGrade === 'marine' ? 'Marine IS:710' : 'BWR IS:303'} Ply (Internal Shelves/Drawers)`, qty: `${p12} Sheets (8x4)` },
+        ...(p6 > 0 ? [{ name: '6mm Marine Ply (Back Paneling)', qty: `${p6} Sheets (8x4)` }] : []),
+        { name: `1.0mm Decorative Outer Sunmica (Zones A & B)`, qty: `${totalMicaOuter} Sheets` },
+        { name: `0.8mm White Inner Liner Sunmica`, qty: `${liner} Sheets` },
+        { name: `Fevicol Marine / SH Synthetic Adhesive`, qty: `${fevicolKg} Kg` },
+        { name: `Hardware Fitting Pack (${s.hardware.toUpperCase()} Finish)`, qty: `1 Complete Kit` }
       ],
       p18Sheets: p18,
       p12Sheets: p12,
       p6Sheets: p6,
       laminateSheets: totalMicaOuter,
       linerSheets: liner,
-      grandTotal: grandTotal
+      totalSheets: Math.round((p18 + p12 + p6 + totalMicaOuter + liner) * 10) / 10,
+      totalPlySheets: Math.round((p18 + p12 + p6) * 10) / 10
     };
   }
 
@@ -1742,7 +1711,7 @@
       b.classList.toggle('active', h === window.SIM_STATE.hardware);
     });
 
-    // 11. Recompute BOM & Price
+    // 11. Recompute BOM & Goods Requirements
     renderSimBomDetails();
   };
 
@@ -1753,16 +1722,17 @@
     const structTitleEl = document.getElementById('sim-bom-title');
 
     if (structTitleEl) structTitleEl.textContent = `📋 Estimated Materials: ${bom.title}`;
-    if (grandTotalEl) grandTotalEl.textContent = `₹${bom.grandTotal.toLocaleString('en-IN')}`;
+    if (grandTotalEl) grandTotalEl.textContent = `${bom.totalPlySheets} Ply + ${Math.round((bom.laminateSheets + bom.linerSheets) * 10) / 10} Sunmica Sheets`;
 
     if (bomListEl) {
       bomListEl.innerHTML = bom.items.map(it => `
-        <div class="bom-item-row" style="display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px dashed #e2e8f0; font-size: 12px;">
-          <div style="font-weight: 600; color: #1e293b; max-width: 65%;">
+        <div class="bom-item-row" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed #e2e8f0; font-size: 12px;">
+          <div style="font-weight: 600; color: #1e293b; max-width: 62%;">
             ${it.name}
-            <div style="font-size: 10.5px; color: #64748b;">${it.qty}</div>
           </div>
-          <div style="font-weight: 800; color: #4338ca;">₹${Math.round(it.cost).toLocaleString('en-IN')}</div>
+          <div style="font-weight: 800; color: #4338ca; background: #eef2ff; border: 1px solid #c7d2fe; padding: 3px 9px; border-radius: 6px; font-size: 11.5px; white-space: nowrap;">
+            ${it.qty}
+          </div>
         </div>
       `).join('');
     }
@@ -1884,12 +1854,12 @@
       `• Shutters/Fronts: ${swB.name} (${swB.code})\n` +
       `• Hardware Finish: ${hw}\n` +
       `• Plywood Grade: ${s.plyGrade === 'marine' ? 'Club Marine IS:710 Waterproof' : 'Tycon BWR IS:303'}\n\n` +
-      `📋 *Estimated Bill of Materials:*\n` +
+      `📋 *Required Materials / Goods Quantity:*\n` +
       `• 18mm Plywood: ${bom.p18Sheets} Sheets\n` +
       `• 12mm Plywood: ${bom.p12Sheets} Sheets\n` +
       `• 1.0mm Decorative Laminate: ${bom.laminateSheets} Sheets\n` +
       `• 0.8mm Inner Liner: ${bom.linerSheets} Sheets\n` +
-      `• Total Material Estimate: ₹${bom.grandTotal.toLocaleString('en-IN')}\n\n` +
+      `` +
       `Please check live stock at Onda Depot and confirm booking/delivery. Thank you!`;
 
     const encoded = encodeURIComponent(message);

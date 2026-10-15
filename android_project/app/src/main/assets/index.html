@@ -17,6 +17,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/frontend/simulator.css">
 
   <style>
     /* =========================================================
@@ -1741,20 +1742,20 @@
 
     <!-- Service Pills -->
     <div class="service-pills-row">
-      <div class="service-pill active" onclick="switchView('home')">
+      <div class="service-pill active" id="pill-home" onclick="switchView('home')">
         <span>🏷️</span> BDE Store
       </div>
-      <div class="service-pill" onclick="switchView('estimator')">
-        <span>📐</span> Ply Calculator
+      <div class="service-pill" id="pill-simulator" onclick="switchView('simulator')">
+        <span>🎨</span> 3D Studio &amp; Estimator
       </div>
-      <div class="service-pill" onclick="switchView('mistris')">
+      <div class="service-pill" id="pill-mistris" onclick="switchView('mistris')">
         <span>🪚</span> Find Mistri
       </div>
-      <div class="service-pill" onclick="switchView('showcase')">
+      <div class="service-pill" id="pill-showcase" onclick="switchView('showcase')">
         <span>📸</span> Photo Gallery
       </div>
-      <div class="service-pill" onclick="window.open('/console', '_blank')">
-        <span>🖥️</span> Owner ERP
+      <div class="service-pill" onclick="openStaffErpGate()" title="Showroom Staff &amp; Management Access">
+        <span>🔒</span> Staff / ERP
       </div>
     </div>
 
@@ -1828,8 +1829,8 @@
       <div class="hero-carousel">
         <div class="hero-slide slide-puja-1">
           <div>
-            <div class="slide-badge">⚡ Durga Puja Mega Discount</div>
-            <h2 class="slide-heading">Flat 15% Off On All Marine & BWR Plywood!</h2>
+            <div class="slide-badge">⚡ Durga Puja Festival Specials</div>
+            <h2 class="slide-heading">Premium Marine & BWR Plywood Ready Stock</h2>
             <p class="slide-sub">Free direct delivery to Onda, Punisole & Bankura Town</p>
           </div>
           <button class="slide-action-btn" onclick="selectCategory('Plywood')">Browse Plywood →</button>
@@ -1849,6 +1850,14 @@
             <p class="slide-sub">Scratch-resistant & anti-fingerprint finishes</p>
           </div>
           <button class="slide-action-btn" onclick="selectCategory('Laminate')">Explore Mica →</button>
+        </div>
+        <div class="hero-slide" style="background: linear-gradient(135deg, #1E1B4B 0%, #4338CA 100%);">
+          <div>
+            <div class="slide-badge" style="background: #FEF08A; color: #854D0E;">✨ New 3D Studio Simulator</div>
+            <h2 class="slide-heading" style="color: #FFFFFF;">Visualize Your Wardrobe, Bed & TV Unit!</h2>
+            <p class="slide-sub" style="color: #C7D2FE;">Mix & match laminates in real-time with instant ply calculations</p>
+          </div>
+          <button class="slide-action-btn" style="background: #FEF08A; color: #1E1B4B;" onclick="switchView('simulator')">Launch 3D Studio →</button>
         </div>
       </div>
     </div>
@@ -1880,91 +1889,358 @@
   </section>
 
 
-  <!-- VIEW 2: SMART FURNITURE CALCULATOR (ESTIMATOR) -->
-  <section id="view-estimator" style="display: none;" class="calculator-container">
-    <div class="calc-card">
-      <div class="calc-header">
-        <div class="calc-header-icon">🧮</div>
-        <div class="calc-header-text">
-          <h2>Smart Furniture Calculator</h2>
-          <p>Instant sheet quantities & Onda showroom counter pricing</p>
+
+
+
+  <!-- =========================================================
+       VIEW: INTERACTIVE 3D FURNITURE & LAMINATE STUDIO SIMULATOR
+       ========================================================= -->
+  <section id="view-simulator" style="display: none;" class="simulator-container">
+    <div class="sim-card">
+      <!-- Header -->
+      <div class="sim-header">
+        <div class="sim-header-info">
+          <div class="sim-header-icon">🎨</div>
+          <div class="sim-header-text">
+            <h2>3D Furniture &amp; Laminate Studio</h2>
+            <p>Customize structures, test laminates &amp; calculate ply requirements in real-time</p>
+          </div>
         </div>
+        <div class="sim-puja-badge">🪔 Durga Puja Studio Edition</div>
       </div>
 
-      <!-- Furniture Selector Tabs -->
-      <div class="furniture-tabs">
-        <div class="furn-tab active" onclick="selectFurnType('wardrobe', this)">
-          <div class="tab-icon">🚪</div>
-          <div class="tab-title">Wardrobe</div>
+      <!-- 1. Structure Selection (18 Furniture Templates) -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+        <div style="font-size: 11.5px; font-weight: 800; color: #475569;">
+          1. CHOOSE FURNITURE STRUCTURE
         </div>
-        <div class="furn-tab" onclick="selectFurnType('bed', this)">
-          <div class="tab-icon">🛏️</div>
-          <div class="tab-title">Box Bed</div>
-        </div>
-        <div class="furn-tab" onclick="selectFurnType('kitchen', this)">
-          <div class="tab-icon">🍳</div>
-          <div class="tab-title">Modular Kitchen</div>
-        </div>
-        <div class="furn-tab" onclick="selectFurnType('table', this)">
-          <div class="tab-icon">🪑</div>
-          <div class="tab-title">Dining / Table</div>
-        </div>
-      </div>
-
-      <!-- Dimension Inputs Dynamic Grid -->
-      <div id="furn-inputs-container">
-        <!-- Injected via JavaScript based on chosen furniture -->
-      </div>
-
-      <!-- Quality & Laminate Finish -->
-      <div class="dim-row">
-        <div class="field-group">
-          <label class="field-label">Plywood Grade</label>
-          <select id="calc-ply-grade" class="field-select" onchange="computeEstimation()">
-            <option value="commercial">Tycon BWR Commercial (IS:303)</option>
-            <option value="marine" selected>Club Waterproof Marine (IS:710)</option>
-          </select>
-        </div>
-        <div class="field-group">
-          <label class="field-label">Laminate Type</label>
-          <select id="calc-laminate-type" class="field-select" onchange="computeEstimation()">
-            <option value="gloss">1.0mm Premium High Gloss</option>
-            <option value="matt">0.8mm Merino Matt Finish</option>
+        <!-- Category Dropdown Filter -->
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span style="font-size: 11px; font-weight: 700; color: #4338CA;">Category:</span>
+          <select id="sim-cat-dropdown" onchange="simSelectCategory(this.value)" style="font-size: 11px; font-weight: 700; color: #1E1B4B; background: #EEF2FF; border: 1.5px solid #C7D2FE; border-radius: 8px; padding: 4px 8px; cursor: pointer; outline: none;">
+            <option value="all">🌟 All Categories (18 Models)</option>
+            <option value="wardrobe">🚪 Wardrobes &amp; Storage (5)</option>
+            <option value="kitchen">🍳 Modular Kitchen (4)</option>
+            <option value="living">🛋️ Living &amp; Media (3)</option>
+            <option value="bedroom">🛏️ Bedroom &amp; Vanity (5)</option>
+            <option value="office">💼 Office &amp; Study (3)</option>
           </select>
         </div>
       </div>
 
-      <!-- Bill of Materials (BOM) Breakdown -->
-      <div class="bom-summary-card">
-        <div class="bom-summary-title">
-          <span>📋 Estimated Materials Needed</span>
-          <span style="font-size: 11px; color: var(--primary-violet); font-weight: 700;">Exact Onda Cutting Estimate</span>
+      <div class="sim-struct-carousel">
+        <!-- WARDROBES & STORAGE -->
+        <div class="sim-struct-pill" data-struct="wardrobe2" data-cat="wardrobe" onclick="simSelectStructure('wardrobe2')">
+          <span class="pill-icon">🚪</span>
+          <span>2-Door Compact</span>
         </div>
-        <div id="bom-items-list">
-          <!-- Injected via JS -->
+        <div class="sim-struct-pill active" data-struct="wardrobe" data-cat="wardrobe" onclick="simSelectStructure('wardrobe')">
+          <span class="pill-icon">🚪🚪</span>
+          <span>4-Door Wardrobe</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="wardrobe6" data-cat="wardrobe" onclick="simSelectStructure('wardrobe6')">
+          <span class="pill-icon">🏛️</span>
+          <span>Master 6-Door Wardrobe</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="fullwall" data-cat="wardrobe" onclick="simSelectStructure('fullwall')">
+          <span class="pill-icon">🏰</span>
+          <span>Full-Wall Storage Suite</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="almirah" data-cat="wardrobe bedroom" onclick="simSelectStructure('almirah')">
+          <span class="pill-icon">🗄️</span>
+          <span>Classic Almirah (Mirror)</span>
+        </div>
+
+        <!-- MODULAR KITCHEN -->
+        <div class="sim-struct-pill" data-struct="kitchen" data-cat="kitchen" onclick="simSelectStructure('kitchen')">
+          <span class="pill-icon">🍳</span>
+          <span>Straight Modular Kitchen</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="kitchen_l" data-cat="kitchen" onclick="simSelectStructure('kitchen_l')">
+          <span class="pill-icon">📐</span>
+          <span>L-Shaped Corner Kitchen</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="kitchen_parallel" data-cat="kitchen" onclick="simSelectStructure('kitchen_parallel')">
+          <span class="pill-icon">⚡</span>
+          <span>Parallel / Galley Kitchen</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="kitchen_island" data-cat="kitchen" onclick="simSelectStructure('kitchen_island')">
+          <span class="pill-icon">🏝️</span>
+          <span>Island Luxury Kitchen</span>
+        </div>
+
+        <!-- LIVING & MEDIA -->
+        <div class="sim-struct-pill" data-struct="tvunit" data-cat="living" onclick="simSelectStructure('tvunit')">
+          <span class="pill-icon">📺</span>
+          <span>Floating TV Unit</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="tvunit_console" data-cat="living" onclick="simSelectStructure('tvunit_console')">
+          <span class="pill-icon">🏛️</span>
+          <span>Console &amp; Display Towers</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="tvunit_partition" data-cat="living" onclick="simSelectStructure('tvunit_partition')">
+          <span class="pill-icon">🪵</span>
+          <span>Room Divider TV Partition</span>
+        </div>
+
+        <!-- BEDROOM & VANITY -->
+        <div class="sim-struct-pill" data-struct="bed" data-cat="bedroom" onclick="simSelectStructure('bed')">
+          <span class="pill-icon">🛏️</span>
+          <span>Hydraulic Box Bed</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="bed_drawers" data-cat="bedroom" onclick="simSelectStructure('bed_drawers')">
+          <span class="pill-icon">📦</span>
+          <span>Storage Divan Bed</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="dressing" data-cat="bedroom" onclick="simSelectStructure('dressing')">
+          <span class="pill-icon">🪞</span>
+          <span>LED Arch Dressing Vanity</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="dressing_tall" data-cat="bedroom" onclick="simSelectStructure('dressing_tall')">
+          <span class="pill-icon">✨</span>
+          <span>Full-Height Vanity Station</span>
+        </div>
+
+        <!-- OFFICE & STUDY -->
+        <div class="sim-struct-pill" data-struct="office" data-cat="office" onclick="simSelectStructure('office')">
+          <span class="pill-icon">💼</span>
+          <span>Executive Office Desk</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="office_lshape" data-cat="office" onclick="simSelectStructure('office_lshape')">
+          <span class="pill-icon">📐</span>
+          <span>L-Shaped Workstation</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="office_study" data-cat="office" onclick="simSelectStructure('office_study')">
+          <span class="pill-icon">📚</span>
+          <span>Study Table &amp; Bookshelf</span>
         </div>
       </div>
 
-      <!-- Transparent Total Pricing Banner -->
-      <div class="cost-total-banner">
-        <div class="cost-left">
-          <h4>Approx Total Material Cost</h4>
-          <div id="calc-grand-total" class="grand-price">₹0.00</div>
-          <div class="markup-tag">Includes 10% standard retail margin + Onda depot discount</div>
+      <!-- Custom Dimensions & Wall Configuration Panel (Active for All Categories) -->
+      <div id="sim-custom-dim-panel" class="sim-dim-panel">
+        <div class="sim-dim-panel-header">
+          <div class="sim-dim-title">
+            <span>📐</span> Custom Dimensions &amp; Layout
+          </div>
+          <span style="font-size: 11px; color: #4338CA; font-weight: 700;">Live Sheet Recalculation</span>
         </div>
-        <div style="font-size: 28px;">📦</div>
+
+        <div class="sim-dim-sliders-grid">
+          <!-- Width Slider -->
+          <div class="sim-slider-box">
+            <div class="sim-slider-label-row">
+              <span>Width (Length)</span>
+              <span id="sim-dim-width-val" class="sim-slider-val">12.0 ft</span>
+            </div>
+            <input type="range" id="sim-slider-width" class="sim-range-slider" min="3" max="20" step="0.5" value="12" oninput="simSetDimensionWidth(this.value)">
+            <div id="sim-width-presets" class="sim-quick-presets-row">
+              <button class="sim-preset-btn" onclick="simSetDimensionWidth(4)">4 ft</button>
+              <button class="sim-preset-btn" onclick="simSetDimensionWidth(6)">6 ft</button>
+              <button class="sim-preset-btn" onclick="simSetDimensionWidth(8)">8 ft</button>
+              <button class="sim-preset-btn" onclick="simSetDimensionWidth(10)">10 ft</button>
+              <button class="sim-preset-btn" onclick="simSetDimensionWidth(12)">12 ft</button>
+              <button class="sim-preset-btn" onclick="simSetDimensionWidth(16)">16 ft</button>
+            </div>
+          </div>
+
+          <!-- Height Slider -->
+          <div class="sim-slider-box">
+            <div class="sim-slider-label-row">
+              <span>Height</span>
+              <span id="sim-dim-height-val" class="sim-slider-val">8.5 ft</span>
+            </div>
+            <input type="range" id="sim-slider-height" class="sim-range-slider" min="2.5" max="11" step="0.25" value="8.5" oninput="simSetDimensionHeight(this.value)">
+            <div id="sim-height-presets" class="sim-quick-presets-row">
+              <button class="sim-preset-btn" onclick="simSetDimensionHeight(3)">3 ft</button>
+              <button class="sim-preset-btn" onclick="simSetDimensionHeight(6.5)">6.5 ft</button>
+              <button class="sim-preset-btn" onclick="simSetDimensionHeight(7)">7 ft</button>
+              <button class="sim-preset-btn" onclick="simSetDimensionHeight(8)">8 ft</button>
+              <button class="sim-preset-btn" onclick="simSetDimensionHeight(8.5)">8.5 ft</button>
+              <button class="sim-preset-btn" onclick="simSetDimensionHeight(10)">10 ft</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Full-Wall Storage Rack Layout Presets -->
+        <div id="sim-rack-config-row" class="sim-rack-config-row" style="display: none;">
+          <div class="sim-config-pill active" data-config="standard" onclick="simSetFullWallConfig('standard')">
+            🗄️ Wardrobe + Center Display Rack + Cabinet
+          </div>
+          <div class="sim-config-pill" data-config="entertainment" onclick="simSetFullWallConfig('entertainment')">
+            📺 Dual Wardrobes + Center Open Niche
+          </div>
+          <div class="sim-config-pill" data-config="full_wardrobe" onclick="simSetFullWallConfig('full_wardrobe')">
+            🚪 Full Continuous Wardrobe Wall + Lofts
+          </div>
+        </div>
       </div>
 
-      <!-- Two Required Action Buttons -->
-      <div class="calc-actions">
-        <!-- Option 1: Claim Extra Counter Discount -->
-        <button class="btn-calc-opt1" onclick="handleClaimCounterDiscount()">
-          <span>🎁</span> Option 1: Claim Extra Counter Discount
+      <!-- 2. Interactive Showroom Viewport Canvas -->
+      <div class="sim-viewport-card">
+        <div class="sim-viewport-toolbar">
+          <div class="sim-ctrl-group">
+            <button id="btn-sim-doors" class="sim-ctrl-btn" onclick="simToggleDoors()">
+              🚪 Open Doors
+            </button>
+            <button id="btn-sim-light" class="sim-ctrl-btn active" onclick="simToggleLighting()">
+              💡 3000K Spotlights
+            </button>
+            <button id="btn-sim-wireframe" class="sim-ctrl-btn" onclick="simToggleWireframe()">
+              📐 Tech Specs
+            </button>
+            <button id="btn-sim-human" class="sim-ctrl-btn active" onclick="simToggleHumanScale()">
+              🧍 5.5 ft Scale: ON
+            </button>
+          </div>
+          <div class="sim-ctrl-group">
+            <button class="sim-ctrl-btn" onclick="simDownloadSnapshot()" title="Save PNG with BDE Watermark">
+              📸 Save Photo
+            </button>
+          </div>
+        </div>
+
+        <!-- SVG Live Stage Viewport -->
+        <div id="sim-svg-stage" class="sim-stage-container">
+          <!-- Live SVG injected by simulator.js -->
+        </div>
+      </div>
+
+      <!-- 3. Dual-Zone Material Swatch Selector -->
+      <div class="sim-zone-selector-card">
+        <div style="font-size: 11.5px; font-weight: 800; color: #475569; margin-bottom: 8px;">
+          2. SELECT LAMINATE FINISH &amp; ZONE
+        </div>
+
+        <!-- Zone Tabs: Zone A (Carcass/Body) vs Zone B (Shutters/Fronts) -->
+        <div class="sim-zone-tabs-row">
+          <div class="sim-zone-tab" data-zone="A" onclick="simSelectZone('A')">
+            <div class="zone-title">Zone A: Body / Carcass</div>
+            <div id="sim-zone-label-a" class="zone-swatch-name">Royal Burma Teak</div>
+          </div>
+          <div class="sim-zone-tab active" data-zone="B" onclick="simSelectZone('B')">
+            <div class="zone-title">Zone B: Shutters / Fronts</div>
+            <div id="sim-zone-label-b" class="zone-swatch-name">Carrara White Marble</div>
+          </div>
+        </div>
+
+        <!-- Swatch Palettes -->
+        <!-- Woodgrain Collection -->
+        <div class="sim-swatch-group">
+          <div class="sim-swatch-group-title">🪵 Natural Woodgrain &amp; Veneer Textures</div>
+          <div class="sim-swatch-grid">
+            <div class="sim-swatch-circle" data-swatch-id="teak" onclick="simSelectLaminate('teak')" title="Royal Burma Teak (BDE-801)" style="background: #b47b48; background-image: repeating-linear-gradient(45deg, #8d5626, #8d5626 4px, #b47b48 4px, #b47b48 12px);"></div>
+            <div class="sim-swatch-circle" data-swatch-id="walnut" onclick="simSelectLaminate('walnut')" title="Smoked American Walnut (BDE-805)" style="background: #4a2e1b; background-image: repeating-linear-gradient(45deg, #311c0f, #311c0f 4px, #4a2e1b 4px, #4a2e1b 12px);"></div>
+            <div class="sim-swatch-circle" data-swatch-id="oak" onclick="simSelectLaminate('oak')" title="Scandinavian White Oak (BDE-809)" style="background: #d6c0a2; background-image: repeating-linear-gradient(90deg, #bfaa8f, #bfaa8f 2px, #d6c0a2 2px, #d6c0a2 8px);"></div>
+            <div class="sim-swatch-circle" data-swatch-id="wenge" onclick="simSelectLaminate('wenge')" title="Ebony Dark Wenge (BDE-814)" style="background: #241c18; background-image: repeating-linear-gradient(90deg, #120d0a, #120d0a 3px, #241c18 3px, #241c18 6px);"></div>
+            <div class="sim-swatch-circle" data-swatch-id="rosewood" onclick="simSelectLaminate('rosewood')" title="Sheesham Rosewood (BDE-820)" style="background: #7a2e20; background-image: repeating-linear-gradient(45deg, #4a180e, #4a180e 4px, #7a2e20 4px, #7a2e20 10px);"></div>
+          </div>
+        </div>
+
+        <!-- Italian Marble & Stone Collection -->
+        <div class="sim-swatch-group">
+          <div class="sim-swatch-group-title">🏛️ Italian Stone &amp; High-Gloss Marble</div>
+          <div class="sim-swatch-grid">
+            <div class="sim-swatch-circle selected" data-swatch-id="carrara" onclick="simSelectLaminate('carrara')" title="Carrara White Marble (BDE-901)" style="background: #f8fafc; border: 1.5px solid #cbd5e1; background-image: radial-gradient(#cbd5e1 15%, transparent 16%); background-size: 8px 8px;"></div>
+            <div class="sim-swatch-circle" data-swatch-id="marquina" onclick="simSelectLaminate('marquina')" title="Nero Marquina Black (BDE-908)" style="background: #0f172a; background-image: repeating-linear-gradient(45deg, #ca8a04, #ca8a04 1px, #0f172a 1px, #0f172a 14px);"></div>
+            <div class="sim-swatch-circle" data-swatch-id="travertine" onclick="simSelectLaminate('travertine')" title="Roman Travertine (BDE-915)" style="background: #e7dec8; background-image: repeating-linear-gradient(0deg, #d5c8ab, #d5c8ab 2px, #e7dec8 2px, #e7dec8 10px);"></div>
+          </div>
+        </div>
+
+        <!-- Modern Super-Matte Solids -->
+        <div class="sim-swatch-group">
+          <div class="sim-swatch-group-title">🎨 Modern Super-Matte Solids</div>
+          <div class="sim-swatch-grid">
+            <div class="sim-swatch-circle" data-swatch-id="charcoal" onclick="simSelectLaminate('charcoal')" title="Slate Charcoal Matte (BDE-701)" style="background: #334155;"></div>
+            <div class="sim-swatch-circle" data-swatch-id="white" onclick="simSelectLaminate('white')" title="Nordic Off-White / Pearl (BDE-704)" style="background: #fdfbf7; border: 1px solid #cbd5e1;"></div>
+            <div class="sim-swatch-circle" data-swatch-id="sage" onclick="simSelectLaminate('sage')" title="Earthy Sage Green (BDE-711)" style="background: #627264;"></div>
+            <div class="sim-swatch-circle" data-swatch-id="navy" onclick="simSelectLaminate('navy')" title="Royal Midnight Navy (BDE-718)" style="background: #1e293b;"></div>
+            <div class="sim-swatch-circle" data-swatch-id="terracotta" onclick="simSelectLaminate('terracotta')" title="Tuscan Terracotta (BDE-725)" style="background: #b85d43;"></div>
+          </div>
+        </div>
+
+        <!-- 3D Fluted Louvers & Metallics -->
+        <div class="sim-swatch-group">
+          <div class="sim-swatch-group-title">📐 3D Fluted Louvers &amp; Metallic Accents</div>
+          <div class="sim-swatch-grid">
+            <div class="sim-swatch-circle" data-swatch-id="fluted_wood" onclick="simSelectLaminate('fluted_wood')" title="Fluted Teak Louvers (BDE-601)" style="background: repeating-linear-gradient(90deg, #c4854d, #c4854d 4px, #78471e 4px, #78471e 8px);"></div>
+            <div class="sim-swatch-circle" data-swatch-id="fluted_charcoal" onclick="simSelectLaminate('fluted_charcoal')" title="Fluted Midnight Louver (BDE-608)" style="background: repeating-linear-gradient(90deg, #334155, #334155 4px, #0f172a 4px, #0f172a 8px);"></div>
+            <div class="sim-swatch-circle" data-swatch-id="metallic_brass" onclick="simSelectLaminate('metallic_brass')" title="Brushed Champagne Brass (BDE-501)" style="background: linear-gradient(135deg, #d4af37 0%, #fef08a 50%, #a16207 100%);"></div>
+          </div>
+        </div>
+
+        <!-- Hardware & Handle Finish Selection -->
+        <div style="font-size: 11.5px; font-weight: 800; color: #475569; margin: 12px 0 6px 0;">
+          3. HARDWARE &amp; PROFILE HANDLE FINISH
+        </div>
+        <div class="sim-hardware-row">
+          <div class="sim-hw-btn active" data-hw="gold" onclick="simSelectHardware('gold')">
+            <span>✨</span> Champagne Gold
+          </div>
+          <div class="sim-hw-btn" data-hw="black" onclick="simSelectHardware('black')">
+            <span>🖤</span> Matte Black
+          </div>
+          <div class="sim-hw-btn" data-hw="chrome" onclick="simSelectHardware('chrome')">
+            <span>🔘</span> Polished Chrome
+          </div>
+          <div class="sim-hw-btn" data-hw="concealed" onclick="simSelectHardware('concealed')">
+            <span>➖</span> J-Profile Minimal
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Plywood Grade & Material Selection Bridge -->
+      <div class="sim-bom-container">
+        <div class="sim-bom-header">
+          <h3 id="sim-bom-title">📋 Estimated Materials Needed</h3>
+          <span class="sim-counter-pill">Onda Counter Rates</span>
+        </div>
+
+        <div class="sim-grade-select-row">
+          <div class="sim-select-group">
+            <label>Plywood Grade</label>
+            <select class="sim-select-box" onchange="simChangePlyGrade(this.value)">
+              <option value="marine" selected>Club Waterproof Marine (IS:710)</option>
+              <option value="commercial">Tycon BWR Commercial (IS:303)</option>
+            </select>
+          </div>
+          <div class="sim-select-group">
+            <label>Laminate Thickness</label>
+            <select class="sim-select-box" onchange="simChangeLaminateType(this.value)">
+              <option value="gloss" selected>1.0mm Premium Gloss / Suede</option>
+              <option value="matt">0.8mm Standard Matt Liner</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Injected BOM Items List -->
+        <div id="sim-bom-items" style="margin-bottom: 10px;">
+          <!-- Injected via simulator.js -->
+        </div>
+
+        <!-- Grand Total Banner (Material Quantity Only - No Prices) -->
+        <div class="sim-total-banner">
+          <div class="sim-total-left">
+            <h4>Total Goods Required</h4>
+            <div id="sim-grand-total" class="grand-price">8.5 Total Sheets</div>
+            <div class="note">Ready for live stock check &amp; loading at Onda Depot</div>
+          </div>
+          <div style="font-size: 32px;">🪵</div>
+        </div>
+      </div>
+
+      <!-- 5. High-Conversion Lead Capture Actions -->
+      <div class="sim-actions-grid">
+        <button class="btn-sim-wa" onclick="simSendToWhatsApp()">
+          <span style="font-size: 18px;">💬</span> WhatsApp Material List to Dipanjan
         </button>
-
-        <!-- Option 2: Get Expert Carpenter Help -->
-        <button class="btn-calc-opt2" onclick="handleFindCarpenterForEstimate()">
-          <span>🪚</span> Option 2: Get Expert Carpenter Help
+        <button class="btn-sim-dl" onclick="simDownloadSnapshot()">
+          <span style="font-size: 18px;">📸</span> Download 3D Snapshot (PNG)
+        </button>
+        <button class="btn-sim-mistri" onclick="simFindMistri()">
+          <span>🪚</span> Find Verified Onda Mistri
+        </button>
+        <button class="btn-sim-coupon" onclick="simClaimDiscount()">
+          <span>🏢</span> Onda Depot Stock &amp; Delivery
         </button>
       </div>
     </div>
@@ -2010,7 +2286,7 @@
     <div class="showcase-upload-card">
       <div style="font-size: 32px; margin-bottom: 6px;">📸</div>
       <h3>Share Your Finished Furniture & Win!</h3>
-      <p>Submit photos of your wardrobe, bed, or kitchen and receive ₹500 store voucher coupon!</p>
+      <p>Submit photos of your wardrobe, bed, or kitchen and receive an exclusive Onda Showroom Gift Voucher!</p>
       
       <input type="file" id="camera-file-input" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
       <button class="btn-choose-photo" onclick="triggerPhotoUpload()">
@@ -2072,10 +2348,10 @@
         </div>
         <span>›</span>
       </div>
-      <div class="menu-item" onclick="window.open('/console', '_blank')">
+      <div class="menu-item" onclick="openStaffErpGate()">
         <div class="menu-item-left">
-          <span class="menu-icon">🖥️</span>
-          <span>Owner ERP & POS Terminal</span>
+          <span class="menu-icon">🔒</span>
+          <span>Showroom Staff &amp; Manager Console</span>
         </div>
         <span>›</span>
       </div>
@@ -2138,6 +2414,37 @@
     </div>
   </div>
 
+  <!-- Staff & Manager Authentication Gate Bottom Sheet -->
+  <div id="staff-auth-sheet" class="bottom-sheet">
+    <div class="sheet-drag-handle"></div>
+    <div style="text-align: center; margin-bottom: 14px;">
+      <div style="font-size: 32px; margin-bottom: 4px;">🔐</div>
+      <h3 class="sheet-title" style="margin-bottom: 4px;">Showroom Staff &amp; Manager Access</h3>
+      <p class="sheet-desc" style="margin-bottom: 16px;">
+        Restricted internal portal for Onda showroom personnel. Enter your passcode to launch the Business Console.
+      </p>
+    </div>
+
+    <div class="auth-input-group" style="position: relative;">
+      <label class="auth-input-label">Security Passcode / PIN</label>
+      <div style="position: relative; display: flex; align-items: center;">
+        <input type="password" id="storefrontStaffPin" class="auth-input" placeholder="Enter security passcode..." autocomplete="current-password" style="padding-right: 42px;">
+        <button type="button" onclick="toggleStorefrontPinEye()" style="position: absolute; right: 8px; background: none; border: none; font-size: 16px; cursor: pointer;">👁️</button>
+      </div>
+      <div id="storefrontStaffPinErr" style="color: #dc2626; font-size: 11.5px; font-weight: 700; margin-top: 5px; display: none;"></div>
+    </div>
+
+    <div style="display: flex; gap: 10px; margin-top: 16px;">
+      <button class="locality-btn" style="flex: 1; text-align: center; padding: 12px;" onclick="closeAllSheets()">
+        Cancel
+      </button>
+      <button class="btn-auth-submit" style="flex: 2; margin-top: 0;" onclick="submitStorefrontStaffAuth()">
+        Verify &amp; Launch Console
+      </button>
+    </div>
+  </div>
+
+
 
   <!-- =========================================================
        9. CLEAN WHITE BOTTOM NAVIGATION BAR (SVG ICONS)
@@ -2151,13 +2458,14 @@
       <span class="nav-label">Home</span>
     </div>
 
-    <div class="nav-tab" id="tab-estimator" onclick="switchView('estimator')">
+    <div class="nav-tab" id="tab-simulator" onclick="switchView('simulator')">
       <div class="nav-indicator"></div>
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
       </svg>
-      <span class="nav-label">Estimator</span>
+      <span class="nav-label">3D Studio</span>
     </div>
+
 
     <div class="nav-tab" id="tab-mistris" onclick="switchView('mistris')">
       <div class="nav-indicator"></div>
@@ -2241,11 +2549,7 @@
       loadCarpenters();
       loadTestimonials();
 
-      // 5. Initialize Furniture Calculator
-      renderFurnitureInputs('wardrobe');
-      computeEstimation();
-
-      // 6. Setup Search Bar Event Listeners
+      // 5. Setup Search Bar Event Listeners
       setupSearch();
 
       // 7. Register Service Worker if supported
@@ -2355,15 +2659,14 @@
             </div>
 
             <div>
-              <div class="price-box">
-                <span class="price-main">₹${p.customer_price.toLocaleString('en-IN', {minimumFractionDigits: 0, maximumFractionDigits: 1})}</span>
-                <span class="price-mrp">₹${p.mrp.toLocaleString('en-IN', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</span>
-                <span class="price-savings">20% off</span>
+              <div class="product-spec-pill" style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 6px; padding: 4px 6px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0;">
+                <span style="font-size: 11px; font-weight: 700; color: #1e293b;">📦 Unit: ${p.unit || 'Standard Sheet'}</span>
+                <span style="font-size: 10px; font-weight: 600; color: #059669;">● Onda Depot Dispatch</span>
               </div>
-              <div class="sheet-rate-note">${p.sheet_price_text}</div>
+              <div class="sheet-rate-note" style="color: #64748b; font-size: 11px; margin-bottom: 6px;">SKU: ${p.sku} • Verified Grade</div>
 
               <button class="btn-card-enquire" onclick="event.stopPropagation(); openProductEnquiry('${p.sku}')">
-                <span>⚡</span> Enquire / Order
+                <span>⚡</span> Enquire Quantity / Order
               </button>
             </div>
           </div>
@@ -2414,7 +2717,7 @@
     function renderTestimonials(items) {
       const container = document.getElementById('showcase-gallery');
       if (!items || items.length === 0) {
-        container.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--text-muted);">No customer project photos yet. Be the first to share & win ₹500!</div>`;
+        container.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--text-muted);">No customer project photos yet. Be the first to share & win an Onda Showroom Gift Voucher!</div>`;
         return;
       }
 
@@ -2466,7 +2769,7 @@
                 </div>
                 <div class="suggestion-text">
                   <div class="suggestion-name">${m.name}</div>
-                  <div class="suggestion-rate">₹${m.customer_price} / ${m.unit} • ${m.brand}</div>
+                  <div class="suggestion-rate">${m.brand} • Unit: ${m.unit || 'Standard'} • In Stock at Onda</div>
                 </div>
               </div>
             `).join('');
@@ -2559,10 +2862,16 @@
        VIEW SWITCHING
        ========================================================= */
     function switchView(viewName) {
+      if (viewName === 'estimator') {
+        viewName = 'simulator';
+      }
       STATE.activeView = viewName;
 
       // Update Service Pills
       document.querySelectorAll('.service-pill').forEach(p => p.classList.remove('active'));
+      const activePill = document.getElementById(`pill-${viewName}`);
+      if (activePill) activePill.classList.add('active');
+
       // Update Bottom Tabs
       document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
 
@@ -2570,280 +2879,23 @@
       if (targetTab) targetTab.classList.add('active');
 
       // Hide all views
-      ['home', 'estimator', 'mistris', 'showcase', 'account'].forEach(v => {
+      ['home', 'simulator', 'mistris', 'showcase', 'account'].forEach(v => {
         const el = document.getElementById(`view-${v}`);
         if (el) el.style.display = (v === viewName) ? 'block' : 'none';
       });
+
+      if (viewName === 'simulator' && window.updateSimulatorUI) {
+        window.updateSimulatorUI();
+      }
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     /* =========================================================
-       4. SMART FURNITURE CALCULATOR (ESTIMATOR) LOGIC
+       4. 3D STUDIO MATERIAL ESTIMATION
+       (Interactive 3D Studio Simulator in simulator.js handles
+        all furniture structures, dimensions & material BOMs)
        ========================================================= */
-    function selectFurnType(type, elem) {
-      STATE.calc.type = type;
-      document.querySelectorAll('.furn-tab').forEach(el => el.classList.remove('active'));
-      if (elem) elem.classList.add('active');
-      renderFurnitureInputs(type);
-      computeEstimation();
-    }
-
-    function renderFurnitureInputs(type) {
-      const container = document.getElementById('furn-inputs-container');
-      if (type === 'wardrobe') {
-        container.innerHTML = `
-          <div class="dim-row">
-            <div class="field-group">
-              <label class="field-label">Wardrobe Width (Feet)</label>
-              <select id="calc-width" class="field-select" onchange="computeEstimation()">
-                <option value="4">4 Feet (2-Door Compact)</option>
-                <option value="6" selected>6 Feet (3-Door Standard)</option>
-                <option value="8">8 Feet (4-Door Master Bedroom)</option>
-              </select>
-            </div>
-            <div class="field-group">
-              <label class="field-label">Height (Feet)</label>
-              <select id="calc-height" class="field-select" onchange="computeEstimation()">
-                <option value="7" selected>7 Feet (Standard Ceil)</option>
-                <option value="8">8 Feet (Full Loft)</option>
-              </select>
-            </div>
-          </div>
-        `;
-      } else if (type === 'bed') {
-        container.innerHTML = `
-          <div class="dim-row">
-            <div class="field-group">
-              <label class="field-label">Bed Dimension</label>
-              <select id="calc-bed-size" class="field-select" onchange="computeEstimation()">
-                <option value="queen" selected>Queen Size (5 ft × 6.5 ft)</option>
-                <option value="king">King Size (6 ft × 6.5 ft)</option>
-                <option value="single">Single Divan (3 ft × 6 ft)</option>
-              </select>
-            </div>
-            <div class="field-group">
-              <label class="field-label">Storage Mechanism</label>
-              <select id="calc-storage" class="field-select" onchange="computeEstimation()">
-                <option value="box" selected>Standard Box Storage (Lift Top)</option>
-                <option value="hydraulic">Hydraulic Pump Lift Set</option>
-              </select>
-            </div>
-          </div>
-        `;
-      } else if (type === 'kitchen') {
-        container.innerHTML = `
-          <div class="dim-row">
-            <div class="field-group">
-              <label class="field-label">Kitchen Layout</label>
-              <select id="calc-kitchen-layout" class="field-select" onchange="computeEstimation()">
-                <option value="straight">Straight Counter (8 Running Feet)</option>
-                <option value="lshape" selected>L-Shape Counter (10 ft + 6 ft)</option>
-                <option value="ushape">U-Shape Counter (8 ft + 8 ft + 8 ft)</option>
-              </select>
-            </div>
-            <div class="field-group">
-              <label class="field-label">Upper Wall Cabinets</label>
-              <select id="calc-upper-cab" class="field-select" onchange="computeEstimation()">
-                <option value="yes" selected>Yes (Full Upper + Lower)</option>
-                <option value="no">Lower Counter Only</option>
-              </select>
-            </div>
-          </div>
-        `;
-      } else if (type === 'table') {
-        container.innerHTML = `
-          <div class="dim-row">
-            <div class="field-group">
-              <label class="field-label">Table Type & Seater</label>
-              <select id="calc-table-type" class="field-select" onchange="computeEstimation()">
-                <option value="dining4" selected>4-Seater Dining (4 ft × 3 ft)</option>
-                <option value="dining6">6-Seater Dining (5.5 ft × 3 ft)</option>
-                <option value="workdesk">Executive Study & Work Desk</option>
-              </select>
-            </div>
-            <div class="field-group">
-              <label class="field-label">Top Board Thickness</label>
-              <select id="calc-table-thick" class="field-select" onchange="computeEstimation()">
-                <option value="18mm" selected>18mm Heavy Duty Board</option>
-                <option value="double18">Double Layer (36mm Chunky Look)</option>
-              </select>
-            </div>
-          </div>
-        `;
-      }
-    }
-
-    function computeEstimation() {
-      const plyGrade = document.getElementById('calc-ply-grade').value;
-      const lamType = document.getElementById('calc-laminate-type').value;
-
-      // Rate baseline from Onda catalogue (+10% marked up)
-      const ply18Rate = plyGrade === 'marine' ? 2464 : 2042; // ~₹77 vs ₹63.8 / sqft 8x4 sheet
-      const ply12Rate = plyGrade === 'marine' ? 2112 : 1690; // 12mm sheet
-      const ply6Rate = 1126; // 6mm back sheet
-      const micaOuterRate = lamType === 'gloss' ? 1254 : 1045; // 1mm outer mica
-      const micaInnerRate = 560; // 0.8mm inner liner
-      const fevicolRate = 352; // per kg
-
-      let bom = {};
-      let totalCost = 0;
-      let label = '';
-
-      if (STATE.calc.type === 'wardrobe') {
-        const width = parseInt(document.getElementById('calc-width')?.value || '6');
-        const height = parseInt(document.getElementById('calc-height')?.value || '7');
-        label = `${width}x${height} ft Sliding/Open Wardrobe`;
-
-        const ply18Sheets = width === 8 ? 6 : (width === 6 ? 4.5 : 3.5);
-        const ply12Sheets = width === 8 ? 2 : 1.5;
-        const ply6Sheets = width === 8 ? 2.5 : 2;
-        const micaOuter = width === 8 ? 4 : 3;
-        const micaInner = width === 8 ? 4 : 3;
-        const fevicolKg = width === 8 ? 10 : 8;
-        const hardwarePack = width === 8 ? 3200 : 2400; // Hinges, channels, handles
-
-        bom = {
-          '18mm Plywood (Carcass & Shutters)': `${ply18Sheets} Sheets`,
-          '12mm Plywood (Internal Shelves & Drawers)': `${ply12Sheets} Sheets`,
-          '6mm Plywood (Back Paneling)': `${ply6Sheets} Sheets`,
-          '1.0mm Decorative Outer Sunmica': `${micaOuter} Sheets`,
-          '0.8mm White Inner Liner Mica': `${micaInner} Sheets`,
-          'Fevicol Marine / SH Adhesive': `${fevicolKg} Kg`,
-          'Hardware Pack (Softclose Hinges, Channels)': '1 Full Set'
-        };
-
-        totalCost = (ply18Sheets * ply18Rate) + (ply12Sheets * ply12Rate) + 
-                    (ply6Sheets * ply6Rate) + (micaOuter * micaOuterRate) + 
-                    (micaInner * micaInnerRate) + (fevicolKg * fevicolRate) + hardwarePack;
-
-      } else if (STATE.calc.type === 'bed') {
-        const bedSize = document.getElementById('calc-bed-size')?.value || 'queen';
-        const storage = document.getElementById('calc-storage')?.value || 'box';
-        label = `${bedSize.toUpperCase()} Storage Bed Divan`;
-
-        const ply18Sheets = bedSize === 'king' ? 4 : (bedSize === 'queen' ? 3.5 : 2.5);
-        const ply12Sheets = 2; // Internal ribbing
-        const micaOuter = 2;
-        const fevicolKg = 5;
-        const hardwarePack = storage === 'hydraulic' ? 3400 : 1200;
-
-        bom = {
-          '18mm Plywood (Top Lid & Outer Frame)': `${ply18Sheets} Sheets`,
-          '12mm Plywood (Storage Base & Partitions)': `${ply12Sheets} Sheets`,
-          '1.0mm Decorative Sunmica': `${micaOuter} Sheets`,
-          'Fevicol Synthetic Adhesive': `${fevicolKg} Kg`,
-          'Bed Fitting Hardware Pack': storage === 'hydraulic' ? '1 Hydraulic Lift Kit + Latches' : 'Standard Hinges + Handles'
-        };
-
-        totalCost = (ply18Sheets * ply18Rate) + (ply12Sheets * ply12Rate) + 
-                    (micaOuter * micaOuterRate) + (fevicolKg * fevicolRate) + hardwarePack;
-
-      } else if (STATE.calc.type === 'kitchen') {
-        const layout = document.getElementById('calc-kitchen-layout')?.value || 'lshape';
-        label = `Modular Kitchen (${layout.toUpperCase()})`;
-
-        const ply18Sheets = layout === 'ushape' ? 8 : (layout === 'lshape' ? 6 : 4);
-        const ply12Sheets = layout === 'ushape' ? 3 : 2;
-        const micaOuter = layout === 'ushape' ? 5 : 4;
-        const micaInner = layout === 'ushape' ? 4 : 3;
-        const fevicolKg = 10;
-        const hardwarePack = 4800; // Telescopic slides & auto-hinges
-
-        bom = {
-          '18mm Waterproof Marine Ply (IS:710)': `${ply18Sheets} Sheets`,
-          '12mm Marine Shelving Ply': `${ply12Sheets} Sheets`,
-          '1.0mm Acrylic / High Gloss Sunmica': `${micaOuter} Sheets`,
-          '0.8mm Inner Liner Laminate': `${micaInner} Sheets`,
-          'Fevicol Marine Waterproof Resin': `${fevicolKg} Kg`,
-          'SS-304 Kitchen Hardware Set': '1 Premium Kit'
-        };
-
-        totalCost = (ply18Sheets * ply18Rate) + (ply12Sheets * ply12Rate) + 
-                    (micaOuter * micaOuterRate) + (micaInner * micaInnerRate) + 
-                    (fevicolKg * fevicolRate) + hardwarePack;
-
-      } else if (STATE.calc.type === 'table') {
-        label = `Dining / Executive Table`;
-        const ply18Sheets = 1.5;
-        const micaOuter = 1;
-        const fevicolKg = 2;
-        const hardwarePack = 800;
-
-        bom = {
-          '18mm Plywood (Table Top & Sides)': `${ply18Sheets} Sheets`,
-          '1.0mm Scratch-Proof Laminate': `${micaOuter} Sheet`,
-          'Fevicol Adhesive': `${fevicolKg} Kg`,
-          'Hardware Assembly Brackets': '1 Set'
-        };
-
-        totalCost = (ply18Sheets * ply18Rate) + (micaOuter * micaOuterRate) + (fevicolKg * fevicolRate) + hardwarePack;
-      }
-
-      STATE.calc.resultBOM = bom;
-      STATE.calc.grandTotal = Math.round(totalCost);
-      STATE.calc.label = label;
-
-      // Render BOM UI
-      const listEl = document.getElementById('bom-items-list');
-      listEl.innerHTML = Object.entries(bom).map(([k, v]) => `
-        <div class="bom-item-row">
-          <span class="bom-item-name">${k}</span>
-          <span class="bom-item-qty">${v}</span>
-        </div>
-      `).join('');
-
-      document.getElementById('calc-grand-total').innerText = '₹' + STATE.calc.grandTotal.toLocaleString('en-IN');
-    }
-
-    // Action Option 1: Claim Extra Counter Discount (POST /api/quote-request + WhatsApp)
-    async function handleClaimCounterDiscount() {
-      if (!STATE.user) {
-        STATE.pendingAction = () => handleClaimCounterDiscount();
-        triggerAuthSheet('quote');
-        return;
-      }
-
-      const bomText = Object.entries(STATE.calc.resultBOM).map(([k, v]) => `• ${k}: ${v}`).join('\n');
-
-      const payload = {
-        customer_name: STATE.user.name,
-        phone: STATE.user.phone,
-        delivery_locality: STATE.user.location || 'Onda',
-        furniture_type: STATE.calc.label,
-        dimensions: 'Standard BDE Dimensions',
-        materials_breakdown: bomText,
-        estimated_cost: STATE.calc.grandTotal,
-        notes: 'Requesting Onda Counter Extra Discount'
-      };
-
-      try {
-        const res = await fetch('/api/quote-request', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (data.success && data.whatsapp_url) {
-          showToast('Discount Quote Saved! Redirecting to WhatsApp...');
-          setTimeout(() => {
-            window.location.href = data.whatsapp_url;
-          }, 800);
-        } else {
-          showToast('Quote saved in showroom system!');
-        }
-      } catch (err) {
-        console.error(err);
-        showToast('Redirecting to WhatsApp...');
-        window.location.href = `https://wa.me/919867098952?text=Hello%20Baba%20Dugdheswar%20Enterprise,%20I%20would%20like%20to%20claim%20my%20counter%20discount%20for%20${encodeURIComponent(STATE.calc.label)}%20(Est%20₹${STATE.calc.grandTotal})`;
-      }
-    }
-
-    // Action Option 2: Get Expert Carpenter Help
-    function handleFindCarpenterForEstimate() {
-      switchView('mistris');
-      showToast(`Viewing Verified Mistris for ${STATE.calc.label}`);
-    }
 
     /* =========================================================
        5. MASKED CARPENTER DIRECTORY & LEAD TRACKER LOGIC
@@ -2988,14 +3040,14 @@
       const descEl = document.getElementById('auth-sheet-desc');
 
       if (intent === 'quote') {
-        titleEl.innerText = '🎁 Claim Counter Discount';
-        descEl.innerText = 'Enter your details to receive instant discounted cutting estimate on WhatsApp.';
+        titleEl.innerText = '📦 Onda Depot Stock & Delivery';
+        descEl.innerText = 'Enter your details to receive instant material requirements & loading status on WhatsApp.';
       } else if (intent === 'call') {
         titleEl.innerText = '📞 Call Verified Mistri';
         descEl.innerText = 'Enter your mobile number to connect directly with the master carpenter.';
       } else if (intent === 'photo') {
-        titleEl.innerText = '📸 Submit Project & Win ₹500';
-        descEl.innerText = 'Enter your name and village so we can credit your discount coupon.';
+        titleEl.innerText = '📸 Submit Project & Win Gift Voucher';
+        descEl.innerText = 'Enter your name and village so we can send your Onda showroom gift voucher.';
       } else {
         titleEl.innerText = 'Sign In to BDE Mobile';
         descEl.innerText = 'Seamless ordering, saved estimates & verified carpenter directory.';
@@ -3074,6 +3126,98 @@
       document.getElementById('sheet-backdrop').classList.remove('active');
       document.getElementById('auth-bottom-sheet').classList.remove('active');
       document.getElementById('locality-bottom-sheet').classList.remove('active');
+      const staffSheet = document.getElementById('staff-auth-sheet');
+      if (staffSheet) staffSheet.classList.remove('active');
+    }
+
+    /* =========================================================
+       SHOWROOM STAFF & MANAGER GATE HANDLERS
+       ========================================================= */
+    function toggleStorefrontPinEye() {
+      const input = document.getElementById('storefrontStaffPin');
+      if (input) {
+        input.type = input.type === 'password' ? 'text' : 'password';
+      }
+    }
+
+    async function openStaffErpGate() {
+      const token = localStorage.getItem('bde_auth_token');
+      if (token) {
+        try {
+          const res = await fetch('/api/auth/verify-session', {
+            headers: { 'x-bde-auth': token }
+          });
+          const data = await res.json();
+          if (data.authenticated) {
+            window.open('/console', '_blank');
+            return;
+          }
+        } catch (e) {}
+      }
+
+      // If not authenticated, open staff auth bottom sheet
+      document.getElementById('sheet-backdrop').classList.add('active');
+      const staffSheet = document.getElementById('staff-auth-sheet');
+      if (staffSheet) staffSheet.classList.add('active');
+      const err = document.getElementById('storefrontStaffPinErr');
+      if (err) err.style.display = 'none';
+      const input = document.getElementById('storefrontStaffPin');
+      if (input) {
+        input.value = '';
+        input.placeholder = "Enter security passcode...";
+        setTimeout(() => input.focus(), 250);
+      }
+    }
+
+    async function submitStorefrontStaffAuth() {
+      const pinInput = document.getElementById('storefrontStaffPin');
+      const err = document.getElementById('storefrontStaffPinErr');
+      const pin = (pinInput ? pinInput.value : '').trim();
+
+      if (!pin) {
+        if (err) {
+          err.textContent = "Please enter your passcode.";
+          err.style.display = 'block';
+        }
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/auth/console-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pin: pin, remember: true })
+        });
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          if (err) {
+            err.textContent = "❌ " + (data.detail || "Incorrect security passcode.");
+            err.style.display = 'block';
+          }
+          if (pinInput) {
+            pinInput.value = '';
+            pinInput.focus();
+          }
+          return;
+        }
+
+        const data = await res.json();
+        localStorage.setItem('bde_auth_token', data.token);
+        localStorage.setItem('bde_auth_role', data.role);
+        localStorage.setItem('bde_auth_name', data.name);
+
+        closeAllSheets();
+        showToast(`Verified! Welcome ${data.name}. Launching Console...`);
+        setTimeout(() => {
+          window.open('/console', '_blank');
+        }, 500);
+      } catch (e) {
+        if (err) {
+          err.textContent = "Network error. Please try again.";
+          err.style.display = 'block';
+        }
+      }
     }
 
     function openProductEnquiry(sku) {
@@ -3086,7 +3230,7 @@
         return;
       }
 
-      const msg = `Namaskar Baba Dugdheswar Enterprise! 🙏\nI want to enquire / order:\n• Product: ${prod.name}\n• SKU: ${prod.sku}\n• Rate: ₹${prod.customer_price} / ${prod.unit}\n• Locality: ${STATE.currentLocality}\n\nPlease share current stock & delivery timing.`;
+      const msg = `Namaskar Baba Dugdheswar Enterprise! 🙏\nI want to enquire / order:\n• Product: ${prod.name}\n• SKU: ${prod.sku}\n• Unit: ${prod.unit || 'Standard'}\n• Locality: ${STATE.currentLocality}\n• Quantity Required: [Enter Quantity]\n\nPlease confirm current stock availability and Onda depot dispatch timing.`;
       const waUrl = `https://wa.me/919867098952?text=${encodeURIComponent(msg)}`;
       window.location.href = waUrl;
     }
@@ -3101,5 +3245,7 @@
       }, 3200);
     }
   </script>
+  <!-- 3D Furniture & Laminate Studio Simulator Engine -->
+  <script src="/frontend/simulator.js"></script>
 </body>
 </html>

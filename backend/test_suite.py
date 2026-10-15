@@ -47,8 +47,7 @@ def main():
     catalog = test_endpoint("Catalog API (GET /api/catalog)", f"{BASE_URL}/api/catalog")
     if isinstance(catalog, list) and len(catalog) > 0:
         sample = catalog[0]
-        disp = sample['display_rate'].replace('₹', 'Rs.')
-        print(f"       Verification: SKU: {sample['sku']}, Base: Rs.{sample['base_selling_price']}, Marked-Up (10%): Rs.{sample['customer_price']}, Display: {disp}")
+        print(f"       Verification: SKU: {sample['sku']}, Name: {sample['name']}, Unit: {sample.get('unit')}, Price fields omitted: {'customer_price' not in sample}")
 
     # 4. Product Image
     test_endpoint("Product Image (/static/img/products/PLY-COMM-18-8X4.jpg)", f"{BASE_URL}/static/img/products/PLY-COMM-18-8X4.jpg")
