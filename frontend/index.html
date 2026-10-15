@@ -1746,10 +1746,7 @@
         <span>🏷️</span> BDE Store
       </div>
       <div class="service-pill" id="pill-simulator" onclick="switchView('simulator')">
-        <span>🎨</span> 3D Studio
-      </div>
-      <div class="service-pill" id="pill-estimator" onclick="switchView('estimator')">
-        <span>📐</span> Ply Calculator
+        <span>🎨</span> 3D Studio &amp; Estimator
       </div>
       <div class="service-pill" id="pill-mistris" onclick="switchView('mistris')">
         <span>🪚</span> Find Mistri
@@ -1892,95 +1889,7 @@
   </section>
 
 
-  <!-- VIEW 2: SMART FURNITURE CALCULATOR (ESTIMATOR) -->
-  <section id="view-estimator" style="display: none;" class="calculator-container">
-    <div class="calc-card">
-      <div class="calc-header">
-        <div class="calc-header-icon">🧮</div>
-        <div class="calc-header-text">
-          <h2>Smart Furniture Calculator</h2>
-          <p>Instant sheet quantities & Onda showroom counter pricing</p>
-        </div>
-      </div>
 
-      <!-- Furniture Selector Tabs -->
-      <div class="furniture-tabs">
-        <div class="furn-tab active" onclick="selectFurnType('wardrobe', this)">
-          <div class="tab-icon">🚪</div>
-          <div class="tab-title">Wardrobe</div>
-        </div>
-        <div class="furn-tab" onclick="selectFurnType('bed', this)">
-          <div class="tab-icon">🛏️</div>
-          <div class="tab-title">Box Bed</div>
-        </div>
-        <div class="furn-tab" onclick="selectFurnType('kitchen', this)">
-          <div class="tab-icon">🍳</div>
-          <div class="tab-title">Modular Kitchen</div>
-        </div>
-        <div class="furn-tab" onclick="selectFurnType('table', this)">
-          <div class="tab-icon">🪑</div>
-          <div class="tab-title">Dining / Table</div>
-        </div>
-      </div>
-
-      <!-- Dimension Inputs Dynamic Grid -->
-      <div id="furn-inputs-container">
-        <!-- Injected via JavaScript based on chosen furniture -->
-      </div>
-
-      <!-- Quality & Laminate Finish -->
-      <div class="dim-row">
-        <div class="field-group">
-          <label class="field-label">Plywood Grade</label>
-          <select id="calc-ply-grade" class="field-select" onchange="computeEstimation()">
-            <option value="commercial">Tycon BWR Commercial (IS:303)</option>
-            <option value="marine" selected>Club Waterproof Marine (IS:710)</option>
-          </select>
-        </div>
-        <div class="field-group">
-          <label class="field-label">Laminate Type</label>
-          <select id="calc-laminate-type" class="field-select" onchange="computeEstimation()">
-            <option value="gloss">1.0mm Premium High Gloss</option>
-            <option value="matt">0.8mm Merino Matt Finish</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Bill of Materials (BOM) Breakdown -->
-      <div class="bom-summary-card">
-        <div class="bom-summary-title">
-          <span>📋 Estimated Materials Needed</span>
-          <span style="font-size: 11px; color: var(--primary-violet); font-weight: 700;">Exact Onda Cutting Estimate</span>
-        </div>
-        <div id="bom-items-list">
-          <!-- Injected via JS -->
-        </div>
-      </div>
-
-      <!-- Transparent Total Pricing Banner -->
-      <div class="cost-total-banner">
-        <div class="cost-left">
-          <h4>Approx Total Material Cost</h4>
-          <div id="calc-grand-total" class="grand-price">₹0.00</div>
-          <div class="markup-tag">Includes 10% standard retail margin + Onda depot discount</div>
-        </div>
-        <div style="font-size: 28px;">📦</div>
-      </div>
-
-      <!-- Two Required Action Buttons -->
-      <div class="calc-actions">
-        <!-- Option 1: Claim Extra Counter Discount -->
-        <button class="btn-calc-opt1" onclick="handleClaimCounterDiscount()">
-          <span>🎁</span> Option 1: Claim Extra Counter Discount
-        </button>
-
-        <!-- Option 2: Get Expert Carpenter Help -->
-        <button class="btn-calc-opt2" onclick="handleFindCarpenterForEstimate()">
-          <span>🪚</span> Option 2: Get Expert Carpenter Help
-        </button>
-      </div>
-    </div>
-  </section>
 
 
   <!-- =========================================================
@@ -2000,44 +1909,63 @@
         <div class="sim-puja-badge">🪔 Durga Puja Studio Edition</div>
       </div>
 
-      <!-- 1. Structure Selection (9 Furniture Templates) -->
-      <div style="font-size: 11.5px; font-weight: 800; color: #475569; margin-bottom: 6px;">
-        1. CHOOSE FURNITURE STRUCTURE
+      <!-- 1. Structure Selection (10 Furniture Templates) -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+        <div style="font-size: 11.5px; font-weight: 800; color: #475569;">
+          1. CHOOSE FURNITURE STRUCTURE
+        </div>
+        <!-- Category Dropdown Filter -->
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span style="font-size: 11px; font-weight: 700; color: #4338CA;">Category:</span>
+          <select id="sim-cat-dropdown" onchange="simSelectCategory(this.value)" style="font-size: 11px; font-weight: 700; color: #1E1B4B; background: #EEF2FF; border: 1.5px solid #C7D2FE; border-radius: 8px; padding: 4px 8px; cursor: pointer; outline: none;">
+            <option value="all">🌟 All Categories (10 Models)</option>
+            <option value="wardrobe">🚪 Wardrobes &amp; Storage</option>
+            <option value="kitchen">🍳 Modular Kitchen</option>
+            <option value="living">🛋️ Living &amp; Media</option>
+            <option value="bedroom">🛏️ Bedroom &amp; Vanity</option>
+            <option value="office">💼 Office &amp; Study</option>
+          </select>
+        </div>
       </div>
+
       <div class="sim-struct-carousel">
-        <div class="sim-struct-pill active" data-struct="wardrobe" onclick="simSelectStructure('wardrobe')">
+        <div class="sim-struct-pill" data-struct="wardrobe2" data-cat="wardrobe" onclick="simSelectStructure('wardrobe2')">
           <span class="pill-icon">🚪</span>
+          <span>2-Door Compact</span>
+        </div>
+        <div class="sim-struct-pill active" data-struct="wardrobe" data-cat="wardrobe" onclick="simSelectStructure('wardrobe')">
+          <span class="pill-icon">🚪🚪</span>
           <span>4-Door Wardrobe</span>
         </div>
-        <div class="sim-struct-pill" data-struct="wardrobe6" onclick="simSelectStructure('wardrobe6')">
-          <span class="pill-icon">🚪🚪</span>
+        <div class="sim-struct-pill" data-struct="wardrobe6" data-cat="wardrobe" onclick="simSelectStructure('wardrobe6')">
+          <span class="pill-icon">🏛️</span>
           <span>Master 6-Door Wardrobe</span>
         </div>
-        <div class="sim-struct-pill" data-struct="fullwall" onclick="simSelectStructure('fullwall')">
-          <span class="pill-icon">🏛️</span>
+        <div class="sim-struct-pill" data-struct="fullwall" data-cat="wardrobe" onclick="simSelectStructure('fullwall')">
+          <span class="pill-icon">🏰</span>
           <span>Full-Wall Storage Suite</span>
         </div>
-        <div class="sim-struct-pill" data-struct="kitchen" onclick="simSelectStructure('kitchen')">
+        <div class="sim-struct-pill" data-struct="kitchen" data-cat="kitchen" onclick="simSelectStructure('kitchen')">
           <span class="pill-icon">🍳</span>
           <span>Modular Kitchen</span>
         </div>
-        <div class="sim-struct-pill" data-struct="almirah" onclick="simSelectStructure('almirah')">
+        <div class="sim-struct-pill" data-struct="almirah" data-cat="wardrobe bedroom" onclick="simSelectStructure('almirah')">
           <span class="pill-icon">🗄️</span>
           <span>Classic Almirah (Mirror)</span>
         </div>
-        <div class="sim-struct-pill" data-struct="bed" onclick="simSelectStructure('bed')">
+        <div class="sim-struct-pill" data-struct="bed" data-cat="bedroom" onclick="simSelectStructure('bed')">
           <span class="pill-icon">🛏️</span>
           <span>Box Bed / Divan</span>
         </div>
-        <div class="sim-struct-pill" data-struct="tvunit" onclick="simSelectStructure('tvunit')">
+        <div class="sim-struct-pill" data-struct="tvunit" data-cat="living" onclick="simSelectStructure('tvunit')">
           <span class="pill-icon">📺</span>
           <span>Floating TV Unit</span>
         </div>
-        <div class="sim-struct-pill" data-struct="dressing" onclick="simSelectStructure('dressing')">
+        <div class="sim-struct-pill" data-struct="dressing" data-cat="bedroom" onclick="simSelectStructure('dressing')">
           <span class="pill-icon">🪞</span>
           <span>LED Dressing Vanity</span>
         </div>
-        <div class="sim-struct-pill" data-struct="office" onclick="simSelectStructure('office')">
+        <div class="sim-struct-pill" data-struct="office" data-cat="office" onclick="simSelectStructure('office')">
           <span class="pill-icon">💼</span>
           <span>Executive Office Desk</span>
         </div>
@@ -2059,12 +1987,13 @@
               <span>Wall / Unit Width</span>
               <span id="sim-dim-width-val" class="sim-slider-val">12.0 ft</span>
             </div>
-            <input type="range" id="sim-slider-width" class="sim-range-slider" min="6" max="18" step="0.5" value="12" oninput="simSetDimensionWidth(this.value)">
+            <input type="range" id="sim-slider-width" class="sim-range-slider" min="3" max="20" step="0.5" value="12" oninput="simSetDimensionWidth(this.value)">
             <div class="sim-quick-presets-row">
+              <button class="sim-preset-btn" onclick="simSetDimensionWidth(4)">4 ft</button>
+              <button class="sim-preset-btn" onclick="simSetDimensionWidth(6)">6 ft</button>
               <button class="sim-preset-btn" onclick="simSetDimensionWidth(8)">8 ft</button>
               <button class="sim-preset-btn" onclick="simSetDimensionWidth(10)">10 ft</button>
               <button class="sim-preset-btn" onclick="simSetDimensionWidth(12)">12 ft</button>
-              <button class="sim-preset-btn" onclick="simSetDimensionWidth(14)">14 ft</button>
               <button class="sim-preset-btn" onclick="simSetDimensionWidth(16)">16 ft</button>
             </div>
           </div>
@@ -2075,12 +2004,12 @@
               <span>Ceiling Height (Floor-to-Ceiling)</span>
               <span id="sim-dim-height-val" class="sim-slider-val">8.5 ft</span>
             </div>
-            <input type="range" id="sim-slider-height" class="sim-range-slider" min="6.5" max="11" step="0.5" value="8.5" oninput="simSetDimensionHeight(this.value)">
+            <input type="range" id="sim-slider-height" class="sim-range-slider" min="6" max="11" step="0.5" value="8.5" oninput="simSetDimensionHeight(this.value)">
             <div class="sim-quick-presets-row">
+              <button class="sim-preset-btn" onclick="simSetDimensionHeight(6.5)">6.5 ft</button>
               <button class="sim-preset-btn" onclick="simSetDimensionHeight(7)">7 ft</button>
               <button class="sim-preset-btn" onclick="simSetDimensionHeight(8)">8 ft</button>
               <button class="sim-preset-btn" onclick="simSetDimensionHeight(8.5)">8.5 ft (Loft)</button>
-              <button class="sim-preset-btn" onclick="simSetDimensionHeight(9)">9 ft</button>
               <button class="sim-preset-btn" onclick="simSetDimensionHeight(10)">10 ft</button>
             </div>
           </div>
@@ -2112,6 +2041,9 @@
             </button>
             <button id="btn-sim-wireframe" class="sim-ctrl-btn" onclick="simToggleWireframe()">
               📐 Tech Specs
+            </button>
+            <button id="btn-sim-human" class="sim-ctrl-btn active" onclick="simToggleHumanScale()">
+              🧍 5.5 ft Scale: ON
             </button>
           </div>
           <div class="sim-ctrl-group">
@@ -2488,13 +2420,6 @@
       <span class="nav-label">3D Studio</span>
     </div>
 
-    <div class="nav-tab" id="tab-estimator" onclick="switchView('estimator')">
-      <div class="nav-indicator"></div>
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-      </svg>
-      <span class="nav-label">Estimator</span>
-    </div>
 
     <div class="nav-tab" id="tab-mistris" onclick="switchView('mistris')">
       <div class="nav-indicator"></div>
@@ -2896,6 +2821,9 @@
        VIEW SWITCHING
        ========================================================= */
     function switchView(viewName) {
+      if (viewName === 'estimator') {
+        viewName = 'simulator';
+      }
       STATE.activeView = viewName;
 
       // Update Service Pills
@@ -2910,7 +2838,7 @@
       if (targetTab) targetTab.classList.add('active');
 
       // Hide all views
-      ['home', 'simulator', 'estimator', 'mistris', 'showcase', 'account'].forEach(v => {
+      ['home', 'simulator', 'mistris', 'showcase', 'account'].forEach(v => {
         const el = document.getElementById(`view-${v}`);
         if (el) el.style.display = (v === viewName) ? 'block' : 'none';
       });
