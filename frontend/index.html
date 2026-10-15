@@ -1734,7 +1734,7 @@
         </div>
       </div>
       <div class="header-actions">
-        <a href="https://wa.me/919867098952" target="_blank" class="btn-icon-wa" title="WhatsApp Showroom">
+        <a href="javascript:void(0)" onclick="openWhatsAppHelpline()" class="btn-icon-wa" title="WhatsApp Showroom">
           💬
         </a>
       </div>
@@ -2341,7 +2341,7 @@
         </div>
         <span>›</span>
       </div>
-      <div class="menu-item" onclick="window.open('https://wa.me/919867098952', '_blank')">
+      <div class="menu-item" onclick="openWhatsAppHelpline()">
         <div class="menu-item-left">
           <span class="menu-icon">💬</span>
           <span>Direct WhatsApp Helpline (+91 98670 98952)</span>
@@ -3220,7 +3220,7 @@
       }
     }
 
-    function openProductEnquiry(sku) {
+    async function openProductEnquiry(sku) {
       const prod = STATE.catalog.find(p => p.sku === sku);
       if (!prod) return;
 
@@ -3230,9 +3230,63 @@
         return;
       }
 
-      const msg = `Namaskar Baba Dugdheswar Enterprise! 🙏\nI want to enquire / order:\n• Product: ${prod.name}\n• SKU: ${prod.sku}\n• Unit: ${prod.unit || 'Standard'}\n• Locality: ${STATE.currentLocality}\n• Quantity Required: [Enter Quantity]\n\nPlease confirm current stock availability and Onda depot dispatch timing.`;
-      const waUrl = `https://wa.me/919867098952?text=${encodeURIComponent(msg)}`;
-      window.location.href = waUrl;
+      const locality = STATE.user.location || STATE.currentLocality || 'Onda, Bankura';
+      const materialsText = `• Product: ${prod.name}\n• SKU: ${prod.sku}\n• Category: ${prod.category || 'General'}\n• Brand: ${prod.brand || 'Standard'}\n• Unit: ${prod.unit || 'Standard'}\n• Delivery Locality: ${locality}`;
+
+      const payload = {
+        customer_name: STATE.user.name,
+        phone: STATE.user.phone,
+        delivery_locality: locality,
+        quote_type: 'Product Enquiry',
+        furniture_type: prod.name,
+        dimensions: `SKU: ${prod.sku} | Unit: ${prod.unit || 'Standard'}`,
+        materials_breakdown: materialsText,
+        notes: `Customer tapped Enquire / Order for ${prod.name}`
+      };
+
+      showToast('Sending enquiry to Onda Showroom...');
+
+      const defaultMsg = `Namaskar Baba Dugdheswar Enterprise! 🙏\nI want to enquire / order:\n• Product: ${prod.name}\n• SKU: ${prod.sku}\n• Unit: ${prod.unit || 'Standard'}\n• Locality: ${locality}\n• Quantity Required: [Enter Quantity]\n\nPlease confirm current stock availability and Onda depot dispatch timing.`;
+      const defaultWaUrl = `https://wa.me/919867098952?text=${encodeURIComponent(defaultMsg)}`;
+
+      try {
+        const res = await fetch('/api/quote-request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        const waUrl = data.whatsapp_url || defaultWaUrl;
+        setTimeout(() => {
+          window.location.href = waUrl;
+        }, 350);
+      } catch (err) {
+        console.error('Failed to log quote request:', err);
+        window.location.href = defaultWaUrl;
+      }
+    }
+
+    async function openWhatsAppHelpline() {
+      const user = STATE.user;
+      if (user) {
+        try {
+          await fetch('/api/quote-request', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              customer_name: user.name,
+              phone: user.phone,
+              delivery_locality: user.location || STATE.currentLocality || 'Onda',
+              quote_type: 'WhatsApp Helpline',
+              furniture_type: 'Direct Showroom Contact',
+              dimensions: 'Storefront Direct Tap',
+              materials_breakdown: 'Customer tapped WhatsApp Helpline button from Storefront',
+              notes: 'Live customer support enquiry'
+            })
+          });
+        } catch(e) {}
+      }
+      window.open('https://wa.me/919867098952', '_blank');
     }
 
     function showToast(text) {

@@ -524,6 +524,18 @@ def track_carpenter_call(call: schemas.CarpenterCallCreate, db: Session = Depend
         created_at=datetime.utcnow()
     )
     db.add(log_entry)
+
+    # Also log to QuoteInquiry so it reflects under Website Enquiries in Admin Console
+    inquiry = models.QuoteInquiry(
+        customer_name=call.customer_name or "Valued Customer",
+        phone=call.customer_phone.strip(),
+        quote_type="Carpenter Lead",
+        delivery_locality=call.customer_village or "Onda",
+        requested_items=f"Verified Mistri Call Request: {carpenter.name} ({carpenter.village}) • Spec: {carpenter.specialties}",
+        notes=f"Customer connected directly to carpenter {carpenter.name}",
+        created_at=datetime.utcnow()
+    )
+    db.add(inquiry)
     db.commit()
 
     return {

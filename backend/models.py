@@ -96,7 +96,7 @@ class QuoteInquiry(Base):
     id = Column(Integer, primary_key=True, index=True)
     customer_name = Column(String(120), nullable=False)
     phone = Column(String(20), nullable=False)
-    quote_type = Column(String(20), default="Retail")
+    quote_type = Column(String(60), default="Retail")
     delivery_locality = Column(String(150), default="Onda")
     requested_items = Column(Text, nullable=False)
     notes = Column(Text, nullable=True)

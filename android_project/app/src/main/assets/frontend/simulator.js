@@ -1840,12 +1840,45 @@
   };
 
   // --- HIGH-CONVERSION ACTIONS ---
-  window.simSendToWhatsApp = function () {
+  window.simSendToWhatsApp = async function () {
     const s = window.SIM_STATE;
     const bom = calculateSimulatorBom();
     const swA = getSwatch(s.zoneA);
     const swB = getSwatch(s.zoneB);
     const hw = window.HARDWARE_CATALOG.find(h => h.id === s.hardware)?.name || s.hardware;
+
+    if (window.STATE && !window.STATE.user) {
+      window.STATE.pendingAction = () => window.simSendToWhatsApp();
+      if (window.triggerAuthSheet) {
+        window.triggerAuthSheet('quote');
+        return;
+      }
+    }
+
+    const user = window.STATE?.user || { name: 'Valued Customer', phone: '9867098952', location: window.STATE?.currentLocality || 'Onda, Bankura' };
+    const locality = user.location || window.STATE?.currentLocality || 'Onda, Bankura';
+
+    const materialsText = 
+      `• Furniture: ${bom.title} (${s.dimensions[s.structure]?.width || 6} ft W x ${s.dimensions[s.structure]?.height || 7} ft H)\n` +
+      `• 18mm Plywood: ${bom.p18Sheets} Sheets (${s.plyGrade === 'marine' ? 'Marine IS:710 Waterproof' : 'Tycon BWR IS:303'})\n` +
+      `• 12mm Plywood: ${bom.p12Sheets} Sheets\n` +
+      `• 1.0mm Decorative Laminate: ${bom.laminateSheets} Sheets (${swB.name} - ${swB.code})\n` +
+      `• 0.8mm Inner Liner: ${bom.linerSheets} Sheets\n` +
+      `• Carcass Finish: ${swA.name} (${swA.code})\n` +
+      `• Hardware Finish: ${hw}`;
+
+    const payload = {
+      customer_name: user.name,
+      phone: user.phone,
+      delivery_locality: locality,
+      quote_type: '3D Studio Design',
+      furniture_type: bom.title,
+      dimensions: `${s.dimensions[s.structure]?.width || 6} ft W x ${s.dimensions[s.structure]?.height || 7} ft H`,
+      materials_breakdown: materialsText,
+      notes: `Customized in 3D Studio Simulator with ${s.plyGrade === 'marine' ? 'Club Marine IS:710' : 'BWR IS:303'}`
+    };
+
+    if (window.showToast) window.showToast('Logging 3D design enquiry with Onda Showroom...');
 
     const message = `Namaskar Dipanjan Babu! 👋\nI designed a customized *${bom.title}* on the *Baba Dugdheswar Enterprise 3D Studio Simulator*.\n\n` +
       `🎨 *Design Specifications:*\n` +
@@ -1858,12 +1891,27 @@
       `• 18mm Plywood: ${bom.p18Sheets} Sheets\n` +
       `• 12mm Plywood: ${bom.p12Sheets} Sheets\n` +
       `• 1.0mm Decorative Laminate: ${bom.laminateSheets} Sheets\n` +
-      `• 0.8mm Inner Liner: ${bom.linerSheets} Sheets\n` +
-      `` +
+      `• 0.8mm Inner Liner: ${bom.linerSheets} Sheets\n\n` +
       `Please check live stock at Onda Depot and confirm booking/delivery. Thank you!`;
 
     const encoded = encodeURIComponent(message);
-    window.open(`https://wa.me/919867098952?text=${encoded}`, '_blank');
+    const defaultWaUrl = `https://wa.me/919867098952?text=${encoded}`;
+
+    try {
+      const res = await fetch('/api/quote-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      const redirectUrl = data.whatsapp_url || defaultWaUrl;
+      setTimeout(() => {
+        window.open(redirectUrl, '_blank');
+      }, 350);
+    } catch (e) {
+      console.error('Quote request log error:', e);
+      window.open(defaultWaUrl, '_blank');
+    }
   };
 
   window.simDownloadSnapshot = function () {
@@ -1917,8 +1965,56 @@
     }
   };
 
-  window.simClaimDiscount = function () {
-    alert('🎉 Congratulations!\nYour 3D Studio Exclusive Counter Code: "BDE-STUDIO-PUJA"\nShow this code at the Onda showroom counter or WhatsApp to claim an extra 5% instant discount on your laminate & plywood booking!');
+  window.simClaimDiscount = async function () {
+    if (window.STATE && !window.STATE.user) {
+      window.STATE.pendingAction = () => window.simClaimDiscount();
+      if (window.triggerAuthSheet) {
+        window.triggerAuthSheet('quote');
+        return;
+      }
+    }
+    const s = window.SIM_STATE;
+    const bom = calculateSimulatorBom();
+    const user = window.STATE?.user || { name: 'Valued Customer', phone: '9867098952', location: window.STATE?.currentLocality || 'Onda, Bankura' };
+    const locality = user.location || window.STATE?.currentLocality || 'Onda, Bankura';
+
+    const materialsText = 
+      `• Project: ${bom.title}\n` +
+      `• Total Goods: ${bom.totalPlySheets} Ply Sheets + ${Math.round((bom.laminateSheets + bom.linerSheets) * 10) / 10} Sunmica Sheets\n` +
+      `• Plywood Grade: ${s.plyGrade === 'marine' ? 'Marine IS:710 Waterproof' : 'BWR IS:303'}\n` +
+      `• Customer request: Live stock check and truck loading schedule at Onda Depot`;
+
+    const payload = {
+      customer_name: user.name,
+      phone: user.phone,
+      delivery_locality: locality,
+      quote_type: 'Depot Stock Check',
+      furniture_type: bom.title,
+      dimensions: `${s.dimensions[s.structure]?.width || 6} ft W x ${s.dimensions[s.structure]?.height || 7} ft H`,
+      materials_breakdown: materialsText,
+      notes: 'Customer requested Onda Depot live stock check & loading schedule'
+    };
+
+    if (window.showToast) window.showToast('Checking depot stock with showroom manager...');
+
+    const waMsg = `Namaskar Dipanjan Babu! 🙏\nI would like to check live stock & delivery schedule from Onda Depot for my 3D design:\n• Structure: ${bom.title}\n• Total Sheets: ${bom.totalPlySheets} Ply + ${Math.round((bom.laminateSheets + bom.linerSheets) * 10) / 10} Sunmica\n• Locality: ${locality}`;
+    const defaultWaUrl = `https://wa.me/919867098952?text=${encodeURIComponent(waMsg)}`;
+
+    try {
+      const res = await fetch('/api/quote-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      const redirectUrl = data.whatsapp_url || defaultWaUrl;
+      setTimeout(() => {
+        window.open(redirectUrl, '_blank');
+      }, 350);
+    } catch (e) {
+      console.error('Error logging depot stock check:', e);
+      window.open(defaultWaUrl, '_blank');
+    }
   };
 
   window.simFindMistri = function () {

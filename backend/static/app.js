@@ -242,6 +242,10 @@ function unlockConsoleUI(role, name) {
   loadInventory();
   loadSalesHistory();
   loadDues();
+  loadWebsiteInquiries();
+  if (!window._inquiriesInterval) {
+    window._inquiriesInterval = setInterval(loadWebsiteInquiries, 25000);
+  }
   if (isAdmin) {
     loadExecutiveBI();
   }
@@ -366,6 +370,7 @@ function switchTab(name) {
   if (name === 'exec') loadExecutiveBI();
   if (name === 'dues') loadDues();
   if (name === 'history') loadSalesHistory();
+  if (name === 'inquiries') loadWebsiteInquiries();
 }
 
 /* --- Inventory & Products --- */
@@ -1420,6 +1425,15 @@ async function loadWebsiteInquiries() {
   try {
     const res = await authFetch('/quote-inquiries');
     const data = await res.json();
+    const badge = document.getElementById('inquiriesCountBadge');
+    if (badge) {
+      if (data && data.length > 0) {
+        badge.textContent = data.length;
+        badge.style.display = 'inline-block';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
     if (!data || data.length === 0) {
       tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:28px; color:var(--text-muted);">No customer website inquiries received yet.</td></tr>`;
       return;
