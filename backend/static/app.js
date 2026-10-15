@@ -1,0 +1,1303 @@
+const API_BASE = "";
+const ADMIN_PIN = "Dip@1993";
+let isAdmin = false;
+
+let productsCache = [];
+let customersCache = [];
+let invoiceCart = [];
+let historyCache = [];
+let duesCache = [];
+
+let monthlyChartInstance = null;
+let locationChartInstance = null;
+let categoryChartInstance = null;
+
+const fmtInr = (n) => "₹ " + Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+/* --- Floating Toast Notification Engine --- */
+function showToast(message, type = "success") {
+  let container = document.getElementById("toastContainer");
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "toastContainer";
+    container.style.cssText = "position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;";
+    document.body.appendChild(container);
+  }
+
+  const colors = {
+    success: { border: "#10b981", bg: "rgba(6, 78, 59, 0.92)", icon: "✅" },
+    warning: { border: "#f59e0b", bg: "rgba(120, 53, 15, 0.92)", icon: "⚠️" },
+    error:   { border: "#f43f5e", bg: "rgba(136, 19, 55, 0.92)", icon: "❌" },
+    info:    { border: "#38bdf8", bg: "rgba(12, 74, 110, 0.92)", icon: "ℹ️" }
+  };
+  const c = colors[type] || colors.info;
+
+  const toast = document.createElement("div");
+  toast.style.cssText = `
+    display: flex; align-items: center; gap: 10px;
+    background: ${c.bg}; color: #f8fafc;
+    border-left: 4px solid ${c.border};
+    border-top: 1px solid rgba(255,255,255,0.12);
+    border-right: 1px solid rgba(255,255,255,0.12);
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    padding: 12px 18px; border-radius: 10px;
+    font-size: 13px; font-weight: 600;
+    box-shadow: 0 15px 30px -5px rgba(0,0,0,0.5);
+    backdrop-filter: blur(12px);
+    transform: translateY(15px); opacity: 0;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    max-width: 380px;
+  `;
+  toast.innerHTML = `<span>${c.icon}</span><span>${message}</span>`;
+  container.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    toast.style.transform = "translateY(0)";
+    toast.style.opacity = "1";
+  });
+
+  setTimeout(() => {
+    toast.style.transform = "translateY(10px)";
+    toast.style.opacity = "0";
+    setTimeout(() => toast.remove(), 250);
+  }, 3400);
+}
+
+/* --- Quick Copy Helper --- */
+function copyText(text, label = "Text") {
+  if (!navigator.clipboard) return;
+  navigator.clipboard.writeText(text).then(() => {
+    showToast(`Copied ${label}: ${text}`, "info");
+  });
+}
+
+/* --- Indian Number to Words (For Printable Cash Memo) --- */
+function numberToIndianWords(num) {
+  const n = Math.round(Number(num) || 0);
+  if (n === 0) return "Rupees Zero Only";
+  const a = ["", "One ", "Two ", "Three ", "Four ", "Five ", "Six ", "Seven ", "Eight ", "Nine ", "Ten ",
+    "Eleven ", "Twelve ", "Thirteen ", "Fourteen ", "Fifteen ", "Sixteen ", "Seventeen ", "Eighteen ", "Nineteen "];
+  const b = ["", "", "Twenty ", "Thirty ", "Forty ", "Fifty ", "Sixty ", "Seventy ", "Eighty ", "Ninety "];
+
+  const inWords = (val) => {
+    if (val < 20) return a[val];
+    return b[Math.floor(val / 10)] + a[val % 10];
+  };
+
+  let str = "";
+  const crore = Math.floor(n / 10000000);
+  const lakh = Math.floor((n / 100000) % 100);
+  const thousand = Math.floor((n / 1000) % 100);
+  const hundred = Math.floor((n / 100) % 10);
+  const rest = n % 100;
+
+  if (crore > 0) str += inWords(crore) + "Crore ";
+  if (lakh > 0) str += inWords(lakh) + "Lakh ";
+  if (thousand > 0) str += inWords(thousand) + "Thousand ";
+  if (hundred > 0) str += inWords(hundred) + "Hundred ";
+  if (rest > 0) {
+    if (str !== "") str += "and ";
+    str += inWords(rest);
+  }
+  return "Rupees " + str.trim() + " Only";
+}
+
+/* --- Theme Switcher --- */
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('bde_theme', theme);
+  const btn = document.getElementById('themeBtn');
+  if (btn) btn.textContent = theme === 'light' ? '🌙 Dark Mode' : '☀️ Day Mode';
+}
+
+function toggleTheme() {
+  const cur = localStorage.getItem('bde_theme') || 'dark';
+  const next = cur === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  showToast(`Switched to ${next === 'light' ? 'Day' : 'Dark'} Mode`, "info");
+}
+
+/* --- Admin PIN Security --- */
+function handleAuthClick() {
+  if (isAdmin) {
+    isAdmin = false;
+    document.body.classList.remove('admin-unlocked');
+    document.getElementById('authBtn').textContent = "🔒 Staff Mode (Unlock Admin)";
+    document.getElementById('authBtn').classList.replace('btn-danger', 'btn-secondary');
+    switchTab('pos');
+    onProductSelectChange();
+    showToast("Admin Mode Locked. Switched to Counter Staff View.", "info");
+  } else {
+    document.getElementById('pinInput').value = "";
+    document.getElementById('pinModal').classList.add('show');
+    setTimeout(() => document.getElementById('pinInput').focus(), 100);
+  }
+}
+
+function closePinModal() { document.getElementById('pinModal').classList.remove('show'); }
+
+function verifyPin() {
+  if (document.getElementById('pinInput').value.trim() === ADMIN_PIN) {
+    isAdmin = true;
+    document.body.classList.add('admin-unlocked');
+    document.getElementById('authBtn').textContent = "🔓 Admin Active (Lock)";
+    document.getElementById('authBtn').classList.replace('btn-secondary', 'btn-danger');
+    closePinModal();
+    onProductSelectChange();
+    renderRates(productsCache);
+    renderHistory(historyCache);
+    showToast("Admin Mode Unlocked! Full Margins & BI Active.", "success");
+  } else {
+    showToast("Incorrect Security PIN", "error");
+    document.getElementById('pinInput').value = "";
+  }
+}
+
+/* --- Tab Navigation --- */
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  const btn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(name));
+  if (btn) btn.classList.add('active');
+  const panel = document.getElementById(`tab-${name}`);
+  if (panel) panel.classList.add('active');
+
+  if (name === 'inventory') renderInventory(productsCache);
+  if (name === 'rates') renderRates(productsCache);
+  if (name === 'broadcast') renderBroadcastList();
+  if (name === 'exec') loadExecutiveBI();
+  if (name === 'dues') loadDues();
+  if (name === 'history') loadSalesHistory();
+}
+
+/* --- Inventory & Products --- */
+async function loadInventory() {
+  try {
+    const res = await fetch(`${API_BASE}/products`);
+    productsCache = await res.json();
+    populateCategoryDropdown();
+    renderInventory(productsCache);
+    renderRates(productsCache);
+    populateDropdowns();
+  } catch(e) { console.error("Could not fetch inventory", e); }
+}
+
+function populateCategoryDropdown() {
+  const cats = Array.from(new Set(productsCache.map(p => p.category || "General"))).sort();
+  const sel = document.getElementById('invCategoryFilter');
+  if (!sel) return;
+  const curVal = sel.value || "ALL";
+  sel.innerHTML = `<option value="ALL">All Categories</option>` + cats.map(c => `<option value="${c}">${c}</option>`).join('');
+  sel.value = curVal;
+}
+
+function renderInventory(list) {
+  const tbody = document.getElementById('inventoryBody');
+  if (!tbody) return;
+  let totalUnits = 0, totalVal = 0, lowStockCount = 0;
+
+  list.forEach(p => {
+    totalUnits += (p.stock_qty || 0);
+    totalVal += (p.inventory_valuation || 0);
+    if ((p.stock_qty || 0) <= (p.reorder_level || 0)) {
+      lowStockCount++;
+    }
+  });
+
+  document.getElementById('invTotalSkus').textContent = list.length;
+  document.getElementById('invTotalUnits').textContent = totalUnits.toLocaleString('en-IN');
+  document.getElementById('invTotalValuation').textContent = fmtInr(totalVal);
+  document.getElementById('invLowStockAlerts').textContent = lowStockCount;
+
+  tbody.innerHTML = list.map(p => {
+    let statusBadge = '';
+    let barColor = 'var(--emerald)';
+    const stock = p.stock_qty || 0;
+    const reorder = p.reorder_level || 1;
+    const maxCap = Math.max(stock, reorder * 4, 1);
+    const pct = Math.min(100, Math.max(4, Math.round((stock / maxCap) * 100)));
+
+    if (stock <= 0) {
+      statusBadge = '<span class="badge-nostock">NO STOCK</span>';
+      barColor = 'var(--rose)';
+    } else if (stock <= reorder) {
+      statusBadge = '<span class="badge-lowstock">LOW STOCK (&le;25%)</span>';
+      barColor = 'var(--amber)';
+    } else {
+      statusBadge = '<span class="badge-instock">IN STOCK</span>';
+    }
+
+    return `
+      <tr>
+        <td class="mono" style="font-weight:700; color:var(--primary); cursor:pointer;" title="Click to copy SKU" onclick="copyText('${p.sku}', 'SKU')">${p.sku}</td>
+        <td><strong>${p.name}</strong></td>
+        <td>${p.category}</td>
+        <td>${p.subcategory || 'General'}</td>
+        <td>${p.brand || 'Standard'}</td>
+        <td>${p.unit || 'Pcs'}</td>
+        <td class="mono" style="text-align:right;">${p.opening_qty}</td>
+        <td class="mono" style="text-align:right;">${p.total_restocked}</td>
+        <td class="mono" style="text-align:right;">${p.total_sold}</td>
+        <td class="mono" style="text-align:right; font-weight:800; font-size:13px; min-width:95px;">
+          <div>${stock}</div>
+          <div style="width:100%; height:4px; background:rgba(148,163,184,0.18); border-radius:99px; margin-top:4px; overflow:hidden;">
+            <div style="width:${stock <= 0 ? 0 : pct}%; height:100%; background:${barColor}; border-radius:99px;"></div>
+          </div>
+        </td>
+        <td class="mono" style="text-align:center;">${p.reorder_level}</td>
+        <td style="text-align:center;">${statusBadge}</td>
+        <td class="mono" style="text-align:right; font-weight:700;">${fmtInr(p.inventory_valuation)}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function filterInventory() {
+  const q = document.getElementById('invSearch').value.toLowerCase();
+  const cat = document.getElementById('invCategoryFilter').value;
+  const filtered = productsCache.filter(p => {
+    const matchText = p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q) || (p.brand && p.brand.toLowerCase().includes(q));
+    const matchCat = (cat === 'ALL') || (p.category === cat);
+    return matchText && matchCat;
+  });
+  renderInventory(filtered);
+}
+
+/* --- Rate Chart --- */
+function renderRates(list) {
+  const tbody = document.getElementById('rateChartBody');
+  if (!tbody) return;
+  tbody.innerHTML = list.map(p => `
+    <tr>
+      <td class="mono" style="font-weight:700; color:var(--primary); cursor:pointer;" title="Click to copy SKU" onclick="copyText('${p.sku}', 'SKU')">${p.sku}</td>
+      <td><strong>${p.name}</strong></td>
+      <td>${p.category}</td>
+      <td>${p.unit}</td>
+      <td class="mono admin-only" style="text-align:right; font-weight:700; color:var(--text-muted);">${fmtInr(p.purchase_price)}</td>
+      <td class="mono" style="text-align:right; font-weight:700; color:var(--primary); cursor:pointer;" title="Click to copy Selling Price" onclick="copyText('${p.selling_price}', 'Rate')">${fmtInr(p.selling_price)}</td>
+      <td class="mono admin-only" style="text-align:right; color:var(--amber);">${fmtInr(p.min_selling_price)}</td>
+      <td class="mono admin-only" style="text-align:right; color:${p.gross_margin_pct >= 0 ? 'var(--emerald)' : 'var(--rose)'}; font-weight:700;">${p.gross_margin_pct}%</td>
+    </tr>
+  `).join('');
+}
+
+function filterRates() {
+  const q = document.getElementById('rateSearch').value.toLowerCase();
+  const filtered = productsCache.filter(p => p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q));
+  renderRates(filtered);
+}
+
+/* --- Customers & POS Dropdowns --- */
+async function loadCustomers() {
+  const res = await fetch(`${API_BASE}/customers`);
+  customersCache = await res.json();
+  populateDropdowns();
+}
+
+function populateDropdowns() {
+  const custSelect = document.getElementById('posCustomerSelect');
+  if (custSelect) {
+    const prevCust = custSelect.value;
+    custSelect.innerHTML = customersCache.map(c => `
+      <option value="${c.id}">${c.name} (${c.phone}) — [${c.category || 'Retailer'}]</option>
+    `).join('');
+    if (prevCust) custSelect.value = prevCust;
+  }
+
+  const posProd = document.getElementById('posProductSelect');
+  const purProd = document.getElementById('purProductSelect');
+  const opts = productsCache.map(p => `<option value="${p.id}">${p.name} (${p.sku}) — [Stock: ${p.stock_qty} ${p.unit}]</option>`).join('');
+  if (posProd) posProd.innerHTML = opts;
+  if (purProd) purProd.innerHTML = opts;
+  onPurProductChange();
+  onProductSelectChange();
+}
+
+function onProductSelectChange() {
+  const prodSelect = document.getElementById('posProductSelect');
+  if (!prodSelect) return;
+  const prodId = parseInt(prodSelect.value);
+  const prod = productsCache.find(p => p.id === prodId);
+  if (!prod) return;
+
+  const formatRate = (val) => Number((parseFloat(val) || 0).toFixed(2));
+  const sellPrice = formatRate(prod.selling_price);
+  const floorMin = formatRate(prod.min_selling_price);
+  const costPrice = formatRate(prod.purchase_price);
+
+  document.getElementById('posRate').value = sellPrice;
+
+  const helperEl = document.getElementById('priceHelper');
+  if (helperEl) {
+    helperEl.innerHTML = isAdmin
+      ? `🏷️ <strong>Selling (S):</strong> ₹${sellPrice} &nbsp;|&nbsp; 🛡️ <strong>Floor Min (MS):</strong> ₹${floorMin} &nbsp;|&nbsp; 🔒 <strong>Cost (P):</strong> ₹${costPrice} &nbsp;|&nbsp; 📦 <strong>Available:</strong> ${prod.stock_qty} ${prod.unit}`
+      : `🏷️ <strong>Standard Rate:</strong> ₹${sellPrice} per ${prod.unit} &nbsp;|&nbsp; 📦 <strong>Available Stock:</strong> ${prod.stock_qty} ${prod.unit}`;
+  }
+
+  const sheetInput = document.getElementById('posSheets');
+  const qtyInput = document.getElementById('posQty');
+
+  if (prod.unit === 'SqFt' && (prod.sqft_per_piece || 0) > 0) {
+    sheetInput.style.display = 'block';
+    sheetInput.placeholder = `Sheets (${prod.sqft_per_piece} SqFt/sheet)`;
+    sheetInput.value = '';
+    qtyInput.placeholder = "Total SqFt";
+  } else {
+    sheetInput.style.display = 'none';
+    sheetInput.value = '';
+    qtyInput.placeholder = `Billing Qty (${prod.unit})`;
+  }
+}
+
+function calcPlywoodSqft() {
+  const prodId = parseInt(document.getElementById('posProductSelect').value);
+  const prod = productsCache.find(p => p.id === prodId);
+  const sheets = parseFloat(document.getElementById('posSheets').value) || 0;
+  if (prod && prod.sqft_per_piece > 0) {
+    document.getElementById('posQty').value = Number((sheets * prod.sqft_per_piece).toFixed(2));
+  }
+}
+
+function addItemToCart() {
+  const prodId = parseInt(document.getElementById('posProductSelect').value);
+  const prod = productsCache.find(p => p.id === prodId);
+  const qty = parseFloat(document.getElementById('posQty').value);
+  const rate = parseFloat(document.getElementById('posRate').value);
+
+  if (!qty || qty <= 0 || !rate || rate <= 0) {
+    return showToast("Please enter a valid Billing Quantity and Unit Rate.", "warning");
+  }
+  if (qty > prod.stock_qty) {
+    return showToast(`Insufficient Stock! Only ${prod.stock_qty} ${prod.unit} available for ${prod.name}.`, "error");
+  }
+
+  const existing = invoiceCart.find(item => item.product_id === prodId);
+  if (existing) {
+    if (existing.qty + qty > prod.stock_qty) {
+      return showToast(`Cannot exceed available stock (${prod.stock_qty} ${prod.unit}).`, "error");
+    }
+    existing.qty = Number((existing.qty + qty).toFixed(2));
+    existing.unit_price = rate;
+    existing.total = existing.qty * rate;
+  } else {
+    invoiceCart.push({
+      product_id: prodId,
+      name: prod.name,
+      sku: prod.sku,
+      unit: prod.unit,
+      qty: qty,
+      unit_price: rate,
+      total: qty * rate
+    });
+  }
+
+  document.getElementById('posQty').value = '';
+  document.getElementById('posSheets').value = '';
+  const searchBox = document.getElementById('posProdSearch');
+  if (searchBox) { searchBox.value = ''; filterPosProducts(); }
+  renderCart();
+  showToast(`Added ${qty} ${prod.unit} of ${prod.name} to bill`, "success");
+}
+
+function removeFromCart(idx) {
+  const removed = invoiceCart.splice(idx, 1);
+  renderCart();
+  if (removed.length) showToast(`Removed ${removed[0].name} from cart`, "info");
+}
+
+function renderCart() {
+  const tbody = document.getElementById('cartBody');
+  if (invoiceCart.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 28px;">No items in bill yet. Select a product on the left to begin.</td></tr>`;
+    document.getElementById('cartGrandTotal').textContent = "₹ 0.00";
+    return;
+  }
+
+  let grand = 0;
+  tbody.innerHTML = invoiceCart.map((item, idx) => {
+    grand += item.total;
+    return `
+      <tr>
+        <td class="mono">${idx + 1}</td>
+        <td>
+          <strong>${item.name}</strong>
+          <div class="mono" style="font-size:11px; color:var(--text-muted);">${item.sku || ''}</div>
+        </td>
+        <td class="mono">${item.qty} ${item.unit}</td>
+        <td class="mono">${fmtInr(item.unit_price)}</td>
+        <td class="mono"><strong>${fmtInr(item.total)}</strong></td>
+        <td style="text-align: right;">
+          <button class="btn btn-danger" style="padding: 4px 10px; font-size: 11px;" onclick="removeFromCart(${idx})">✕</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  document.getElementById('cartGrandTotal').textContent = fmtInr(grand);
+}
+
+async function finalizeMultiItemSale() {
+  if (invoiceCart.length === 0) return showToast("Invoice cart is empty! Add items first.", "warning");
+  const custId = parseInt(document.getElementById('posCustomerSelect').value);
+  if (!custId) return showToast("Please select a customer first.", "warning");
+
+  const paidInput = document.getElementById('posPaidAmount').value.trim();
+  const paidAmount = paidInput === "" ? null : parseFloat(paidInput);
+
+  const payload = {
+    customer_id: custId,
+    paid_amount: paidAmount,
+    items: invoiceCart.map(item => ({
+      product_id: item.product_id,
+      qty: item.qty,
+      unit_price: item.unit_price
+    }))
+  };
+
+  const res = await fetch(`${API_BASE}/sales/multi`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    return showToast(err.detail || "Sale transaction rejected.", "error");
+  }
+
+  const receipt = await res.json();
+  showToast(`Invoice ${receipt.invoice_id} finalized! Preparing print...`, "success");
+
+  document.getElementById('billInv').textContent = receipt.invoice_id;
+  document.getElementById('billDate').textContent = receipt.date;
+  document.getElementById('billCust').textContent = receipt.customer_name;
+  document.getElementById('billPhone').textContent = receipt.customer_phone;
+
+  document.getElementById('billItemsBody').innerHTML = receipt.items.map(i => `
+    <tr>
+      <td style="padding: 6px 10px; border: 1px solid #000;">${i.name}</td>
+      <td style="padding: 6px 10px; text-align: right; border: 1px solid #000;">${i.qty} ${i.unit}</td>
+      <td style="padding: 6px 10px; text-align: right; border: 1px solid #000;">₹ ${i.unit_price.toFixed(2)}</td>
+      <td style="padding: 6px 10px; text-align: right; border: 1px solid #000;">₹ ${i.line_total.toFixed(2)}</td>
+    </tr>
+  `).join('');
+
+  document.getElementById('billGrandTotal').textContent = fmtInr(receipt.grand_total);
+  document.getElementById('billPaid').textContent = fmtInr(receipt.paid_amount);
+  document.getElementById('billDue').textContent = fmtInr(receipt.due_amount);
+
+  const wordsEl = document.getElementById('billAmountWords');
+  if (wordsEl) {
+    wordsEl.textContent = "Amount in Words: " + numberToIndianWords(receipt.grand_total);
+  }
+
+  invoiceCart = [];
+  document.getElementById('posPaidAmount').value = "";
+  renderCart();
+
+  await loadInventory();
+  loadSalesHistory();
+  loadDues();
+  if (isAdmin) loadExecutiveBI();
+
+  document.body.classList.remove('printing-restock');
+  document.body.classList.add('printing-bill');
+  window.print();
+  setTimeout(() => {
+    document.body.classList.remove('printing-bill');
+  }, 1000);
+}
+
+/* --- Khata / Due Ledger --- */
+async function loadDues() {
+  try {
+    const res = await fetch(`${API_BASE}/dues/summary`);
+    duesCache = await res.json();
+    renderDues(duesCache);
+  } catch(e) { console.error(e); }
+}
+
+function renderDues(list) {
+  const tbody = document.getElementById('duesBody');
+  if (!tbody) return;
+  if (list.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:var(--emerald); padding:24px; font-weight:700;">🎉 All clear! Zero outstanding customer receivables.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = list.map(d => {
+    const catClass = d.category === 'Carpenter' ? 'badge-carpenter' : (d.category === 'Contractor' ? 'badge-contractor' : 'badge-retailer');
+    return `
+      <tr>
+        <td><strong>${d.customer_name}</strong></td>
+        <td><span class="badge-cat ${catClass}">${d.category}</span></td>
+        <td class="mono">${d.phone}</td>
+        <td>${d.location}</td>
+        <td class="mono" style="text-align:right;">${fmtInr(d.total_billed)}</td>
+        <td class="mono" style="color:var(--emerald); text-align:right;">${fmtInr(d.total_paid)}</td>
+        <td class="mono" style="color:var(--rose); font-weight:800; text-align:right;">${fmtInr(d.pending_due)}</td>
+        <td class="mono" style="text-align:center;">${d.oldest_due_date}</td>
+        <td class="mono" style="text-align:center; color:var(--amber); font-weight:700;">${d.overdue_days} days</td>
+        <td style="text-align:right;">
+          <button class="btn btn-secondary" style="padding: 5px 12px; font-size: 11.5px;" onclick="openPaymentModal(${d.customer_id}, '${d.customer_name}', ${d.pending_due})">
+            💳 Receive Payment
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function filterDues() {
+  const q = document.getElementById('dueSearch').value.toLowerCase();
+  renderDues(duesCache.filter(d => d.customer_name.toLowerCase().includes(q) || d.phone.includes(q)));
+}
+
+function openPaymentModal(custId, custName, due) {
+  document.getElementById('payCustId').value = custId;
+  document.getElementById('payModalSubtitle').textContent = `Customer: ${custName} | Outstanding Due: ₹ ${due}`;
+  document.getElementById('payAmountInput').value = due;
+  document.getElementById('paymentModal').classList.add('show');
+  setTimeout(() => document.getElementById('payAmountInput').focus(), 100);
+}
+
+function closePaymentModal() { document.getElementById('paymentModal').classList.remove('show'); }
+
+async function submitDuePayment() {
+  const custId = parseInt(document.getElementById('payCustId').value);
+  const amount = parseFloat(document.getElementById('payAmountInput').value);
+  if (!amount || amount <= 0) return showToast("Enter a valid payment sum.", "warning");
+
+  const res = await fetch(`${API_BASE}/dues/pay`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ customer_id: custId, amount: amount })
+  });
+  if (!res.ok) return showToast("Payment logging failed.", "error");
+
+  closePaymentModal();
+  showToast(`Received ₹${amount}! Customer Khata updated.`, "success");
+  loadDues();
+  loadSalesHistory();
+  if (isAdmin) loadExecutiveBI();
+}
+
+/* --- WhatsApp Broadcast --- */
+function insertTemplate(type) {
+  const area = document.getElementById('broadcastMessage');
+  if (type === 'stock') {
+    area.value = "নমস্কার! বাবা দুগ্ধেশ্বর এন্টারপ্রাইজ (ওন্দা)-এ নতুন প্রিমিয়াম প্লাইউড, সানমাইকা এবং হার্ডওয়্যার স্টক এসেছে। আপনার প্রয়োজনে দোকানে আসুন বা কল করুন!";
+  } else if (type === 'rates') {
+    area.value = "🌟 Special Offer at Baba Dugdheswar Enterprise (Onda)! Best wholesale rates on Commercial & Marine Plywood, Fevicol, and Door Fittings this week.";
+  } else if (type === 'due') {
+    area.value = "নমস্কার, বাবা দুগ্ধেশ্বর এন্টারপ্রাইজ (ওন্দা) থেকে আপনার খাতার বকেয়া বিল পরিশোধ করার জন্য বিনীত অনুরোধ জানানো হচ্ছে। ধন্যবাদ!";
+  }
+  renderBroadcastList();
+  showToast("Template inserted!", "info");
+}
+
+function renderBroadcastList() {
+  const filter = document.getElementById('broadcastTargetFilter').value;
+  const tbody = document.getElementById('broadcastListBody');
+  const msg = encodeURIComponent(document.getElementById('broadcastMessage').value || "নমস্কার! বাবা দুগ্ধেশ্বর এন্টারপ্রাইজ (ওন্দা) থেকে শুভেচ্ছা।");
+
+  let list = customersCache;
+  if (filter !== 'ALL') {
+    list = customersCache.filter(c => c.category === filter);
+  }
+
+  if (list.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted)">No customer contacts found.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = list.map(c => {
+    const cleanPhone = c.phone.replace(/[^0-9]/g, '');
+    const waLink = `https://wa.me/91${cleanPhone}?text=${msg}`;
+    const catClass = c.category === 'Carpenter' ? 'badge-carpenter' : (c.category === 'Contractor' ? 'badge-contractor' : 'badge-retailer');
+    return `
+      <tr>
+        <td><strong>${c.name}</strong></td>
+        <td><span class="badge-cat ${catClass}">${c.category || 'Retailer'}</span></td>
+        <td class="mono">${c.phone}</td>
+        <td>${c.address || 'Onda'}</td>
+        <td style="text-align:right;">
+          <a href="${waLink}" target="_blank" class="btn btn-whatsapp" style="text-decoration:none; padding:5px 12px; font-size:11.5px; display:inline-flex;">
+            💬 Send WhatsApp
+          </a>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+/* --- Sales History --- */
+async function loadSalesHistory() {
+  try {
+    const res = await fetch(`${API_BASE}/invoices/history`);
+    historyCache = await res.json();
+    renderHistory(historyCache);
+  } catch(e) { console.error(e); }
+}
+
+function renderHistory(list) {
+  const tbody = document.getElementById('historyBody');
+  if (!tbody) return;
+  if (list.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:var(--text-muted)">No finalized sales yet.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = list.map(inv => {
+    const catClass = inv.customer_category === 'Carpenter' ? 'badge-carpenter' : (inv.customer_category === 'Contractor' ? 'badge-contractor' : 'badge-retailer');
+    return `
+      <tr>
+        <td class="mono" style="color:var(--primary); font-weight:700;">${inv.invoice_id}</td>
+        <td>${inv.date}</td>
+        <td>
+          <strong>${inv.customer_name}</strong>
+          <div class="mono" style="font-size:11px; color:var(--text-muted);">${inv.customer_phone}</div>
+        </td>
+        <td><span class="badge-cat ${catClass}">${inv.customer_category}</span></td>
+        <td style="max-width:290px; font-size:12px; color:var(--text-muted);">${inv.items_detail}</td>
+        <td class="mono" style="text-align:right;"><strong>${fmtInr(inv.total_amount)}</strong></td>
+        <td class="mono" style="color:var(--emerald); text-align:right;">${fmtInr(inv.paid_amount)}</td>
+        <td class="mono" style="color:${inv.due_amount > 0 ? 'var(--rose)' : 'var(--text-muted)'}; font-weight:700; text-align:right;">
+          ${fmtInr(inv.due_amount)}
+        </td>
+        <td class="mono admin-only" style="color:var(--emerald); text-align:right; font-weight:700;">${fmtInr(inv.profit)}</td>
+        <td class="mono admin-only" style="color:var(--primary); text-align:right;">${inv.margin_pct}%</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function filterHistory() {
+  const q = document.getElementById('histSearch').value.toLowerCase();
+  renderHistory(historyCache.filter(inv =>
+    inv.invoice_id.toLowerCase().includes(q) ||
+    inv.customer_name.toLowerCase().includes(q) ||
+    inv.items_detail.toLowerCase().includes(q)
+  ));
+}
+
+/* --- Executive BI --- */
+async function loadExecutiveBI() {
+  try {
+    const res = await fetch(`${API_BASE}/analytics/executive-summary`);
+    const d = await res.json();
+
+    // 1. Today's Counter Pulse (Galla)
+    if (document.getElementById('biTodayRev')) {
+      document.getElementById('biTodayRev').textContent = fmtInr(d.today_revenue);
+      document.getElementById('biTodayCash').textContent = fmtInr(d.today_cash);
+      document.getElementById('biTodayDue').textContent = fmtInr(d.today_due);
+      document.getElementById('biTodayProfit').textContent = fmtInr(d.today_profit);
+      document.getElementById('biTodayCount').textContent = `${d.today_invoices_count || 0} Invoices Today`;
+    }
+
+    // 2. Master Financial & Cash Realization KPIs
+    document.getElementById('biTotalRevenue').textContent = fmtInr(d.total_revenue);
+    if (document.getElementById('biTotalPaid')) {
+      document.getElementById('biTotalPaid').textContent = fmtInr(d.total_paid);
+      document.getElementById('biTotalDue').textContent = fmtInr(d.total_due);
+      document.getElementById('biCollectionEff').textContent = `${d.collection_efficiency_pct}% Realized in Cash`;
+    }
+    document.getElementById('biMtdRev').textContent = fmtInr(d.mtd_revenue);
+    document.getElementById('biMtdProfit').textContent = fmtInr(d.mtd_profit);
+    document.getElementById('biYtdRev').textContent = fmtInr(d.ytd_revenue);
+    document.getElementById('biYtdProfit').textContent = fmtInr(d.ytd_profit);
+    document.getElementById('biGrossMargin').textContent = `${d.gross_margin_pct}%`;
+
+    // 3. Buyer Segment Breakdown (Carpenter / Retailer / Contractor)
+    const segTbody = document.getElementById('execSegmentBody');
+    if (segTbody) {
+      if (d.segment_breakdown && d.segment_breakdown.length > 0) {
+        segTbody.innerHTML = d.segment_breakdown.map(s => {
+          const catClass = s.segment === 'Carpenter' ? 'badge-carpenter' : (s.segment === 'Contractor' ? 'badge-contractor' : 'badge-retailer');
+          return `
+            <tr>
+              <td><span class="badge-cat ${catClass}">${s.segment}</span></td>
+              <td class="mono" style="text-align:center;">${s.orders}</td>
+              <td class="mono" style="text-align:right; font-weight:700;">${fmtInr(s.revenue)}</td>
+              <td class="mono" style="text-align:right; color:var(--emerald); font-weight:700;">${fmtInr(s.profit)}</td>
+              <td class="mono" style="text-align:right; color:${s.due > 0 ? 'var(--rose)' : 'var(--text-muted)'}; font-weight:700;">${fmtInr(s.due)}</td>
+              <td class="mono" style="text-align:right; color:var(--primary); font-weight:700;">${s.margin_pct}%</td>
+            </tr>
+          `;
+        }).join('');
+      } else {
+        segTbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No segment data yet.</td></tr>`;
+      }
+    }
+
+    // 4. Top 10 Profit-Generating SKUs
+    const topSkusTbody = document.getElementById('execTopSkusBody');
+    if (topSkusTbody) {
+      if (d.top_products && d.top_products.length > 0) {
+        topSkusTbody.innerHTML = d.top_products.map(p => `
+          <tr>
+            <td>
+              <strong>${p.name}</strong>
+              <div class="mono" style="font-size:11px; color:var(--primary);">${p.sku}</div>
+            </td>
+            <td class="mono" style="text-align:right;">${p.qty_sold} ${p.unit}</td>
+            <td class="mono" style="text-align:right;">${fmtInr(p.revenue)}</td>
+            <td class="mono" style="text-align:right; color:var(--emerald); font-weight:800;">${fmtInr(p.profit)}</td>
+            <td class="mono" style="text-align:right; color:var(--amber); font-weight:700;">${p.margin_pct}%</td>
+          </tr>
+        `).join('');
+      } else {
+        topSkusTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">No product sales recorded yet.</td></tr>`;
+      }
+    }
+
+    // 5. Dead Stock & Locked Capital Alert
+    const deadBadge = document.getElementById('biDeadStockBadge');
+    if (deadBadge) {
+      deadBadge.textContent = `${d.dead_stock_count || 0} Unsold SKUs | Locked: ${fmtInr(d.dead_stock_capital)}`;
+    }
+    const deadTbody = document.getElementById('execDeadStockBody');
+    if (deadTbody) {
+      if (d.dead_stock_items && d.dead_stock_items.length > 0) {
+        deadTbody.innerHTML = d.dead_stock_items.map(item => `
+          <tr>
+            <td>
+              <strong>${item.name}</strong>
+              <div class="mono" style="font-size:11px; color:var(--text-muted);">${item.sku} (${item.brand})</div>
+            </td>
+            <td>${item.category}</td>
+            <td class="mono" style="text-align:right;">${item.stock_qty} ${item.unit}</td>
+            <td class="mono" style="text-align:right; color:var(--amber); font-weight:800;">${fmtInr(item.locked_capital)}</td>
+          </tr>
+        `).join('');
+      } else {
+        deadTbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--emerald); font-weight:700;">🎉 Every stocked SKU has active sales! Zero dead capital.</td></tr>`;
+      }
+    }
+
+    // Customer P&L Table
+    const custTbody = document.getElementById('execCustPlBody');
+    if (d.customer_pl && d.customer_pl.length > 0) {
+      custTbody.innerHTML = d.customer_pl.map(r => {
+        const catClass = r.category === 'Carpenter' ? 'badge-carpenter' : (r.category === 'Contractor' ? 'badge-contractor' : 'badge-retailer');
+        return `
+          <tr>
+            <td><strong>${r.customer_name}</strong></td>
+            <td><span class="badge-cat ${catClass}">${r.category}</span></td>
+            <td class="mono">${r.phone}</td>
+            <td class="mono">${r.orders_count}</td>
+            <td class="mono" style="text-align:right;">${fmtInr(r.total_revenue)}</td>
+            <td class="mono" style="text-align:right;">${fmtInr(r.total_cogs)}</td>
+            <td class="mono" style="color:var(--emerald); font-weight:700; text-align:right;">${fmtInr(r.net_profit)}</td>
+            <td class="mono" style="color:var(--primary); text-align:right;">${r.margin_pct}%</td>
+          </tr>
+        `;
+      }).join('');
+    } else {
+      custTbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--text-muted);">No sales data available.</td></tr>`;
+    }
+
+    // Monthly Table
+    const timeTbody = document.getElementById('execTimePlBody');
+    if (d.monthly_trends && d.monthly_trends.length > 0) {
+      timeTbody.innerHTML = d.monthly_trends.map(m => `
+        <tr>
+          <td><strong>${m.month}</strong></td>
+          <td class="mono" style="text-align:right;">${fmtInr(m.revenue)}</td>
+          <td class="mono" style="color:var(--emerald); font-weight:700; text-align:right;">${fmtInr(m.profit)}</td>
+          <td class="mono" style="color:var(--primary); text-align:right;">${m.margin}%</td>
+        </tr>
+      `).join('');
+    }
+
+    // Chart 1: Monthly Revenue vs Profit
+    if (d.monthly_trends && d.monthly_trends.length > 0) {
+      const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
+      if (monthlyChartInstance) monthlyChartInstance.destroy();
+      monthlyChartInstance = new Chart(ctxMonthly, {
+        type: 'bar',
+        data: {
+          labels: d.monthly_trends.map(m => m.month),
+          datasets: [
+            {
+              label: 'Revenue (₹)',
+              data: d.monthly_trends.map(m => m.revenue),
+              backgroundColor: 'rgba(56, 189, 248, 0.5)',
+              borderColor: '#38bdf8',
+              borderRadius: 6,
+              borderWidth: 1.5
+            },
+            {
+              label: 'Gross Profit (₹)',
+              data: d.monthly_trends.map(m => m.profit),
+              type: 'line',
+              borderColor: '#10b981',
+              backgroundColor: '#10b981',
+              borderWidth: 2.5,
+              tension: 0.35
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#94a3b8' } } },
+          scales: {
+            x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      });
+    }
+
+    // Chart 2: Category Revenue vs Profit
+    if (d.category_breakdown && d.category_breakdown.length > 0 && document.getElementById('categoryChart')) {
+      const ctxCat = document.getElementById('categoryChart').getContext('2d');
+      if (categoryChartInstance) categoryChartInstance.destroy();
+      categoryChartInstance = new Chart(ctxCat, {
+        type: 'bar',
+        data: {
+          labels: d.category_breakdown.map(c => c.category),
+          datasets: [
+            {
+              label: 'Revenue (₹)',
+              data: d.category_breakdown.map(c => c.revenue),
+              backgroundColor: 'rgba(129, 140, 248, 0.5)',
+              borderColor: '#818cf8',
+              borderRadius: 5,
+              borderWidth: 1.5
+            },
+            {
+              label: 'Net Profit (₹)',
+              data: d.category_breakdown.map(c => c.profit),
+              backgroundColor: 'rgba(16, 185, 129, 0.75)',
+              borderColor: '#10b981',
+              borderRadius: 5,
+              borderWidth: 1.5
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#94a3b8' } } },
+          scales: {
+            x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      });
+    }
+
+    // Chart 3: Locality Distribution
+    if (d.location_breakdown && d.location_breakdown.length > 0) {
+      const ctxLoc = document.getElementById('locationChart').getContext('2d');
+      if (locationChartInstance) locationChartInstance.destroy();
+      locationChartInstance = new Chart(ctxLoc, {
+        type: 'doughnut',
+        data: {
+          labels: d.location_breakdown.map(l => l.location),
+          datasets: [{
+            data: d.location_breakdown.map(l => l.revenue),
+            backgroundColor: ['#38bdf8', '#10b981', '#f59e0b', '#818cf8', '#f43f5e', '#a855f7'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '65%',
+          plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 } } } }
+        }
+      });
+    }
+  } catch(e) { console.error("Error loading Executive BI", e); }
+}
+
+/* --- New Product & Inward Purchases --- */
+function openNewProductModal() { document.getElementById('newProdModal').classList.add('show'); }
+function closeNewProductModal() { document.getElementById('newProdModal').classList.remove('show'); }
+
+async function saveNewProduct() {
+  const payload = {
+    sku: document.getElementById('npSku').value.trim(),
+    name: document.getElementById('npName').value.trim(),
+    category: document.getElementById('npCategory').value.trim(),
+    subcategory: document.getElementById('npSubcategory').value.trim() || "General",
+    brand: document.getElementById('npBrand').value.trim() || "Standard",
+    unit: document.getElementById('npUnit').value,
+    sqft_per_piece: parseFloat(document.getElementById('npSqft').value) || 0.0,
+    purchase_price: parseFloat(document.getElementById('npPurchase').value) || 0.0,
+    selling_price: parseFloat(document.getElementById('npSelling').value) || 0.0,
+    min_selling_price: parseFloat(document.getElementById('npFloor').value) || 0.0,
+    stock_qty: parseFloat(document.getElementById('npStock').value) || 0.0
+  };
+  if (!payload.sku || !payload.name || !payload.category || !payload.selling_price) {
+    return showToast("Missing required fields (SKU, Name, Category, Selling Rate).", "warning");
+  }
+  const res = await fetch(`${API_BASE}/products`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    return showToast(err.detail || "Error registering product.", "error");
+  }
+  closeNewProductModal();
+  showToast(`Product "${payload.name}" added to catalogue!`, "success");
+  await loadInventory();
+}
+
+function onPurProductChange() {
+  const sel = document.getElementById('purProductSelect');
+  if (!sel) return;
+  const prodId = parseInt(sel.value);
+  const prod = productsCache.find(p => p.id === prodId);
+  if (!prod) return;
+  document.getElementById('purCost').value = prod.purchase_price || '';
+  document.getElementById('purSellingRate').value = prod.selling_price || '';
+}
+
+function suggestSellingPrice() {
+  const cost = parseFloat(document.getElementById('purCost').value) || 0;
+  const currentSelling = parseFloat(document.getElementById('purSellingRate').value) || 0;
+  if (cost > 0 && currentSelling < cost) {
+    document.getElementById('purSellingRate').value = Math.round(cost * 1.10);
+  }
+}
+
+async function submitPurchase() {
+  const prodId = parseInt(document.getElementById('purProductSelect').value);
+  const qty = parseFloat(document.getElementById('purQty').value);
+  const unitCost = parseFloat(document.getElementById('purCost').value);
+  const newSelling = parseFloat(document.getElementById('purSellingRate').value);
+  const supplier = document.getElementById('purSupplier').value || "Mill Stock";
+
+  if (!qty || !unitCost) return showToast("Please specify inward quantity and unit purchase cost.", "warning");
+
+  const payload = {
+    product_id: prodId,
+    qty: qty,
+    unit_cost: unitCost,
+    new_selling_price: !isNaN(newSelling) && newSelling > 0 ? newSelling : null,
+    supplier_name: supplier
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/purchases`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) return showToast("Failed to log inward purchase.", "error");
+    
+    showToast("Inward shipment logged! Stock & rates updated.", "success");
+    document.getElementById('purQty').value = "";
+    document.getElementById('purCost').value = "";
+    document.getElementById('purSellingRate').value = "";
+    document.getElementById('purSupplier').value = "";
+    
+    await loadInventory();
+    if (isAdmin) loadExecutiveBI();
+  } catch (err) {
+    console.error(err);
+    showToast("Error logging purchase.", "error");
+  }
+}
+
+/* --- Customer Modal (Add & Edit) --- */
+function openCustomerModal() {
+  document.getElementById('editCustId').value = "";
+  document.getElementById('custModalTitle').textContent = "👤 Add New Customer";
+  document.getElementById('newCustName').value = "";
+  document.getElementById('newCustPhone').value = "";
+  document.getElementById('newCustAddr').value = "";
+  document.getElementById('newCustCategory').value = "Retailer";
+  document.getElementById('custModal').classList.add('show');
+  setTimeout(() => document.getElementById('newCustName').focus(), 100);
+}
+
+function openEditCustomerModal(custIdOverride = null) {
+  const custId = custIdOverride || parseInt(document.getElementById('posCustomerSelect')?.value);
+  const cust = customersCache.find(c => c.id === custId);
+  if (!cust) return showToast("Please select a customer first.", "warning");
+
+  document.getElementById('editCustId').value = cust.id;
+  document.getElementById('custModalTitle').textContent = `✏️ Edit Customer: ${cust.name}`;
+  document.getElementById('newCustName').value = cust.name || "";
+  document.getElementById('newCustPhone').value = (cust.phone && !cust.phone.startsWith("NA-")) ? cust.phone : "";
+  document.getElementById('newCustAddr').value = cust.address || "Onda";
+  document.getElementById('newCustCategory').value = cust.category || "Retailer";
+  document.getElementById('custModal').classList.add('show');
+  setTimeout(() => document.getElementById('newCustPhone').focus(), 100);
+}
+
+function closeCustomerModal() {
+  document.getElementById('custModal').classList.remove('show');
+}
+
+async function saveCustomer(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  const editId = document.getElementById('editCustId').value.trim();
+  const name = document.getElementById('newCustName').value.trim();
+  const phone = document.getElementById('newCustPhone').value.trim();
+  const address = document.getElementById('newCustAddr').value.trim() || "Onda";
+  const category = document.getElementById('newCustCategory').value || "Retailer";
+
+  if (!name) return showToast("Please enter customer name.", "warning");
+
+  const url = editId ? `/customers/${editId}` : "/customers";
+  const method = editId ? "PUT" : "POST";
+
+  try {
+    const res = await fetch(url, {
+      method: method,
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify({ name, phone, address, category })
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      const errorDetail = data && data.detail ? (typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail)) : ("Server returned status " + res.status);
+      return showToast("Failed to save: " + errorDetail, "error");
+    }
+    closeCustomerModal();
+    await loadCustomers();
+    const posSelect = document.getElementById('posCustomerSelect');
+    if (posSelect && data && data.id) posSelect.value = data.id;
+    loadDues();
+    loadSalesHistory();
+    if (isAdmin) loadExecutiveBI();
+    showToast(editId ? `Updated details for "${data.name}"!` : `Customer "${data.name}" added!`, "success");
+  } catch (err) {
+    showToast("Network error: " + err.message, "error");
+  }
+}
+
+async function seedMasterCatalogue() {
+  const res = await fetch(`${API_BASE}/seed-catalogue`, { method: "POST" });
+  const data = await res.json();
+  showToast(data.message, "success");
+  loadInventory();
+}
+
+/* --- Printable Restock PDF --- */
+function generateRestockPdf() {
+  const lowStockItems = productsCache.filter(p => (p.stock_qty || 0) <= (p.reorder_level || 0));
+  if (lowStockItems.length === 0) {
+    return showToast("All items are well-stocked above 25%! No restock needed.", "success");
+  }
+
+  const now = new Date();
+  const dateFormatted = now.toLocaleDateString('en-GB') + ' ' + now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+  document.getElementById('restockDate').textContent = dateFormatted;
+  document.getElementById('restockSkuCount').textContent = `${lowStockItems.length} SKUs`;
+
+  lowStockItems.sort((a, b) => (a.stock_qty || 0) - (b.stock_qty || 0));
+
+  const tbody = document.getElementById('restockTableBody');
+  tbody.innerHTML = lowStockItems.map((item, idx) => {
+    const isZero = (item.stock_qty || 0) <= 0;
+    const rowBg = isZero ? 'background-color: #ffe4e6;' : '';
+    return `
+      <tr style="${rowBg}">
+        <td style="padding: 6px 8px; border: 1px solid #000; text-align: center;">${idx + 1}</td>
+        <td style="padding: 6px 8px; border: 1px solid #000; font-family: monospace; font-weight: bold;">${item.sku}</td>
+        <td style="padding: 6px 8px; border: 1px solid #000;">
+          <strong>${item.name}</strong>
+          ${isZero ? '<span style="color: #b91c1c; font-weight: bold; margin-left: 6px;">[OUT OF STOCK]</span>' : ''}
+        </td>
+        <td style="padding: 6px 8px; border: 1px solid #000;">${item.brand || 'Standard'}</td>
+        <td style="padding: 6px 8px; border: 1px solid #000; text-align: right; font-weight: bold; color: ${isZero ? '#b91c1c' : '#000'};">
+          ${item.stock_qty} ${item.unit}
+        </td>
+        <td style="padding: 6px 8px; border: 1px solid #000; text-align: right;">
+          ${item.reorder_level} ${item.unit}
+        </td>
+        <td style="padding: 6px 8px; border: 1px solid #000; text-align: right; font-family: monospace;">
+          ${fmtInr(item.purchase_price)}
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  document.body.classList.remove('printing-bill');
+  document.body.classList.add('printing-restock');
+  window.print();
+  setTimeout(() => {
+    document.body.classList.remove('printing-restock');
+  }, 1000);
+}
+
+/* --- Keyboard Shortcuts (Enter to Unlock PIN / Add to Cart) --- */
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    const pinModal = document.getElementById("pinModal");
+    if (pinModal && pinModal.classList.contains("show")) {
+      verifyPin();
+    } else if (document.activeElement && (document.activeElement.id === "posQty" || document.activeElement.id === "posRate")) {
+      addItemToCart();
+    }
+  }
+});
+
+// App Initialization
+applyTheme(localStorage.getItem('bde_theme') || 'dark');
+loadCustomers();
+loadInventory();
+loadSalesHistory();
+loadDues();
+
+/* --- Live Search & Select Filter for Customer & Product Dropdowns --- */
+function filterPosCustomers() {
+  const q = (document.getElementById('posCustSearch')?.value || '').trim().toLowerCase();
+  const custSelect = document.getElementById('posCustomerSelect');
+  if (!custSelect) return;
+
+  const filtered = customersCache.filter(c =>
+    c.name.toLowerCase().includes(q) ||
+    c.phone.toLowerCase().includes(q) ||
+    (c.address && c.address.toLowerCase().includes(q)) ||
+    (c.category && c.category.toLowerCase().includes(q))
+  );
+
+  if (filtered.length === 0) {
+    custSelect.innerHTML = `<option value="">-- No matching customer found --</option>`;
+    return;
+  }
+
+  custSelect.innerHTML = filtered.map(c => `
+    <option value="${c.id}">${c.name} (${c.phone}) — [${c.category || 'Retailer'}]</option>
+  `).join('');
+}
+
+function filterPosProducts() {
+  const q = (document.getElementById('posProdSearch')?.value || '').trim().toLowerCase();
+  const posProd = document.getElementById('posProductSelect');
+  if (!posProd) return;
+
+  const filtered = productsCache.filter(p =>
+    p.name.toLowerCase().includes(q) ||
+    p.sku.toLowerCase().includes(q) ||
+    (p.category && p.category.toLowerCase().includes(q)) ||
+    (p.brand && p.brand.toLowerCase().includes(q))
+  );
+
+  if (filtered.length === 0) {
+    posProd.innerHTML = `<option value="">-- No matching product found --</option>`;
+    return;
+  }
+
+  posProd.innerHTML = filtered.map(p =>
+    `<option value="${p.id}">${p.name} (${p.sku}) — [Stock: ${p.stock_qty} ${p.unit}]</option>`
+  ).join('');
+
+  // Automatically load the rate & stock helper for the top matched item!
+  onProductSelectChange();
+}
+
+function filterPurProducts() {
+  const q = (document.getElementById('purProdSearch')?.value || '').trim().toLowerCase();
+  const purProd = document.getElementById('purProductSelect');
+  if (!purProd) return;
+
+  const filtered = productsCache.filter(p =>
+    p.name.toLowerCase().includes(q) ||
+    p.sku.toLowerCase().includes(q) ||
+    (p.brand && p.brand.toLowerCase().includes(q))
+  );
+
+  if (filtered.length === 0) {
+    purProd.innerHTML = `<option value="">-- No matching product found --</option>`;
+    return;
+  }
+
+  purProd.innerHTML = filtered.map(p =>
+    `<option value="${p.id}">${p.name} (${p.sku}) — [Stock: ${p.stock_qty} ${p.unit}]</option>`
+  ).join('');
+
+  onPurProductChange();
+}
+
+/* --- Load Website Quote Inquiries from Customer Storefront --- */
+async function loadWebsiteInquiries() {
+  const tbody = document.getElementById('websiteInquiriesBody');
+  if (!tbody) return;
+  try {
+    const res = await fetch('/quote-inquiries');
+    const data = await res.json();
+    if (!data || data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:28px; color:var(--text-muted);">No customer website inquiries received yet.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = data.map(q => {
+      const cleanPhone = (q.phone || '').replace(/\D/g, '');
+      const waPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
+      const replyMsg = encodeURIComponent(
+        `Namaskar ${q.customer_name},\nThank you for your material inquiry at *Baba Dugdheswar Enterprise (Onda, Bankura)*.\n\nRegarding your requested items:\n${q.requested_items}\n\nHere is our best quotation:`
+      );
+      return `
+        <tr>
+          <td class="mono">#Q-${q.id}</td>
+          <td style="font-size:12px; color:var(--text-muted);">${q.created_at}</td>
+          <td style="font-weight:700;">${q.customer_name}</td>
+          <td><span class="badge">${q.quote_type}</span></td>
+          <td class="mono">${q.phone}</td>
+          <td>${q.delivery_locality}</td>
+          <td style="white-space:pre-wrap; font-size:12px; max-width:340px;">${q.requested_items}</td>
+          <td style="text-align:right;">
+            <a href="https://wa.me/${waPhone}?text=${replyMsg}" target="_blank" class="btn" style="padding:6px 12px; font-size:11.5px; text-decoration:none;">
+              💬 Reply Quote on WhatsApp
+            </a>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--rose);">Failed to load inquiries.</td></tr>`;
+  }
+}
+
+async function loadAdminTestimonials() {
+  const tbody = document.getElementById('adminTestimonialsBody');
+  if (!tbody) return;
+  try {
+    const res = await fetch('/testimonials/admin');
+    const data = await res.json();
+    if (!data || data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--text-muted);">No customer photos uploaded yet.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = data.map(t => `
+      <tr>
+        <td><img src="${t.image_base64}" style="width:90px; height:65px; object-fit:cover; border-radius:8px; border:1px solid var(--surface-border);" /></td>
+        <td><strong>${t.project_title}</strong><div style="font-size:11px; color:var(--text-muted);">${t.created_at}</div></td>
+        <td><strong>${t.customer_name}</strong><div class="mono" style="font-size:11px;">${t.customer_phone} (${t.customer_location})</div></td>
+        <td>${t.carpenter_name}</td>
+        <td>${t.is_approved ? '<span class="badge-instock">LIVE ON WEBSITE</span>' : '<span class="badge-lowstock">PENDING APPROVAL</span>'}</td>
+        <td style="text-align:right; display:flex; gap:8px; justify-content:flex-end;">
+          <button class="btn" style="padding:6px 12px; font-size:11.5px;" onclick="toggleTestimonialApprove(${t.id})">
+            ${t.is_approved ? 'Hide' : '✅ Approve & Publish'}
+          </button>
+          <button class="btn btn-danger" style="padding:6px 12px; font-size:11.5px;" onclick="deleteTestimonialAdmin(${t.id})">
+            🗑️ Delete
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--rose);">Failed to load photos.</td></tr>`;
+  }
+}
+
+async function toggleTestimonialApprove(id) {
+  await fetch(`/testimonials/${id}/approve`, { method: 'POST' });
+  showToast("Photo visibility updated!", "success");
+  loadAdminTestimonials();
+}
+
+async function deleteTestimonialAdmin(id) {
+  if (!confirm("Delete this customer photo permanently?")) return;
+  await fetch(`/testimonials/${id}`, { method: 'DELETE' });
+  showToast("Photo deleted.", "info");
+  loadAdminTestimonials();
+}

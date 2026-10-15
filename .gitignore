@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.env
+
+# Android build outputs & local config
+android_project/app/build/
+android_project/.gradle/
+android_project/build/
+android_project/local.properties
+*.apk
+*.aab
+
+# Bundle archives (already generated)
+*.zip
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

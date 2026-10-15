@@ -1,0 +1,494 @@
+/* ==========================================================================
+   BABA DUGDHESWAR ENTERPRISE — PREMIUM GLASSMORPHIC DESIGN SYSTEM
+   100% Drop-in Compatible with existing index.html & app.js
+   ========================================================================== */
+
+:root[data-theme="dark"] {
+  --bg: #060911;
+  --bg-mesh: radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.10) 0px, transparent 50%),
+             radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+             radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
+  --surface-card: rgba(17, 24, 39, 0.78);
+  --surface-elevated: rgba(30, 41, 59, 0.55);
+  --surface-border: rgba(255, 255, 255, 0.08);
+  --surface-highlight: rgba(255, 255, 255, 0.14);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --primary: #38bdf8;
+  --primary-hover: #0ea5e9;
+  --primary-glow: rgba(56, 189, 248, 0.28);
+  --emerald: #10b981;
+  --emerald-bg: rgba(16, 185, 129, 0.14);
+  --amber: #f59e0b;
+  --amber-bg: rgba(245, 158, 11, 0.14);
+  --rose: #f43f5e;
+  --rose-bg: rgba(244, 63, 94, 0.15);
+  --indigo: #818cf8;
+  --input-bg: rgba(9, 14, 23, 0.85);
+  --thead-bg: rgba(15, 23, 42, 0.95);
+  --sheet-banner-bg: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0284c7 100%);
+  --sheet-kpi-bg: rgba(15, 23, 42, 0.7);
+  --sheet-kpi-text: #f8fafc;
+  --sheet-th-bg: #162a45;
+  --card-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6), 0 0 1px 1px rgba(255, 255, 255, 0.05) inset;
+  --radius: 14px;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+:root[data-theme="light"] {
+  --bg: #f1f5f9;
+  --bg-mesh: radial-gradient(at 0% 0%, rgba(2, 132, 199, 0.08) 0px, transparent 50%),
+             radial-gradient(at 100% 0%, rgba(79, 70, 229, 0.06) 0px, transparent 50%);
+  --surface-card: rgba(255, 255, 255, 0.92);
+  --surface-elevated: #f8fafc;
+  --surface-border: #e2e8f0;
+  --surface-highlight: #cbd5e1;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --primary: #0284c7;
+  --primary-hover: #0369a1;
+  --primary-glow: rgba(2, 132, 199, 0.2);
+  --emerald: #059669;
+  --emerald-bg: #ecfdf5;
+  --amber: #d97706;
+  --amber-bg: #fffbeb;
+  --rose: #e11d48;
+  --rose-bg: #fff1f2;
+  --indigo: #4f46e5;
+  --input-bg: #ffffff;
+  --thead-bg: #f1f5f9;
+  --sheet-banner-bg: linear-gradient(135deg, #0369a1 0%, #0284c7 100%);
+  --sheet-kpi-bg: #f0f9ff;
+  --sheet-kpi-text: #0f172a;
+  --sheet-th-bg: #0284c7;
+  --card-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.07), 0 0 1px 1px rgba(15, 23, 42, 0.04);
+  --radius: 14px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background-color: var(--bg);
+  background-image: var(--bg-mesh);
+  background-attachment: fixed;
+  font-family: var(--font-sans);
+  color: var(--text-main);
+  min-height: 100vh;
+  padding: 22px 26px;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Sleek Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.25); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.45); }
+
+.container { max-width: 1580px; margin: 0 auto; }
+
+/* Frosted Header Bar */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+  padding: 16px 22px;
+  background: var(--surface-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+header h1 {
+  background: linear-gradient(90deg, var(--text-main) 0%, var(--primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+}
+
+/* Pill Navigation Dock */
+.nav-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 22px;
+  padding: 6px;
+  background: var(--surface-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-size: 13px;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tab-btn:hover {
+  color: var(--text-main);
+  background: rgba(148, 163, 184, 0.08);
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 16px var(--primary-glow);
+  transform: translateY(-1px);
+}
+
+/* Main Content Panels with Smooth Fade-In */
+@keyframes panelSlideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.panel {
+  background: var(--surface-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--card-shadow);
+  display: none;
+}
+
+.panel.active {
+  display: block;
+  animation: panelSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Elevated Sub-Cards */
+.card-box {
+  background: var(--surface-elevated);
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 18px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-box:hover {
+  border-color: var(--surface-highlight);
+}
+
+/* Enterprise Tables */
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+  text-align: left;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--surface-border);
+}
+
+th {
+  background: var(--thead-bg);
+  color: var(--text-muted);
+  padding: 13px 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.7px;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--surface-border);
+  transition: background-color 0.15s ease;
+}
+
+tbody tr:last-child td { border-bottom: none; }
+
+tbody tr:hover td {
+  background-color: rgba(56, 189, 248, 0.05);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-feature-settings: "tnum" on, "lnum" on;
+}
+
+/* Tactile Inputs & Forms */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+input, select, textarea {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--surface-border);
+  color: var(--text-main);
+  padding: 11px 14px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+/* Interactive Buttons */
+.btn {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+  color: #ffffff;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px var(--primary-glow);
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn-secondary {
+  background: var(--surface-elevated);
+  color: var(--text-main);
+  border: 1px solid var(--surface-border);
+  box-shadow: none;
+}
+
+.btn-secondary:hover {
+  border-color: var(--primary);
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.btn-danger {
+  background: var(--rose-bg);
+  color: var(--rose);
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  box-shadow: none;
+}
+
+.btn-whatsapp {
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.25);
+}
+
+/* Status & Category Pill Badges */
+.badge-cat {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.3px;
+}
+.badge-carpenter { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+.badge-retailer { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+.badge-contractor { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+
+:root[data-theme="light"] .badge-carpenter { background: #fef3c7; color: #b45309; }
+:root[data-theme="light"] .badge-retailer { background: #e0f2fe; color: #0369a1; }
+:root[data-theme="light"] .badge-contractor { background: #f3e8ff; color: #7e22ce; }
+
+/* Live Inventory Header & Bento Strip */
+.sheet-banner {
+  background: var(--sheet-banner-bg);
+  color: #fff;
+  text-align: center;
+  padding: 14px;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 1.5px;
+  border-radius: 12px 12px 0 0;
+  text-transform: uppercase;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.sheet-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  background: var(--sheet-kpi-bg);
+  color: var(--sheet-kpi-text);
+  padding: 18px;
+  border: 1px solid var(--surface-border);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.sheet-kpi-item {
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--surface-border);
+}
+
+.sheet-kpi-item h3 {
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 0.6px;
+  margin-bottom: 6px;
+}
+
+.sheet-kpi-item .val {
+  font-size: 26px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  letter-spacing: -0.5px;
+}
+
+.sheet-kpi-item .sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+.sheet-table thead th { background: var(--sheet-th-bg); color: #ffffff; }
+
+.badge-instock { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 10px; border-radius: 99px; font-weight: 800; font-size: 10.5px; display: inline-block; }
+.badge-lowstock { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); padding: 4px 10px; border-radius: 99px; font-weight: 800; font-size: 10.5px; display: inline-block; }
+.badge-nostock { background: rgba(244, 63, 94, 0.18); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.4); padding: 4px 10px; border-radius: 99px; font-weight: 800; font-size: 10.5px; display: inline-block; }
+
+:root[data-theme="light"] .badge-instock { background: #dcfce7; color: #15803d; }
+:root[data-theme="light"] .badge-lowstock { background: #fef3c7; color: #b45309; }
+:root[data-theme="light"] .badge-nostock { background: #fee2e2; color: #b91c1c; }
+
+/* Executive BI Bento Cards */
+.bi-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.bi-kpi-card {
+  background: var(--surface-elevated);
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.bi-kpi-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--indigo));
+  opacity: 0.85;
+}
+
+.bi-kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--surface-highlight);
+}
+
+.bi-kpi-card span {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.bi-kpi-card h2 {
+  font-size: 25px;
+  font-weight: 800;
+  margin-top: 8px;
+  font-family: var(--font-mono);
+}
+
+/* Role-Gating Elements */
+.admin-only { display: none !important; }
+body.admin-unlocked .admin-only { display: table-cell !important; }
+body.admin-unlocked div.admin-only, body.admin-unlocked button.admin-only { display: inline-flex !important; }
+body.admin-unlocked .admin-tab { display: inline-flex !important; }
+
+/* Frosted Modals */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 7, 18, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+.modal-overlay.show { display: flex; animation: panelSlideUp 0.2s ease forwards; }
+
+.modal-card {
+  background: var(--surface-card);
+  border: 1px solid var(--surface-highlight);
+  border-radius: 16px;
+  padding: 26px;
+  width: 450px;
+  max-width: 92%;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+}
+
+.chart-container { position: relative; height: 290px; width: 100%; }
+
+/* Printable Documents Layout */
+#printBillWrapper, #printRestockWrapper { display: none; }
+
+@media print {
+  body * { visibility: hidden !important; }
+  body.printing-bill #printBillWrapper,
+  body.printing-bill #printBillWrapper * { visibility: visible !important; }
+  body.printing-bill #printBillWrapper {
+    display: block !important;
+    position: absolute;
+    left: 0; top: 0; width: 100%;
+    padding: 20px; background: #fff; color: #000;
+  }
+  body.printing-restock #printRestockWrapper,
+  body.printing-restock #printRestockWrapper * { visibility: visible !important; }
+  body.printing-restock #printRestockWrapper {
+    display: block !important;
+    position: absolute;
+    left: 0; top: 0; width: 100%;
+    padding: 20px; background: #fff; color: #000;
+  }
+}

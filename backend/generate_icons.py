@@ -1,0 +1,44 @@
+import os
+
+IMG_DIR = os.path.join(os.path.dirname(__file__), "static", "img")
+os.makedirs(IMG_DIR, exist_ok=True)
+
+icon_svg = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgG" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3b0764"/>
+      <stop offset="60%" stop-color="#581c87"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="goldG" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="50%" stop-color="#facc15"/>
+      <stop offset="100%" stop-color="#ca8a04"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#facc15" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="110" fill="url(#bgG)"/>
+  <circle cx="256" cy="256" r="200" fill="none" stroke="url(#goldG)" stroke-width="8" stroke-dasharray="16,8" opacity="0.6"/>
+  <circle cx="256" cy="256" r="170" fill="#1e1b4b" filter="url(#glow)"/>
+  
+  <!-- Auspicious Festive Trishul & Plywood Layer Motif -->
+  <path d="M 256,120 L 256,380" stroke="url(#goldG)" stroke-width="8" stroke-linecap="round"/>
+  <path d="M 190,160 C 210,240 256,260 256,260 C 256,260 302,240 322,160" fill="none" stroke="url(#goldG)" stroke-width="8" stroke-linecap="round"/>
+  
+  <text x="256" y="275" font-family="Arial, sans-serif" font-weight="900" font-size="76" fill="url(#goldG)" text-anchor="middle" letter-spacing="2">BDE</text>
+  <text x="256" y="325" font-family="Arial, sans-serif" font-weight="800" font-size="20" fill="#ffffff" text-anchor="middle" letter-spacing="4">ONDA • BANKURA</text>
+  <text x="256" y="352" font-family="Arial, sans-serif" font-weight="700" font-size="14" fill="#facc15" text-anchor="middle">PLYWOOD • SUNMICA • HARDWARE</text>
+</svg>'''
+
+with open(os.path.join(IMG_DIR, "icon-192.png"), "w", encoding="utf-8") as f:
+    f.write(icon_svg)
+
+with open(os.path.join(IMG_DIR, "icon-512.png"), "w", encoding="utf-8") as f:
+    f.write(icon_svg)
+
+with open(os.path.join(IMG_DIR, "icon.svg"), "w", encoding="utf-8") as f:
+    f.write(icon_svg)
+
+print("Icons created successfully.")

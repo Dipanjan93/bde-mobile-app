@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
+    </linearGradient>
+    <linearGradient id="tubBody" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="25%" stop-color="#f8fafc"/>
+      <stop offset="80%" stop-color="#e2e8f0"/>
+      <stop offset="100%" stop-color="#cbd5e1"/>
+    </linearGradient>
+    <linearGradient id="lidGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="40%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#991b1b"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="16" stdDeviation="12" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg)"/>
+  
+  <ellipse cx="200" cy="350" rx="90" ry="16" fill="rgba(0,0,0,0.18)" filter="blur(6px)"/>
+  
+  <g filter="url(#shadow)" transform="translate(100, 70)">
+    <!-- Tub Handle -->
+    <path d="M 15,100 C 15,20 185,20 185,100" fill="none" stroke="#94a3b8" stroke-width="6" stroke-linecap="round"/>
+    
+    <!-- Tub Body -->
+    <path d="M 20,80 L 180,80 L 165,260 C 165,270 35,270 35,260 Z" fill="url(#tubBody)"/>
+    
+    <!-- Lid -->
+    <ellipse cx="100" cy="80" rx="85" ry="16" fill="url(#lidGrad)"/>
+    <rect x="15" y="68" width="170" height="14" rx="4" fill="url(#lidGrad)"/>
+    <ellipse cx="100" cy="68" rx="85" ry="14" fill="#2563eb"/>
+    
+    <!-- Label Banner -->
+    <path d="M 24,120 L 176,120 L 171,220 L 29,220 Z" fill="#facc15"/>
+    <rect x="30" y="130" width="140" height="40" rx="4" fill="#2563eb"/>
+    <text x="100" y="156" font-family="Arial, sans-serif" font-weight="900" font-size="15" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">FEVICOL SH</text>
+    <text x="100" y="185" font-family="Arial, sans-serif" font-weight="700" font-size="9" fill="#1e1b4b" text-anchor="middle">Ultimate Synthetic Resin</text>
+    
+    <!-- Iconic Elephants motif -->
+    <g transform="translate(70, 192)">
+      <circle cx="15" cy="12" r="10" fill="#1e3a8a"/>
+      <circle cx="45" cy="12" r="10" fill="#1e3a8a"/>
+      <rect x="23" y="10" width="14" height="4" fill="#facc15"/>
+    </g>
+    <text x="100" y="248" font-family="Arial, sans-serif" font-weight="800" font-size="13" fill="#334155" text-anchor="middle">Pidilite Original</text>
+  </g>
+</svg>

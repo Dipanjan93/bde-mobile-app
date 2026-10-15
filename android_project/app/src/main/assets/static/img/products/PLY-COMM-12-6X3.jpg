@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#e2e8f0"/>
+    </linearGradient>
+    <linearGradient id="sheetWood" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#b45309"/>
+      <stop offset="50%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+    <linearGradient id="corePlies" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d97706"/>
+      <stop offset="25%" stop-color="#78350f"/>
+      <stop offset="50%" stop-color="#fbbf24"/>
+      <stop offset="75%" stop-color="#92400e"/>
+      <stop offset="100%" stop-color="#451a03"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="10" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg)"/>
+  
+  <!-- Subtle wood plank shadow -->
+  <ellipse cx="200" cy="340" rx="140" ry="18" fill="rgba(0,0,0,0.12)" filter="blur(6px)"/>
+  
+  <!-- Plywood stack base 3D isometric view -->
+  <g filter="url(#shadow)" transform="translate(60, 60)">
+    <!-- Bottom sheets shadow plies -->
+    <polygon points="20,250 260,250 275,235 35,235" fill="#78350f"/>
+    <polygon points="260,250 275,235 275,245 260,260" fill="#451a03"/>
+    <polygon points="20,250 260,250 260,260 20,260" fill="url(#corePlies)"/>
+    
+    <!-- Top Face Sheet -->
+    <polygon points="10,230 250,230 270,40 30,40" fill="url(#sheetWood)"/>
+    
+    <!-- Realistic Wood Grains -->
+    <path d="M 50,45 Q 80,130 65,225" stroke="#78350f" stroke-width="1.8" fill="none" opacity="0.35"/>
+    <path d="M 120,42 Q 160,110 135,228" stroke="#78350f" stroke-width="2" fill="none" opacity="0.4"/>
+    <path d="M 190,40 Q 230,120 205,226" stroke="#78350f" stroke-width="1.5" fill="none" opacity="0.35"/>
+    
+    <!-- Side edge layers showing real ply veneer thickness -->
+    <polygon points="250,230 270,40 275,50 255,240" fill="#451a03"/>
+    <polygon points="10,230 250,230 255,240 15,240" fill="url(#corePlies)"/>
+    
+    <!-- Authentic Stamped Brand Seal -->
+    <g transform="translate(60, 95) rotate(-5)">
+      <rect x="0" y="0" width="160" height="75" rx="6" fill="none" stroke="#b91c1c" stroke-width="3" stroke-dasharray="8,4" opacity="0.85"/>
+      <text x="80" y="26" font-family="Arial, sans-serif" font-weight="900" font-size="18" fill="#b91c1c" text-anchor="middle" letter-spacing="1">TYCON</text>
+      <line x1="15" y1="32" x2="145" y2="32" stroke="#b91c1c" stroke-width="1.5" opacity="0.8"/>
+      <text x="80" y="46" font-family="Arial, sans-serif" font-weight="700" font-size="10" fill="#b91c1c" text-anchor="middle">IS:303 BWR COMMERCIAL GRADE</text>
+      <text x="80" y="62" font-family="Arial, sans-serif" font-weight="800" font-size="12" fill="#b91c1c" text-anchor="middle">6x3 FT • 12MM</text>
+    </g>
+
+    <!-- Hologram Sticker -->
+    <circle cx="230" cy="80" r="14" fill="gold" stroke="#b45309" stroke-width="1.5"/>
+    <text x="230" y="84" font-family="Arial, sans-serif" font-weight="900" font-size="8" fill="#78350f" text-anchor="middle">100% OK</text>
+  </g>
+  
+  <!-- Top Spec Badge -->
+  <rect x="16" y="16" width="90" height="26" rx="6" fill="#1e1b4b"/>
+  <text x="61" y="33" font-family="Arial, sans-serif" font-weight="800" font-size="12" fill="#facc15" text-anchor="middle">12MM</text>
+</svg>

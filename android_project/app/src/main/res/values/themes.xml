@@ -1,0 +1,9 @@
+<resources>
+    <style name="Theme.BDE" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/purple_dark</item>
+        <item name="colorPrimaryDark">@color/purple_dark</item>
+        <item name="colorAccent">@color/festive_yellow</item>
+        <item name="android:statusBarColor">@color/purple_dark</item>
+        <item name="android:windowBackground">@color/festive_yellow</item>
+    </style>
+</resources>

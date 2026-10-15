@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <title>Baba Dugdheswar Enterprise — Business Console</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    /* Structural Layout Enhancements for Split-Screen POS & Brand Header */
+    .brand-wrap { display: flex; align-items: center; gap: 14px; }
+    .brand-logo {
+      width: 46px; height: 46px; border-radius: 12px;
+      background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 17px; color: #fff; letter-spacing: -0.5px;
+      box-shadow: 0 8px 20px -4px rgba(2, 132, 199, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      flex-shrink: 0;
+    }
+    .live-pill {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 11px; color: var(--emerald); background: var(--emerald-bg);
+      padding: 6px 12px; border-radius: 99px; font-weight: 700;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .live-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald);
+      animation: pulseGlow 2s infinite;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(1.25); }
+    }
+    .pos-split-layout {
+      display: grid;
+      grid-template-columns: 1.05fr 1.25fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 1024px) {
+      .pos-split-layout { grid-template-columns: 1fr; }
+    }
+    .field-label {
+      display: block; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      color: var(--text-muted); margin-bottom: 6px;
+    }
+    .step-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px; border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15); color: var(--primary);
+      font-size: 12px; font-weight: 800; margin-right: 6px;
+    }
+    .table-scroll { overflow-x: auto; width: 100%; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Top Executive Header -->
+  <header>
+    <div class="brand-wrap">
+      <div class="brand-logo">BDE</div>
+      <div>
+        <h1 style="font-size: 20px; font-weight: 800; letter-spacing: 0.4px;">BABA DUGDHESWAR ENTERPRISE</h1>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Plywood, Laminate &amp; Hardware Merchant &bull; Onda, Bankura</p>
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <button class="btn btn-secondary" onclick="toggleTheme()" id="themeBtn">☀️ Day Mode</button>
+      <button class="btn btn-secondary" id="authBtn" onclick="handleAuthClick()">🔒 Staff Mode (Unlock Admin)</button>
+      <button class="btn btn-secondary admin-only" onclick="seedMasterCatalogue()">📥 Seed Master</button>
+      <div class="live-pill"><span class="live-dot"></span> Cloud Live</div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('pos')">🧾 Multi-Item Billing POS</button>
+    <button class="tab-btn" onclick="switchTab('inventory')">📦 Live Inventory</button>
+    <button class="tab-btn" onclick="switchTab('rates')">🏷️ Product Rate Chart</button>
+    <button class="tab-btn" onclick="switchTab('dues')">📒 Khata / Due Ledger</button>
+    <button class="tab-btn" onclick="switchTab('history')">🕒 Sales History</button>
+    <button class="tab-btn admin-tab admin-only" onclick="switchTab('purchase')">🚛 Inward Purchase Register</button>
+    <button class="tab-btn admin-tab admin-only" onclick="switchTab('exec')">📊 Executive BI Dashboard</button>
+    <button class="tab-btn" onclick="switchTab('broadcast')">💬 WhatsApp Broadcast</button>
+    <button class="tab-btn" onclick="switchTab('inquiries'); loadWebsiteInquiries();">🌐 Website Inquiries</button>
+  </div>
+
+  <!-- 1. Multi-Item Billing POS (2-Column Ergonomic Split Screen) -->
+  <div id="tab-pos" class="panel active">
+    <div class="pos-split-layout">
+      
+      <!-- Left Column: Customer & Product Entry -->
+      <div>
+        <div class="card-box">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <h4 style="color: var(--text-main); display:flex; align-items:center;">
+              <span class="step-badge">1</span> Customer Selection
+            </h4>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 11.5px;" onclick="openEditCustomerModal()">✏️ Edit Selected</button>
+              <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 11.5px;" onclick="openCustomerModal()">+ New Customer</button>
+            </div>
+          </div>
+          <div>
+            <label class="field-label">Select Registered Buyer / Carpenter</label>
+            <input type="text" id="posCustSearch" placeholder="🔍 Type name, phone, or village to filter customers..." oninput="filterPosCustomers()" style="margin-bottom: 8px;" />
+            <select id="posCustomerSelect"></select>
+          </div>
+        </div>
+
+        <div class="card-box" style="margin-bottom: 0;">
+          <h4 style="color: var(--text-main); margin-bottom: 14px; display:flex; align-items:center;">
+            <span class="step-badge">2</span> Add Item to Invoice
+          </h4>
+          
+          <div style="margin-bottom: 14px;">
+            <label class="field-label">Product / Material SKU</label>
+            <input type="text" id="posProdSearch" placeholder="🔍 Type product name, SKU, or brand to filter items..." oninput="filterPosProducts()" style="margin-bottom: 8px;" />
+            <select id="posProductSelect" onchange="onProductSelectChange()"></select>
+          </div>
+
+          <div id="priceHelper" style="font-size: 12px; color: var(--amber); background: var(--amber-bg); padding: 8px 12px; border-radius: 8px; margin-bottom: 14px; font-weight: 600; border: 1px solid rgba(245, 158, 11, 0.25);"></div>
+
+          <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));">
+            <div>
+              <label class="field-label">Plywood Sheets</label>
+              <input type="number" id="posSheets" placeholder="Sheets (if Plywood)" oninput="calcPlywoodSqft()" style="display:none;" />
+            </div>
+            <div>
+              <label class="field-label">Billing Qty</label>
+              <input type="number" id="posQty" placeholder="Qty (SqFt / Pcs)" step="any" />
+            </div>
+            <div>
+              <label class="field-label">Unit Rate (₹)</label>
+              <input type="number" id="posRate" placeholder="Selling Rate (₹)" step="any" />
+            </div>
+          </div>
+
+          <button class="btn" style="width: 100%; justify-content: center; padding: 12px; margin-top: 4px;" onclick="addItemToCart()">
+            ➕ Add Item to Bill
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Column: Live Receipt Preview & Settlement -->
+      <div class="card-box" style="margin-bottom: 0; position: sticky; top: 20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 14px;">
+          <h4 style="color: var(--text-main); display:flex; align-items:center;">
+            <span class="step-badge">3</span> Live Invoice Cart
+          </h4>
+          <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Instant Stock Deduction</span>
+        </div>
+
+        <div class="table-scroll" style="max-height: 310px; overflow-y: auto; margin-bottom: 16px;">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Item Name</th>
+                <th>Qty</th>
+                <th>Unit Rate</th>
+                <th>Total (₹)</th>
+                <th style="text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="cartBody">
+              <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 28px;">No items in bill yet. Select a product on the left to begin.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; background: rgba(15, 23, 42, 0.45); padding: 16px; border-radius: 10px; border: 1px solid var(--surface-border); align-items: center;">
+          <div>
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); font-weight: 700;">Grand Total Payable</span>
+            <div id="cartGrandTotal" class="mono" style="font-size: 28px; color: var(--emerald); font-weight: 800; margin-top: 2px;">₹ 0.00</div>
+          </div>
+          <div>
+            <label class="field-label">Paid Now (₹) <span style="font-weight:400; text-transform:none;">[Blank = Full Paid]</span></label>
+            <input type="number" id="posPaidAmount" placeholder="e.g. 500 (or 0 for Credit)" step="any" />
+          </div>
+        </div>
+
+        <button class="btn" style="width: 100%; padding: 14px; font-size: 15px; justify-content: center;" onclick="finalizeMultiItemSale()">
+          🖨️ Finalize Invoice &amp; Print Cash Memo
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 2. Live Inventory -->
+  <div id="tab-inventory" class="panel">
+    <div class="sheet-banner">Baba Dugdheswar Enterprise &bull; Live Stock Inventory</div>
+    <div class="sheet-kpi-grid">
+      <div class="sheet-kpi-item">
+        <h3>Total Active SKUs</h3>
+        <div class="val" id="invTotalSkus">0</div>
+        <div class="sub">Catalog items</div>
+      </div>
+      <div class="sheet-kpi-item">
+        <h3>Total Units On Hand</h3>
+        <div class="val" id="invTotalUnits">0</div>
+        <div class="sub">Available units</div>
+      </div>
+      <div class="sheet-kpi-item">
+        <h3>Inventory Valuation</h3>
+        <div class="val" id="invTotalValuation">₹ 0.00</div>
+        <div class="sub">Purchase cost base</div>
+      </div>
+      <div class="sheet-kpi-item">
+        <h3>Low Stock Alerts</h3>
+        <div class="val" id="invLowStockAlerts" style="color:var(--rose);">0</div>
+        <div class="sub">At or below 25% reorder mark</div>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; flex-wrap:wrap; gap:12px;">
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+        <span style="font-size:12px; font-weight:700; text-transform:uppercase; color:var(--text-muted);">Category:</span>
+        <select id="invCategoryFilter" onchange="filterInventory()" style="width:210px;">
+          <option value="ALL">All Categories</option>
+        </select>
+        <button class="btn btn-secondary" onclick="generateRestockPdf()" style="padding: 9px 14px; font-size: 12px; border-color: var(--amber); color: var(--amber);">
+          📄 Prepare Restock List (PDF)
+        </button>
+      </div>
+      <input type="text" id="invSearch" placeholder="🔍 Search by SKU, product, brand..." style="width: 300px;" oninput="filterInventory()" />
+    </div>
+
+    <div class="table-scroll">
+      <table class="sheet-table">
+        <thead>
+          <tr>
+            <th>SKU</th>
+            <th>Product Name</th>
+            <th>Category</th>
+            <th>Subcategory</th>
+            <th>Brand</th>
+            <th>Unit</th>
+            <th style="text-align:right;">Opening</th>
+            <th style="text-align:right;">Restocked</th>
+            <th style="text-align:right;">Sold</th>
+            <th style="text-align:right;">Live Stock</th>
+            <th style="text-align:center;">Reorder</th>
+            <th style="text-align:center;">Status</th>
+            <th style="text-align:right;">Valuation (₹)</th>
+          </tr>
+        </thead>
+        <tbody id="inventoryBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 3. Product Rate Chart -->
+  <div id="tab-rates" class="panel">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; flex-wrap:wrap; gap:12px;">
+      <div>
+        <h3>Product Pricing &amp; Rate Matrix</h3>
+        <p style="font-size: 12px; color: var(--text-muted);">Standard catalog selling rates with admin-gated purchase &amp; floor margins</p>
+      </div>
+      <input type="text" id="rateSearch" placeholder="🔍 Search product or SKU..." style="width: 280px;" oninput="filterRates()" />
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>SKU</th>
+            <th>Product Description</th>
+            <th>Category</th>
+            <th>Unit</th>
+            <th class="admin-only" style="text-align:right;">Purchase Cost (P Code)</th>
+            <th style="text-align:right;">Selling Rate (S Code)</th>
+            <th class="admin-only" style="text-align:right;">Min Floor (MS Code)</th>
+            <th class="admin-only" style="text-align:right;">Gross Margin %</th>
+          </tr>
+        </thead>
+        <tbody id="rateChartBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 4. Khata / Due Ledger -->
+  <div id="tab-dues" class="panel">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; flex-wrap:wrap; gap:12px;">
+      <div>
+        <h3>Khata / Outstanding Customer Dues</h3>
+        <p style="font-size: 12px; color: var(--text-muted);">Tracks accounts receivables, customer categories, and payment aging</p>
+      </div>
+      <input type="text" id="dueSearch" placeholder="🔍 Search customer or phone..." style="width: 280px;" oninput="filterDues()" />
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Category</th>
+            <th>Phone</th>
+            <th>Locality</th>
+            <th style="text-align:right;">Total Billed</th>
+            <th style="text-align:right;">Total Paid</th>
+            <th style="text-align:right;">Pending Due (₹)</th>
+            <th style="text-align:center;">Oldest Due</th>
+            <th style="text-align:center;">Aging (Days)</th>
+            <th style="text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody id="duesBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 5. Sales History -->
+  <div id="tab-history" class="panel">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+      <div>
+        <h3>Sales Invoices &amp; Cash Memo Register</h3>
+        <p style="font-size: 12px; color: var(--text-muted);">Historical logs of invoices, customer categories, and profit margins</p>
+      </div>
+      <input type="text" id="histSearch" placeholder="🔍 Search invoices, customer, items..." style="width: 300px;" oninput="filterHistory()" />
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Invoice #</th>
+            <th>Date</th>
+            <th>Customer</th>
+            <th>Category</th>
+            <th>Items Summary</th>
+            <th style="text-align:right;">Total Billed</th>
+            <th style="text-align:right;">Paid</th>
+            <th style="text-align:right;">Due</th>
+            <th class="admin-only" style="text-align:right;">Profit</th>
+            <th class="admin-only" style="text-align:right;">Margin %</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 6. Inward Purchase Register -->
+  <div id="tab-purchase" class="panel">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; flex-wrap:wrap; gap:10px;">
+      <div>
+        <h3>Inward Purchase Register</h3>
+        <p style="font-size: 12px; color: var(--text-muted);">Log incoming mill/wholesaler shipments or register new catalog SKUs</p>
+      </div>
+      <button class="btn btn-secondary" onclick="openNewProductModal()">+ Add New Product to Catalogue</button>
+    </div>
+
+    <div class="card-box">
+      <h4 style="color: var(--primary); margin-bottom: 14px;">Log Inward Stock for Existing Product</h4>
+      <div class="form-grid">
+        <div>
+          <label class="field-label">Select Product SKU</label>
+          <input type="text" id="purProdSearch" placeholder="🔍 Type product or SKU to filter..." oninput="filterPurProducts()" style="margin-bottom: 8px;" />
+          <select id="purProductSelect" onchange="onPurProductChange()"></select>
+        </div>
+        <div>
+          <label class="field-label">Inward Quantity</label>
+          <input type="number" id="purQty" placeholder="Quantity Inward" min="1" step="any" />
+        </div>
+        <div>
+          <label class="field-label">Unit Purchase Cost (P Code ₹)</label>
+          <input type="number" id="purCost" placeholder="New Unit Cost (₹)" step="any" oninput="suggestSellingPrice()" />
+        </div>
+        <div>
+          <label class="field-label">Updated Selling Rate (S Code ₹)</label>
+          <input type="number" id="purSellingRate" placeholder="Updated Selling Rate (₹)" step="any" />
+        </div>
+        <div>
+          <label class="field-label">Supplier / Mill Name</label>
+          <input type="text" id="purSupplier" placeholder="e.g. Mill Stock / Wholesaler" />
+        </div>
+      </div>
+      <button class="btn" onclick="submitPurchase()">📥 Log Inward Stock &amp; Update Rates</button>
+    </div>
+  </div>
+
+  <!-- 7. Executive BI Dashboard -->
+  <div id="tab-exec" class="panel">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom: 16px;">
+      <div>
+        <h3 style="margin-bottom: 4px;">Executive BI Dashboard &amp; Financial Intelligence</h3>
+        <p style="font-size: 12px; color: var(--text-muted);">Live Counter Galla, Cash Realization, Category Profitability &amp; Working Capital Health</p>
+      </div>
+      <button class="btn btn-secondary" onclick="loadExecutiveBI()" style="padding: 7px 14px; font-size: 12px;">🔄 Refresh Analytics</button>
+    </div>
+
+    <!-- 1. Today's Counter Pulse (Daily Galla Strip) -->
+    <div class="card-box" style="background: linear-gradient(135deg, rgba(2, 132, 199, 0.14) 0%, rgba(16, 185, 129, 0.10) 100%); border-color: rgba(56, 189, 248, 0.3); margin-bottom: 20px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px; flex-wrap:wrap; gap:8px;">
+        <h4 style="color: var(--primary); font-size: 13px; text-transform: uppercase; letter-spacing: 0.8px;">⚡ Today's Live Counter Pulse (Daily Galla)</h4>
+        <span id="biTodayCount" class="mono" style="font-size: 12px; background: rgba(56, 189, 248, 0.15); color: var(--primary); padding: 3px 10px; border-radius: 99px; font-weight: 700;">0 Invoices Today</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px;">
+        <div>
+          <span class="field-label">Today's Billed Sales</span>
+          <div id="biTodayRev" class="mono" style="font-size: 22px; font-weight: 800; color: var(--text-main);">₹ 0.00</div>
+        </div>
+        <div>
+          <span class="field-label">Today's Cash in Hand</span>
+          <div id="biTodayCash" class="mono" style="font-size: 22px; font-weight: 800; color: var(--emerald);">₹ 0.00</div>
+        </div>
+        <div>
+          <span class="field-label">Today's New Khata Due</span>
+          <div id="biTodayDue" class="mono" style="font-size: 22px; font-weight: 800; color: var(--rose);">₹ 0.00</div>
+        </div>
+        <div>
+          <span class="field-label">Today's Net Profit</span>
+          <div id="biTodayProfit" class="mono" style="font-size: 22px; font-weight: 800; color: var(--amber);">₹ 0.00</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Master Financial & Cash vs Credit KPIs -->
+    <div class="bi-kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));">
+      <div class="bi-kpi-card"><span>Total Billed Revenue</span><h2 id="biTotalRevenue">₹ 0</h2></div>
+      <div class="bi-kpi-card"><span>Actual Cash Realized</span><h2 id="biTotalPaid" style="color:var(--emerald);">₹ 0</h2><small id="biCollectionEff" style="font-size:11px; color:var(--text-muted); font-weight:600;">100% Collected</small></div>
+      <div class="bi-kpi-card"><span>Market Khata Locked</span><h2 id="biTotalDue" style="color:var(--rose);">₹ 0</h2><small style="font-size:11px; color:var(--text-muted);">Unpaid Receivables</small></div>
+      <div class="bi-kpi-card"><span>MTD Revenue</span><h2 id="biMtdRev" style="color:var(--primary);">₹ 0</h2></div>
+      <div class="bi-kpi-card"><span>MTD Gross Profit</span><h2 id="biMtdProfit" style="color:var(--emerald);">₹ 0</h2></div>
+      <div class="bi-kpi-card"><span>YTD Revenue</span><h2 id="biYtdRev" style="color:var(--indigo);">₹ 0</h2></div>
+      <div class="bi-kpi-card"><span>YTD Gross Profit</span><h2 id="biYtdProfit" style="color:var(--emerald);">₹ 0</h2></div>
+      <div class="bi-kpi-card"><span>Gross Margin %</span><h2 id="biGrossMargin" style="color:var(--amber);">0%</h2></div>
+    </div>
+
+    <!-- 3. Visual Charts Row (Monthly Trend, Category Profit Share, Locality Share) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 18px; margin-bottom: 20px;">
+      <div class="card-box" style="margin-bottom: 0;">
+        <h4 style="color: var(--primary); margin-bottom: 14px;">📈 Monthly Revenue vs Gross Profit</h4>
+        <div class="chart-container"><canvas id="monthlyChart"></canvas></div>
+      </div>
+      <div class="card-box" style="margin-bottom: 0;">
+        <h4 style="color: var(--primary); margin-bottom: 14px;">🏗️ Category Revenue vs Profit</h4>
+        <div class="chart-container"><canvas id="categoryChart"></canvas></div>
+      </div>
+      <div class="card-box" style="margin-bottom: 0;">
+        <h4 style="color: var(--primary); margin-bottom: 14px;">📍 Regional Buyer Distribution</h4>
+        <div class="chart-container"><canvas id="locationChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- 4. Buyer Segment Performance (Carpenter vs Retailer vs Contractor) -->
+    <div class="card-box">
+      <h4 style="color: var(--primary); margin-bottom: 12px;">🤝 Customer Segment Performance (Carpenter vs. Retailer vs. Contractor)</h4>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Buyer Segment</th>
+              <th style="text-align:center;">Total Invoices</th>
+              <th style="text-align:right;">Total Business (₹)</th>
+              <th style="text-align:right;">Net Profit (₹)</th>
+              <th style="text-align:right;">Pending Khata Due (₹)</th>
+              <th style="text-align:right;">Avg Margin %</th>
+            </tr>
+          </thead>
+          <tbody id="execSegmentBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 5. Top 10 Most Profitable SKUs & Dead Stock Capital Alert (2-Column Split) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 20px;">
+      <div class="card-box" style="margin-bottom: 0;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+          <h4 style="color: var(--emerald);">🏆 Top 10 Profit-Generating SKUs (Fast Movers)</h4>
+          <span style="font-size:11px; color:var(--text-muted);">Never Let These Stock Out</span>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Product / SKU</th>
+                <th style="text-align:right;">Sold</th>
+                <th style="text-align:right;">Revenue</th>
+                <th style="text-align:right;">Profit (₹)</th>
+                <th style="text-align:right;">Margin</th>
+              </tr>
+            </thead>
+            <tbody id="execTopSkusBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card-box" style="margin-bottom: 0;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px; flex-wrap:wrap; gap:6px;">
+          <h4 style="color: var(--amber);">💤 Unsold / Dead Stock Capital Alert (0 Sold)</h4>
+          <span id="biDeadStockBadge" class="mono" style="font-size:11px; background:var(--amber-bg); color:var(--amber); padding:3px 10px; border-radius:99px; font-weight:700;">Locked: ₹ 0</span>
+        </div>
+        <div class="table-scroll" style="max-height: 360px; overflow-y: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Product / SKU</th>
+                <th>Category</th>
+                <th style="text-align:right;">Stock On Hand</th>
+                <th style="text-align:right;">Locked Capital (₹)</th>
+              </tr>
+            </thead>
+            <tbody id="execDeadStockBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Existing Customer P&L and Monthly Financial Tables -->
+    <div class="card-box">
+      <h4 style="color: var(--primary); margin-bottom: 12px;">👥 Profit &amp; Loss Breakdown by Customer</h4>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Customer Name</th>
+              <th>Category</th>
+              <th>Phone</th>
+              <th>Invoices</th>
+              <th style="text-align:right;">Total Billed</th>
+              <th style="text-align:right;">Cost (COGS)</th>
+              <th style="text-align:right;">Net Profit</th>
+              <th style="text-align:right;">Margin %</th>
+            </tr>
+          </thead>
+          <tbody id="execCustPlBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card-box" style="margin-bottom: 0;">
+      <h4 style="color: var(--primary); margin-bottom: 12px;">🗓️ Monthly Financial Trend Breakdown</h4>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Billing Month</th>
+              <th style="text-align:right;">Revenue (₹)</th>
+              <th style="text-align:right;">Gross Profit (₹)</th>
+              <th style="text-align:right;">Margin %</th>
+            </tr>
+          </thead>
+          <tbody id="execTimePlBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. WhatsApp Broadcast -->
+  <div id="tab-broadcast" class="panel">
+    <div style="margin-bottom: 16px;">
+      <h3>💬 Customer WhatsApp Announcement Broadcast</h3>
+      <p style="font-size: 12px; color: var(--text-muted);">Direct wa.me click-to-chat messaging without external gateway fees</p>
+    </div>
+
+    <div class="card-box">
+      <h4 style="color: var(--primary); margin-bottom: 12px;">Compose Announcement</h4>
+      <div style="display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
+        <select id="broadcastTargetFilter" style="max-width: 250px;" onchange="renderBroadcastList()">
+          <option value="ALL">All Registered Customers</option>
+          <option value="Carpenter">Carpenters Only</option>
+          <option value="Retailer">Retailers Only</option>
+          <option value="Contractor">Contractors Only</option>
+        </select>
+        <button class="btn btn-secondary" onclick="insertTemplate('stock')">🌲 New Stock Template</button>
+        <button class="btn btn-secondary" onclick="insertTemplate('rates')">🏷️ Price Offer Template</button>
+        <button class="btn btn-secondary" onclick="insertTemplate('due')">📒 Khata Reminder Template</button>
+      </div>
+      <textarea id="broadcastMessage" rows="4" placeholder="Write announcement message in English or Bengali..." oninput="renderBroadcastList()"></textarea>
+    </div>
+
+    <div class="card-box" style="margin-bottom: 0;">
+      <h4 style="color: var(--primary); margin-bottom: 12px;">Recipient List</h4>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Customer Name</th>
+              <th>Category</th>
+              <th>Phone</th>
+              <th>Locality</th>
+              <th style="text-align: right;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="broadcastListBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. Incoming Website Quote Inquiries -->
+  <div id="tab-inquiries" class="panel">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; flex-wrap:wrap; gap:12px;">
+      <div>
+        <h3>🌐 Incoming Customer Website Inquiries</h3>
+        <p style="font-size: 12px; color: var(--text-muted);">Live quotation requests submitted by customers on your public showroom website</p>
+      </div>
+      <button class="btn btn-secondary" onclick="loadWebsiteInquiries()">🔄 Refresh Inquiries</button>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Inquiry #</th>
+            <th>Date &amp; Time</th>
+            <th>Customer Name</th>
+            <th>Profile</th>
+            <th>Phone</th>
+            <th>Delivery Locality</th>
+            <th>Requested Material List</th>
+            <th style="text-align:right;">Action</th>
+          </tr>
+        </thead>
+        <tbody id="websiteInquiriesBody">
+          <tr><td colspan="8" style="text-align:center; padding:24px;">Click Refresh to load inquiries...</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="margin-top: 32px; border-top: 1px solid var(--surface-border); padding-top: 24px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+        <div>
+          <h3>📸 Customer Uploaded Project Photos (Testimonials)</h3>
+          <p style="font-size: 12px; color: var(--text-muted);">Approve customer furniture photos here to publish them live on your Customer Website &amp; App</p>
+        </div>
+        <button class="btn btn-secondary" onclick="loadAdminTestimonials()">🔄 Refresh Photos</button>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Photo Preview</th>
+              <th>Project Built</th>
+              <th>Customer Details</th>
+              <th>Carpenter Tagged</th>
+              <th>Status</th>
+              <th style="text-align:right;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="adminTestimonialsBody">
+            <tr><td colspan="6" style="text-align:center; padding:24px;">Click Refresh to load uploaded photos...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+<!-- Modal: Add New Product -->
+<div class="modal-overlay" id="newProdModal">
+  <div class="modal-card">
+    <h3 style="margin-bottom: 14px;">Add New Product to Catalogue</h3>
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <input type="text" id="npSku" placeholder="SKU (e.g. PLY-COMM-18-8X4)" />
+      <input type="text" id="npName" placeholder="Product Name" />
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+        <input type="text" id="npCategory" placeholder="Category (e.g. Plywood)" />
+        <input type="text" id="npSubcategory" placeholder="Subcategory" />
+      </div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+        <input type="text" id="npBrand" placeholder="Brand" />
+        <select id="npUnit">
+          <option value="Pcs">Pcs</option>
+          <option value="SqFt">SqFt</option>
+          <option value="Kg">Kg</option>
+          <option value="Set">Set</option>
+          <option value="Box">Box</option>
+        </select>
+      </div>
+      <input type="number" id="npSqft" placeholder="SqFt Per Sheet (If Plywood, e.g. 32)" step="any" />
+      <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px;">
+        <input type="number" id="npPurchase" placeholder="Cost (₹)" step="any" />
+        <input type="number" id="npSelling" placeholder="Selling (₹)" step="any" />
+        <input type="number" id="npFloor" placeholder="Floor Min (₹)" step="any" />
+      </div>
+      <input type="number" id="npStock" placeholder="Initial Opening Stock Qty" step="any" />
+      <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:10px;">
+        <button class="btn btn-secondary" onclick="closeNewProductModal()">Cancel</button>
+        <button class="btn" onclick="saveNewProduct()">Save Product</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Receive Payment -->
+<div class="modal-overlay" id="paymentModal">
+  <div class="modal-card">
+    <h3 style="margin-bottom: 8px;">💳 Receive Customer Payment</h3>
+    <p id="payModalSubtitle" style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;"></p>
+    <input type="hidden" id="payCustId" />
+    <input type="number" id="payAmountInput" placeholder="Enter Payment Amount (₹)" style="font-size:16px; font-weight:700;" step="any" />
+    <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px;">
+      <button class="btn btn-secondary" onclick="closePaymentModal()">Cancel</button>
+      <button class="btn" onclick="submitDuePayment()">Confirm &amp; Deduct Due</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Enter PIN -->
+<div class="modal-overlay" id="pinModal">
+  <div class="modal-card" style="width:350px;">
+    <h3 style="margin-bottom: 8px;">🔐 Enter Admin PIN</h3>
+    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">Unlock sensitive costs, profit margins, and executive reports.</p>
+    <input type="password" id="pinInput" placeholder="••••" style="text-align: center; font-size: 20px; letter-spacing: 6px;" maxlength="8" />
+    <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px;">
+      <button class="btn btn-secondary" onclick="closePinModal()">Cancel</button>
+      <button class="btn" onclick="verifyPin()">Unlock</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add / Edit Customer -->
+<div class="modal-overlay" id="custModal">
+  <div class="modal-card">
+    <h3 id="custModalTitle" style="margin-bottom: 14px;">👤 Add New Customer</h3>
+    <input type="hidden" id="editCustId" value="" />
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <input type="text" id="newCustName" placeholder="Full Name *" />
+      <input type="text" id="newCustPhone" placeholder="Mobile Number (Leave blank if unknown)" />
+      <input type="text" id="newCustAddr" placeholder="Locality / Village (Leave blank for Onda)" />
+      <select id="newCustCategory">
+        <option value="Carpenter">Carpenter</option>
+        <option value="Retailer">Retailer</option>
+        <option value="Contractor">Contractor</option>
+      </select>
+      <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px;">
+        <button type="button" class="btn btn-secondary" onclick="closeCustomerModal()">Cancel</button>
+        <button type="button" class="btn" onclick="saveCustomer(event)">Save Customer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Printable Cash Memo -->
+<div id="printBillWrapper">
+  <div style="border: 2px solid #000; padding: 18px;">
+    <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 12px;">
+      <h2 style="font-size: 22px; font-weight: 800; letter-spacing: 0.8px; margin-bottom: 2px;">BABA DUGDHESWAR ENTERPRISE</h2>
+      <p style="font-size: 12.5px; margin-bottom: 4px;">Onda, Bankura, West Bengal &bull; Plywood, Laminate &amp; Hardware Merchant</p>
+      <span style="display:inline-block; background:#000; color:#fff; font-size: 12px; font-weight: 800; padding: 3px 12px; letter-spacing: 1px; text-transform: uppercase;">ESTIMATE / CASH MEMO</span>
+    </div>
+
+    <div style="display:flex; justify-content: space-between; margin-bottom: 12px; font-size: 13px; line-height: 1.6;">
+      <div>
+        <div><strong>Invoice No:</strong> <span id="billInv"></span></div>
+        <div><strong>Customer:</strong> <span id="billCust"></span></div>
+        <div><strong>Phone:</strong> <span id="billPhone"></span></div>
+      </div>
+      <div style="text-align: right;">
+        <div><strong>Date &amp; Time:</strong> <span id="billDate"></span></div>
+        <div><strong>Place of Supply:</strong> Onda, Bankura</div>
+      </div>
+    </div>
+
+    <table style="width: 100%; border: 1px solid #000; border-collapse: collapse; font-size: 12.5px;">
+      <thead>
+        <tr style="border-bottom: 1px solid #000; background: #f1f5f9;">
+          <th style="padding: 7px 10px; text-align: left; border: 1px solid #000; width: 55%; color:#000;">ITEM DESCRIPTION</th>
+          <th style="padding: 7px 10px; text-align: right; border: 1px solid #000; width: 15%; color:#000;">QTY</th>
+          <th style="padding: 7px 10px; text-align: right; border: 1px solid #000; width: 15%; color:#000;">RATE</th>
+          <th style="padding: 7px 10px; text-align: right; border: 1px solid #000; width: 15%; color:#000;">AMOUNT (₹)</th>
+        </tr>
+      </thead>
+      <tbody id="billItemsBody"></tbody>
+      <tfoot>
+        <tr style="border-top: 2px solid #000;">
+          <td colspan="3" style="padding: 6px 10px; text-align: right; font-weight: bold;">Grand Total:</td>
+          <td style="padding: 6px 10px; text-align: right; font-weight: bold;" id="billGrandTotal"></td>
+        </tr>
+        <tr>
+          <td colspan="3" style="padding: 6px 10px; text-align: right; font-weight: bold;">Paid Amount:</td>
+          <td style="padding: 6px 10px; text-align: right; font-weight: bold;" id="billPaid"></td>
+        </tr>
+        <tr>
+          <td colspan="3" style="padding: 6px 10px; text-align: right; font-weight: bold; color: #b91c1c;">Balance Due:</td>
+          <td style="padding: 6px 10px; text-align: right; font-weight: bold; color: #b91c1c;" id="billDue"></td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div id="billAmountWords" style="margin-top: 8px; font-size: 12px; font-style: italic; font-weight: 600;"></div>
+
+    <div style="margin-top: 48px; display: flex; justify-content: space-between; font-size: 12.5px;">
+      <div style="border-top: 1px solid #000; padding-top: 4px; width: 180px; text-align: center;">Customer Signature</div>
+      <div style="border-top: 1px solid #000; padding-top: 4px; width: 220px; text-align: center; font-weight: bold;">For Baba Dugdheswar Enterprise</div>
+    </div>
+  </div>
+</div>
+
+<!-- Printable Restock Procurement Order Sheet -->
+<div id="printRestockWrapper">
+  <div style="text-align: center; margin-bottom: 14px; border-bottom: 2px solid #000; padding-bottom: 10px;">
+    <h2 style="font-size: 20px; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 2px;">BABA DUGDHESWAR ENTERPRISE</h2>
+    <p style="font-size: 12px; margin-bottom: 4px;">Onda, Bankura, West Bengal &bull; Plywood &amp; Hardware Merchant</p>
+    <p style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: #b91c1c;">
+      MATERIAL RE-ORDER &amp; PROCUREMENT INDENT (ITEMS &le; 25% STOCK)
+    </p>
+    <div style="display:flex; justify-content:space-between; margin-top: 8px; font-size: 12px;">
+      <span><strong>Generated Date:</strong> <span id="restockDate"></span></span>
+      <span><strong>Total Urgent SKUs:</strong> <span id="restockSkuCount"></span></span>
+    </div>
+  </div>
+  <table style="width: 100%; border: 1px solid #000; border-collapse: collapse; font-size: 11.5px;">
+    <thead>
+      <tr style="background: #f1f5f9; border-bottom: 1px solid #000;">
+        <th style="padding: 6px 8px; border: 1px solid #000; width: 5%; color:#000;">#</th>
+        <th style="padding: 6px 8px; border: 1px solid #000; width: 15%; color:#000;">SKU</th>
+        <th style="padding: 6px 8px; border: 1px solid #000; width: 35%; color:#000;">Product Description</th>
+        <th style="padding: 6px 8px; border: 1px solid #000; width: 10%; color:#000;">Brand</th>
+        <th style="padding: 6px 8px; border: 1px solid #000; width: 10%; text-align: right; color:#000;">Live Stock</th>
+        <th style="padding: 6px 8px; border: 1px solid #000; width: 10%; text-align: right; color:#000;">Reorder Mark (25%)</th>
+        <th style="padding: 6px 8px; border: 1px solid #000; width: 15%; text-align: right; color:#000;">Purchase Cost (P)</th>
+      </tr>
+    </thead>
+    <tbody id="restockTableBody"></tbody>
+  </table>
+  <div style="margin-top: 40px; display: flex; justify-content: space-between; font-size: 12px;">
+    <div>Store Manager Verification</div>
+    <div>Proprietor Authorization Signature</div>
+  </div>
+</div>
+
+<!-- Floating Toast Notifications Hook -->
+<div id="toastContainer" style="position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;"></div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

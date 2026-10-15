@@ -1,0 +1,46 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.babadugdheswarenterprise.bde'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.babadugdheswarenterprise.bde"
+        minSdk 21
+        targetSdk 34
+        versionCode 101
+        versionName "1.0.1"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        release {
+            storeFile file('../../android_release/my-release-key.jks')
+            storePassword 'BF7HczNFrbJ9'
+            keyAlias 'babadugdheshwarenterprise'
+            keyPassword 'BF7HczNFrbJ9'
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.activity:activity:1.8.2'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+}
