@@ -118,17 +118,6 @@
     </div>
     <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
       <span id="sessionUserBadge" class="session-badge" style="display:none;">👑 Proprietor</span>
-      <div style="display:inline-flex; align-items:center; gap:6px; background:var(--surface); border:1px solid var(--surface-border); padding:3px 8px; border-radius:8px;">
-        <span style="font-size:12px;">🎉 Theme:</span>
-        <select id="headerFestiveThemeSelect" onchange="quickSwitchFestivalTheme(this.value)" style="border:none; background:transparent; color:var(--text-main); font-size:12px; font-weight:700; cursor:pointer; outline:none;">
-          <option value="none">Normal (No Decor)</option>
-          <option value="durga-puja">🪔 Durga Puja</option>
-          <option value="diwali">🎆 Diwali &amp; Kali Puja</option>
-          <option value="holi">🎨 Holi &amp; Dol Jatra</option>
-          <option value="independence-day">🇮🇳 Independence Day</option>
-          <option value="noboborsho">🌾 Poila Boishakh</option>
-        </select>
-      </div>
       <button class="btn btn-secondary" onclick="toggleTheme()" id="themeBtn">☀️ Day Mode</button>
       <button class="btn btn-secondary" id="authBtn" onclick="handleAuthClick()">🔒 Staff Mode (Unlock Admin)</button>
       <button class="btn btn-secondary admin-only" onclick="seedMasterCatalogue()">📥 Seed Master</button>
@@ -663,33 +652,6 @@
       </div>
       <div style="display:flex; gap:8px; align-items:center;">
         <button class="btn btn-secondary" onclick="loadWebsiteInquiries()">🔄 Refresh</button>
-      </div>
-    </div>
-
-    <!-- Festive Theme Manager Card -->
-    <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(220, 38, 38, 0.08) 100%); border: 1.5px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 14px 18px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
-      <div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 20px;">🎉</span>
-          <h4 style="margin: 0; font-size: 15px; font-weight: 800;">Website Festive Theme &amp; Seasonal Decor</h4>
-          <span id="activeThemeBadge" class="badge-instock" style="background: #D97706; color: #fff; font-size: 11px;">Maa Durga Puja Active</span>
-        </div>
-        <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0 0 0;">
-          One-click switcher: updates flower chain, fairy lights, Maa Durga 3-eyes, and celebration graphics on your customer website in real-time.
-        </p>
-      </div>
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <select id="festiveThemeDropdown" style="padding: 7px 12px; border-radius: 8px; border: 1px solid var(--surface-border); background: var(--surface); color: var(--text-main); font-size: 13px; font-weight: 700;">
-          <option value="none">None (Clean Showroom)</option>
-          <option value="durga-puja">🪔 Durga Puja (Trinayani + Toran)</option>
-          <option value="diwali">🎆 Diwali &amp; Kali Puja (Fairy Lights + Sparks)</option>
-          <option value="holi">🎨 Holi &amp; Dol Jatra (Organic Gulal)</option>
-          <option value="independence-day">🇮🇳 Independence Day (Tricolor)</option>
-          <option value="noboborsho">🌾 Poila Boishakh (Alpana &amp; Ghat)</option>
-        </select>
-        <button class="btn" onclick="saveFestivalThemeFromConsole()" style="background: #D97706; color: #fff; font-size: 12.5px; padding: 7px 14px;">
-          Apply Theme Live
-        </button>
       </div>
     </div>
 

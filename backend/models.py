@@ -153,10 +153,3 @@ class CarpenterCallLog(Base):
     customer_phone = Column(String(20), nullable=False)
     customer_village = Column(String(100), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
-
-class AppSetting(Base):
-    __tablename__ = "app_settings"
-    key = Column(String(80), primary_key=True, index=True)
-    value = Column(Text, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow)
-
