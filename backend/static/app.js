@@ -671,29 +671,6 @@ async function finalizeMultiItemSale() {
   const receipt = await res.json();
   showToast(`Invoice ${receipt.invoice_id} finalized! Preparing print...`, "success");
 
-  document.getElementById('billInv').textContent = receipt.invoice_id;
-  document.getElementById('billDate').textContent = receipt.date;
-  document.getElementById('billCust').textContent = receipt.customer_name;
-  document.getElementById('billPhone').textContent = receipt.customer_phone;
-
-  document.getElementById('billItemsBody').innerHTML = receipt.items.map(i => `
-    <tr>
-      <td style="padding: 6px 10px; border: 1px solid #000;">${i.name}</td>
-      <td style="padding: 6px 10px; text-align: right; border: 1px solid #000;">${i.qty} ${i.unit}</td>
-      <td style="padding: 6px 10px; text-align: right; border: 1px solid #000;">₹ ${i.unit_price.toFixed(2)}</td>
-      <td style="padding: 6px 10px; text-align: right; border: 1px solid #000;">₹ ${i.line_total.toFixed(2)}</td>
-    </tr>
-  `).join('');
-
-  document.getElementById('billGrandTotal').textContent = fmtInr(receipt.grand_total);
-  document.getElementById('billPaid').textContent = fmtInr(receipt.paid_amount);
-  document.getElementById('billDue').textContent = fmtInr(receipt.due_amount);
-
-  const wordsEl = document.getElementById('billAmountWords');
-  if (wordsEl) {
-    wordsEl.textContent = "Amount in Words: " + numberToIndianWords(receipt.grand_total);
-  }
-
   invoiceCart = [];
   document.getElementById('posPaidAmount').value = "";
   renderCart();
@@ -703,12 +680,94 @@ async function finalizeMultiItemSale() {
   loadDues();
   if (isAdmin) loadExecutiveBI();
 
+  renderBillForPrinting(receipt);
+}
+
+/* --- Render Printable Cash Memo with Cashback QR Code --- */
+function renderBillForPrinting(receipt) {
+  document.getElementById('billInv').textContent = receipt.invoice_id;
+  document.getElementById('billDate').textContent = receipt.date;
+  document.getElementById('billCust').textContent = receipt.customer_name;
+  document.getElementById('billPhone').textContent = receipt.customer_phone;
+
+  if (Array.isArray(receipt.items)) {
+    document.getElementById('billItemsBody').innerHTML = receipt.items.map(i => `
+      <tr>
+        <td style="padding: 6px 10px; border: 1px solid #000;">${i.name}</td>
+        <td style="padding: 6px 10px; text-align: right; border: 1px solid #000;">${i.qty} ${i.unit}</td>
+        <td style="padding: 6px 10px; text-align: right; border: 1px solid #000;">₹ ${Number(i.unit_price).toFixed(2)}</td>
+        <td style="padding: 6px 10px; text-align: right; border: 1px solid #000;">₹ ${Number(i.line_total).toFixed(2)}</td>
+      </tr>
+    `).join('');
+  } else {
+    document.getElementById('billItemsBody').innerHTML = `
+      <tr>
+        <td colspan="4" style="padding: 6px 10px; border: 1px solid #000;">${receipt.items_detail || 'Materials & Hardware items'}</td>
+      </tr>
+    `;
+  }
+
+  document.getElementById('billGrandTotal').textContent = fmtInr(receipt.grand_total || receipt.total_amount);
+  document.getElementById('billPaid').textContent = fmtInr(receipt.paid_amount);
+  document.getElementById('billDue').textContent = fmtInr(receipt.due_amount);
+
+  const wordsEl = document.getElementById('billAmountWords');
+  if (wordsEl) {
+    wordsEl.textContent = "Amount in Words: " + numberToIndianWords(receipt.grand_total || receipt.total_amount);
+  }
+
+  // Generate Dynamic QR Code for Customer Cashback & Finished Furniture Upload
+  const qrUrl = `https://bde-mobile-app.onrender.com/?tab=showcase&inv=${encodeURIComponent(receipt.invoice_id)}&phone=${encodeURIComponent(receipt.customer_phone || '')}&name=${encodeURIComponent(receipt.customer_name || '')}`;
+  
+  const linkTextEl = document.getElementById('billCashbackLinkText');
+  if (linkTextEl) linkTextEl.textContent = qrUrl;
+
+  const qrBox = document.getElementById('billQrCodeBox');
+  if (qrBox) {
+    qrBox.innerHTML = '';
+    if (typeof QRCode !== 'undefined') {
+      try {
+        new QRCode(qrBox, {
+          text: qrUrl,
+          width: 86,
+          height: 86,
+          colorDark: "#000000",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      } catch (err) {
+        qrBox.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(qrUrl)}" style="width:100%; height:100%; object-fit:contain;" />`;
+      }
+    } else {
+      qrBox.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(qrUrl)}" style="width:100%; height:100%; object-fit:contain;" />`;
+    }
+  }
+
   document.body.classList.remove('printing-restock');
   document.body.classList.add('printing-bill');
   window.print();
   setTimeout(() => {
     document.body.classList.remove('printing-bill');
   }, 1000);
+}
+
+function reprintInvoice(invoiceId) {
+  const inv = historyCache.find(x => x.invoice_id === invoiceId);
+  if (!inv) {
+    showToast(`Invoice ${invoiceId} not found in register.`, "error");
+    return;
+  }
+  showToast(`Preparing Cash Memo print with QR Code for ${invoiceId}...`, "info");
+  renderBillForPrinting({
+    invoice_id: inv.invoice_id,
+    date: inv.date,
+    customer_name: inv.customer_name,
+    customer_phone: inv.customer_phone,
+    items_detail: inv.items_detail,
+    grand_total: inv.total_amount,
+    paid_amount: inv.paid_amount,
+    due_amount: inv.due_amount
+  });
 }
 
 /* --- Khata / Due Ledger --- */
@@ -868,6 +927,11 @@ function renderHistory(list) {
         </td>
         <td class="mono admin-only" style="color:var(--emerald); text-align:right; font-weight:700;">${fmtInr(inv.profit)}</td>
         <td class="mono admin-only" style="color:var(--primary); text-align:right;">${inv.margin_pct}%</td>
+        <td style="text-align:center;">
+          <button class="btn btn-secondary" style="padding:4px 9px; font-size:11px;" onclick="reprintInvoice('${inv.invoice_id}')" title="Print Cash Memo with QR Code">
+            🖨️ Bill
+          </button>
+        </td>
       </tr>
     `;
   }).join('');
@@ -1647,35 +1711,125 @@ async function deleteInquiry(id) {
   }
 }
 
+let adminTestimonialsCache = [];
+
 async function loadAdminTestimonials() {
   const tbody = document.getElementById('adminTestimonialsBody');
   if (!tbody) return;
   try {
     const res = await authFetch('/testimonials/admin');
     const data = await res.json();
+    adminTestimonialsCache = data || [];
     if (!data || data.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--text-muted);">No customer photos uploaded yet.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:24px; color:var(--text-muted);">No customer finished furniture photos uploaded yet.</td></tr>`;
       return;
     }
-    tbody.innerHTML = data.map(t => `
-      <tr>
-        <td><img src="${t.image_base64}" style="width:90px; height:65px; object-fit:cover; border-radius:8px; border:1px solid var(--surface-border);" /></td>
-        <td><strong>${t.project_title}</strong><div style="font-size:11px; color:var(--text-muted);">${t.created_at}</div></td>
-        <td><strong>${t.customer_name}</strong><div class="mono" style="font-size:11px;">${t.customer_phone} (${t.customer_location})</div></td>
-        <td>${t.carpenter_name}</td>
-        <td>${t.is_approved ? '<span class="badge-instock">LIVE ON WEBSITE</span>' : '<span class="badge-lowstock">PENDING APPROVAL</span>'}</td>
-        <td style="text-align:right; display:flex; gap:8px; justify-content:flex-end;">
-          <button class="btn" style="padding:6px 12px; font-size:11.5px;" onclick="toggleTestimonialApprove(${t.id})">
-            ${t.is_approved ? 'Hide' : '✅ Approve & Publish'}
-          </button>
-          <button class="btn btn-danger" style="padding:6px 12px; font-size:11.5px;" onclick="deleteTestimonialAdmin(${t.id})">
-            🗑️ Delete
-          </button>
-        </td>
-      </tr>
-    `).join('');
+    tbody.innerHTML = data.map(t => {
+      const invBadge = (t.invoice_no && t.invoice_no !== '-') 
+        ? `<span class="mono" style="color:var(--primary); font-weight:700; background:rgba(56,189,248,0.12); padding:3px 7px; border-radius:4px; font-size:12px;">${t.invoice_no}</span>`
+        : `<span style="color:var(--text-muted); font-size:11px;">Direct Upload</span>`;
+
+      const upiText = (t.cashback_upi && t.cashback_upi !== '-')
+        ? `<div class="mono" style="color:var(--emerald); font-weight:700; font-size:11.5px;">${t.cashback_upi}</div>`
+        : `<span style="color:var(--text-muted); font-size:11px;">None provided</span>`;
+
+      let cbStatusBadge = `<span class="badge-cat badge-retailer" style="font-size:10.5px;">⏳ PENDING REVIEW</span>`;
+      if (t.cashback_status === 'Paid') {
+        cbStatusBadge = `<span class="badge-instock" style="background:#059669; color:#fff; font-size:10.5px;">✅ PAID (₹${t.cashback_amount || 0})</span>`;
+      } else if (t.cashback_status === 'Approved') {
+        cbStatusBadge = `<span class="badge-lowstock" style="background:#d97706; color:#fff; font-size:10.5px;">⏳ APPROVED (₹${t.cashback_amount || 0})</span>`;
+      } else if (t.cashback_status === 'Rejected') {
+        cbStatusBadge = `<span class="badge-cat" style="background:#dc2626; color:#fff; font-size:10.5px;">❌ REJECTED</span>`;
+      }
+
+      return `
+        <tr>
+          <td>
+            <a href="${t.image_base64}" target="_blank" title="Click to view full photo">
+              <img src="${t.image_base64}" style="width:85px; height:60px; object-fit:cover; border-radius:8px; border:1px solid var(--surface-border); display:block; cursor:zoom-in;" />
+            </a>
+          </td>
+          <td>
+            <strong>${t.project_title}</strong>
+            <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
+              ${t.created_at} &bull; Mistri: <strong>${t.carpenter_name}</strong>
+            </div>
+          </td>
+          <td>
+            <strong>${t.customer_name}</strong>
+            <div class="mono" style="font-size:11px; color:var(--text-muted);">${t.customer_phone}</div>
+            <div style="font-size:11px; color:var(--text-muted);">${t.customer_location}</div>
+          </td>
+          <td>${invBadge}</td>
+          <td>${upiText}</td>
+          <td>${cbStatusBadge}</td>
+          <td>${t.is_approved ? '<span class="badge-instock">LIVE</span>' : '<span class="badge-lowstock">HIDDEN</span>'}</td>
+          <td style="text-align:right;">
+            <div style="display:flex; gap:6px; justify-content:flex-end; flex-wrap:wrap;">
+              <button class="btn" style="padding:5px 10px; font-size:11px; background:#059669;" onclick="openCashbackModalById(${t.id})">
+                💸 Cashback
+              </button>
+              <button class="btn btn-secondary" style="padding:5px 9px; font-size:11px;" onclick="toggleTestimonialApprove(${t.id})">
+                ${t.is_approved ? 'Hide' : 'Publish'}
+              </button>
+              <button class="btn btn-danger" style="padding:5px 8px; font-size:11px;" onclick="deleteTestimonialAdmin(${t.id})">
+                🗑️
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--rose);">Failed to load photos.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--rose);">Failed to load photos.</td></tr>`;
+  }
+}
+
+function openCashbackModalById(id) {
+  const t = adminTestimonialsCache.find(x => x.id === id);
+  if (!t) return;
+  document.getElementById('cbItemId').value = t.id;
+  document.getElementById('cbCustName').textContent = t.customer_name;
+  document.getElementById('cbCustPhone').textContent = t.customer_phone;
+  document.getElementById('cbInvoiceNo').textContent = t.invoice_no || 'None';
+  document.getElementById('cbUpiId').textContent = t.cashback_upi || 'None';
+  document.getElementById('cbAmount').value = t.cashback_amount > 0 ? t.cashback_amount : 200;
+  document.getElementById('cbStatus').value = t.cashback_status === 'Paid' ? 'Paid' : (t.cashback_status === 'Approved' ? 'Approved' : 'Paid');
+
+  const payBtn = document.getElementById('cbUpiPayBtn');
+  const upi = t.cashback_upi;
+  if (upi && upi !== '-' && upi.includes('@')) {
+    payBtn.style.display = 'inline-flex';
+    const amt = t.cashback_amount > 0 ? t.cashback_amount : 200;
+    payBtn.href = `upi://pay?pa=${encodeURIComponent(upi)}&pn=${encodeURIComponent('Baba Dugdheswar Enterprise')}&am=${encodeURIComponent(amt)}&cu=INR&tn=${encodeURIComponent('BDE Cashback Bill ' + (t.invoice_no || ''))}`;
+  } else {
+    payBtn.style.display = 'none';
+  }
+
+  document.getElementById('cashbackModal').classList.add('show');
+}
+
+function closeCashbackModal() {
+  document.getElementById('cashbackModal').classList.remove('show');
+}
+
+async function saveCashbackPayout() {
+  const id = document.getElementById('cbItemId').value;
+  const amt = parseFloat(document.getElementById('cbAmount').value) || 0;
+  const status = document.getElementById('cbStatus').value;
+
+  try {
+    const res = await authFetch(`/testimonials/${id}/cashback`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cashback_amount: amt, cashback_status: status })
+    });
+    const d = await res.json();
+    showToast(d.message || "Cashback payout recorded!", "success");
+    closeCashbackModal();
+    loadAdminTestimonials();
+  } catch (err) {
+    showToast("Failed to save cashback update.", "error");
   }
 }
 

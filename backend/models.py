@@ -113,6 +113,10 @@ class CustomerTestimonial(Base):
     carpenter_name = Column(String(100), nullable=True)
     image_base64 = Column(Text, nullable=False)
     is_approved = Column(Boolean, default=False)
+    invoice_no = Column(String(60), nullable=True)
+    cashback_upi = Column(String(100), nullable=True)
+    cashback_amount = Column(Float, default=0.0)
+    cashback_status = Column(String(40), default="Pending")
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class AppUser(Base):

@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/static/qrcode.min.js"></script>
   <link rel="stylesheet" href="/static/style.css">
   <style>
     /* Structural Layout Enhancements for Split-Screen POS & Brand Header */
@@ -385,6 +386,7 @@
             <th style="text-align:right;">Due</th>
             <th class="admin-only" style="text-align:right;">Profit</th>
             <th class="admin-only" style="text-align:right;">Margin %</th>
+            <th style="text-align:center;">Action</th>
           </tr>
         </thead>
         <tbody id="historyBody"></tbody>
@@ -692,32 +694,75 @@
       </table>
     </div>
     <div style="margin-top: 32px; border-top: 1px solid var(--surface-border); padding-top: 24px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; flex-wrap:wrap; gap:12px;">
         <div>
-          <h3>📸 Customer Uploaded Project Photos (Testimonials)</h3>
-          <p style="font-size: 12px; color: var(--text-muted);">Approve customer furniture photos here to publish them live on your Customer Website &amp; App</p>
+          <h3>📸 Customer Finished Furniture &amp; Cashback Claims</h3>
+          <p style="font-size: 12px; color: var(--text-muted);">Verify finished furniture photos uploaded by customers via bill QR code, process UPI cashbacks, and publish live to your customer website showcase.</p>
         </div>
-        <button class="btn btn-secondary" onclick="loadAdminTestimonials()">🔄 Refresh Photos</button>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-secondary" onclick="loadAdminTestimonials()">🔄 Refresh Photos</button>
+        </div>
       </div>
       <div class="table-scroll">
         <table>
           <thead>
             <tr>
-              <th>Photo Preview</th>
-              <th>Project Built</th>
-              <th>Customer Details</th>
-              <th>Carpenter Tagged</th>
-              <th>Status</th>
-              <th style="text-align:right;">Action</th>
+              <th>Photo</th>
+              <th>Project Title</th>
+              <th>Customer &amp; Location</th>
+              <th>Bill / Invoice #</th>
+              <th>Cashback UPI</th>
+              <th>Cashback Status</th>
+              <th>Showcase</th>
+              <th style="text-align:right;">Actions</th>
             </tr>
           </thead>
           <tbody id="adminTestimonialsBody">
-            <tr><td colspan="6" style="text-align:center; padding:24px;">Click Refresh to load uploaded photos...</td></tr>
+            <tr><td colspan="8" style="text-align:center; padding:24px;">Click Refresh to load uploaded photos...</td></tr>
           </tbody>
         </table>
       </div>
     </div>
   </div>
+
+<!-- Modal: Process Cashback Payout -->
+<div class="modal-overlay" id="cashbackModal">
+  <div class="modal-card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h3 style="margin:0;">💸 Process Cashback Payout</h3>
+      <button onclick="closeCashbackModal()" style="background:none; border:none; font-size:18px; cursor:pointer; color:var(--text-muted);">&times;</button>
+    </div>
+    <input type="hidden" id="cbItemId" />
+    <div style="background:var(--surface-sunken); padding:10px 14px; border-radius:8px; margin-bottom:12px; font-size:13px; line-height:1.6;">
+      <div><strong>Customer:</strong> <span id="cbCustName"></span></div>
+      <div><strong>Phone:</strong> <span id="cbCustPhone" class="mono"></span></div>
+      <div><strong>Bill Invoice:</strong> <span id="cbInvoiceNo" class="mono" style="color:var(--primary); font-weight:700;"></span></div>
+      <div><strong>UPI ID:</strong> <span id="cbUpiId" class="mono" style="color:var(--emerald); font-weight:700;"></span></div>
+    </div>
+    <div class="field-group" style="margin-bottom:12px;">
+      <label class="field-label">Cashback Reward Amount (₹)</label>
+      <input type="number" id="cbAmount" placeholder="e.g. 200" step="any" value="200" style="font-size:16px; font-weight:700;" />
+    </div>
+    <div class="field-group" style="margin-bottom:14px;">
+      <label class="field-label">Update Cashback Status</label>
+      <select id="cbStatus" style="font-size:14px;">
+        <option value="Paid">✅ Paid &amp; Completed</option>
+        <option value="Approved">⏳ Approved (Payment Queued)</option>
+        <option value="Pending Review">⏳ Pending Review</option>
+        <option value="Rejected">❌ Rejected (Invalid / Duplicate)</option>
+      </select>
+    </div>
+    <div style="display:flex; justify-content:space-between; gap:10px; margin-top:16px; flex-wrap:wrap;">
+      <a id="cbUpiPayBtn" href="#" target="_blank" class="btn btn-secondary" style="font-size:12px; display:inline-flex; align-items:center; gap:6px;">
+        📱 Open UPI App (GPay/PhonePe)
+      </a>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-secondary" onclick="closeCashbackModal()">Cancel</button>
+        <button class="btn" onclick="saveCashbackPayout()">Save &amp; Update</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Modal: Add New Product -->
 <div class="modal-overlay" id="newProdModal">
@@ -854,7 +899,35 @@
 
     <div id="billAmountWords" style="margin-top: 8px; font-size: 12px; font-style: italic; font-weight: 600;"></div>
 
-    <div style="margin-top: 48px; display: flex; justify-content: space-between; font-size: 12.5px;">
+    <!-- CASHBACK & FINISHED FURNITURE REWARD QR CODE -->
+    <div style="margin-top: 14px; border: 2px dashed #000; padding: 10px 14px; border-radius: 6px; display: flex; align-items: center; justify-content: space-between; gap: 14px; background: #fff;">
+      <div style="flex: 1;">
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+          <span style="background: #000; color: #fff; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 3px; letter-spacing: 0.5px; text-transform: uppercase;">
+            🎁 SCAN &amp; CLAIM CASHBACK
+          </span>
+          <span style="font-weight: 800; font-size: 13px; color: #000;">Get Cashback directly on your UPI!</span>
+        </div>
+        <div style="font-size: 11.5px; line-height: 1.45; color: #111;">
+          Scan this QR code with your phone after your furniture is completed.
+          Upload photos of your finished wardrobe, modular kitchen, bed or table to receive <strong>Cashback / Store Credit</strong> sent directly to your UPI!
+        </div>
+        <div style="font-size: 11px; color: #333; margin-top: 3px; font-style: italic;">
+          (আপনার তৈরি আসবাবের ছবি আমাদের ওয়েবসাইটে আপলোড করে পান আকর্ষণীয় ক্যাশব্যাক পুরস্কার)
+        </div>
+        <div style="font-size: 10px; color: #444; margin-top: 4px; font-family: monospace;">
+          Direct Link: <span id="billCashbackLinkText" style="font-weight: 700;">https://bde-mobile-app.onrender.com/?tab=showcase</span>
+        </div>
+      </div>
+      <div style="text-align: center; flex-shrink: 0;">
+        <div id="billQrCodeBox" style="width: 90px; height: 90px; margin: 0 auto; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #000; padding: 2px;">
+          <img id="billQrImg" src="" alt="QR Code" style="width: 100%; height: 100%; object-fit: contain; display: block;" />
+        </div>
+        <div style="font-size: 9px; font-weight: 800; margin-top: 3px; letter-spacing: 0.5px; text-transform: uppercase;">SCAN WITH PHONE</div>
+      </div>
+    </div>
+
+    <div style="margin-top: 28px; display: flex; justify-content: space-between; font-size: 12.5px;">
       <div style="border-top: 1px solid #000; padding-top: 4px; width: 180px; text-align: center;">Customer Signature</div>
       <div style="border-top: 1px solid #000; padding-top: 4px; width: 220px; text-align: center; font-weight: bold;">For Baba Dugdheswar Enterprise</div>
     </div>

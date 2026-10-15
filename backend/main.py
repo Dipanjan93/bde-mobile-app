@@ -595,16 +595,23 @@ def submit_testimonial(item: schemas.TestimonialCreate, db: Session = Depends(ge
         carpenter_name=item.carpenter_name.strip() if item.carpenter_name else "BDE Mistri",
         image_base64=item.image_base64,
         is_approved=True,  # Approved for showcase with admin moderation
+        invoice_no=item.invoice_no.strip() if item.invoice_no else None,
+        cashback_upi=item.cashback_upi.strip() if item.cashback_upi else None,
+        cashback_status="Pending Review",
         created_at=datetime.utcnow()
     )
     db.add(record)
     db.commit()
     db.refresh(record)
 
+    msg = "Photo uploaded successfully! Your entry is now showcased in Baba Dugdheswar Gallery."
+    if item.invoice_no or item.cashback_upi:
+        msg = f"Photo for Bill #{item.invoice_no or ''} submitted successfully! Your cashback will be verified and credited within 24-48 hours."
+
     return {
         "success": True,
         "id": record.id,
-        "message": "Photo uploaded successfully! Your entry is now showcased in Baba Dugdheswar Gallery."
+        "message": msg
     }
 
 
@@ -1350,10 +1357,29 @@ def get_all_testimonials_admin(db: Session = Depends(get_db)):
             "carpenter_name": r.carpenter_name or "-",
             "image_base64": r.image_base64,
             "is_approved": r.is_approved,
+            "invoice_no": r.invoice_no or "-",
+            "cashback_upi": r.cashback_upi or "-",
+            "cashback_amount": float(r.cashback_amount or 0.0),
+            "cashback_status": r.cashback_status or "Pending Review",
             "created_at": r.created_at.strftime("%d %b %Y") if r.created_at else "Recent"
         }
         for r in rows
     ]
+
+@app.post("/testimonials/{item_id}/cashback")
+def update_testimonial_cashback(item_id: int, req: schemas.CashbackUpdateRequest, db: Session = Depends(get_db)):
+    row = db.query(models.CustomerTestimonial).filter(models.CustomerTestimonial.id == item_id).first()
+    if not row:
+        raise HTTPException(status_code=404, detail="Photo not found")
+    row.cashback_amount = req.cashback_amount
+    row.cashback_status = req.cashback_status
+    db.commit()
+    return {
+        "success": True,
+        "message": f"Cashback for #{row.id} ({row.customer_name}) updated to {req.cashback_status} (₹{req.cashback_amount})",
+        "cashback_amount": row.cashback_amount,
+        "cashback_status": row.cashback_status
+    }
 
 @app.post("/testimonials/{item_id}/approve")
 def approve_testimonial(item_id: int, db: Session = Depends(get_db)):

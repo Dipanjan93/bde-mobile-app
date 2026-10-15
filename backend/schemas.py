@@ -73,6 +73,9 @@ class TestimonialCreate(BaseModel):
     project_title: str
     carpenter_name: Optional[str] = "-"
     image_base64: str
+    invoice_no: Optional[str] = None
+    cashback_upi: Optional[str] = None
+
 
 class AppLoginRequest(BaseModel):
     phone: str
@@ -88,4 +91,9 @@ class ConsoleLoginRequest(BaseModel):
     pin: str
     remember: Optional[bool] = True
     role: Optional[str] = "owner"
+
+class CashbackUpdateRequest(BaseModel):
+    cashback_amount: float = 0.0
+    cashback_status: str = "Paid"
+
 
