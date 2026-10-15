@@ -445,6 +445,54 @@ def get_catalog(
     return catalog_items
 
 
+# --- Festival & Seasonal Decor Engine ---
+FESTIVAL_NAMES = {
+    "none": "Normal Mode (No Decorations)",
+    "durga-puja": "Maa Durga Puja (Trinayani + Swinging Toran)",
+    "diwali": "Diwali & Kali Puja (Fairy Lights + Diyas + Sparks)",
+    "holi": "Holi & Dol Jatra (Organic Color Splashes)",
+    "independence-day": "Independence & Republic Day (Tricolor Theme)",
+    "noboborsho": "Poila Boishakh (Bengali New Year Alpana)"
+}
+
+@app.get("/api/festival-theme")
+def get_festival_theme(db: Session = Depends(get_db)):
+    try:
+        setting = db.query(models.AppSetting).filter(models.AppSetting.key == "festival_theme").first()
+        theme_val = setting.value.strip().lower() if setting else "durga-puja"
+    except Exception:
+        theme_val = "durga-puja"
+    return {
+        "theme": theme_val,
+        "name": FESTIVAL_NAMES.get(theme_val, theme_val.title()),
+        "enabled": theme_val != "none",
+        "available_themes": [
+            {"id": k, "name": v} for k, v in FESTIVAL_NAMES.items()
+        ]
+    }
+
+@app.post("/api/festival-theme")
+def update_festival_theme(req: schemas.FestivalThemeUpdate, db: Session = Depends(get_db)):
+    clean_theme = req.theme.strip().lower()
+    if clean_theme not in FESTIVAL_NAMES:
+        raise HTTPException(status_code=400, detail=f"Invalid theme. Allowed: {list(FESTIVAL_NAMES.keys())}")
+    
+    setting = db.query(models.AppSetting).filter(models.AppSetting.key == "festival_theme").first()
+    if not setting:
+        setting = models.AppSetting(key="festival_theme", value=clean_theme)
+        db.add(setting)
+    else:
+        setting.value = clean_theme
+        setting.updated_at = datetime.utcnow()
+    db.commit()
+    return {
+        "success": True,
+        "theme": clean_theme,
+        "name": FESTIVAL_NAMES[clean_theme],
+        "message": f"Festive theme successfully updated to {FESTIVAL_NAMES[clean_theme]}!"
+    }
+
+
 # 2. POST /api/quote-request
 @app.post("/api/quote-request")
 def create_quote_request(q: schemas.QuoteRequestCreate, db: Session = Depends(get_db)):

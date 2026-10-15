@@ -243,6 +243,7 @@ function unlockConsoleUI(role, name) {
   loadSalesHistory();
   loadDues();
   loadWebsiteInquiries();
+  loadFestivalThemeInConsole();
   if (!window._inquiriesInterval) {
     window._inquiriesInterval = setInterval(loadWebsiteInquiries, 25000);
   }
@@ -1845,3 +1846,56 @@ async function deleteTestimonialAdmin(id) {
   showToast("Photo deleted.", "info");
   loadAdminTestimonials();
 }
+
+/* --- Festive Theme Management Engine --- */
+async function loadFestivalThemeInConsole() {
+  try {
+    const res = await fetch('/api/festival-theme');
+    if (!res.ok) return;
+    const data = await res.json();
+    const dropdown = document.getElementById('festiveThemeDropdown');
+    const headerSelect = document.getElementById('headerFestiveThemeSelect');
+    const badge = document.getElementById('activeThemeBadge');
+
+    if (dropdown) dropdown.value = data.theme;
+    if (headerSelect) headerSelect.value = data.theme;
+    if (badge) {
+      badge.textContent = data.enabled ? `${data.name} Active` : "Normal Mode (No Decor)";
+      badge.style.background = data.enabled ? "#D97706" : "#64748B";
+    }
+  } catch(e) {
+    console.warn("Could not load festival theme in console:", e);
+  }
+}
+
+async function quickSwitchFestivalTheme(theme) {
+  await updateFestivalThemeOnServer(theme);
+}
+
+async function saveFestivalThemeFromConsole() {
+  const dropdown = document.getElementById('festiveThemeDropdown');
+  if (!dropdown) return;
+  await updateFestivalThemeOnServer(dropdown.value);
+}
+
+async function updateFestivalThemeOnServer(theme) {
+  try {
+    const res = await authFetch('/api/festival-theme', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ theme: theme })
+    });
+    const d = await res.json();
+    if (d.success) {
+      showToast(d.message || `Festive theme updated to ${d.name}!`, "success");
+      loadFestivalThemeInConsole();
+    } else {
+      showToast("Failed to update theme", "error");
+    }
+  } catch(e) {
+    showToast("Error updating festival theme", "error");
+  }
+}
+
+// Initial fetch on script load
+loadFestivalThemeInConsole();

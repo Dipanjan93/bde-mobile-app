@@ -96,4 +96,8 @@ class CashbackUpdateRequest(BaseModel):
     cashback_amount: float = 0.0
     cashback_status: str = "Paid"
 
+class FestivalThemeUpdate(BaseModel):
+    theme: str
+
+
 
