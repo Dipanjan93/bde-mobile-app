@@ -3,6 +3,9 @@ import urllib.parse
 from datetime import datetime, timezone, timedelta
 from typing import Optional, List
 from collections import defaultdict
+import hmac
+import hashlib
+import time
 
 os.environ["DISABLE_SQLALCHEMY_CEXT"] = "1"
 
@@ -218,6 +221,97 @@ def serve_sw():
     if os.path.exists(sw_path):
         return FileResponse(sw_path, media_type="application/javascript")
     return Response(content="// sw", media_type="application/javascript")
+
+# ========================================================
+# SHOWROOM STAFF & MANAGEMENT CONSOLE SECURITY ENGINE
+# ========================================================
+ADMIN_PIN = os.getenv("ADMIN_PIN", "Dip@1993")
+STAFF_PIN = os.getenv("STAFF_PIN", "1993")
+SECRET_KEY = os.getenv("SECRET_KEY", "bde-security-onda-bankura-2026")
+
+def create_session_token(role: str) -> str:
+    ts = str(int(time.time()))
+    payload = f"{role}:{ts}"
+    sig = hmac.new(SECRET_KEY.encode(), payload.encode(), hashlib.sha256).hexdigest()
+    return f"{role}:{ts}:{sig}"
+
+def verify_session_token(token: Optional[str]) -> Optional[str]:
+    if not token:
+        return None
+    try:
+        parts = token.split(":")
+        if len(parts) != 3:
+            return None
+        role, ts_str, sig = parts
+        ts = int(ts_str)
+        # 30 days validity
+        if time.time() - ts > 30 * 86400:
+            return None
+        expected_payload = f"{role}:{ts_str}"
+        expected_sig = hmac.new(SECRET_KEY.encode(), expected_payload.encode(), hashlib.sha256).hexdigest()
+        if hmac.compare_digest(sig, expected_sig):
+            return role
+    except Exception:
+        return None
+    return None
+
+def get_console_role(request: Request) -> Optional[str]:
+    token = None
+    auth_hdr = request.headers.get("Authorization") or request.headers.get("x-bde-auth")
+    if auth_hdr:
+        if auth_hdr.startswith("Bearer "):
+            token = auth_hdr.split(" ")[1]
+        else:
+            token = auth_hdr
+    elif "bde_console_token" in request.cookies:
+        token = request.cookies.get("bde_console_token")
+
+    return verify_session_token(token)
+
+@app.post("/api/auth/console-login")
+def console_login(req: schemas.ConsoleLoginRequest, response: Response):
+    pin_clean = (req.pin or "").strip()
+    if pin_clean == ADMIN_PIN:
+        role = "owner"
+        name = "Proprietor (Dipanjan)"
+    elif pin_clean == STAFF_PIN or pin_clean.lower() in ["bde1993", "bde@1993", "staff1993"]:
+        role = "staff"
+        name = "Counter Staff"
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect Security Passcode. Access restricted to BDE Onda showroom personnel."
+        )
+
+    token = create_session_token(role)
+    max_age = 30 * 86400 if req.remember else None
+    response.set_cookie(
+        key="bde_console_token",
+        value=token,
+        max_age=max_age,
+        httponly=False,
+        samesite="lax",
+        secure=False
+    )
+    return {
+        "success": True,
+        "role": role,
+        "name": name,
+        "token": token
+    }
+
+@app.get("/api/auth/verify-session")
+def console_verify_session(request: Request):
+    role = get_console_role(request)
+    if not role:
+        return {"authenticated": False, "role": None, "name": None}
+    name = "Proprietor (Dipanjan)" if role == "owner" else "Counter Staff"
+    return {"authenticated": True, "role": role, "name": name}
+
+@app.post("/api/auth/console-logout")
+def console_logout(response: Response):
+    response.delete_cookie(key="bde_console_token")
+    return {"success": True, "message": "Console locked. Session ended."}
 
 @app.get("/console")
 @app.get("/erp")
@@ -939,7 +1033,14 @@ def sales_history(db: Session = Depends(get_db)):
     return results
 
 @app.get("/analytics/executive-summary")
-def executive_summary(db: Session = Depends(get_db)):
+def executive_summary(request: Request, db: Session = Depends(get_db)):
+    role = get_console_role(request)
+    if not role:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required. Please unlock the Business Console with Staff or Manager credentials."
+        )
+
     invoices = db.query(models.Invoice).all()
     sale_items = db.query(models.SaleItem).all()
     products = db.query(models.Product).all()

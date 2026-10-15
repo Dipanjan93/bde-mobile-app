@@ -1,6 +1,27 @@
 const API_BASE = "";
 const ADMIN_PIN = "Dip@1993";
+let currentRole = null; // 'owner' | 'staff'
+let currentUserName = "";
 let isAdmin = false;
+
+function getStoredToken() {
+  return localStorage.getItem('bde_auth_token') || '';
+}
+
+function getAuthHeaders() {
+  const t = getStoredToken();
+  return t ? { 'x-bde-auth': t, 'Authorization': `Bearer ${t}` } : {};
+}
+
+async function authFetch(url, options = {}) {
+  options.headers = options.headers || {};
+  const t = getStoredToken();
+  if (t) {
+    options.headers['x-bde-auth'] = t;
+    options.headers['Authorization'] = `Bearer ${t}`;
+  }
+  return fetch(url, options);
+}
 
 let productsCache = [];
 let customersCache = [];
@@ -117,7 +138,203 @@ function toggleTheme() {
   showToast(`Switched to ${next === 'light' ? 'Day' : 'Dark'} Mode`, "info");
 }
 
-/* --- Admin PIN Security --- */
+/* --- Showroom Staff & Manager Security Gate Engine --- */
+let selectedGateRole = 'owner';
+
+function selectRole(role) {
+  selectedGateRole = role;
+  const ownerCard = document.getElementById('roleOwnerCard');
+  const staffCard = document.getElementById('roleStaffCard');
+  const pinInput = document.getElementById('gatePinInput');
+  const label = document.getElementById('gatePassLabel');
+
+  if (role === 'owner') {
+    ownerCard?.classList.add('active');
+    staffCard?.classList.remove('active');
+    if (label) label.textContent = "Proprietor Passcode / PIN";
+    if (pinInput) pinInput.placeholder = "Enter owner passcode...";
+  } else {
+    staffCard?.classList.add('active');
+    ownerCard?.classList.remove('active');
+    if (label) label.textContent = "Counter Staff Passcode / PIN";
+    if (pinInput) pinInput.placeholder = "Enter staff passcode (1993)...";
+  }
+}
+
+function toggleGatePinVisibility() {
+  const pinInput = document.getElementById('gatePinInput');
+  if (!pinInput) return;
+  pinInput.type = pinInput.type === 'password' ? 'text' : 'password';
+}
+
+async function handleConsoleLogin(e) {
+  if (e) e.preventDefault();
+  const pinInput = document.getElementById('gatePinInput');
+  const errEl = document.getElementById('gateErrorMsg');
+  const card = document.getElementById('authGateCard');
+  const remember = document.getElementById('gateRememberMe')?.checked ?? true;
+  const pin = (pinInput?.value || "").trim();
+
+  if (!pin) {
+    if (errEl) {
+      errEl.textContent = "Please enter your passcode.";
+      errEl.classList.add('show');
+    }
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/console-login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pin, remember, role: selectedGateRole })
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      const msg = errData.detail || "Incorrect security passcode.";
+      if (errEl) {
+        errEl.textContent = `❌ ${msg}`;
+        errEl.classList.add('show');
+      }
+      if (card) {
+        card.classList.remove('shake-anim');
+        void card.offsetWidth;
+        card.classList.add('shake-anim');
+      }
+      if (pinInput) {
+        pinInput.value = "";
+        pinInput.focus();
+      }
+      return;
+    }
+
+    const data = await res.json();
+    localStorage.setItem('bde_auth_token', data.token);
+    localStorage.setItem('bde_auth_role', data.role);
+    localStorage.setItem('bde_auth_name', data.name);
+
+    if (errEl) errEl.classList.remove('show');
+    showToast(`Access granted! Welcome, ${data.name}.`, "success");
+    unlockConsoleUI(data.role, data.name);
+  } catch (err) {
+    if (errEl) {
+      errEl.textContent = "Network error connecting to auth server.";
+      errEl.classList.add('show');
+    }
+  }
+}
+
+function unlockConsoleUI(role, name) {
+  currentRole = role;
+  currentUserName = name;
+  isAdmin = (role === 'owner');
+
+  const gate = document.getElementById('consoleAuthGate');
+  const app = document.getElementById('consoleApp');
+  const badge = document.getElementById('sessionUserBadge');
+  const lockBtn = document.getElementById('lockConsoleBtn');
+  const authBtn = document.getElementById('authBtn');
+
+  if (gate) gate.style.display = 'none';
+  if (app) app.style.display = 'block';
+
+  if (badge) {
+    badge.style.display = 'inline-flex';
+    badge.textContent = role === 'owner' ? `👑 ${name}` : `👨‍💼 ${name}`;
+  }
+  if (lockBtn) lockBtn.style.display = 'inline-flex';
+
+  if (isAdmin) {
+    document.body.classList.add('admin-unlocked');
+    if (authBtn) {
+      authBtn.textContent = "🔓 Admin Active (Lock)";
+      authBtn.classList.replace('btn-secondary', 'btn-danger');
+    }
+  } else {
+    document.body.classList.remove('admin-unlocked');
+    if (authBtn) {
+      authBtn.textContent = "🔒 Staff Mode (Unlock Admin)";
+      authBtn.classList.replace('btn-danger', 'btn-secondary');
+    }
+  }
+
+  // Load store data now that session is authenticated
+  loadCustomers();
+  loadInventory();
+  loadSalesHistory();
+  loadDues();
+  if (isAdmin) {
+    loadExecutiveBI();
+  }
+}
+
+async function checkConsoleAuth() {
+  const token = getStoredToken();
+  if (!token) {
+    const gate = document.getElementById('consoleAuthGate');
+    const app = document.getElementById('consoleApp');
+    if (gate) gate.style.display = 'flex';
+    if (app) app.style.display = 'none';
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/verify-session`, {
+      headers: { 'x-bde-auth': token }
+    });
+    const data = await res.json();
+    if (data.authenticated) {
+      unlockConsoleUI(data.role, data.name);
+    } else {
+      localStorage.removeItem('bde_auth_token');
+      localStorage.removeItem('bde_auth_role');
+      localStorage.removeItem('bde_auth_name');
+      const gate = document.getElementById('consoleAuthGate');
+      const app = document.getElementById('consoleApp');
+      if (gate) gate.style.display = 'flex';
+      if (app) app.style.display = 'none';
+    }
+  } catch (e) {
+    const role = localStorage.getItem('bde_auth_role');
+    const name = localStorage.getItem('bde_auth_name') || 'Staff';
+    if (token && role) {
+      unlockConsoleUI(role, name);
+    } else {
+      const gate = document.getElementById('consoleAuthGate');
+      const app = document.getElementById('consoleApp');
+      if (gate) gate.style.display = 'flex';
+      if (app) app.style.display = 'none';
+    }
+  }
+}
+
+async function logoutConsole() {
+  try {
+    await fetch(`${API_BASE}/api/auth/console-logout`, { method: "POST" });
+  } catch (e) {}
+  localStorage.removeItem('bde_auth_token');
+  localStorage.removeItem('bde_auth_role');
+  localStorage.removeItem('bde_auth_name');
+  isAdmin = false;
+  currentRole = null;
+  document.body.classList.remove('admin-unlocked');
+
+  const gate = document.getElementById('consoleAuthGate');
+  const app = document.getElementById('consoleApp');
+  if (app) app.style.display = 'none';
+  if (gate) {
+    gate.style.display = 'flex';
+    const pinInput = document.getElementById('gatePinInput');
+    if (pinInput) {
+      pinInput.value = "";
+      pinInput.focus();
+    }
+  }
+  showToast("Console locked. Terminal secured.", "info");
+}
+
+/* --- Admin PIN Security (For Staff Mode Upgrade) --- */
 function handleAuthClick() {
   if (isAdmin) {
     isAdmin = false;
@@ -142,10 +359,13 @@ function verifyPin() {
     document.body.classList.add('admin-unlocked');
     document.getElementById('authBtn').textContent = "🔓 Admin Active (Lock)";
     document.getElementById('authBtn').classList.replace('btn-secondary', 'btn-danger');
+    const badge = document.getElementById('sessionUserBadge');
+    if (badge) badge.textContent = "👑 Proprietor (Dipanjan)";
     closePinModal();
     onProductSelectChange();
     renderRates(productsCache);
     renderHistory(historyCache);
+    loadExecutiveBI();
     showToast("Admin Mode Unlocked! Full Margins & BI Active.", "success");
   } else {
     showToast("Incorrect Security PIN", "error");
@@ -173,7 +393,7 @@ function switchTab(name) {
 /* --- Inventory & Products --- */
 async function loadInventory() {
   try {
-    const res = await fetch(`${API_BASE}/products`);
+    const res = await authFetch(`${API_BASE}/products`);
     productsCache = await res.json();
     populateCategoryDropdown();
     renderInventory(productsCache);
@@ -289,7 +509,7 @@ function filterRates() {
 
 /* --- Customers & POS Dropdowns --- */
 async function loadCustomers() {
-  const res = await fetch(`${API_BASE}/customers`);
+  const res = await authFetch(`${API_BASE}/customers`);
   customersCache = await res.json();
   populateDropdowns();
 }
@@ -454,7 +674,7 @@ async function finalizeMultiItemSale() {
     }))
   };
 
-  const res = await fetch(`${API_BASE}/sales/multi`, {
+  const res = await authFetch(`${API_BASE}/sales/multi`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
@@ -511,7 +731,7 @@ async function finalizeMultiItemSale() {
 /* --- Khata / Due Ledger --- */
 async function loadDues() {
   try {
-    const res = await fetch(`${API_BASE}/dues/summary`);
+    const res = await authFetch(`${API_BASE}/dues/summary`);
     duesCache = await res.json();
     renderDues(duesCache);
   } catch(e) { console.error(e); }
@@ -567,7 +787,7 @@ async function submitDuePayment() {
   const amount = parseFloat(document.getElementById('payAmountInput').value);
   if (!amount || amount <= 0) return showToast("Enter a valid payment sum.", "warning");
 
-  const res = await fetch(`${API_BASE}/dues/pay`, {
+  const res = await authFetch(`${API_BASE}/dues/pay`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ customer_id: custId, amount: amount })
@@ -633,7 +853,7 @@ function renderBroadcastList() {
 /* --- Sales History --- */
 async function loadSalesHistory() {
   try {
-    const res = await fetch(`${API_BASE}/invoices/history`);
+    const res = await authFetch(`${API_BASE}/invoices/history`);
     historyCache = await res.json();
     renderHistory(historyCache);
   } catch(e) { console.error(e); }
@@ -682,7 +902,7 @@ function filterHistory() {
 /* --- Executive BI --- */
 async function loadExecutiveBI() {
   try {
-    const res = await fetch(`${API_BASE}/analytics/executive-summary`);
+    const res = await authFetch(`${API_BASE}/analytics/executive-summary`);
     const d = await res.json();
 
     // 1. Today's Counter Pulse (Galla)
@@ -934,7 +1154,7 @@ async function saveNewProduct() {
   if (!payload.sku || !payload.name || !payload.category || !payload.selling_price) {
     return showToast("Missing required fields (SKU, Name, Category, Selling Rate).", "warning");
   }
-  const res = await fetch(`${API_BASE}/products`, {
+  const res = await authFetch(`${API_BASE}/products`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
@@ -984,7 +1204,7 @@ async function submitPurchase() {
   };
 
   try {
-    const res = await fetch(`${API_BASE}/purchases`, {
+    const res = await authFetch(`${API_BASE}/purchases`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -1050,7 +1270,7 @@ async function saveCustomer(e) {
   const method = editId ? "PUT" : "POST";
 
   try {
-    const res = await fetch(url, {
+    const res = await authFetch(url, {
       method: method,
       headers: { "Content-Type": "application/json", "Accept": "application/json" },
       body: JSON.stringify({ name, phone, address, category })
@@ -1074,7 +1294,7 @@ async function saveCustomer(e) {
 }
 
 async function seedMasterCatalogue() {
-  const res = await fetch(`${API_BASE}/seed-catalogue`, { method: "POST" });
+  const res = await authFetch(`${API_BASE}/seed-catalogue`, { method: "POST" });
   const data = await res.json();
   showToast(data.message, "success");
   loadInventory();
@@ -1140,12 +1360,9 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-// App Initialization
+// App Initialization with Security Gate
 applyTheme(localStorage.getItem('bde_theme') || 'dark');
-loadCustomers();
-loadInventory();
-loadSalesHistory();
-loadDues();
+checkConsoleAuth();
 
 /* --- Live Search & Select Filter for Customer & Product Dropdowns --- */
 function filterPosCustomers() {
@@ -1223,7 +1440,7 @@ async function loadWebsiteInquiries() {
   const tbody = document.getElementById('websiteInquiriesBody');
   if (!tbody) return;
   try {
-    const res = await fetch('/quote-inquiries');
+    const res = await authFetch('/quote-inquiries');
     const data = await res.json();
     if (!data || data.length === 0) {
       tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:28px; color:var(--text-muted);">No customer website inquiries received yet.</td></tr>`;
@@ -1261,7 +1478,7 @@ async function loadAdminTestimonials() {
   const tbody = document.getElementById('adminTestimonialsBody');
   if (!tbody) return;
   try {
-    const res = await fetch('/testimonials/admin');
+    const res = await authFetch('/testimonials/admin');
     const data = await res.json();
     if (!data || data.length === 0) {
       tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--text-muted);">No customer photos uploaded yet.</td></tr>`;
@@ -1290,14 +1507,14 @@ async function loadAdminTestimonials() {
 }
 
 async function toggleTestimonialApprove(id) {
-  await fetch(`/testimonials/${id}/approve`, { method: 'POST' });
+  await authFetch(`/testimonials/${id}/approve`, { method: 'POST' });
   showToast("Photo visibility updated!", "success");
   loadAdminTestimonials();
 }
 
 async function deleteTestimonialAdmin(id) {
   if (!confirm("Delete this customer photo permanently?")) return;
-  await fetch(`/testimonials/${id}`, { method: 'DELETE' });
+  await authFetch(`/testimonials/${id}`, { method: 'DELETE' });
   showToast("Photo deleted.", "info");
   loadAdminTestimonials();
 }

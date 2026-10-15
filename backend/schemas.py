@@ -83,3 +83,9 @@ class AppSignupRequest(BaseModel):
     phone: str
     location: Optional[str] = "Onda"
     pin_code: Optional[str] = "1234"
+
+class ConsoleLoginRequest(BaseModel):
+    pin: str
+    remember: Optional[bool] = True
+    role: Optional[str] = "owner"
+

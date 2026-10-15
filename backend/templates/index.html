@@ -61,6 +61,72 @@
 </head>
 <body>
 
+<!-- Showroom Staff & Manager Security Access Gate -->
+<div id="consoleAuthGate" class="auth-gate-wrapper">
+  <div class="auth-gate-card" id="authGateCard">
+    <div class="auth-gate-brand">
+      <div class="auth-gate-logo">BDE</div>
+      <div class="auth-gate-shield-tag">🛡️ RESTRICTED ACCESS</div>
+    </div>
+    
+    <h2 class="auth-gate-title">BABA DUGDHESWAR ENTERPRISE</h2>
+    <p class="auth-gate-sub">Internal Showroom Business &amp; Billing ERP &bull; Onda, Bankura</p>
+
+    <div class="auth-gate-alert">
+      <span style="font-size: 20px;">🔒</span>
+      <div>
+        <strong>Confidential Internal System</strong>
+        <p>This business console is restricted to Onda showroom staff &amp; management. Please enter your passcode to unlock.</p>
+      </div>
+    </div>
+
+    <form id="consoleLoginForm" onsubmit="handleConsoleLogin(event)">
+      <div style="margin-bottom: 16px; text-align: left;">
+        <label class="field-label">Access Level</label>
+        <div class="role-grid">
+          <label class="role-card active" id="roleOwnerCard" onclick="selectRole('owner')">
+            <input type="radio" name="loginRole" value="owner" checked style="display:none;" />
+            <div class="role-icon">👑</div>
+            <div class="role-meta">
+              <span class="role-name">Owner / Proprietor</span>
+              <span class="role-sub">Executive BI &bull; Full Margins</span>
+            </div>
+          </label>
+          <label class="role-card" id="roleStaffCard" onclick="selectRole('staff')">
+            <input type="radio" name="loginRole" value="staff" style="display:none;" />
+            <div class="role-icon">👨‍💼</div>
+            <div class="role-meta">
+              <span class="role-name">Counter Staff</span>
+              <span class="role-sub">POS Billing &bull; Live Stock</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 16px; text-align: left;">
+        <label class="field-label" id="gatePassLabel">Security Passcode / PIN</label>
+        <div class="input-with-eye">
+          <input type="password" id="gatePinInput" placeholder="Enter security passcode..." class="auth-pin-input" required autocomplete="current-password" autofocus />
+          <button type="button" class="eye-btn" onclick="toggleGatePinVisibility()" title="Show/Hide PIN">👁️</button>
+        </div>
+        <div id="gateErrorMsg" class="gate-error-message"></div>
+      </div>
+
+      <div class="gate-options-row">
+        <label class="remember-label">
+          <input type="checkbox" id="gateRememberMe" checked /> Remember this terminal (30 days)
+        </label>
+        <a href="/" class="back-store-link">← Storefront</a>
+      </div>
+
+      <button type="submit" id="gateSubmitBtn" class="auth-unlock-btn">
+        <span>🔐 Unlock Business Console</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<div id="consoleApp" style="display: none;">
 <div class="container">
   <!-- Top Executive Header -->
   <header>
@@ -72,9 +138,11 @@
       </div>
     </div>
     <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <span id="sessionUserBadge" class="session-badge" style="display:none;">👑 Proprietor</span>
       <button class="btn btn-secondary" onclick="toggleTheme()" id="themeBtn">☀️ Day Mode</button>
       <button class="btn btn-secondary" id="authBtn" onclick="handleAuthClick()">🔒 Staff Mode (Unlock Admin)</button>
       <button class="btn btn-secondary admin-only" onclick="seedMasterCatalogue()">📥 Seed Master</button>
+      <button class="btn btn-danger" onclick="logoutConsole()" id="lockConsoleBtn" title="Lock this terminal immediately">🔒 Lock</button>
       <div class="live-pill"><span class="live-dot"></span> Cloud Live</div>
     </div>
   </header>
@@ -735,6 +803,7 @@
     </div>
   </div>
 </div>
+</div> <!-- #consoleApp -->
 
 <!-- Printable Cash Memo -->
 <div id="printBillWrapper">
