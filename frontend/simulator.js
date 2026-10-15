@@ -3,20 +3,35 @@
  * 3D Furniture & Laminate Studio Simulator Engine
  * Parametric Real-time Vector Visualizer & BOM Calculator
  *
- * Supported Structures:
+ * Supported Structures (18 Models across 5 Categories):
+ * --- Wardrobes & Storage ---
  * 1. 2-Door Compact Wardrobe (wardrobe2)
  * 2. 4-Door Modern Wardrobe (wardrobe)
  * 3. Master 6-Door Wardrobe & Lofts (wardrobe6)
- * 4. Full-Wall Storage Suite (fullwall) with 3 layouts:
- *    - Standard (Wardrobe + Center Display Rack + Utility Cabinet)
- *    - Entertainment (Dual Wardrobes + Center Open TV Niche)
- *    - Full Wardrobe (Continuous Monolithic Wall)
- * 5. Modern Modular Kitchen (kitchen)
- * 6. Classic Wooden Almirah with Mirror (almirah)
- * 7. Hydraulic Box Bed / Divan (bed)
- * 8. Floating Wall TV Entertainment Unit (tvunit)
- * 9. Luxury LED Dressing Vanity (dressing)
- * 10. Executive Office & Study Desk (office)
+ * 4. Full-Wall Storage Suite (fullwall) with 3 layouts (standard, entertainment, full_wardrobe)
+ * 5. Classic Wooden Almirah with Mirror & Tijori (almirah)
+ *
+ * --- Modular Kitchen ---
+ * 6. Straight-Line Modular Kitchen (kitchen)
+ * 7. L-Shaped Corner Modular Kitchen (kitchen_l)
+ * 8. Parallel / Galley Modular Kitchen (kitchen_parallel)
+ * 9. Luxury Island Modular Kitchen (kitchen_island)
+ *
+ * --- Living & Media ---
+ * 10. Floating Wall TV Entertainment Unit (tvunit)
+ * 11. Grand Media Console with Display Towers (tvunit_console)
+ * 12. Room-Divider Partition TV Wall (tvunit_partition)
+ *
+ * --- Bedroom & Vanity ---
+ * 13. Hydraulic Box Bed with Tufted Headboard (bed)
+ * 14. Divan Bed with Pull-out Storage Drawers (bed_drawers)
+ * 15. LED Arch Dressing Vanity (dressing)
+ * 16. Master Full-Height Luxury Vanity Station (dressing_tall)
+ *
+ * --- Office & Study ---
+ * 17. Presidential Executive Desk (office)
+ * 18. Modern L-Shaped Corner Workstation (office_lshape)
+ * 19. Student Study Table with Overhead Bookshelf (office_study)
  */
 
 (function () {
@@ -36,18 +51,27 @@
     plyGrade: 'marine',     // 'marine' (Club IS:710) or 'commercial' (Tycon IS:303)
     laminateType: 'gloss',  // 'gloss' (1.0mm) or 'matt' (0.8mm)
     fullwallConfig: 'standard', // 'standard', 'entertainment', 'full_wardrobe'
-    activeCategory: 'all',  // 'all', 'wardrobes', 'kitchen', 'bedroom', 'living'
+    activeCategory: 'all',  // 'all', 'wardrobe', 'kitchen', 'living', 'bedroom', 'office'
     dimensions: {
-      wardrobe2: { width: 4.0, height: 7.0, depth: 1.75, label: '4.0 ft (2-Door Compact)' },
-      wardrobe:  { width: 6.0, height: 7.0, depth: 2.0,  label: '6.0 ft (4-Door Standard)' },
-      wardrobe6: { width: 10.0, height: 7.5, depth: 2.0, label: '10.0 ft Master 6-Door' },
-      fullwall:  { width: 12.0, height: 8.5, depth: 2.0, label: '12.0 ft Full-Wall Suite' },
-      kitchen:   { width: 9.0, height: 7.0, depth: 2.0,  label: '9.0 ft Modular Kitchen' },
-      almirah:   { width: 4.0, height: 6.5, depth: 1.75, label: '4.0 ft (2-Door + Mirror)' },
-      bed:       { width: 5.0, length: 6.5, height: 3.5, label: 'Queen (5.0 ft × 6.5 ft)' },
-      tvunit:    { width: 7.0, height: 6.0, depth: 1.25, label: '7.0 ft Entertainment Wall' },
-      dressing:  { width: 3.5, height: 6.5, depth: 1.5,  label: '3.5 ft LED Vanity Unit' },
-      office:    { width: 4.5, height: 2.5, depth: 2.0,  label: '4.5 ft Executive Desk' }
+      wardrobe2:        { width: 4.0, height: 7.0, depth: 1.75, label: '4.0 ft (2-Door Compact)' },
+      wardrobe:         { width: 6.0, height: 7.0, depth: 2.0,  label: '6.0 ft (4-Door Standard)' },
+      wardrobe6:        { width: 10.0, height: 7.5, depth: 2.0, label: '10.0 ft Master 6-Door' },
+      fullwall:         { width: 12.0, height: 8.5, depth: 2.0, label: '12.0 ft Full-Wall Suite' },
+      almirah:          { width: 4.0, height: 6.5, depth: 1.75, label: '4.0 ft (2-Door + Mirror)' },
+      kitchen:          { width: 9.0, height: 7.0, depth: 2.0,  label: '9.0 ft Straight Kitchen' },
+      kitchen_l:        { width: 10.0, height: 7.5, depth: 2.0, label: '10.0 ft L-Shaped Kitchen' },
+      kitchen_parallel: { width: 10.0, height: 7.5, depth: 2.0, label: '10.0 ft Parallel Kitchen' },
+      kitchen_island:   { width: 11.0, height: 7.5, depth: 2.0, label: '11.0 ft Island Kitchen' },
+      tvunit:           { width: 7.0, height: 6.0, depth: 1.25, label: '7.0 ft Floating TV Unit' },
+      tvunit_console:   { width: 8.5, height: 6.5, depth: 1.5,  label: '8.5 ft Console & Towers' },
+      tvunit_partition: { width: 8.0, height: 7.5, depth: 1.5,  label: '8.0 ft Room Partition TV' },
+      bed:              { width: 5.5, height: 4.0, length: 6.5, depth: 6.5, label: '5.5 ft Hydraulic Bed' },
+      bed_drawers:      { width: 5.5, height: 4.0, length: 6.5, depth: 6.5, label: '5.5 ft Storage Divan' },
+      dressing:         { width: 3.5, height: 6.5, depth: 1.5,  label: '3.5 ft LED Arch Vanity' },
+      dressing_tall:    { width: 4.5, height: 7.5, depth: 1.5,  label: '4.5 ft Full Vanity Station' },
+      office:           { width: 5.0, height: 2.75, depth: 2.5, label: '5.0 ft Executive Desk' },
+      office_lshape:    { width: 6.5, height: 2.75, depth: 4.5, label: '6.5 ft L-Shaped Workstation' },
+      office_study:     { width: 4.5, height: 6.5, depth: 2.0,  label: '4.5 ft Study Table & Bookshelf' }
     }
   };
 
@@ -174,6 +198,23 @@
           <stop offset="0%" stop-color="#fef08a" stop-opacity="0.8" />
           <stop offset="100%" stop-color="#fef08a" stop-opacity="0.0" />
         </linearGradient>
+
+        <!-- CNC Jali Lattice Screen Pattern (Partition Wall) -->
+        <pattern id="pat-jali" width="20" height="20" patternUnits="userSpaceOnUse">
+          <rect width="20" height="20" fill="#2d1c10" />
+          <rect x="2" y="2" width="16" height="16" rx="3" fill="#150d07" />
+          <polygon points="10,4 16,10 10,16 4,10" fill="#d97706" opacity="0.65" />
+          <circle cx="10" cy="10" r="2.5" fill="#fef08a" />
+        </pattern>
+
+        <!-- Pin-up Corkboard Pattern (Study Desk) -->
+        <pattern id="pat-cork" width="24" height="24" patternUnits="userSpaceOnUse">
+          <rect width="24" height="24" fill="#d97706" />
+          <circle cx="4" cy="6" r="1.5" fill="#b45309" opacity="0.6" />
+          <circle cx="16" cy="14" r="2" fill="#92400e" opacity="0.5" />
+          <circle cx="20" cy="4" r="1" fill="#78350f" opacity="0.4" />
+          <circle cx="8" cy="18" r="1.5" fill="#b45309" opacity="0.6" />
+        </pattern>
 
         <!-- Woodgrain Patterns -->
         <pattern id="pat-teak" width="40" height="120" patternUnits="userSpaceOnUse">
@@ -309,8 +350,8 @@
     const wFt = dim.width || 6.0;
     const hFt = dim.height || 7.0;
 
-    const furnH = Math.min(410, Math.max(120, hFt * pxPerFoot));
-    const furnW = Math.min(580, Math.max(160, wFt * 36.0));
+    const furnH = Math.min(410, Math.max(85, hFt * pxPerFoot));
+    const furnW = Math.min(580, Math.max(140, wFt * 36.0));
 
     // Center furniture in right area (X from 130 to 720, center is 425)
     const centerX = 425;
@@ -328,7 +369,11 @@
     };
   }
 
-  // --- 5. STRUCTURE 1: 2-DOOR COMPACT WARDROBE ---
+  // =========================================================
+  // STRUCTURE RENDERERS (18 MODELS)
+  // =========================================================
+
+  // 1. WARDROBES: 2-DOOR COMPACT WARDROBE
   function renderWardrobe2Svg(s, p) {
     const fillA = getLaminateFill(s.zoneA);
     const fillB = getLaminateFill(s.zoneB);
@@ -358,34 +403,29 @@
         <line x1="${x + 6}" y1="${y + h - plinthH - 65}" x2="${x + w - 6}" y2="${y + h - plinthH - 65}" stroke="#b47b48" stroke-width="4" />
         <text x="${x + w / 2}" y="${y + h - plinthH - 28}" font-size="9" font-weight="bold" fill="#64748b" text-anchor="middle">FOLDED CLOTHES / BOXES</text>
         <!-- Swung Doors -->
-        <polygon points="${x + 6},${y + 6} ${x - 30},${y - 5} ${x - 30},${y + h} ${x + 6},${y + h - plinthH}" fill="${fillB}" stroke="#0f172a" stroke-width="1.8" />
-        <polygon points="${x + w - 6},${y + 6} ${x + w + 30},${y - 5} ${x + w + 30},${y + h} ${x + w - 6},${y + h - plinthH}" fill="${fillB}" stroke="#0f172a" stroke-width="1.8" />
+        <polygon points="${x + 6},${y + loftH} ${x - 30},${y + loftH - 8} ${x - 30},${y + h - plinthH + 8} ${x + 6},${y + h - plinthH}" fill="${fillB}" stroke="#0f172a" stroke-width="1.8" />
+        <polygon points="${x + w - 6},${y + loftH} ${x + w + 30},${y + loftH - 8} ${x + w + 30},${y + h - plinthH + 8} ${x + w - 6},${y + h - plinthH}" fill="${fillB}" stroke="#0f172a" stroke-width="1.8" />
       ` : `
         <!-- CLOSED SHUTTERS -->
-        <!-- Top Lofts (2 overhead doors) -->
-        <rect x="${x + 3}" y="${y + 3}" width="${doorW - 4}" height="${loftH - 4}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
-        <rect x="${x + doorW + 1}" y="${y + 3}" width="${doorW - 4}" height="${loftH - 4}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
-
-        <!-- 2 Main Tall Doors -->
-        <rect x="${x + 3}" y="${y + loftH + 2}" width="${doorW - 4}" height="${mainH - 50}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
-        <rect x="${x + doorW + 1}" y="${y + loftH + 2}" width="${doorW - 4}" height="${mainH - 50}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
-
-        <!-- 1 Wide Bottom Drawer -->
-        <rect x="${x + 3}" y="${y + h - plinthH - 46}" width="${w - 6}" height="44" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+        <!-- Overhead Lofts -->
+        <rect x="${x + 3}" y="${y + 3}" width="${doorW - 5}" height="${loftH - 6}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+        <rect x="${x + doorW + 2}" y="${y + 3}" width="${doorW - 5}" height="${loftH - 6}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+        <!-- Main Tall Doors -->
+        <rect x="${x + 3}" y="${y + loftH + 2}" width="${doorW - 5}" height="${mainH - 4}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+        <rect x="${x + doorW + 2}" y="${y + loftH + 2}" width="${doorW - 5}" height="${mainH - 4}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
 
         <!-- Handles -->
         ${s.hardware !== 'concealed' ? `
-          <rect x="${x + doorW - 8}" y="${y + loftH + mainH / 2 - 40}" width="5" height="65" rx="2.5" fill="${hwFill}" />
-          <rect x="${x + doorW + 3}" y="${y + loftH + mainH / 2 - 40}" width="5" height="65" rx="2.5" fill="${hwFill}" />
-          <rect x="${x + w / 2 - 20}" y="${y + h - plinthH - 26}" width="40" height="5" rx="2" fill="${hwFill}" />
+          <rect x="${x + doorW - 7}" y="${y + loftH + mainH / 2 - 35}" width="5" height="70" rx="2.5" fill="${hwFill}" />
+          <rect x="${x + doorW + 2}" y="${y + loftH + mainH / 2 - 35}" width="5" height="70" rx="2.5" fill="${hwFill}" />
         ` : `
-          <line x1="${x + doorW}" y1="${y + loftH + 10}" x2="${x + doorW}" y2="${y + h - plinthH - 50}" stroke="#000000" stroke-width="2.5" opacity="0.4" />
+          <line x1="${x + 3}" y1="${y + loftH + 2}" x2="${x + w - 3}" y2="${y + loftH + 2}" stroke="#0f172a" stroke-width="2" />
         `}
       `}
     `;
   }
 
-  // --- 6. STRUCTURE 2: 4-DOOR MODERN WARDROBE ---
+  // 2. WARDROBES: 4-DOOR STANDARD WARDROBE
   function renderWardrobeSvg(s, p) {
     const fillA = getLaminateFill(s.zoneA);
     const fillB = getLaminateFill(s.zoneB);
@@ -403,48 +443,40 @@
       <rect x="${x}" y="${y + h - plinthH}" width="${w}" height="${plinthH}" fill="${fillA}" stroke="#0f172a" stroke-width="1.5" />
 
       ${isOpen ? `
-        <rect x="${x + 6}" y="${y + 6}" width="${w - 12}" height="${h - plinthH - 12}" fill="#faf5ee" stroke="#78350f" stroke-width="1.5" />
-        <line x1="${x + w / 2}" y1="${y + 6}" x2="${x + w / 2}" y2="${y + h - plinthH}" stroke="#b47b48" stroke-width="5" />
-        <line x1="${x + 6}" y1="${y + loftH}" x2="${x + w - 6}" y2="${y + loftH}" stroke="#b47b48" stroke-width="5" />
-        <line x1="${x + 10}" y1="${y + loftH + 22}" x2="${x + w / 2 - 10}" y2="${y + loftH + 22}" stroke="#94a3b8" stroke-width="4" />
-        <rect x="${x + 20}" y="${y + loftH + 30}" width="26" height="100" rx="3" fill="#2563eb" opacity="0.7" />
-        <rect x="${x + 55}" y="${y + loftH + 30}" width="26" height="110" rx="3" fill="#059669" opacity="0.7" />
-        <line x1="${x + w / 2}" y1="${y + loftH + 80}" x2="${x + w - 6}" y2="${y + loftH + 80}" stroke="#b47b48" stroke-width="4" />
-        <line x1="${x + w / 2}" y1="${y + loftH + 150}" x2="${x + w - 6}" y2="${y + loftH + 150}" stroke="#b47b48" stroke-width="4" />
-        <rect x="${x + w / 2 + 15}" y="${y + loftH + 160}" width="${w / 2 - 30}" height="45" rx="3" fill="${fillB}" stroke="#1e293b" stroke-width="1.5" />
-        <circle cx="${x + (3 * w) / 4}" cy="${y + loftH + 182}" r="5" fill="#ca8a04" />
-        <polygon points="${x + 6},${y + 6} ${x - 35},${y - 8} ${x - 35},${y + h} ${x + 6},${y + h - plinthH}" fill="${fillB}" stroke="#0f172a" stroke-width="2" />
-        <polygon points="${x + w - 6},${y + 6} ${x + w + 35},${y - 8} ${x + w + 35},${y + h} ${x + w - 6},${y + h - plinthH}" fill="${fillB}" stroke="#0f172a" stroke-width="2" />
+        <!-- OPEN INTERIOR BAY -->
+        <rect x="${x + 6}" y="${y + 6}" width="${w - 12}" height="${h - plinthH - 12}" fill="#faf5ee" stroke="#78350f" stroke-width="1.2" />
+        <line x1="${x + 6}" y1="${y + loftH}" x2="${x + w - 6}" y2="${y + loftH}" stroke="#b47b48" stroke-width="4" />
+        <line x1="${x + w / 2}" y1="${y + loftH}" x2="${x + w / 2}" y2="${y + h - plinthH}" stroke="#b47b48" stroke-width="4" />
+        <!-- Left Bay: Hanging Rail -->
+        <line x1="${x + 12}" y1="${y + loftH + 20}" x2="${x + w / 2 - 12}" y2="${y + loftH + 20}" stroke="#94a3b8" stroke-width="3" />
+        <rect x="${x + 25}" y="${y + loftH + 28}" width="30" height="90" rx="3" fill="#2563eb" opacity="0.8" />
+        <rect x="${x + 65}" y="${y + loftH + 28}" width="30" height="100" rx="3" fill="#dc2626" opacity="0.8" />
+        <!-- Right Bay: Shelves -->
+        <line x1="${x + w / 2}" y1="${y + loftH + mainH * 0.33}" x2="${x + w - 6}" y2="${y + loftH + mainH * 0.33}" stroke="#b47b48" stroke-width="3.5" />
+        <line x1="${x + w / 2}" y1="${y + loftH + mainH * 0.66}" x2="${x + w - 6}" y2="${y + loftH + mainH * 0.66}" stroke="#b47b48" stroke-width="3.5" />
+        <!-- Swung Doors -->
+        <polygon points="${x + 6},${y + loftH} ${x - 35},${y + loftH - 10} ${x - 35},${y + h - plinthH + 10} ${x + 6},${y + h - plinthH}" fill="${fillB}" stroke="#0f172a" stroke-width="1.8" />
+        <polygon points="${x + w - 6},${y + loftH} ${x + w + 35},${y + loftH - 10} ${x + w + 35},${y + h - plinthH + 10} ${x + w - 6},${y + h - plinthH}" fill="${fillB}" stroke="#0f172a" stroke-width="1.8" />
       ` : `
-        <!-- Top Lofts (2 pairs) -->
-        <rect x="${x + 3}" y="${y + 3}" width="${w / 2 - 4}" height="${loftH - 4}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
-        <rect x="${x + w / 2 + 1}" y="${y + 3}" width="${w / 2 - 4}" height="${loftH - 4}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+        <!-- CLOSED 4 DOORS + 4 LOFTS -->
+        ${[0, 1, 2, 3].map(i => `
+          <rect x="${x + i * doorW + 2}" y="${y + 2}" width="${doorW - 4}" height="${loftH - 4}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+          <rect x="${x + i * doorW + 2}" y="${y + loftH + 2}" width="${doorW - 4}" height="${mainH - 4}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+        `).join('')}
 
-        <!-- 4 Tall Doors -->
-        <rect x="${x + 3}" y="${y + loftH + 2}" width="${doorW - 4}" height="${mainH - 4}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
-        <rect x="${x + doorW + 1}" y="${y + loftH + 2}" width="${doorW - 4}" height="${mainH - 4}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
-        <rect x="${x + 2 * doorW + 1}" y="${y + loftH + 2}" width="${doorW - 4}" height="${mainH - 4}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
-        <rect x="${x + 3 * doorW + 1}" y="${y + loftH + 2}" width="${doorW - 4}" height="${mainH - 4}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
-
-        <!-- 2 Center Bottom Drawers -->
-        <rect x="${x + doorW + 2}" y="${y + h - plinthH - 55}" width="${doorW - 6}" height="53" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
-        <rect x="${x + 2 * doorW + 2}" y="${y + h - plinthH - 55}" width="${doorW - 6}" height="53" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
-
-        <!-- Handles -->
         ${s.hardware !== 'concealed' ? `
-          <rect x="${x + doorW - 7}" y="${y + loftH + mainH / 2 - 45}" width="5" height="70" rx="2.5" fill="${hwFill}" />
-          <rect x="${x + doorW + 3}" y="${y + loftH + mainH / 2 - 45}" width="5" height="70" rx="2.5" fill="${hwFill}" />
-          <rect x="${x + 3 * doorW - 7}" y="${y + loftH + mainH / 2 - 45}" width="5" height="70" rx="2.5" fill="${hwFill}" />
-          <rect x="${x + 3 * doorW + 3}" y="${y + loftH + mainH / 2 - 45}" width="5" height="70" rx="2.5" fill="${hwFill}" />
+          <rect x="${x + 2 * doorW - 7}" y="${y + loftH + mainH / 2 - 40}" width="5" height="70" rx="2.5" fill="${hwFill}" />
+          <rect x="${x + 2 * doorW + 2}" y="${y + loftH + mainH / 2 - 40}" width="5" height="70" rx="2.5" fill="${hwFill}" />
+          <rect x="${x + doorW - 6}" y="${y + loftH + mainH / 2 - 30}" width="4" height="60" rx="2" fill="${hwFill}" />
+          <rect x="${x + 3 * doorW + 2}" y="${y + loftH + mainH / 2 - 30}" width="4" height="60" rx="2" fill="${hwFill}" />
         ` : `
-          <line x1="${x + doorW}" y1="${y + loftH + 10}" x2="${x + doorW}" y2="${y + h - plinthH - 10}" stroke="#000000" stroke-width="2.5" opacity="0.4" />
-          <line x1="${x + 3 * doorW}" y1="${y + loftH + 10}" x2="${x + 3 * doorW}" y2="${y + h - plinthH - 10}" stroke="#000000" stroke-width="2.5" opacity="0.4" />
+          <line x1="${x + 2}" y1="${y + loftH + 2}" x2="${x + w - 2}" y2="${y + loftH + 2}" stroke="#0f172a" stroke-width="2" />
         `}
       `}
     `;
   }
 
-  // --- 7. STRUCTURE 3: MASTER 6-DOOR WARDROBE ---
+  // 3. WARDROBES: MASTER 6-DOOR WARDROBE
   function renderWardrobe6Svg(s, p) {
     const fillA = getLaminateFill(s.zoneA);
     const fillB = getLaminateFill(s.zoneB);
@@ -452,71 +484,52 @@
     const isOpen = s.isOpen;
     const { x, y, w, h, plinthH, floorY } = p;
 
-    const loftH = Math.round(h * 0.22);
+    const loftH = Math.round(h * 0.20);
     const mainH = h - loftH - plinthH;
     const doorW = Math.round(w / 6);
 
     return `
-      <ellipse cx="${x + w / 2}" cy="${floorY + 2}" rx="${w / 2 + 30}" ry="16" fill="url(#sim-floor-shadow)" />
+      <ellipse cx="${x + w / 2}" cy="${floorY + 2}" rx="${w / 2 + 30}" ry="15" fill="url(#sim-floor-shadow)" />
       <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="${fillA}" stroke="#0f172a" stroke-width="2.5" />
       <rect x="${x}" y="${y + h - plinthH}" width="${w}" height="${plinthH}" fill="${fillA}" stroke="#0f172a" stroke-width="1.5" />
 
       ${isOpen ? `
-        <rect x="${x + 6}" y="${y + 6}" width="${w - 12}" height="${h - plinthH - 12}" fill="#faf5ee" stroke="#78350f" stroke-width="1.5" />
-        <line x1="${x + w / 3}" y1="${y + 6}" x2="${x + w / 3}" y2="${y + h - plinthH}" stroke="#b47b48" stroke-width="5" />
-        <line x1="${x + (2 * w) / 3}" y1="${y + 6}" x2="${x + (2 * w) / 3}" y2="${y + h - plinthH}" stroke="#b47b48" stroke-width="5" />
-        <line x1="${x + 6}" y1="${y + loftH}" x2="${x + w - 6}" y2="${y + loftH}" stroke="#b47b48" stroke-width="5" />
-
-        <!-- Left Bay ("His") -->
-        <line x1="${x + 12}" y1="${y + loftH + 20}" x2="${x + w / 3 - 12}" y2="${y + loftH + 20}" stroke="#94a3b8" stroke-width="3.5" />
-        <rect x="${x + 20}" y="${y + loftH + 28}" width="28" height="110" rx="3" fill="#1e3a8a" opacity="0.75" />
-        <rect x="${x + 55}" y="${y + loftH + 28}" width="28" height="115" rx="3" fill="#334155" opacity="0.75" />
-
-        <!-- Center Bay (Twin Tijori & Glass Drawers) -->
-        <rect x="${x + w / 3 + 12}" y="${y + loftH + 20}" width="${w / 3 - 24}" height="70" rx="3" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5" />
-        <circle cx="${x + w / 2}" cy="${y + loftH + 55}" r="7" fill="#ca8a04" />
-        <text x="${x + w / 2}" y="${y + loftH + 42}" font-size="8.5" font-weight="900" fill="#1e1b4b" text-anchor="middle">TWIN TIJORI VAULT</text>
-
-        <!-- Right Bay ("Hers" Sarees & Gowns) -->
-        <line x1="${x + (2 * w) / 3 + 12}" y1="${y + loftH + 20}" x2="${x + w - 12}" y2="${y + loftH + 20}" stroke="#94a3b8" stroke-width="3.5" />
-        <rect x="${x + (2 * w) / 3 + 20}" y="${y + loftH + 28}" width="28" height="140" rx="3" fill="#be123c" opacity="0.75" />
-        <rect x="${x + (2 * w) / 3 + 55}" y="${y + loftH + 28}" width="28" height="145" rx="3" fill="#7c3aed" opacity="0.75" />
-
-        <polygon points="${x + 6},${y + 6} ${x - 40},${y - 8} ${x - 40},${y + h} ${x + 6},${y + h - plinthH}" fill="${fillB}" stroke="#0f172a" stroke-width="2" />
-        <polygon points="${x + w - 6},${y + 6} ${x + w + 40},${y - 8} ${x + w + 40},${y + h} ${x + w - 6},${y + h - plinthH}" fill="${fillB}" stroke="#0f172a" stroke-width="2" />
+        <!-- 3-BAY INTERIOR VIEW -->
+        <rect x="${x + 6}" y="${y + 6}" width="${w - 12}" height="${h - plinthH - 12}" fill="#faf5ee" stroke="#78350f" stroke-width="1.2" />
+        <line x1="${x + 6}" y1="${y + loftH}" x2="${x + w - 6}" y2="${y + loftH}" stroke="#b47b48" stroke-width="4" />
+        <line x1="${x + w / 3}" y1="${y + loftH}" x2="${x + w / 3}" y2="${y + h - plinthH}" stroke="#b47b48" stroke-width="4" />
+        <line x1="${x + (2 * w) / 3}" y1="${y + loftH}" x2="${x + (2 * w) / 3}" y2="${y + h - plinthH}" stroke="#b47b48" stroke-width="4" />
+        <!-- Center Bay Drawer Chest -->
+        <rect x="${x + w / 3 + 10}" y="${y + h - plinthH - 85}" width="${w / 3 - 20}" height="75" rx="3" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+        <line x1="${x + w / 3 + 10}" y1="${y + h - plinthH - 48}" x2="${x + (2 * w) / 3 - 10}" y2="${y + h - plinthH - 48}" stroke="#0f172a" stroke-width="1.5" />
+        <text x="${x + w / 2}" y="${y + h - plinthH - 62}" font-size="8.5" font-weight="bold" fill="#ffffff" text-anchor="middle">DRAWER 1</text>
+        <text x="${x + w / 2}" y="${y + h - plinthH - 25}" font-size="8.5" font-weight="bold" fill="#ffffff" text-anchor="middle">DRAWER 2</text>
       ` : `
-        <!-- 6 Overhead Lofts -->
+        <!-- 6 OVERHEAD LOFTS -->
         ${[0, 1, 2, 3, 4, 5].map(i => `
           <rect x="${x + i * doorW + 2}" y="${y + 2}" width="${doorW - 4}" height="${loftH - 4}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
-        `).join('')}
-
-        <!-- 6 Tall Doors -->
-        ${[0, 1, 2, 3, 4, 5].map(i => `
           <rect x="${x + i * doorW + 2}" y="${y + loftH + 2}" width="${doorW - 4}" height="${mainH - 4}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
         `).join('')}
 
-        <!-- Handles -->
-        ${s.hardware !== 'concealed' ? [0, 2, 4].map(i => `
-          <rect x="${x + (i + 1) * doorW - 7}" y="${y + loftH + mainH / 2 - 45}" width="5" height="75" rx="2.5" fill="${hwFill}" />
-          <rect x="${x + (i + 1) * doorW + 2}" y="${y + loftH + mainH / 2 - 45}" width="5" height="75" rx="2.5" fill="${hwFill}" />
+        ${s.hardware !== 'concealed' ? [1, 3, 5].map(i => `
+          <rect x="${x + i * doorW - 7}" y="${y + loftH + mainH / 2 - 45}" width="5" height="75" rx="2.5" fill="${hwFill}" />
+          <rect x="${x + i * doorW + 2}" y="${y + loftH + mainH / 2 - 45}" width="5" height="75" rx="2.5" fill="${hwFill}" />
         `).join('') : ''}
       `}
     `;
   }
 
-  // --- 8. STRUCTURE 4: FULL-WALL STORAGE SUITE (3 CONFIGURATIONS) ---
+  // 4. WARDROBES: FULL-WALL STORAGE SUITE (3 LAYOUTS)
   function renderFullWallSvg(s, p) {
     const fillA = getLaminateFill(s.zoneA);
     const fillB = getLaminateFill(s.zoneB);
     const hwFill = getHardwareFill();
-    const isOpen = s.isOpen;
     const cfg = s.fullwallConfig || 'standard';
     const { x, y, w, h, plinthH, floorY } = p;
 
     const loftH = Math.round(h * 0.20);
     const mainH = h - loftH - plinthH;
 
-    // CONFIG 1: STANDARD (Wardrobe Left + Center Display Rack + Cabinet Right)
     if (cfg === 'standard') {
       const leftW = Math.round(w * 0.40);
       const centerW = Math.round(w * 0.30);
@@ -532,7 +545,7 @@
         <line x1="${x + leftW}" y1="${y}" x2="${x + leftW}" y2="${y + loftH}" stroke="#0f172a" stroke-width="1.8" />
         <line x1="${x + leftW + centerW}" y1="${y}" x2="${x + leftW + centerW}" y2="${y + loftH}" stroke="#0f172a" stroke-width="1.8" />
 
-        <!-- LEFT SECTION: 2/3-Door Wardrobe -->
+        <!-- LEFT SECTION: Wardrobe -->
         <rect x="${x + 2}" y="${y + loftH}" width="${leftW - 4}" height="${mainH}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.8" />
         <line x1="${x + leftW / 2}" y1="${y + loftH}" x2="${x + leftW / 2}" y2="${y + loftH + mainH}" stroke="#0f172a" stroke-width="1.5" />
         ${s.hardware !== 'concealed' ? `
@@ -543,16 +556,14 @@
         <!-- CENTER SECTION: OPEN BACKLIT DISPLAY RACK -->
         <rect x="${x + leftW}" y="${y + loftH}" width="${centerW}" height="${mainH}" fill="${fillA}" stroke="#0f172a" stroke-width="2" />
         <rect x="${x + leftW}" y="${y + loftH}" width="${centerW}" height="25" fill="url(#led-strip-glow)" />
-        <!-- 4 Display Shelves -->
         ${[1, 2, 3, 4].map(idx => `
           <line x1="${x + leftW}" y1="${y + loftH + (idx * mainH) / 5}" x2="${x + leftW + centerW}" y2="${y + loftH + (idx * mainH) / 5}" stroke="#0f172a" stroke-width="2.5" />
         `).join('')}
-        <!-- Artifacts on display -->
         <circle cx="${x + leftW + centerW / 2}" cy="${y + loftH + (mainH / 5) - 14}" r="8" fill="#ca8a04" />
         <rect x="${x + leftW + 15}" y="${y + loftH + (2 * mainH) / 5 - 24}" width="8" height="24" rx="2" fill="#dc2626" />
         <rect x="${x + leftW + 25}" y="${y + loftH + (2 * mainH) / 5 - 20}" width="8" height="20" rx="2" fill="#2563eb" />
         <circle cx="${x + leftW + centerW - 25}" cy="${y + loftH + (2 * mainH) / 5 - 12}" r="10" fill="#ffffff" stroke="#0f172a" stroke-width="1.5" />
-        <!-- Bottom 2 Drawers in Center -->
+        <!-- Bottom Drawers in Center -->
         <rect x="${x + leftW + 2}" y="${y + loftH + (4 * mainH) / 5 + 2}" width="${centerW - 4}" height="${mainH / 5 - 4}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
 
         <!-- RIGHT SECTION: Multi-Utility Storage Cabinet -->
@@ -565,7 +576,6 @@
       `;
     }
 
-    // CONFIG 2: ENTERTAINMENT (Dual Wardrobes Left & Right + Center TV Niche)
     if (cfg === 'entertainment') {
       const wardW = Math.round(w * 0.33);
       const tvW = w - 2 * wardW;
@@ -578,7 +588,7 @@
         <!-- Continuous Top Loft Bridge -->
         <rect x="${x + 2}" y="${y + 2}" width="${w - 4}" height="${loftH - 4}" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
 
-        <!-- LEFT WARDROBE (Zone B) -->
+        <!-- LEFT WARDROBE -->
         <rect x="${x + 2}" y="${y + loftH}" width="${wardW - 4}" height="${mainH}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.8" />
         ${s.hardware !== 'concealed' ? `
           <rect x="${x + wardW - 12}" y="${y + loftH + mainH / 2 - 35}" width="5" height="70" rx="2.5" fill="${hwFill}" />
@@ -586,18 +596,15 @@
 
         <!-- CENTER ENTERTAINMENT TV NICHE -->
         <rect x="${x + wardW}" y="${y + loftH}" width="${tvW}" height="${mainH}" fill="${fillA}" stroke="#0f172a" stroke-width="2" />
-        <!-- TV Backlight Ambient Halo -->
         <rect x="${x + wardW + 15}" y="${y + loftH + 20}" width="${tvW - 30}" height="${mainH - 90}" rx="6" fill="#fef08a" opacity="0.3" filter="blur(6px)" />
-        <!-- 4K Smart TV -->
         <rect x="${x + wardW + 20}" y="${y + loftH + 25}" width="${tvW - 40}" height="${mainH - 100}" rx="3" fill="#020617" stroke="#334155" stroke-width="2" />
         <text x="${x + wardW + tvW / 2}" y="${y + loftH + (mainH - 100) / 2 + 25}" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">SMART 4K TV</text>
-        <!-- Floating Media Drawer Console below TV -->
         <rect x="${x + wardW + 10}" y="${y + loftH + mainH - 65}" width="${tvW - 20}" height="55" rx="3" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
         ${s.hardware !== 'concealed' ? `
           <rect x="${x + wardW + tvW / 2 - 25}" y="${y + loftH + mainH - 38}" width="50" height="5" rx="2" fill="${hwFill}" />
         ` : ''}
 
-        <!-- RIGHT WARDROBE (Zone B) -->
+        <!-- RIGHT WARDROBE -->
         <rect x="${x + wardW + tvW + 2}" y="${y + loftH}" width="${wardW - 4}" height="${mainH}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.8" />
         ${s.hardware !== 'concealed' ? `
           <rect x="${x + wardW + tvW + 7}" y="${y + loftH + mainH / 2 - 35}" width="5" height="70" rx="2.5" fill="${hwFill}" />
@@ -605,7 +612,7 @@
       `;
     }
 
-    // CONFIG 3: FULL WARDROBE WALL (Continuous Monolithic Wall)
+    // Full Wardrobe Wall
     const numDoors = Math.max(6, Math.round(w / 70));
     const doorW = Math.round(w / numDoors);
 
@@ -614,17 +621,11 @@
       <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="${fillA}" stroke="#0f172a" stroke-width="2.5" />
       <rect x="${x}" y="${y + h - plinthH}" width="${w}" height="${plinthH}" fill="${fillA}" stroke="#0f172a" stroke-width="1.5" />
 
-      <!-- Continuous Overhead Lofts across entire width -->
       ${Array.from({ length: numDoors }).map((_, i) => `
         <rect x="${x + i * doorW + 2}" y="${y + 2}" width="${doorW - 4}" height="${loftH - 4}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
-      `).join('')}
-
-      <!-- Continuous Main Tall Shutters across entire width -->
-      ${Array.from({ length: numDoors }).map((_, i) => `
         <rect x="${x + i * doorW + 2}" y="${y + loftH + 2}" width="${doorW - 4}" height="${mainH - 4}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
       `).join('')}
 
-      <!-- Profile Handles -->
       ${s.hardware !== 'concealed' ? Array.from({ length: Math.floor(numDoors / 2) }).map((_, i) => `
         <rect x="${x + (2 * i + 1) * doorW - 7}" y="${y + loftH + mainH / 2 - 45}" width="5" height="75" rx="2.5" fill="${hwFill}" />
         <rect x="${x + (2 * i + 1) * doorW + 2}" y="${y + loftH + mainH / 2 - 45}" width="5" height="75" rx="2.5" fill="${hwFill}" />
@@ -632,86 +633,7 @@
     `;
   }
 
-  // --- 9. STRUCTURE 5: MODERN MODULAR KITCHEN ---
-  function renderKitchenSvg(s, p) {
-    const fillA = getLaminateFill(s.zoneA);
-    const fillB = getLaminateFill(s.zoneB);
-    const hwFill = getHardwareFill();
-    const isOpen = s.isOpen;
-    const { x, y, w, h, plinthH, floorY } = p;
-
-    const wallCabH = Math.round(h * 0.28);
-    const dadoH = Math.round(h * 0.32);
-    const counterY = y + wallCabH + dadoH;
-    const baseH = floorY - counterY - plinthH;
-
-    return `
-      <ellipse cx="${x + w / 2}" cy="${floorY + 2}" rx="${w / 2 + 25}" ry="14" fill="url(#sim-floor-shadow)" />
-
-      <!-- Backsplash Wall Dado (Zone A) -->
-      <rect x="${x}" y="${y + wallCabH}" width="${w}" height="${dadoH}" fill="${fillA}" stroke="#0f172a" stroke-width="2" />
-      <rect x="${x}" y="${y + wallCabH}" width="${w}" height="20" fill="url(#led-strip-glow)" />
-
-      <!-- Hanging Utensil Rail -->
-      <line x1="${x + 20}" y1="${y + wallCabH + 30}" x2="${x + w / 2 - 20}" y2="${y + wallCabH + 30}" stroke="#cbd5e1" stroke-width="2.5" />
-      <path d="M${x + 40},${y + wallCabH + 30} L${x + 40},${y + wallCabH + 55} A5,5 0 0 0 ${x + 50},${y + wallCabH + 55}" fill="none" stroke="#94a3b8" stroke-width="2" />
-      <path d="M${x + 80},${y + wallCabH + 30} L${x + 80},${y + wallCabH + 60}" stroke="#94a3b8" stroke-width="2" />
-
-      <!-- Upper Wall Cabinets (Zone B) -->
-      <rect x="${x}" y="${y}" width="${w / 2 - 50}" height="${wallCabH}" rx="3" fill="${fillB}" stroke="#0f172a" stroke-width="1.8" />
-      <rect x="${x + w / 2 + 50}" y="${y}" width="${w / 2 - 50}" height="${wallCabH}" rx="3" fill="${fillB}" stroke="#0f172a" stroke-width="1.8" />
-
-      <!-- Center Chimney Hood -->
-      <rect x="${x + w / 2 - 22}" y="${y - 15}" width="44" height="40" fill="url(#hw-chrome)" stroke="#64748b" stroke-width="1.2" />
-      <polygon points="${x + w / 2 - 45},${y + wallCabH - 5} ${x + w / 2 + 45},${y + wallCabH - 5} ${x + w / 2 + 22},${y + 25} ${x + w / 2 - 22},${y + 25}" fill="#1e293b" stroke="#0f172a" stroke-width="1.5" />
-      <circle cx="${x + w / 2 - 20}" cy="${y + wallCabH - 10}" r="3" fill="#fef08a" />
-      <circle cx="${x + w / 2 + 20}" cy="${y + wallCabH - 10}" r="3" fill="#fef08a" />
-
-      <!-- Granite Countertop Slab -->
-      <rect x="${x - 10}" y="${counterY}" width="${w + 20}" height="18" rx="3" fill="url(#countertop-granite)" stroke="#09090b" stroke-width="2" />
-
-      <!-- Gas Hob Cooktop & Sink on Counter -->
-      <rect x="${x + w / 2 - 45}" y="${counterY - 4}" width="90" height="8" rx="2" fill="#020617" />
-      <circle cx="${x + w / 2 - 25}" cy="${counterY}" r="3" fill="#ef4444" />
-      <circle cx="${x + w / 2}" cy="${counterY}" r="4" fill="#ef4444" />
-      <circle cx="${x + w / 2 + 25}" cy="${counterY}" r="3" fill="#ef4444" />
-
-      <!-- Sink & Faucet -->
-      <rect x="${x + w - 90}" y="${counterY - 3}" width="70" height="7" rx="2" fill="#94a3b8" />
-      <path d="M${x + w - 55},${counterY - 3} L${x + w - 55},${counterY - 22} A10,10 0 0 1 ${x + w - 35},${counterY - 22} L${x + w - 35},${counterY - 16}" fill="none" stroke="url(#hw-chrome)" stroke-width="3" stroke-linecap="round" />
-
-      <!-- Base Modular Cabinets (Zone B) -->
-      <rect x="${x}" y="${counterY + 18}" width="${w}" height="${baseH}" fill="${fillA}" stroke="#0f172a" stroke-width="2" />
-      <rect x="${x}" y="${floorY - plinthH}" width="${w}" height="${plinthH}" fill="#18181b" stroke="#0f172a" stroke-width="1.2" />
-
-      ${isOpen ? `
-        <!-- Pulled-out Tandem Drawers -->
-        <rect x="${x + 6}" y="${counterY + 22}" width="${w / 3 - 10}" height="35" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
-        <text x="${x + w / 6}" y="${counterY + 44}" font-size="8" font-weight="bold" fill="#ffffff" text-anchor="middle">🥄 CUTLERY TRAY</text>
-        <rect x="${x + 6}" y="${counterY + 62}" width="${w / 3 - 10}" height="35" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
-        <text x="${x + w / 6}" y="${counterY + 84}" font-size="8" font-weight="bold" fill="#ffffff" text-anchor="middle">🍽️ CUP &amp; SAUCER</text>
-        <rect x="${x + 6}" y="${counterY + 102}" width="${w / 3 - 10}" height="35" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
-        <text x="${x + w / 6}" y="${counterY + 124}" font-size="8" font-weight="bold" fill="#ffffff" text-anchor="middle">🥘 THALI BASKET</text>
-      ` : `
-        <!-- Closed Modular Shutters -->
-        <rect x="${x + 4}" y="${counterY + 22}" width="${w / 3 - 8}" height="${(baseH - 12) / 3}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
-        <rect x="${x + 4}" y="${counterY + 22 + (baseH - 12) / 3 + 3}" width="${w / 3 - 8}" height="${(baseH - 12) / 3}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
-        <rect x="${x + 4}" y="${counterY + 22 + (2 * (baseH - 12)) / 3 + 6}" width="${w / 3 - 8}" height="${(baseH - 12) / 3}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
-
-        <rect x="${x + w / 3}" y="${counterY + 22}" width="${w / 3}" height="${baseH - 8}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
-        <rect x="${x + (2 * w) / 3 + 4}" y="${counterY + 22}" width="${w / 3 - 8}" height="${baseH - 8}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
-
-        <!-- Handles -->
-        ${s.hardware !== 'concealed' ? `
-          <rect x="${x + w / 6 - 20}" y="${counterY + 34}" width="40" height="4" rx="2" fill="${hwFill}" />
-          <rect x="${x + w / 6 - 20}" y="${counterY + 74}" width="40" height="4" rx="2" fill="${hwFill}" />
-          <rect x="${x + w / 6 - 20}" y="${counterY + 114}" width="40" height="4" rx="2" fill="${hwFill}" />
-        ` : ''}
-      `}
-    `;
-  }
-
-  // --- 10. STRUCTURE 6: CLASSIC ALMIRAH (WITH DRESSING MIRROR) ---
+  // 5. WARDROBES: CLASSIC ALMIRAH WITH MIRROR & TIJORI
   function renderAlmirahSvg(s, p) {
     const fillA = getLaminateFill(s.zoneA);
     const fillB = getLaminateFill(s.zoneB);
@@ -735,9 +657,7 @@
         <polygon points="${x + 6},${y + 20} ${x - 30},${y + 10} ${x - 30},${floorY} ${x + 6},${floorY - plinthH}" fill="${fillB}" stroke="#0f172a" stroke-width="1.8" />
         <polygon points="${x + w - 6},${y + 20} ${x + w + 30},${y + 10} ${x + w + 30},${floorY} ${x + w - 6},${floorY - plinthH}" fill="${fillB}" stroke="#0f172a" stroke-width="1.8" />
       ` : `
-        <!-- Left Door -->
         <rect x="${x + 3}" y="${y + 20}" width="${w / 2 - 5}" height="${h - plinthH - 70}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.8" />
-        <!-- Right Door with BEVELED MIRROR -->
         <rect x="${x + w / 2 + 2}" y="${y + 20}" width="${w / 2 - 5}" height="${h - plinthH - 70}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.8" />
         <rect x="${x + w / 2 + 8}" y="${y + 26}" width="${w / 2 - 17}" height="${h - plinthH - 82}" rx="3" fill="url(#mirror-sheen)" stroke="#cbd5e1" stroke-width="2" />
         <line x1="${x + w / 2 + 15}" y1="${y + 35}" x2="${x + w - 20}" y2="${y + h * 0.4}" stroke="#ffffff" stroke-width="2.5" opacity="0.6" stroke-linecap="round" />
@@ -755,56 +675,270 @@
     `;
   }
 
-  // --- 11. STRUCTURE 7: HYDRAULIC BOX BED / DIVAN ---
-  function renderBedSvg(s, p) {
+  // 6. KITCHEN: STRAIGHT-LINE MODULAR KITCHEN
+  function renderKitchenSvg(s, p) {
     const fillA = getLaminateFill(s.zoneA);
     const fillB = getLaminateFill(s.zoneB);
     const hwFill = getHardwareFill();
     const isOpen = s.isOpen;
-    const { x, y, w, h, floorY } = p;
+    const { x, y, w, h, plinthH, floorY } = p;
 
-    const headboardH = Math.round(h * 0.65);
-    const bedBoxH = Math.round(h * 0.35);
+    const wallCabH = Math.round(h * 0.28);
+    const dadoH = Math.round(h * 0.32);
+    const counterY = y + wallCabH + dadoH;
+    const baseH = floorY - counterY - plinthH;
 
     return `
-      <ellipse cx="${x + w / 2}" cy="${floorY + 2}" rx="${w / 2 + 30}" ry="16" fill="url(#sim-floor-shadow)" />
-      <!-- Headboard Outer Frame -->
-      <rect x="${x}" y="${y}" width="${w}" height="${headboardH}" rx="6" fill="${fillA}" stroke="#0f172a" stroke-width="2.5" />
-      <rect x="${x + 15}" y="${y + 12}" width="${w - 30}" height="${headboardH - 24}" rx="4" fill="${fillB}" stroke="#0f172a" stroke-width="1.8" />
+      <ellipse cx="${x + w / 2}" cy="${floorY + 2}" rx="${w / 2 + 25}" ry="14" fill="url(#sim-floor-shadow)" />
+
+      <!-- Backsplash Wall Dado (Zone A) -->
+      <rect x="${x}" y="${y + wallCabH}" width="${w}" height="${dadoH}" fill="${fillA}" stroke="#0f172a" stroke-width="2" />
+      <rect x="${x}" y="${y + wallCabH}" width="${w}" height="20" fill="url(#led-strip-glow)" />
+
+      <!-- Hanging Utensil Rail -->
+      <line x1="${x + 20}" y1="${y + wallCabH + 30}" x2="${x + w / 2 - 20}" y2="${y + wallCabH + 30}" stroke="#cbd5e1" stroke-width="2.5" />
+      <path d="M${x + 40},${y + wallCabH + 30} L${x + 40},${y + wallCabH + 55} A5,5 0 0 0 ${x + 50},${y + wallCabH + 55}" fill="none" stroke="#94a3b8" stroke-width="2" />
+
+      <!-- Upper Wall Cabinets (Zone B) -->
+      <rect x="${x}" y="${y}" width="${w / 2 - 50}" height="${wallCabH}" rx="3" fill="${fillB}" stroke="#0f172a" stroke-width="1.8" />
+      <rect x="${x + w / 2 + 50}" y="${y}" width="${w / 2 - 50}" height="${wallCabH}" rx="3" fill="${fillB}" stroke="#0f172a" stroke-width="1.8" />
+
+      <!-- Center Chimney Hood -->
+      <rect x="${x + w / 2 - 22}" y="${y - 15}" width="44" height="40" fill="url(#hw-chrome)" stroke="#64748b" stroke-width="1.2" />
+      <polygon points="${x + w / 2 - 45},${y + wallCabH - 5} ${x + w / 2 + 45},${y + wallCabH - 5} ${x + w / 2 + 22},${y + 25} ${x + w / 2 - 22},${y + 25}" fill="#1e293b" stroke="#0f172a" stroke-width="1.5" />
+
+      <!-- Granite Countertop Slab -->
+      <rect x="${x - 10}" y="${counterY}" width="${w + 20}" height="18" rx="3" fill="url(#countertop-granite)" stroke="#09090b" stroke-width="2" />
+
+      <!-- Gas Hob Cooktop & Sink -->
+      <rect x="${x + w / 2 - 45}" y="${counterY - 4}" width="90" height="8" rx="2" fill="#020617" />
+      <circle cx="${x + w / 2 - 25}" cy="${counterY}" r="3" fill="#ef4444" />
+      <circle cx="${x + w / 2 + 25}" cy="${counterY}" r="3" fill="#ef4444" />
+      <rect x="${x + w - 90}" y="${counterY - 3}" width="70" height="7" rx="2" fill="#94a3b8" />
+      <path d="M${x + w - 55},${counterY - 3} L${x + w - 55},${counterY - 22} A10,10 0 0 1 ${x + w - 35},${counterY - 22} L${x + w - 35},${counterY - 16}" fill="none" stroke="url(#hw-chrome)" stroke-width="3" stroke-linecap="round" />
+
+      <!-- Base Modular Cabinets -->
+      <rect x="${x}" y="${counterY + 18}" width="${w}" height="${baseH}" fill="${fillA}" stroke="#0f172a" stroke-width="2" />
+      <rect x="${x}" y="${floorY - plinthH}" width="${w}" height="${plinthH}" fill="#18181b" stroke="#0f172a" stroke-width="1.2" />
 
       ${isOpen ? `
-        <!-- Lifted Mattress & Storage Compartments -->
-        <rect x="${x + 10}" y="${y + headboardH - 10}" width="${w - 20}" height="${bedBoxH + 10}" fill="#fef3c7" stroke="#92400e" stroke-width="2" />
-        <line x1="${x + w / 2}" y1="${y + headboardH - 10}" x2="${x + w / 2}" y2="${floorY}" stroke="#92400e" stroke-width="5" />
-        <rect x="${x + 20}" y="${y + headboardH + 10}" width="${w / 2 - 30}" height="${bedBoxH - 20}" rx="4" fill="#3b82f6" opacity="0.6" />
-        <text x="${x + w / 4}" y="${y + headboardH + 35}" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle">QUILTS / BLANKETS</text>
-        <!-- Lifted Bed Top -->
-        <polygon points="${x + 10},${y + headboardH - 10} ${x + w - 10},${y + headboardH - 10} ${x + w + 15},${y + headboardH - 70} ${x - 5},${y + headboardH - 70}" fill="#ffffff" stroke="#94a3b8" stroke-width="2" />
-        <line x1="${x + 40}" y1="${y + headboardH + 10}" x2="${x + 25}" y2="${y + headboardH - 55}" stroke="#000000" stroke-width="4" />
+        <rect x="${x + 6}" y="${counterY + 22}" width="${w / 3 - 10}" height="35" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+        <text x="${x + w / 6}" y="${counterY + 44}" font-size="8" font-weight="bold" fill="#ffffff" text-anchor="middle">🥄 CUTLERY</text>
+        <rect x="${x + 6}" y="${counterY + 62}" width="${w / 3 - 10}" height="35" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+        <text x="${x + w / 6}" y="${counterY + 84}" font-size="8" font-weight="bold" fill="#ffffff" text-anchor="middle">🍽️ CUP/SAUCER</text>
+        <rect x="${x + 6}" y="${counterY + 102}" width="${w / 3 - 10}" height="35" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+        <text x="${x + w / 6}" y="${counterY + 124}" font-size="8" font-weight="bold" fill="#ffffff" text-anchor="middle">🥘 THALI BASKET</text>
       ` : `
-        <!-- Mattress & Pillows -->
-        <rect x="${x + 10}" y="${y + headboardH - 35}" width="${w - 20}" height="45" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" />
-        <rect x="${x + 25}" y="${y + headboardH - 55}" width="${w / 2 - 40}" height="28" rx="8" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5" />
-        <rect x="${x + w / 2 + 15}" y="${y + headboardH - 55}" width="${w / 2 - 40}" height="28" rx="8" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5" />
-        <!-- Bed Base Box (Zone A) -->
-        <rect x="${x + 5}" y="${y + headboardH + 10}" width="${w - 10}" height="${bedBoxH - 10}" rx="3" fill="${fillA}" stroke="#0f172a" stroke-width="2.5" />
-        <!-- Pull-out Drawers -->
-        <rect x="${x + 15}" y="${y + headboardH + 20}" width="${w / 2 - 25}" height="${bedBoxH - 26}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
-        <rect x="${x + w / 2 + 10}" y="${y + headboardH + 20}" width="${w / 2 - 25}" height="${bedBoxH - 26}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+        <rect x="${x + 4}" y="${counterY + 22}" width="${w / 3 - 8}" height="${(baseH - 12) / 3}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+        <rect x="${x + 4}" y="${counterY + 22 + (baseH - 12) / 3 + 3}" width="${w / 3 - 8}" height="${(baseH - 12) / 3}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+        <rect x="${x + 4}" y="${counterY + 22 + (2 * (baseH - 12)) / 3 + 6}" width="${w / 3 - 8}" height="${(baseH - 12) / 3}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+        <rect x="${x + w / 3}" y="${counterY + 22}" width="${w / 3}" height="${baseH - 8}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+        <rect x="${x + (2 * w) / 3 + 4}" y="${counterY + 22}" width="${w / 3 - 8}" height="${baseH - 8}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+
         ${s.hardware !== 'concealed' ? `
-          <rect x="${x + w / 4 - 15}" y="${y + headboardH + bedBoxH / 2 + 5}" width="30" height="5" rx="2" fill="${hwFill}" />
-          <rect x="${x + (3 * w) / 4 - 15}" y="${y + headboardH + bedBoxH / 2 + 5}" width="30" height="5" rx="2" fill="${hwFill}" />
+          <rect x="${x + w / 6 - 20}" y="${counterY + 34}" width="40" height="4" rx="2" fill="${hwFill}" />
+          <rect x="${x + w / 6 - 20}" y="${counterY + 74}" width="40" height="4" rx="2" fill="${hwFill}" />
+          <rect x="${x + w / 6 - 20}" y="${counterY + 114}" width="40" height="4" rx="2" fill="${hwFill}" />
         ` : ''}
       `}
     `;
   }
 
-  // --- 12. STRUCTURE 8: FLOATING WALL TV UNIT ---
-  function renderTVUnitSvg(s, p) {
+  // 7. KITCHEN: L-SHAPED CORNER MODULAR KITCHEN
+  function renderKitchenLSvg(s, p) {
     const fillA = getLaminateFill(s.zoneA);
     const fillB = getLaminateFill(s.zoneB);
     const hwFill = getHardwareFill();
     const isOpen = s.isOpen;
+    const { x, y, w, h, plinthH, floorY } = p;
+
+    const pantryW = Math.min(125, Math.round(w * 0.24));
+    const mainW = w - pantryW;
+    const wallCabH = Math.round(h * 0.28);
+    const dadoH = Math.round(h * 0.30);
+    const counterY = y + wallCabH + dadoH;
+    const baseH = floorY - counterY - plinthH;
+
+    return `
+      <ellipse cx="${x + w / 2}" cy="${floorY + 2}" rx="${w / 2 + 25}" ry="14" fill="url(#sim-floor-shadow)" />
+
+      <!-- Left Tall Full-Height Pantry Unit (Floor to Ceiling) -->
+      <rect x="${x}" y="${y}" width="${pantryW}" height="${h}" rx="3" fill="${fillA}" stroke="#0f172a" stroke-width="2.2" />
+      <rect x="${x + 3}" y="${y + 3}" width="${pantryW - 6}" height="${h - plinthH - 6}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+      <text x="${x + pantryW / 2}" y="${y + 24}" font-size="8.5" font-weight="bold" fill="#ffffff" text-anchor="middle">TALL PANTRY</text>
+      ${s.hardware !== 'concealed' ? `
+        <rect x="${x + pantryW - 12}" y="${y + h / 2 - 45}" width="5" height="90" rx="2.5" fill="${hwFill}" />
+      ` : ''}
+
+      ${isOpen ? `
+        <!-- Pantry pullout trays -->
+        <rect x="${x + 6}" y="${y + 40}" width="${pantryW - 12}" height="${h - plinthH - 60}" fill="#f8fafc" opacity="0.9" />
+        ${[1, 2, 3, 4, 5].map(i => `
+          <line x1="${x + 8}" y1="${y + 40 + (i * (h - plinthH - 70)) / 5}" x2="${x + pantryW - 8}" y2="${y + 40 + (i * (h - plinthH - 70)) / 5}" stroke="#b45309" stroke-width="2" />
+        `).join('')}
+      ` : ''}
+
+      <!-- Main L-Wing Backsplash Dado -->
+      <rect x="${x + pantryW}" y="${y + wallCabH}" width="${mainW}" height="${dadoH}" fill="${fillA}" stroke="#0f172a" stroke-width="1.8" />
+      <rect x="${x + pantryW}" y="${y + wallCabH}" width="${mainW}" height="18" fill="url(#led-strip-glow)" />
+
+      <!-- Upper Glass Cabinets + Chimney -->
+      <rect x="${x + pantryW + 6}" y="${y}" width="${mainW * 0.45}" height="${wallCabH}" rx="2" fill="url(#mirror-sheen)" stroke="#0f172a" stroke-width="1.8" />
+      <text x="${x + pantryW + (mainW * 0.45) / 2}" y="${y + wallCabH / 2 + 4}" font-size="9" font-weight="bold" fill="#1e3a8a" text-anchor="middle">FROSTED GLASS</text>
+
+      <!-- Chimney Hood over Cooktop -->
+      <rect x="${x + pantryW + mainW * 0.55}" y="${y - 12}" width="${mainW * 0.35}" height="${wallCabH + 12}" rx="2" fill="#1e293b" stroke="#0f172a" stroke-width="1.5" />
+      <polygon points="${x + pantryW + mainW * 0.5},${y + wallCabH} ${x + pantryW + mainW * 0.95},${y + wallCabH} ${x + pantryW + mainW * 0.8},${y + 20} ${x + pantryW + mainW * 0.65},${y + 20}" fill="#334155" stroke="#0f172a" stroke-width="1.2" />
+
+      <!-- L-Shaped Deep Granite Countertop Slab -->
+      <rect x="${x + pantryW - 5}" y="${counterY}" width="${mainW + 15}" height="18" rx="2" fill="url(#countertop-granite)" stroke="#09090b" stroke-width="2" />
+
+      <!-- Built-in 3-Burner Hob Cooktop -->
+      <rect x="${x + pantryW + mainW * 0.55}" y="${counterY - 3}" width="70" height="7" rx="2" fill="#020617" />
+      <circle cx="${x + pantryW + mainW * 0.55 + 18}" cy="${counterY}" r="3" fill="#ef4444" />
+      <circle cx="${x + pantryW + mainW * 0.55 + 35}" cy="${counterY}" r="3" fill="#ef4444" />
+      <circle cx="${x + pantryW + mainW * 0.55 + 52}" cy="${counterY}" r="3" fill="#ef4444" />
+
+      <!-- Undermount Quartz Sink on Left of Counter -->
+      <rect x="${x + pantryW + 20}" y="${counterY - 3}" width="65" height="7" rx="2" fill="#94a3b8" />
+      <path d="M${x + pantryW + 50},${counterY - 3} L${x + pantryW + 50},${counterY - 20} A8,8 0 0 1 ${x + pantryW + 66},${counterY - 20} L${x + pantryW + 66},${counterY - 14}" fill="none" stroke="url(#hw-chrome)" stroke-width="3" stroke-linecap="round" />
+
+      <!-- Base Cabinets (Corner Carousel + Tandem Drawers) -->
+      <rect x="${x + pantryW}" y="${counterY + 18}" width="${mainW}" height="${baseH}" fill="${fillA}" stroke="#0f172a" stroke-width="2" />
+      <!-- Corner Unit with Diagonal Door -->
+      <rect x="${x + pantryW + 4}" y="${counterY + 22}" width="${mainW * 0.42}" height="${baseH - 8}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+      <text x="${x + pantryW + (mainW * 0.42) / 2}" y="${counterY + baseH / 2 + 10}" font-size="8.5" font-weight="bold" fill="#ffffff" text-anchor="middle">CORNER CAROUSEL</text>
+      <!-- Tandem Drawers Right -->
+      <rect x="${x + pantryW + mainW * 0.45}" y="${counterY + 22}" width="${mainW * 0.52}" height="${(baseH - 12) / 3}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+      <rect x="${x + pantryW + mainW * 0.45}" y="${counterY + 22 + (baseH - 12) / 3 + 3}" width="${mainW * 0.52}" height="${(baseH - 12) / 3}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+      <rect x="${x + pantryW + mainW * 0.45}" y="${counterY + 22 + (2 * (baseH - 12)) / 3 + 6}" width="${mainW * 0.52}" height="${(baseH - 12) / 3}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+      <rect x="${x + pantryW}" y="${floorY - plinthH}" width="${mainW}" height="${plinthH}" fill="#18181b" stroke="#0f172a" stroke-width="1.2" />
+    `;
+  }
+
+  // 8. KITCHEN: PARALLEL / GALLEY MODULAR KITCHEN
+  function renderKitchenParallelSvg(s, p) {
+    const fillA = getLaminateFill(s.zoneA);
+    const fillB = getLaminateFill(s.zoneB);
+    const hwFill = getHardwareFill();
+    const isOpen = s.isOpen;
+    const { x, y, w, h, plinthH, floorY } = p;
+
+    const counterW = Math.round(w * 0.46);
+    const gapW = w - 2 * counterW;
+    const rightX = x + counterW + gapW;
+    const wallCabH = Math.round(h * 0.28);
+    const dadoH = Math.round(h * 0.30);
+    const counterY = y + wallCabH + dadoH;
+    const baseH = floorY - counterY - plinthH;
+
+    return `
+      <ellipse cx="${x + w / 2}" cy="${floorY + 2}" rx="${w / 2 + 25}" ry="14" fill="url(#sim-floor-shadow)" />
+
+      <!-- Walkway Floor Space Between Counters -->
+      <rect x="${x + counterW}" y="${counterY + 25}" width="${gapW}" height="${baseH + plinthH - 10}" fill="#f1f5f9" stroke="#cbd5e1" stroke-dasharray="3,3" />
+      <text x="${x + w / 2}" y="${floorY - 20}" font-size="8.5" font-weight="bold" fill="#64748b" text-anchor="middle">WALKWAY</text>
+
+      <!-- COUNTER 1 (LEFT): COOKING ZONE -->
+      <rect x="${x}" y="${y + wallCabH}" width="${counterW}" height="${dadoH}" fill="${fillA}" stroke="#0f172a" stroke-width="1.8" />
+      <rect x="${x}" y="${y}" width="${counterW}" height="${wallCabH}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+      <polygon points="${x + counterW / 2 - 25},${y + wallCabH - 5} ${x + counterW / 2 + 25},${y + wallCabH - 5} ${x + counterW / 2 + 14},${y + 15} ${x + counterW / 2 - 14},${y + 15}" fill="#1e293b" stroke="#0f172a" stroke-width="1.2" />
+      <rect x="${x - 5}" y="${counterY}" width="${counterW + 10}" height="18" rx="2" fill="url(#countertop-granite)" stroke="#09090b" stroke-width="2" />
+      <rect x="${x + counterW / 2 - 30}" y="${counterY - 3}" width="60" height="7" rx="2" fill="#020617" />
+      <circle cx="${x + counterW / 2 - 15}" cy="${counterY}" r="3" fill="#ef4444" />
+      <circle cx="${x + counterW / 2 + 15}" cy="${counterY}" r="3" fill="#ef4444" />
+      <!-- Base Cabinets Left -->
+      <rect x="${x}" y="${counterY + 18}" width="${counterW}" height="${baseH}" fill="${fillA}" stroke="#0f172a" stroke-width="1.8" />
+      <rect x="${x + 3}" y="${counterY + 22}" width="${counterW - 6}" height="${baseH - 8}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+      <rect x="${x}" y="${floorY - plinthH}" width="${counterW}" height="${plinthH}" fill="#18181b" />
+
+      <!-- COUNTER 2 (RIGHT): APPLIANCE & PANTRY TOWER -->
+      <rect x="${rightX}" y="${y}" width="${counterW}" height="${h}" rx="3" fill="${fillA}" stroke="#0f172a" stroke-width="2" />
+      <!-- Top Loft Cabinet -->
+      <rect x="${rightX + 3}" y="${y + 3}" width="${counterW - 6}" height="${wallCabH - 6}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+      <!-- Built-in Microwave Oven -->
+      <rect x="${rightX + 6}" y="${y + wallCabH + 6}" width="${counterW - 12}" height="55" rx="3" fill="#09090b" stroke="#334155" stroke-width="2" />
+      <rect x="${rightX + 14}" y="${y + wallCabH + 14}" width="${counterW - 40}" height="38" rx="2" fill="#1e293b" />
+      <text x="${rightX + counterW - 18}" y="${y + wallCabH + 28}" font-size="7" font-weight="bold" fill="#38bdf8" text-anchor="middle">12:00</text>
+      <!-- Built-in Convection Oven -->
+      <rect x="${rightX + 6}" y="${y + wallCabH + 66}" width="${counterW - 12}" height="65" rx="3" fill="#09090b" stroke="#334155" stroke-width="2" />
+      <circle cx="${rightX + 24}" cy="${y + wallCabH + 80}" r="4" fill="url(#hw-chrome)" />
+      <circle cx="${rightX + 44}" cy="${y + wallCabH + 80}" r="4" fill="url(#hw-chrome)" />
+      <rect x="${rightX + 14}" y="${y + wallCabH + 92}" width="${counterW - 28}" height="32" rx="2" fill="#1e293b" />
+      <!-- Bottom Deep Storage Drawers -->
+      <rect x="${rightX + 4}" y="${counterY + 18}" width="${counterW - 8}" height="${baseH - 4}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+      <rect x="${rightX}" y="${floorY - plinthH}" width="${counterW}" height="${plinthH}" fill="#18181b" />
+    `;
+  }
+
+  // 9. KITCHEN: LUXURY ISLAND MODULAR KITCHEN
+  function renderKitchenIslandSvg(s, p) {
+    const fillA = getLaminateFill(s.zoneA);
+    const fillB = getLaminateFill(s.zoneB);
+    const hwFill = getHardwareFill();
+    const isOpen = s.isOpen;
+    const { x, y, w, h, plinthH, floorY } = p;
+
+    const backH = Math.round(h * 0.75);
+    const islandW = Math.round(w * 0.70);
+    const islandH = Math.round(h * 0.38);
+    const islandX = x + Math.round((w - islandW) / 2);
+    const islandY = floorY - islandH;
+
+    return `
+      <ellipse cx="${x + w / 2}" cy="${floorY + 2}" rx="${w / 2 + 35}" ry="16" fill="url(#sim-floor-shadow)" />
+
+      <!-- BACKGROUND COOKING WALL (Floor to Upper) -->
+      <rect x="${x}" y="${y}" width="${w}" height="${backH}" rx="3" fill="${fillA}" stroke="#0f172a" stroke-width="2" />
+      <!-- Upper Cabinets with warm LED backlights -->
+      <rect x="${x + 6}" y="${y + 6}" width="${w - 12}" height="${backH * 0.35}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+      <rect x="${x + 6}" y="${y + backH * 0.35 + 6}" width="${w - 12}" height="15" fill="url(#led-strip-glow)" />
+      <!-- Built-in Stainless Chimney -->
+      <rect x="${x + w / 2 - 35}" y="${y}" width="70" height="${backH * 0.45}" fill="url(#hw-chrome)" stroke="#0f172a" stroke-width="1.2" />
+
+      <!-- Back Wall Countertop & Hob -->
+      <rect x="${x}" y="${y + backH * 0.65}" width="${w}" height="15" fill="url(#countertop-granite)" />
+      <rect x="${x + w / 2 - 30}" y="${y + backH * 0.65 - 3}" width="60" height="6" rx="2" fill="#020617" />
+      <circle cx="${x + w / 2 - 15}" cy="${y + backH * 0.65}" r="3" fill="#ef4444" />
+      <circle cx="${x + w / 2 + 15}" cy="${y + backH * 0.65}" r="3" fill="#ef4444" />
+
+      <!-- FOREGROUND ISLAND COUNTER WITH WATERFALL MARBLE EDGE -->
+      <!-- Floor Shadow under Island -->
+      <ellipse cx="${islandX + islandW / 2}" cy="${floorY + 2}" rx="${islandW / 2 + 15}" ry="12" fill="url(#sim-floor-shadow)" />
+
+      <!-- Island Waterfall Wrap (Granite/Marble slabs on left & right sides) -->
+      <rect x="${islandX}" y="${islandY}" width="${islandW}" height="${islandH}" rx="4" fill="url(#countertop-granite)" stroke="#09090b" stroke-width="2.5" />
+      <!-- Island Cabinets Inside Waterfall Frame -->
+      <rect x="${islandX + 16}" y="${islandY + 16}" width="${islandW - 32}" height="${islandH - 22}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.8" />
+
+      <!-- Built-in Undercounter Wine Rack -->
+      <rect x="${islandX + 22}" y="${islandY + 22}" width="${islandW * 0.28}" height="${islandH - 34}" rx="2" fill="${fillA}" stroke="#0f172a" stroke-width="1.2" />
+      ${[1, 2, 3].map(i => `
+        <line x1="${islandX + 22}" y1="${islandY + 22 + (i * (islandH - 34)) / 4}" x2="${islandX + 22 + islandW * 0.28}" y2="${islandY + 22 + (i * (islandH - 34)) / 4}" stroke="#78350f" stroke-width="2" />
+        <circle cx="${islandX + 22 + (islandW * 0.28) / 2}" cy="${islandY + 16 + (i * (islandH - 34)) / 4}" r="5" fill="#ca8a04" />
+      `).join('')}
+
+      <!-- Twin Breakfast Drawers -->
+      <rect x="${islandX + islandW * 0.35}" y="${islandY + 22}" width="${islandW * 0.58}" height="${(islandH - 38) / 2}" rx="2" fill="${fillA}" stroke="#0f172a" stroke-width="1.5" />
+      <rect x="${islandX + islandW * 0.35}" y="${islandY + 22 + (islandH - 38) / 2 + 6}" width="${islandW * 0.58}" height="${(islandH - 38) / 2}" rx="2" fill="${fillA}" stroke="#0f172a" stroke-width="1.5" />
+
+      ${s.hardware !== 'concealed' ? `
+        <rect x="${islandX + islandW * 0.5}" y="${islandY + 28}" width="50" height="4" rx="2" fill="${hwFill}" />
+        <rect x="${islandX + islandW * 0.5}" y="${islandY + 34 + (islandH - 38) / 2}" width="50" height="4" rx="2" fill="${hwFill}" />
+      ` : ''}
+
+      <!-- Bar Stool on Left of Island -->
+      <ellipse cx="${islandX - 18}" cy="${islandY + 20}" rx="14" ry="5" fill="#1e293b" stroke="#09090b" stroke-width="1.5" />
+      <line x1="${islandX - 18}" y1="${islandY + 22}" x2="${islandX - 18}" y2="${floorY - 2}" stroke="url(#hw-chrome)" stroke-width="3" />
+      <line x1="${islandX - 25}" y1="${floorY - 2}" x2="${islandX - 11}" y2="${floorY - 2}" stroke="url(#hw-chrome)" stroke-width="4" stroke-linecap="round" />
+    `;
+  }
+
+  // 10. LIVING & MEDIA: FLOATING WALL TV UNIT
+  function renderTVUnitSvg(s, p) {
+    const fillA = getLaminateFill(s.zoneA);
+    const fillB = getLaminateFill(s.zoneB);
+    const hwFill = getHardwareFill();
     const { x, y, w, h, floorY } = p;
 
     return `
@@ -827,7 +961,200 @@
     `;
   }
 
-  // --- 13. STRUCTURE 9: LUXURY DRESSING VANITY ---
+  // 11. LIVING & MEDIA: GRAND MEDIA CONSOLE & DISPLAY TOWERS
+  function renderTVUnitConsoleSvg(s, p) {
+    const fillA = getLaminateFill(s.zoneA);
+    const fillB = getLaminateFill(s.zoneB);
+    const hwFill = getHardwareFill();
+    const isOpen = s.isOpen;
+    const { x, y, w, h, plinthH, floorY } = p;
+
+    const towerW = Math.round(w * 0.22);
+    const centerW = w - 2 * towerW;
+    const credenzaH = Math.round(h * 0.28);
+    const credenzaY = floorY - credenzaH;
+
+    return `
+      <ellipse cx="${x + w / 2}" cy="${floorY + 2}" rx="${w / 2 + 30}" ry="16" fill="url(#sim-floor-shadow)" />
+
+      <!-- CENTER MARBLE/FLUTED BACKDROP -->
+      <rect x="${x + towerW}" y="${y + 20}" width="${centerW}" height="${h - credenzaH - 20}" rx="3" fill="${fillA}" stroke="#0f172a" stroke-width="2" />
+      <!-- TV Ambient Halo Glow -->
+      <rect x="${x + towerW + 20}" y="${y + 40}" width="${centerW - 40}" height="${h * 0.42}" rx="6" fill="#fef08a" opacity="0.3" filter="blur(6px)" />
+      <!-- 55-inch Mounted 4K Smart TV -->
+      <rect x="${x + towerW + 25}" y="${y + 45}" width="${centerW - 50}" height="${h * 0.40}" rx="3" fill="#020617" stroke="#334155" stroke-width="2" />
+      <text x="${x + w / 2}" y="${y + 45 + (h * 0.40) / 2 + 4}" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">55" 4K SMART TV</text>
+      <!-- Soundbar Shelf right under TV -->
+      <rect x="${x + towerW + 35}" y="${y + 55 + h * 0.40}" width="${centerW - 70}" height="8" rx="3" fill="#0f172a" />
+
+      <!-- LEFT DISPLAY TOWER (Full Height with Glass Door & Interior Spotlights) -->
+      <rect x="${x}" y="${y}" width="${towerW}" height="${h}" rx="3" fill="${fillA}" stroke="#0f172a" stroke-width="2.2" />
+      <rect x="${x + 4}" y="${y + 4}" width="${towerW - 8}" height="${h - plinthH - 8}" rx="2" fill="url(#mirror-sheen)" stroke="#0f172a" stroke-width="1.8" />
+      <circle cx="${x + towerW / 2}" cy="${y + 14}" r="3" fill="#fef08a" />
+      <!-- 3 Glass Display Shelves -->
+      <line x1="${x + 4}" y1="${y + h * 0.28}" x2="${x + towerW - 4}" y2="${y + h * 0.28}" stroke="#cbd5e1" stroke-width="2" />
+      <circle cx="${x + towerW / 2}" cy="${y + h * 0.28 - 12}" r="7" fill="#ca8a04" />
+      <line x1="${x + 4}" y1="${y + h * 0.55}" x2="${x + towerW - 4}" y2="${y + h * 0.55}" stroke="#cbd5e1" stroke-width="2" />
+      <rect x="${x + 12}" y="${y + h * 0.55 - 18}" width="18" height="18" rx="2" fill="#2563eb" />
+
+      <!-- RIGHT DISPLAY TOWER -->
+      <rect x="${x + towerW + centerW}" y="${y}" width="${towerW}" height="${h}" rx="3" fill="${fillA}" stroke="#0f172a" stroke-width="2.2" />
+      <rect x="${x + towerW + centerW + 4}" y="${y + 4}" width="${towerW - 8}" height="${h - plinthH - 8}" rx="2" fill="url(#mirror-sheen)" stroke="#0f172a" stroke-width="1.8" />
+      <circle cx="${x + towerW + centerW + towerW / 2}" cy="${y + 14}" r="3" fill="#fef08a" />
+      <line x1="${x + towerW + centerW + 4}" y1="${y + h * 0.35}" x2="${x + w - 4}" y2="${y + h * 0.35}" stroke="#cbd5e1" stroke-width="2" />
+      <circle cx="${x + towerW + centerW + towerW / 2}" cy="${y + h * 0.35 - 10}" r="8" fill="#10b981" />
+      <line x1="${x + towerW + centerW + 4}" y1="${y + h * 0.65}" x2="${x + w - 4}" y2="${y + h * 0.65}" stroke="#cbd5e1" stroke-width="2" />
+      <rect x="${x + towerW + centerW + 12}" y="${y + h * 0.65 - 18}" width="20" height="18" rx="2" fill="#dc2626" />
+
+      <!-- BASE FLOOR CREDENZA (Center Section) -->
+      <rect x="${x + towerW}" y="${credenzaY}" width="${centerW}" height="${credenzaH}" rx="3" fill="${fillB}" stroke="#0f172a" stroke-width="2" />
+      <!-- 4 Cabinet Door Partitions -->
+      ${[1, 2, 3].map(i => `
+        <line x1="${x + towerW + (i * centerW) / 4}" y1="${credenzaY}" x2="${x + towerW + (i * centerW) / 4}" y2="${floorY}" stroke="#0f172a" stroke-width="1.5" />
+      `).join('')}
+
+      ${s.hardware !== 'concealed' ? `
+        <rect x="${x + towerW + centerW / 2 - 30}" y="${credenzaY + 12}" width="60" height="4" rx="2" fill="${hwFill}" />
+      ` : ''}
+
+      <!-- Designer Metal Legs -->
+      <rect x="${x + towerW + 15}" y="${floorY - 8}" width="6" height="8" fill="#09090b" />
+      <rect x="${x + towerW + centerW - 21}" y="${floorY - 8}" width="6" height="8" fill="#09090b" />
+    `;
+  }
+
+  // 12. LIVING & MEDIA: ROOM-DIVIDER PARTITION TV WALL
+  function renderTVUnitPartitionSvg(s, p) {
+    const fillA = getLaminateFill(s.zoneA);
+    const fillB = getLaminateFill(s.zoneB);
+    const { x, y, w, h, floorY } = p;
+
+    const wingW = Math.round(w * 0.25);
+    const centerW = w - 2 * wingW;
+
+    return `
+      <ellipse cx="${x + w / 2}" cy="${floorY + 2}" rx="${w / 2 + 25}" ry="14" fill="url(#sim-floor-shadow)" />
+
+      <!-- Floor-to-Ceiling Architectural Outer Frame -->
+      <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="none" stroke="#0f172a" stroke-width="3" />
+
+      <!-- LEFT CNC JALI LATTICE SCREEN -->
+      <rect x="${x + 4}" y="${y + 4}" width="${wingW - 8}" height="${h - 8}" rx="2" fill="url(#pat-jali)" stroke="#0f172a" stroke-width="1.5" />
+
+      <!-- RIGHT CNC JALI LATTICE SCREEN -->
+      <rect x="${x + wingW + centerW + 4}" y="${y + 4}" width="${wingW - 8}" height="${h - 8}" rx="2" fill="url(#pat-jali)" stroke="#0f172a" stroke-width="1.5" />
+
+      <!-- CENTER TV SWIVEL / MOUNTING CORE -->
+      <rect x="${x + wingW}" y="${y}" width="${centerW}" height="${h}" fill="${fillA}" stroke="#0f172a" stroke-width="2" />
+
+      <!-- Mounted TV -->
+      <rect x="${x + wingW + 20}" y="${y + h * 0.22}" width="${centerW - 40}" height="${h * 0.44}" rx="4" fill="#020617" stroke="#334155" stroke-width="2.5" />
+      <text x="${x + w / 2}" y="${y + h * 0.22 + (h * 0.44) / 2 + 4}" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">PARTITION TV</text>
+
+      <!-- Top Display Cubbies (Overhead) -->
+      <rect x="${x + wingW + 8}" y="${y + 8}" width="${(centerW - 20) / 2}" height="${h * 0.16}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+      <circle cx="${x + wingW + 8 + (centerW - 20) / 4}" cy="${y + 8 + (h * 0.16) / 2}" r="10" fill="#10b981" />
+      <rect x="${x + wingW + 12 + (centerW - 20) / 2}" y="${y + 8}" width="${(centerW - 20) / 2}" height="${h * 0.16}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+      <circle cx="${x + wingW + 12 + (3 * (centerW - 20)) / 4}" cy="${y + 8 + (h * 0.16) / 2}" r="8" fill="#ca8a04" />
+
+      <!-- Bottom Floating Media Drawer & Plant Shelf -->
+      <rect x="${x + wingW + 8}" y="${y + h * 0.72}" width="${centerW - 16}" height="${h * 0.24}" rx="3" fill="${fillB}" stroke="#0f172a" stroke-width="1.8" />
+      <text x="${x + w / 2}" y="${y + h * 0.72 + (h * 0.24) / 2 + 4}" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle">DOUBLE-SIDED STORAGE</text>
+    `;
+  }
+
+  // 13. BEDROOM: HYDRAULIC BOX BED
+  function renderBedSvg(s, p) {
+    const fillA = getLaminateFill(s.zoneA);
+    const fillB = getLaminateFill(s.zoneB);
+    const hwFill = getHardwareFill();
+    const isOpen = s.isOpen;
+    const { x, y, w, h, floorY } = p;
+
+    const headboardH = Math.round(h * 0.65);
+    const bedBoxH = Math.round(h * 0.35);
+
+    return `
+      <ellipse cx="${x + w / 2}" cy="${floorY + 2}" rx="${w / 2 + 30}" ry="16" fill="url(#sim-floor-shadow)" />
+      <!-- Headboard Outer Frame -->
+      <rect x="${x}" y="${y}" width="${w}" height="${headboardH}" rx="6" fill="${fillA}" stroke="#0f172a" stroke-width="2.5" />
+      <rect x="${x + 15}" y="${y + 12}" width="${w - 30}" height="${headboardH - 24}" rx="4" fill="${fillB}" stroke="#0f172a" stroke-width="1.8" />
+
+      ${isOpen ? `
+        <rect x="${x + 10}" y="${y + headboardH - 10}" width="${w - 20}" height="${bedBoxH + 10}" fill="#fef3c7" stroke="#92400e" stroke-width="2" />
+        <line x1="${x + w / 2}" y1="${y + headboardH - 10}" x2="${x + w / 2}" y2="${floorY}" stroke="#92400e" stroke-width="5" />
+        <rect x="${x + 20}" y="${y + headboardH + 10}" width="${w / 2 - 30}" height="${bedBoxH - 20}" rx="4" fill="#3b82f6" opacity="0.6" />
+        <text x="${x + w / 4}" y="${y + headboardH + 35}" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle">QUILTS / BLANKETS</text>
+        <polygon points="${x + 10},${y + headboardH - 10} ${x + w - 10},${y + headboardH - 10} ${x + w + 15},${y + headboardH - 70} ${x - 5},${y + headboardH - 70}" fill="#ffffff" stroke="#94a3b8" stroke-width="2" />
+        <line x1="${x + 40}" y1="${y + headboardH + 10}" x2="${x + 25}" y2="${y + headboardH - 55}" stroke="#000000" stroke-width="4" />
+      ` : `
+        <rect x="${x + 10}" y="${y + headboardH - 35}" width="${w - 20}" height="45" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" />
+        <rect x="${x + 25}" y="${y + headboardH - 55}" width="${w / 2 - 40}" height="28" rx="8" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5" />
+        <rect x="${x + w / 2 + 15}" y="${y + headboardH - 55}" width="${w / 2 - 40}" height="28" rx="8" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5" />
+        <rect x="${x + 5}" y="${y + headboardH + 10}" width="${w - 10}" height="${bedBoxH - 10}" rx="3" fill="${fillA}" stroke="#0f172a" stroke-width="2.5" />
+        <rect x="${x + 15}" y="${y + headboardH + 20}" width="${w / 2 - 25}" height="${bedBoxH - 26}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+        <rect x="${x + w / 2 + 10}" y="${y + headboardH + 20}" width="${w / 2 - 25}" height="${bedBoxH - 26}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+        ${s.hardware !== 'concealed' ? `
+          <rect x="${x + w / 4 - 15}" y="${y + headboardH + bedBoxH / 2 + 5}" width="30" height="5" rx="2" fill="${hwFill}" />
+          <rect x="${x + (3 * w) / 4 - 15}" y="${y + headboardH + bedBoxH / 2 + 5}" width="30" height="5" rx="2" fill="${hwFill}" />
+        ` : ''}
+      `}
+    `;
+  }
+
+  // 14. BEDROOM: DIVAN STORAGE BED WITH SIDE PULL-OUT DRAWERS & CHARGING NICHE
+  function renderBedDrawersSvg(s, p) {
+    const fillA = getLaminateFill(s.zoneA);
+    const fillB = getLaminateFill(s.zoneB);
+    const hwFill = getHardwareFill();
+    const isOpen = s.isOpen;
+    const { x, y, w, h, floorY } = p;
+
+    const headboardH = Math.round(h * 0.60);
+    const bedBoxH = Math.round(h * 0.40);
+
+    return `
+      <ellipse cx="${x + w / 2}" cy="${floorY + 2}" rx="${w / 2 + 30}" ry="16" fill="url(#sim-floor-shadow)" />
+
+      <!-- Headboard with Recessed LED Charging Ledge Niche -->
+      <rect x="${x}" y="${y}" width="${w}" height="${headboardH}" rx="4" fill="${fillA}" stroke="#0f172a" stroke-width="2.5" />
+      <!-- Recessed Niche for Phone / Alarm / Books -->
+      <rect x="${x + 15}" y="${y + 20}" width="${w - 30}" height="45" rx="3" fill="#0f172a" />
+      <rect x="${x + 15}" y="${y + 20}" width="${w - 30}" height="10" fill="url(#led-strip-glow)" />
+      <!-- Digital Clock and Charging Phone on Niche -->
+      <rect x="${x + 35}" y="${y + 36}" width="28" height="18" rx="2" fill="#1e293b" />
+      <text x="${x + 49}" y="${y + 49}" font-size="7" font-weight="bold" fill="#38bdf8" text-anchor="middle">06:30</text>
+      <rect x="${x + w - 60}" y="${y + 34}" width="15" height="22" rx="2" fill="#020617" stroke="#475569" stroke-width="1" />
+
+      <!-- Upholstered Headrest Section -->
+      <rect x="${x + 15}" y="${y + 75}" width="${w - 30}" height="${headboardH - 85}" rx="3" fill="${fillB}" stroke="#0f172a" stroke-width="1.8" />
+
+      <!-- Mattress & Quilt -->
+      <rect x="${x + 10}" y="${y + headboardH - 35}" width="${w - 20}" height="45" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" />
+      <rect x="${x + 25}" y="${y + headboardH - 55}" width="${w / 2 - 40}" height="28" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5" />
+      <rect x="${x + w / 2 + 15}" y="${y + headboardH - 55}" width="${w / 2 - 40}" height="28" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5" />
+
+      <!-- Bed Base Box -->
+      <rect x="${x + 5}" y="${y + headboardH + 10}" width="${w - 10}" height="${bedBoxH - 10}" rx="3" fill="${fillA}" stroke="#0f172a" stroke-width="2.2" />
+
+      ${isOpen ? `
+        <!-- Pulled-out Side Storage Drawers -->
+        <rect x="${x + 10}" y="${y + headboardH + 18}" width="${w / 2 - 18}" height="${bedBoxH - 22}" rx="3" fill="#fef3c7" stroke="#92400e" stroke-width="2" />
+        <text x="${x + w / 4}" y="${y + headboardH + bedBoxH / 2 + 10}" font-size="8.5" font-weight="bold" fill="#78350f" text-anchor="middle">LINEN DRAWER (PULLED)</text>
+        <rect x="${x + w / 2 + 8}" y="${y + headboardH + 18}" width="${w / 2 - 18}" height="${bedBoxH - 22}" rx="3" fill="#fef3c7" stroke="#92400e" stroke-width="2" />
+        <text x="${x + (3 * w) / 4}" y="${y + headboardH + bedBoxH / 2 + 10}" font-size="8.5" font-weight="bold" fill="#78350f" text-anchor="middle">BLANKET DRAWER</text>
+      ` : `
+        <rect x="${x + 12}" y="${y + headboardH + 16}" width="${w / 2 - 20}" height="${bedBoxH - 22}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+        <rect x="${x + w / 2 + 8}" y="${y + headboardH + 16}" width="${w / 2 - 20}" height="${bedBoxH - 22}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+        ${s.hardware !== 'concealed' ? `
+          <rect x="${x + w / 4 - 20}" y="${y + headboardH + bedBoxH / 2 + 4}" width="40" height="5" rx="2" fill="${hwFill}" />
+          <rect x="${x + (3 * w) / 4 - 20}" y="${y + headboardH + bedBoxH / 2 + 4}" width="40" height="5" rx="2" fill="${hwFill}" />
+        ` : ''}
+      `}
+    `;
+  }
+
+  // 15. BEDROOM: LED ARCH DRESSING VANITY
   function renderDressingSvg(s, p) {
     const fillA = getLaminateFill(s.zoneA);
     const fillB = getLaminateFill(s.zoneB);
@@ -849,7 +1176,56 @@
     `;
   }
 
-  // --- 14. STRUCTURE 10: EXECUTIVE OFFICE DESK ---
+  // 16. BEDROOM: MASTER FULL-HEIGHT LUXURY VANITY STATION
+  function renderDressingTallSvg(s, p) {
+    const fillA = getLaminateFill(s.zoneA);
+    const fillB = getLaminateFill(s.zoneB);
+    const hwFill = getHardwareFill();
+    const isOpen = s.isOpen;
+    const { x, y, w, h, plinthH, floorY } = p;
+
+    const towerW = Math.round(w * 0.34);
+    const mirrorW = w - towerW;
+    const credenzaH = Math.round(h * 0.30);
+    const credenzaY = floorY - credenzaH;
+
+    return `
+      <ellipse cx="${x + w / 2}" cy="${floorY + 2}" rx="${w / 2 + 25}" ry="14" fill="url(#sim-floor-shadow)" />
+
+      <!-- Left Full-Height Perfume & Cosmetic Tower -->
+      <rect x="${x}" y="${y}" width="${towerW}" height="${h}" rx="3" fill="${fillA}" stroke="#0f172a" stroke-width="2.2" />
+      <!-- Top Closed Cabinet -->
+      <rect x="${x + 3}" y="${y + 3}" width="${towerW - 6}" height="${h * 0.22}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+      <!-- 4 Open Illuminated Perfume Cubbies -->
+      ${[1, 2, 3, 4].map(i => `
+        <rect x="${x + 4}" y="${y + h * 0.22 + (i - 1) * (h * 0.60 / 4) + 4}" width="${towerW - 8}" height="${(h * 0.60 / 4) - 6}" rx="2" fill="#0f172a" opacity="0.85" />
+        <circle cx="${x + towerW / 2}" cy="${y + h * 0.22 + (i - 1) * (h * 0.60 / 4) + 12}" r="3" fill="#fef08a" />
+        <rect x="${x + towerW / 2 - 8}" y="${y + h * 0.22 + (i - 1) * (h * 0.60 / 4) + 20}" width="16" height="22" rx="3" fill="#d97706" opacity="0.8" />
+      `).join('')}
+
+      <!-- Center & Right: Full-Length Beveled Mirror with Touch LED Halo -->
+      <rect x="${x + towerW + 10}" y="${y + 10}" width="${mirrorW - 15}" height="${h - credenzaH - 15}" rx="8" fill="url(#mirror-sheen)" stroke="#cbd5e1" stroke-width="2.5" />
+      <!-- Perimeter LED Glow Line -->
+      <rect x="${x + towerW + 16}" y="${y + 16}" width="${mirrorW - 27}" height="${h - credenzaH - 27}" rx="6" fill="none" stroke="#fef08a" stroke-width="2.5" opacity="0.85" />
+      <circle cx="${x + towerW + mirrorW / 2}" cy="${y + h - credenzaH - 30}" r="5" fill="#ffffff" stroke="#38bdf8" stroke-width="1.5" />
+
+      <!-- Lower Vanity Credenza (Jewelry Drawer + Stool) -->
+      <rect x="${x + towerW}" y="${credenzaY}" width="${mirrorW}" height="${credenzaH}" rx="3" fill="${fillA}" stroke="#0f172a" stroke-width="2" />
+      <rect x="${x + towerW + 6}" y="${credenzaY + 6}" width="${mirrorW - 12}" height="38" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+      <text x="${x + towerW + mirrorW / 2}" y="${credenzaY + 28}" font-size="8.5" font-weight="bold" fill="#ffffff" text-anchor="middle">💍 VELVET JEWELRY VAULT</text>
+
+      ${s.hardware !== 'concealed' ? `
+        <rect x="${x + towerW + mirrorW / 2 - 20}" y="${credenzaY + 18}" width="40" height="4" rx="2" fill="${hwFill}" />
+      ` : ''}
+
+      <!-- Matching Round Vanity Stool -->
+      <ellipse cx="${x + towerW + mirrorW / 2}" cy="${floorY - 22}" rx="22" ry="7" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+      <line x1="${x + towerW + mirrorW / 2 - 12}" y1="${floorY - 22}" x2="${x + towerW + mirrorW / 2 - 12}" y2="${floorY}" stroke="url(#hw-gold)" stroke-width="3" />
+      <line x1="${x + towerW + mirrorW / 2 + 12}" y1="${floorY - 22}" x2="${x + towerW + mirrorW / 2 + 12}" y2="${floorY}" stroke="url(#hw-gold)" stroke-width="3" />
+    `;
+  }
+
+  // 17. OFFICE: PRESIDENTIAL EXECUTIVE DESK
   function renderOfficeSvg(s, p) {
     const fillA = getLaminateFill(s.zoneA);
     const fillB = getLaminateFill(s.zoneB);
@@ -872,7 +1248,110 @@
     `;
   }
 
-  // --- 15. TECHNICAL DIMENSIONS WIREFRAME OVERLAY ---
+  // 18. OFFICE: MODERN L-SHAPED CORNER EXECUTIVE WORKSTATION
+  function renderOfficeLshapeSvg(s, p) {
+    const fillA = getLaminateFill(s.zoneA);
+    const fillB = getLaminateFill(s.zoneB);
+    const hwFill = getHardwareFill();
+    const isOpen = s.isOpen;
+    const { x, y, w, h, floorY } = p;
+
+    const mainDeskW = Math.round(w * 0.62);
+    const returnW = w - mainDeskW;
+    const topH = Math.round(h * 0.14);
+    const deskTopY = y + h * 0.38;
+
+    return `
+      <ellipse cx="${x + w / 2}" cy="${floorY + 2}" rx="${w / 2 + 25}" ry="14" fill="url(#sim-floor-shadow)" />
+
+      <!-- MAIN EXECUTIVE DESK SURFACE (Left Section) -->
+      <polygon points="${x - 8},${deskTopY} ${x + mainDeskW + 8},${deskTopY} ${x + mainDeskW},${deskTopY + topH} ${x},${deskTopY + topH}" fill="${fillA}" stroke="#0f172a" stroke-width="2.5" />
+      <!-- Leather Blotter Pad on Desk -->
+      <rect x="${x + 40}" y="${deskTopY + 2}" width="${mainDeskW * 0.5}" height="8" rx="1" fill="#18181b" />
+      <!-- Slim Laptop Screen -->
+      <rect x="${x + 55}" y="${deskTopY - 32}" width="42" height="28" rx="2" fill="#020617" stroke="#64748b" stroke-width="1.5" />
+      <polygon points="${x + 50},${deskTopY - 2} ${x + 102},${deskTopY - 2} ${x + 98},${deskTopY + 4} ${x + 54},${deskTopY + 4}" fill="#94a3b8" />
+      <!-- Desk Lamp -->
+      <path d="M${x + 22},${deskTopY} L${x + 22},${deskTopY - 40} L${x + 36},${deskTopY - 45}" fill="none" stroke="url(#hw-gold)" stroke-width="3" />
+      <polygon points="${x + 34},${deskTopY - 50} ${x + 48},${deskTopY - 42} ${x + 40},${deskTopY - 38}" fill="#eab308" />
+
+      <!-- Main Desk Front Modesty Privacy Screen -->
+      <rect x="${x + 15}" y="${deskTopY + topH}" width="${mainDeskW - 30}" height="${floorY - deskTopY - topH - 10}" fill="${fillA}" stroke="#0f172a" stroke-width="1.8" />
+      <!-- Left Sturdy Structural Gable Leg -->
+      <rect x="${x}" y="${deskTopY + topH}" width="16" height="${floorY - deskTopY - topH}" fill="${fillA}" stroke="#0f172a" stroke-width="2" />
+
+      <!-- CONNECTED SIDE RETURN CREDENZA (Right Corner Section) -->
+      <polygon points="${x + mainDeskW},${deskTopY + 6} ${x + w + 5},${deskTopY + 6} ${x + w},${deskTopY + topH + 4} ${x + mainDeskW},${deskTopY + topH + 4}" fill="${fillA}" stroke="#0f172a" stroke-width="2" />
+      <rect x="${x + mainDeskW}" y="${deskTopY + topH + 4}" width="${returnW}" height="${floorY - deskTopY - topH - 4}" rx="2" fill="${fillA}" stroke="#0f172a" stroke-width="2.2" />
+
+      <!-- Credenza Filing Pedestal (2 Deep Drawers + CPU Niche) -->
+      <rect x="${x + mainDeskW + 6}" y="${deskTopY + topH + 10}" width="${returnW - 12}" height="32" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+      <text x="${x + mainDeskW + returnW / 2}" y="${deskTopY + topH + 30}" font-size="8" font-weight="bold" fill="#ffffff" text-anchor="middle">FILE DRAWER 1</text>
+      <rect x="${x + mainDeskW + 6}" y="${deskTopY + topH + 46}" width="${returnW - 12}" height="36" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+      <text x="${x + mainDeskW + returnW / 2}" y="${deskTopY + topH + 68}" font-size="8" font-weight="bold" fill="#ffffff" text-anchor="middle">FILE DRAWER 2</text>
+
+      ${s.hardware !== 'concealed' ? `
+        <rect x="${x + mainDeskW + returnW / 2 - 15}" y="${deskTopY + topH + 24}" width="30" height="4" rx="2" fill="${hwFill}" />
+        <rect x="${x + mainDeskW + returnW / 2 - 15}" y="${deskTopY + topH + 60}" width="30" height="4" rx="2" fill="${hwFill}" />
+      ` : ''}
+    `;
+  }
+
+  // 19. OFFICE: STUDENT / HOME OFFICE STUDY TABLE WITH OVERHEAD BOOKSHELF
+  function renderOfficeStudySvg(s, p) {
+    const fillA = getLaminateFill(s.zoneA);
+    const fillB = getLaminateFill(s.zoneB);
+    const hwFill = getHardwareFill();
+    const isOpen = s.isOpen;
+    const { x, y, w, h, floorY } = p;
+
+    const hutchH = Math.round(h * 0.45);
+    const corkH = Math.round(h * 0.20);
+    const deskH = h - hutchH - corkH;
+    const deskY = y + hutchH + corkH;
+
+    return `
+      <ellipse cx="${x + w / 2}" cy="${floorY + 2}" rx="${w / 2 + 20}" ry="14" fill="url(#sim-floor-shadow)" />
+
+      <!-- OVERHEAD 2-TIER BOOKSHELF HUTCH -->
+      <rect x="${x}" y="${y}" width="${w}" height="${hutchH}" rx="3" fill="${fillA}" stroke="#0f172a" stroke-width="2.2" />
+      <!-- Top Enclosed Closed Storage Cabinet -->
+      <rect x="${x + 4}" y="${y + 4}" width="${w - 8}" height="${hutchH * 0.42}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+      <line x1="${x + w / 2}" y1="${y + 4}" x2="${x + w / 2}" y2="${y + 4 + hutchH * 0.42}" stroke="#0f172a" stroke-width="1.5" />
+      <!-- Open Bookshelf Shelf -->
+      <line x1="${x + 4}" y1="${y + hutchH * 0.72}" x2="${x + w - 4}" y2="${y + hutchH * 0.72}" stroke="#0f172a" stroke-width="2" />
+      <!-- Books Displayed -->
+      <rect x="${x + 18}" y="${y + hutchH * 0.72 - 24}" width="10" height="24" rx="1" fill="#dc2626" />
+      <rect x="${x + 30}" y="${y + hutchH * 0.72 - 28}" width="12" height="28" rx="1" fill="#2563eb" />
+      <rect x="${x + 44}" y="${y + hutchH * 0.72 - 22}" width="10" height="22" rx="1" fill="#16a34a" />
+      <circle cx="${x + w - 35}" cy="${y + hutchH * 0.72 - 12}" r="9" fill="#fef08a" stroke="#ca8a04" stroke-width="1.5" />
+
+      <!-- MIDDLE PIN-UP CORK / FELT NOTICE BOARD -->
+      <rect x="${x + 2}" y="${y + hutchH}" width="${w - 4}" height="${corkH}" fill="url(#pat-cork)" stroke="#0f172a" stroke-width="1.8" />
+      <!-- Pinned Sticky Notes -->
+      <rect x="${x + 25}" y="${y + hutchH + 12}" width="24" height="24" rx="1" fill="#fef08a" stroke="#ca8a04" stroke-width="0.8" />
+      <circle cx="${x + 37}" cy="${y + hutchH + 15}" r="2" fill="#ef4444" />
+      <rect x="${x + 60}" y="${y + hutchH + 16}" width="28" height="20" rx="1" fill="#bae6fd" stroke="#0284c7" stroke-width="0.8" />
+      <circle cx="${x + 74}" cy="${y + hutchH + 19}" r="2" fill="#2563eb" />
+
+      <!-- BASE WRITING DESK SURFACE -->
+      <polygon points="${x - 8},${deskY} ${x + w + 8},${deskY} ${x + w},${deskY + 14} ${x},${deskY + 14}" fill="${fillA}" stroke="#0f172a" stroke-width="2.2" />
+
+      <!-- Desk Left Leg & Drawer Box -->
+      <rect x="${x}" y="${deskY + 14}" width="16" height="${floorY - deskY - 14}" fill="${fillA}" stroke="#0f172a" stroke-width="2" />
+      <!-- Right 2-Drawer Pedestal -->
+      <rect x="${x + w * 0.62}" y="${deskY + 14}" width="${w * 0.38}" height="${floorY - deskY - 14}" rx="2" fill="${fillA}" stroke="#0f172a" stroke-width="2" />
+      <rect x="${x + w * 0.62 + 4}" y="${deskY + 18}" width="${w * 0.38 - 8}" height="${(floorY - deskY - 32) / 2}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+      <rect x="${x + w * 0.62 + 4}" y="${deskY + 24 + (floorY - deskY - 32) / 2}" width="${w * 0.38 - 8}" height="${(floorY - deskY - 32) / 2}" rx="2" fill="${fillB}" stroke="#0f172a" stroke-width="1.5" />
+
+      ${s.hardware !== 'concealed' ? `
+        <rect x="${x + w * 0.81 - 15}" y="${deskY + 28}" width="30" height="4" rx="2" fill="${hwFill}" />
+        <rect x="${x + w * 0.81 - 15}" y="${deskY + 34 + (floorY - deskY - 32) / 2}" width="30" height="4" rx="2" fill="${hwFill}" />
+      ` : ''}
+    `;
+  }
+
+  // --- TECHNICAL DIMENSIONS WIREFRAME OVERLAY ---
   function renderWireframeDimensions(struct, dim, p) {
     const wFt = dim.width || 6.0;
     const hFt = dim.height || 7.0;
@@ -901,7 +1380,7 @@
     `;
   }
 
-  // --- 16. MAIN SVG RENDER DISPATCHER ---
+  // --- MAIN SVG RENDER DISPATCHER ---
   function renderSimulatorSvg() {
     const s = window.SIM_STATE;
     const dim = s.dimensions[s.structure] || { width: 6, height: 7 };
@@ -912,12 +1391,21 @@
     else if (s.structure === 'wardrobe') bodySvg = renderWardrobeSvg(s, p);
     else if (s.structure === 'wardrobe6') bodySvg = renderWardrobe6Svg(s, p);
     else if (s.structure === 'fullwall') bodySvg = renderFullWallSvg(s, p);
-    else if (s.structure === 'kitchen') bodySvg = renderKitchenSvg(s, p);
     else if (s.structure === 'almirah') bodySvg = renderAlmirahSvg(s, p);
-    else if (s.structure === 'bed') bodySvg = renderBedSvg(s, p);
+    else if (s.structure === 'kitchen') bodySvg = renderKitchenSvg(s, p);
+    else if (s.structure === 'kitchen_l') bodySvg = renderKitchenLSvg(s, p);
+    else if (s.structure === 'kitchen_parallel') bodySvg = renderKitchenParallelSvg(s, p);
+    else if (s.structure === 'kitchen_island') bodySvg = renderKitchenIslandSvg(s, p);
     else if (s.structure === 'tvunit') bodySvg = renderTVUnitSvg(s, p);
+    else if (s.structure === 'tvunit_console') bodySvg = renderTVUnitConsoleSvg(s, p);
+    else if (s.structure === 'tvunit_partition') bodySvg = renderTVUnitPartitionSvg(s, p);
+    else if (s.structure === 'bed') bodySvg = renderBedSvg(s, p);
+    else if (s.structure === 'bed_drawers') bodySvg = renderBedDrawersSvg(s, p);
     else if (s.structure === 'dressing') bodySvg = renderDressingSvg(s, p);
+    else if (s.structure === 'dressing_tall') bodySvg = renderDressingTallSvg(s, p);
     else if (s.structure === 'office') bodySvg = renderOfficeSvg(s, p);
+    else if (s.structure === 'office_lshape') bodySvg = renderOfficeLshapeSvg(s, p);
+    else if (s.structure === 'office_study') bodySvg = renderOfficeStudySvg(s, p);
 
     const wireframeSvg = s.showWireframe ? renderWireframeDimensions(s.structure, dim, p) : '';
     const humanSvg = renderHumanScaleFigure(p.floorY, p.pxPerFoot);
@@ -956,7 +1444,7 @@
     `;
   }
 
-  // --- 17. BILL OF MATERIALS (BOM) & ESTIMATED RETAIL PRICING ENGINE ---
+  // --- BILL OF MATERIALS (BOM) & ESTIMATED RETAIL PRICING ENGINE ---
   function calculateSimulatorBom() {
     const s = window.SIM_STATE;
     const struct = s.structure;
@@ -973,13 +1461,7 @@
 
     if (struct === 'wardrobe2') {
       title = `${dim.width} × ${dim.height} ft 2-Door Compact Wardrobe`;
-      p18 = 2.5;
-      p12 = 1.0;
-      p6 = 1.0;
-      micaA = 1.5;
-      micaB = 1.5;
-      liner = 2.5;
-      fevicolKg = 5;
+      p18 = 2.5; p12 = 1.0; p6 = 1.0; micaA = 1.5; micaB = 1.5; liner = 2.5; fevicolKg = 5;
       hwCost = s.hardware === 'gold' ? 2200 : 1800;
 
     } else if (struct === 'wardrobe') {
@@ -987,21 +1469,14 @@
       p18 = dim.width >= 8 ? 6 : (dim.width >= 6 ? 4.5 : 3.5);
       p12 = dim.width >= 8 ? 2.5 : 1.5;
       p6 = dim.width >= 8 ? 2.5 : 2.0;
-      micaA = 2.0;
-      micaB = dim.width >= 8 ? 3.0 : 2.0;
-      liner = micaA + micaB;
-      fevicolKg = dim.width >= 8 ? 10 : 8;
+      micaA = 2.0; micaB = dim.width >= 8 ? 3.0 : 2.0;
+      liner = micaA + micaB; fevicolKg = dim.width >= 8 ? 10 : 8;
       hwCost = s.hardware === 'gold' ? 3200 : 2600;
 
     } else if (struct === 'wardrobe6') {
       title = `${dim.width} × ${dim.height} ft Master 6-Door Wardrobe`;
       p18 = dim.height >= 8 ? 8.5 : 7.0;
-      p12 = 3.5;
-      p6 = 3.5;
-      micaA = 3.0;
-      micaB = 4.5;
-      liner = 7.0;
-      fevicolKg = 14;
+      p12 = 3.5; p6 = 3.5; micaA = 3.0; micaB = 4.5; liner = 7.0; fevicolKg = 14;
       hwCost = s.hardware === 'gold' ? 5200 : 4400;
 
     } else if (struct === 'fullwall') {
@@ -1016,71 +1491,91 @@
       fevicolKg = Math.round(dim.width * 1.5);
       hwCost = Math.round(4200 + (dim.width * 280));
 
-    } else if (struct === 'kitchen') {
-      title = `${dim.width} × ${dim.height} ft Modern Modular Kitchen`;
-      p18 = dim.width >= 10 ? 8 : 6.5;
-      p12 = 3.0;
-      p6 = 2.0;
-      micaA = 2.0;
-      micaB = 4.0;
-      liner = 5.0;
-      fevicolKg = 10;
-      hwCost = s.hardware === 'gold' ? 6200 : 5400;
-
     } else if (struct === 'almirah') {
-      title = `4.0 × 6.5 ft Classic Almirah (with Mirror)`;
-      p18 = 3.5;
-      p12 = 1.5;
-      p6 = 1.5;
-      micaA = 1.5;
-      micaB = 1.5;
-      liner = 3.0;
-      fevicolKg = 6;
+      title = `${dim.width} × ${dim.height} ft Classic Almirah (with Mirror)`;
+      p18 = 3.5; p12 = 1.5; p6 = 1.5; micaA = 1.5; micaB = 1.5; liner = 3.0; fevicolKg = 6;
       hwCost = 2800;
 
-    } else if (struct === 'bed') {
-      title = `${dim.width} × ${dim.length} ft Hydraulic Box Bed`;
-      p18 = dim.width >= 6 ? 4.5 : 3.5;
-      p12 = 2.0;
-      p6 = 0;
-      micaA = 2.0;
-      micaB = 1.5;
-      liner = 2.0;
-      fevicolKg = 6;
-      hwCost = 3500;
+    } else if (struct === 'kitchen') {
+      title = `${dim.width} × ${dim.height} ft Straight Modular Kitchen`;
+      p18 = dim.width >= 10 ? 8 : 6.5;
+      p12 = 3.0; p6 = 2.0; micaA = 2.0; micaB = 4.0; liner = 5.0; fevicolKg = 10;
+      hwCost = s.hardware === 'gold' ? 6200 : 5400;
+
+    } else if (struct === 'kitchen_l') {
+      title = `${dim.width} × ${dim.height} ft L-Shaped Corner Kitchen`;
+      p18 = dim.width >= 12 ? 9.5 : 8.0;
+      p12 = 4.0; p6 = 2.5; micaA = 2.5; micaB = 4.5; liner = 6.0; fevicolKg = 12;
+      hwCost = s.hardware === 'gold' ? 6800 : 5800;
+
+    } else if (struct === 'kitchen_parallel') {
+      title = `${dim.width} × ${dim.height} ft Parallel Galley Kitchen`;
+      p18 = dim.width >= 12 ? 10.5 : 9.0;
+      p12 = 4.5; p6 = 3.0; micaA = 3.0; micaB = 5.0; liner = 7.0; fevicolKg = 14;
+      hwCost = s.hardware === 'gold' ? 7400 : 6400;
+
+    } else if (struct === 'kitchen_island') {
+      title = `${dim.width} × ${dim.height} ft Luxury Island Kitchen`;
+      p18 = dim.width >= 12 ? 11.5 : 9.5;
+      p12 = 4.5; p6 = 2.5; micaA = 3.5; micaB = 5.5; liner = 7.5; fevicolKg = 15;
+      hwCost = s.hardware === 'gold' ? 8200 : 7200;
 
     } else if (struct === 'tvunit') {
-      title = `7.0 × 6.0 ft Floating TV Entertainment Unit`;
-      p18 = 3.5;
-      p12 = 1.0;
-      p6 = 1.5;
-      micaA = 1.5;
-      micaB = 2.0;
-      liner = 2.0;
-      fevicolKg = 5;
+      title = `${dim.width} × ${dim.height} ft Floating TV Unit`;
+      p18 = 3.5; p12 = 1.0; p6 = 1.5; micaA = 1.5; micaB = 2.0; liner = 2.0; fevicolKg = 5;
       hwCost = 2600;
 
+    } else if (struct === 'tvunit_console') {
+      title = `${dim.width} × ${dim.height} ft Media Console & Towers`;
+      p18 = dim.width >= 10 ? 6.0 : 5.0;
+      p12 = 2.0; p6 = 2.5; micaA = 2.5; micaB = 3.0; liner = 3.5; fevicolKg = 7;
+      hwCost = s.hardware === 'gold' ? 3800 : 3200;
+
+    } else if (struct === 'tvunit_partition') {
+      title = `${dim.width} × ${dim.height} ft Room Divider TV Wall`;
+      p18 = dim.width >= 10 ? 6.5 : 5.5;
+      p12 = 2.0; p6 = 1.5; micaA = 3.0; micaB = 3.0; liner = 4.0; fevicolKg = 8;
+      hwCost = s.hardware === 'gold' ? 4200 : 3500;
+
+    } else if (struct === 'bed') {
+      title = `${dim.width} × ${dim.height} ft Hydraulic Box Bed`;
+      p18 = dim.width >= 6 ? 4.5 : 3.5;
+      p12 = 2.0; p6 = 0; micaA = 2.0; micaB = 1.5; liner = 2.0; fevicolKg = 6;
+      hwCost = 3500;
+
+    } else if (struct === 'bed_drawers') {
+      title = `${dim.width} × ${dim.height} ft Storage Divan Bed`;
+      p18 = dim.width >= 6 ? 5.0 : 4.0;
+      p12 = 2.5; p6 = 1.0; micaA = 2.5; micaB = 2.0; liner = 3.0; fevicolKg = 7;
+      hwCost = s.hardware === 'gold' ? 3600 : 3000;
+
     } else if (struct === 'dressing') {
-      title = `3.5 × 6.5 ft Luxury LED Dressing Vanity`;
-      p18 = 2.5;
-      p12 = 1.0;
-      p6 = 1.0;
-      micaA = 1.5;
-      micaB = 1.0;
-      liner = 2.0;
-      fevicolKg = 4;
+      title = `${dim.width} × ${dim.height} ft LED Arch Vanity`;
+      p18 = 2.5; p12 = 1.0; p6 = 1.0; micaA = 1.5; micaB = 1.0; liner = 2.0; fevicolKg = 4;
       hwCost = 3200;
 
+    } else if (struct === 'dressing_tall') {
+      title = `${dim.width} × ${dim.height} ft Full Vanity Station`;
+      p18 = dim.width >= 5 ? 5.0 : 4.0;
+      p12 = 1.5; p6 = 2.0; micaA = 2.0; micaB = 2.0; liner = 3.0; fevicolKg = 6;
+      hwCost = s.hardware === 'gold' ? 4200 : 3600;
+
     } else if (struct === 'office') {
-      title = `4.5 × 2.5 ft Executive Office & Study Desk`;
-      p18 = 2.5;
-      p12 = 1.0;
-      p6 = 0.5;
-      micaA = 1.5;
-      micaB = 1.0;
-      liner = 1.5;
-      fevicolKg = 4;
+      title = `${dim.width} × ${dim.height} ft Executive Desk`;
+      p18 = 2.5; p12 = 1.0; p6 = 0.5; micaA = 1.5; micaB = 1.0; liner = 1.5; fevicolKg = 4;
       hwCost = 1800;
+
+    } else if (struct === 'office_lshape') {
+      title = `${dim.width} × ${dim.height} ft L-Shaped Workstation`;
+      p18 = dim.width >= 7 ? 5.5 : 4.5;
+      p12 = 2.0; p6 = 1.0; micaA = 2.5; micaB = 2.0; liner = 3.0; fevicolKg = 6;
+      hwCost = s.hardware === 'gold' ? 2800 : 2200;
+
+    } else if (struct === 'office_study') {
+      title = `${dim.width} × ${dim.height} ft Study Table & Bookshelf`;
+      p18 = dim.width >= 5 ? 5.0 : 4.0;
+      p12 = 1.5; p6 = 2.0; micaA = 2.0; micaB = 2.5; liner = 3.5; fevicolKg = 6;
+      hwCost = s.hardware === 'gold' ? 2400 : 1900;
     }
 
     const totalMicaOuter = Math.round((micaA + micaB) * 10) / 10;
@@ -1112,7 +1607,42 @@
     };
   }
 
-  // --- 18. UI CONTROLLER & EVENT LISTENERS ---
+  // --- DYNAMIC PRESET BUTTONS FOR STRUCTURE ---
+  function renderDimensionPresets(struct) {
+    const widthContainer = document.getElementById('sim-width-presets');
+    const heightContainer = document.getElementById('sim-height-presets');
+    if (!widthContainer || !heightContainer) return;
+
+    let wPresets = [4, 6, 8, 10, 12, 16];
+    let hPresets = [6.5, 7, 8, 8.5, 10];
+
+    if (['office', 'office_lshape'].includes(struct)) {
+      wPresets = [4, 4.5, 5, 6, 7];
+      hPresets = [2.5, 2.75, 3.0, 3.5];
+    } else if (['bed', 'bed_drawers'].includes(struct)) {
+      wPresets = [3.5, 4.5, 5.5, 6.5];
+      hPresets = [3.0, 3.5, 4.0, 4.5, 5.0];
+    } else if (['tvunit', 'tvunit_console', 'tvunit_partition'].includes(struct)) {
+      wPresets = [6, 7, 8, 10, 12];
+      hPresets = [5.0, 6.0, 7.0, 8.0];
+    } else if (['kitchen', 'kitchen_l', 'kitchen_parallel', 'kitchen_island'].includes(struct)) {
+      wPresets = [7, 9, 10, 12, 14, 16];
+      hPresets = [6.5, 7.0, 7.5, 8.0, 9.0];
+    } else if (['dressing', 'dressing_tall'].includes(struct)) {
+      wPresets = [3, 3.5, 4, 4.5, 5.5];
+      hPresets = [6.0, 6.5, 7.0, 7.5, 8.5];
+    }
+
+    widthContainer.innerHTML = wPresets.map(w => 
+      `<button class="sim-preset-btn" onclick="simSetDimensionWidth(${w})">${w} ft</button>`
+    ).join('');
+
+    heightContainer.innerHTML = hPresets.map(h => 
+      `<button class="sim-preset-btn" onclick="simSetDimensionHeight(${h})">${h} ft</button>`
+    ).join('');
+  }
+
+  // --- UI CONTROLLER & EVENT LISTENERS ---
   window.updateSimulatorUI = function () {
     const stage = document.getElementById('sim-svg-stage');
     if (!stage) return;
@@ -1153,11 +1683,10 @@
       el.classList.toggle('active', type === window.SIM_STATE.structure);
     });
 
-    // 7. Update Custom Dimension Sliders & Labels
+    // 7. Update Custom Dimension Sliders & Labels (Active for ALL models!)
     const dimPanel = document.getElementById('sim-custom-dim-panel');
     if (dimPanel) {
-      const isCustomizable = ['fullwall', 'wardrobe6', 'kitchen', 'wardrobe', 'wardrobe2'].includes(window.SIM_STATE.structure);
-      dimPanel.style.display = isCustomizable ? 'block' : 'none';
+      dimPanel.style.display = 'block';
 
       const currentDim = window.SIM_STATE.dimensions[window.SIM_STATE.structure] || { width: 6, height: 7 };
       const widthVal = currentDim.width;
@@ -1172,6 +1701,9 @@
       if (heightLabel) heightLabel.textContent = `${heightVal.toFixed(1)} ft`;
       if (widthInput) widthInput.value = widthVal;
       if (heightInput) heightInput.value = heightVal;
+
+      // Update Presets dynamically for this structure
+      renderDimensionPresets(window.SIM_STATE.structure);
 
       // Full wall rack config pills
       const rackConfigRow = document.getElementById('sim-rack-config-row');
@@ -1236,7 +1768,7 @@
     }
   }
 
-  // --- 19. EVENT HANDLERS ---
+  // --- EVENT HANDLERS ---
   window.simSelectStructure = function (struct) {
     window.SIM_STATE.structure = struct;
     window.updateSimulatorUI();
@@ -1337,7 +1869,7 @@
     window.updateSimulatorUI();
   };
 
-  // --- 20. HIGH-CONVERSION ACTIONS ---
+  // --- HIGH-CONVERSION ACTIONS ---
   window.simSendToWhatsApp = function () {
     const s = window.SIM_STATE;
     const bom = calculateSimulatorBom();

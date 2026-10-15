@@ -1909,7 +1909,7 @@
         <div class="sim-puja-badge">🪔 Durga Puja Studio Edition</div>
       </div>
 
-      <!-- 1. Structure Selection (10 Furniture Templates) -->
+      <!-- 1. Structure Selection (18 Furniture Templates) -->
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
         <div style="font-size: 11.5px; font-weight: 800; color: #475569;">
           1. CHOOSE FURNITURE STRUCTURE
@@ -1918,17 +1918,18 @@
         <div style="display: flex; align-items: center; gap: 6px;">
           <span style="font-size: 11px; font-weight: 700; color: #4338CA;">Category:</span>
           <select id="sim-cat-dropdown" onchange="simSelectCategory(this.value)" style="font-size: 11px; font-weight: 700; color: #1E1B4B; background: #EEF2FF; border: 1.5px solid #C7D2FE; border-radius: 8px; padding: 4px 8px; cursor: pointer; outline: none;">
-            <option value="all">🌟 All Categories (10 Models)</option>
-            <option value="wardrobe">🚪 Wardrobes &amp; Storage</option>
-            <option value="kitchen">🍳 Modular Kitchen</option>
-            <option value="living">🛋️ Living &amp; Media</option>
-            <option value="bedroom">🛏️ Bedroom &amp; Vanity</option>
-            <option value="office">💼 Office &amp; Study</option>
+            <option value="all">🌟 All Categories (18 Models)</option>
+            <option value="wardrobe">🚪 Wardrobes &amp; Storage (5)</option>
+            <option value="kitchen">🍳 Modular Kitchen (4)</option>
+            <option value="living">🛋️ Living &amp; Media (3)</option>
+            <option value="bedroom">🛏️ Bedroom &amp; Vanity (5)</option>
+            <option value="office">💼 Office &amp; Study (3)</option>
           </select>
         </div>
       </div>
 
       <div class="sim-struct-carousel">
+        <!-- WARDROBES & STORAGE -->
         <div class="sim-struct-pill" data-struct="wardrobe2" data-cat="wardrobe" onclick="simSelectStructure('wardrobe2')">
           <span class="pill-icon">🚪</span>
           <span>2-Door Compact</span>
@@ -1945,37 +1946,81 @@
           <span class="pill-icon">🏰</span>
           <span>Full-Wall Storage Suite</span>
         </div>
-        <div class="sim-struct-pill" data-struct="kitchen" data-cat="kitchen" onclick="simSelectStructure('kitchen')">
-          <span class="pill-icon">🍳</span>
-          <span>Modular Kitchen</span>
-        </div>
         <div class="sim-struct-pill" data-struct="almirah" data-cat="wardrobe bedroom" onclick="simSelectStructure('almirah')">
           <span class="pill-icon">🗄️</span>
           <span>Classic Almirah (Mirror)</span>
         </div>
-        <div class="sim-struct-pill" data-struct="bed" data-cat="bedroom" onclick="simSelectStructure('bed')">
-          <span class="pill-icon">🛏️</span>
-          <span>Box Bed / Divan</span>
+
+        <!-- MODULAR KITCHEN -->
+        <div class="sim-struct-pill" data-struct="kitchen" data-cat="kitchen" onclick="simSelectStructure('kitchen')">
+          <span class="pill-icon">🍳</span>
+          <span>Straight Modular Kitchen</span>
         </div>
+        <div class="sim-struct-pill" data-struct="kitchen_l" data-cat="kitchen" onclick="simSelectStructure('kitchen_l')">
+          <span class="pill-icon">📐</span>
+          <span>L-Shaped Corner Kitchen</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="kitchen_parallel" data-cat="kitchen" onclick="simSelectStructure('kitchen_parallel')">
+          <span class="pill-icon">⚡</span>
+          <span>Parallel / Galley Kitchen</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="kitchen_island" data-cat="kitchen" onclick="simSelectStructure('kitchen_island')">
+          <span class="pill-icon">🏝️</span>
+          <span>Island Luxury Kitchen</span>
+        </div>
+
+        <!-- LIVING & MEDIA -->
         <div class="sim-struct-pill" data-struct="tvunit" data-cat="living" onclick="simSelectStructure('tvunit')">
           <span class="pill-icon">📺</span>
           <span>Floating TV Unit</span>
         </div>
+        <div class="sim-struct-pill" data-struct="tvunit_console" data-cat="living" onclick="simSelectStructure('tvunit_console')">
+          <span class="pill-icon">🏛️</span>
+          <span>Console &amp; Display Towers</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="tvunit_partition" data-cat="living" onclick="simSelectStructure('tvunit_partition')">
+          <span class="pill-icon">🪵</span>
+          <span>Room Divider TV Partition</span>
+        </div>
+
+        <!-- BEDROOM & VANITY -->
+        <div class="sim-struct-pill" data-struct="bed" data-cat="bedroom" onclick="simSelectStructure('bed')">
+          <span class="pill-icon">🛏️</span>
+          <span>Hydraulic Box Bed</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="bed_drawers" data-cat="bedroom" onclick="simSelectStructure('bed_drawers')">
+          <span class="pill-icon">📦</span>
+          <span>Storage Divan Bed</span>
+        </div>
         <div class="sim-struct-pill" data-struct="dressing" data-cat="bedroom" onclick="simSelectStructure('dressing')">
           <span class="pill-icon">🪞</span>
-          <span>LED Dressing Vanity</span>
+          <span>LED Arch Dressing Vanity</span>
         </div>
+        <div class="sim-struct-pill" data-struct="dressing_tall" data-cat="bedroom" onclick="simSelectStructure('dressing_tall')">
+          <span class="pill-icon">✨</span>
+          <span>Full-Height Vanity Station</span>
+        </div>
+
+        <!-- OFFICE & STUDY -->
         <div class="sim-struct-pill" data-struct="office" data-cat="office" onclick="simSelectStructure('office')">
           <span class="pill-icon">💼</span>
           <span>Executive Office Desk</span>
         </div>
+        <div class="sim-struct-pill" data-struct="office_lshape" data-cat="office" onclick="simSelectStructure('office_lshape')">
+          <span class="pill-icon">📐</span>
+          <span>L-Shaped Workstation</span>
+        </div>
+        <div class="sim-struct-pill" data-struct="office_study" data-cat="office" onclick="simSelectStructure('office_study')">
+          <span class="pill-icon">📚</span>
+          <span>Study Table &amp; Bookshelf</span>
+        </div>
       </div>
 
-      <!-- Custom Dimensions & Wall Configuration Panel (for Full-Wall, 6-Door, Kitchen, Wardrobe) -->
-      <div id="sim-custom-dim-panel" class="sim-dim-panel" style="display: none;">
+      <!-- Custom Dimensions & Wall Configuration Panel (Active for All Categories) -->
+      <div id="sim-custom-dim-panel" class="sim-dim-panel">
         <div class="sim-dim-panel-header">
           <div class="sim-dim-title">
-            <span>📐</span> Custom Dimensions &amp; Wall Layout
+            <span>📐</span> Custom Dimensions &amp; Layout
           </div>
           <span style="font-size: 11px; color: #4338CA; font-weight: 700;">Live Sheet Recalculation</span>
         </div>
@@ -1984,11 +2029,11 @@
           <!-- Width Slider -->
           <div class="sim-slider-box">
             <div class="sim-slider-label-row">
-              <span>Wall / Unit Width</span>
+              <span>Width (Length)</span>
               <span id="sim-dim-width-val" class="sim-slider-val">12.0 ft</span>
             </div>
             <input type="range" id="sim-slider-width" class="sim-range-slider" min="3" max="20" step="0.5" value="12" oninput="simSetDimensionWidth(this.value)">
-            <div class="sim-quick-presets-row">
+            <div id="sim-width-presets" class="sim-quick-presets-row">
               <button class="sim-preset-btn" onclick="simSetDimensionWidth(4)">4 ft</button>
               <button class="sim-preset-btn" onclick="simSetDimensionWidth(6)">6 ft</button>
               <button class="sim-preset-btn" onclick="simSetDimensionWidth(8)">8 ft</button>
@@ -2001,15 +2046,16 @@
           <!-- Height Slider -->
           <div class="sim-slider-box">
             <div class="sim-slider-label-row">
-              <span>Ceiling Height (Floor-to-Ceiling)</span>
+              <span>Height</span>
               <span id="sim-dim-height-val" class="sim-slider-val">8.5 ft</span>
             </div>
-            <input type="range" id="sim-slider-height" class="sim-range-slider" min="6" max="11" step="0.5" value="8.5" oninput="simSetDimensionHeight(this.value)">
-            <div class="sim-quick-presets-row">
+            <input type="range" id="sim-slider-height" class="sim-range-slider" min="2.5" max="11" step="0.25" value="8.5" oninput="simSetDimensionHeight(this.value)">
+            <div id="sim-height-presets" class="sim-quick-presets-row">
+              <button class="sim-preset-btn" onclick="simSetDimensionHeight(3)">3 ft</button>
               <button class="sim-preset-btn" onclick="simSetDimensionHeight(6.5)">6.5 ft</button>
               <button class="sim-preset-btn" onclick="simSetDimensionHeight(7)">7 ft</button>
               <button class="sim-preset-btn" onclick="simSetDimensionHeight(8)">8 ft</button>
-              <button class="sim-preset-btn" onclick="simSetDimensionHeight(8.5)">8.5 ft (Loft)</button>
+              <button class="sim-preset-btn" onclick="simSetDimensionHeight(8.5)">8.5 ft</button>
               <button class="sim-preset-btn" onclick="simSetDimensionHeight(10)">10 ft</button>
             </div>
           </div>
