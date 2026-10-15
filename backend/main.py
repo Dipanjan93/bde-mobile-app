@@ -322,19 +322,32 @@ def serve_console():
     return {"message": "Console template not found"}
 
 
+def get_image_media_type(path: str) -> str:
+    lower = path.lower()
+    if lower.endswith((".jpg", ".jpeg")):
+        return "image/jpeg"
+    elif lower.endswith(".png"):
+        return "image/png"
+    elif lower.endswith(".webp"):
+        return "image/webp"
+    elif lower.endswith(".svg"):
+        return "image/svg+xml"
+    return "image/jpeg"
+
+
 # --- Smart Dynamic Product Image Fallback ---
 @app.get("/static/img/products/{sku_filename}")
 def serve_product_image(sku_filename: str):
     file_path = os.path.join(STATIC_DIR, "img", "products", sku_filename)
     if os.path.exists(file_path):
-        return FileResponse(file_path, media_type="image/svg+xml")
+        return FileResponse(file_path, media_type=get_image_media_type(file_path))
     
     # Try with .svg or .jpg swap
     clean_sku = sku_filename.replace(".jpg", "").replace(".png", "").replace(".svg", "")
-    for ext in [".svg", ".jpg"]:
+    for ext in [".jpg", ".png", ".svg"]:
         alt_path = os.path.join(STATIC_DIR, "img", "products", f"{clean_sku}{ext}")
         if os.path.exists(alt_path):
-            return FileResponse(alt_path, media_type="image/svg+xml")
+            return FileResponse(alt_path, media_type=get_image_media_type(alt_path))
 
     # Generate a fallback branded SVG on the fly
     svg_fallback = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
