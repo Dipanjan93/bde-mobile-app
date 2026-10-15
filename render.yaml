@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: bde-mobile-app
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    plan: free
+    region: singapore
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.8
+      - key: DISABLE_SQLALCHEMY_CEXT
+        value: "1"
+      - key: DATABASE_URL
+        value: "postgresql+psycopg://neondb_owner:npg_ObrtiTZ9a5YW@ep-sweet-shape-b3jn07iv-pooler.c-4.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
