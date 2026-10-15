@@ -1,5 +1,30 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id 'com.android.application'
+}
+
+// Safely load local key.properties if present (ignored by Git)
+def keyPropertiesFile = rootProject.file("key.properties")
+if (!keyPropertiesFile.exists()) {
+    keyPropertiesFile = file("key.properties")
+}
+def keyProperties = new Properties()
+if (keyPropertiesFile.exists()) {
+    keyProperties.load(new FileInputStream(keyPropertiesFile))
+}
+
+// Read from Environment variable first, fallback to key.properties
+def getSigningProperty(String envVar, String propName, Properties props) {
+    def envVal = System.getenv(envVar)
+    if (envVal != null && !envVal.trim().isEmpty()) {
+        return envVal.trim()
+    }
+    if (props != null && props.getProperty(propName) != null && !props.getProperty(propName).trim().isEmpty()) {
+        return props.getProperty(propName).trim()
+    }
+    return null
 }
 
 android {
@@ -18,16 +43,29 @@ android {
 
     signingConfigs {
         release {
-            storeFile file('my-release-key.jks')
-            storePassword 'BF7HczNFrbJ9'
-            keyAlias 'babadugdheshwarenterprise'
-            keyPassword 'BF7HczNFrbJ9'
+            def ksPath = getSigningProperty("KEYSTORE_FILE", "keystoreFile", keyProperties)
+            def sPass = getSigningProperty("KEYSTORE_PASSWORD", "keystorePassword", keyProperties)
+            def kAlias = getSigningProperty("KEY_ALIAS", "keyAlias", keyProperties)
+            def kPass = getSigningProperty("KEY_PASSWORD", "keyPassword", keyProperties)
+
+            // Resolve keystore file if provided or if local file exists
+            if (ksPath != null && file(ksPath).exists()) {
+                storeFile file(ksPath)
+            } else if (file('my-release-key.jks').exists()) {
+                storeFile file('my-release-key.jks')
+            }
+
+            if (sPass != null) storePassword sPass
+            if (kAlias != null) keyAlias kAlias
+            if (kPass != null) keyPassword kPass
         }
     }
 
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            if (signingConfigs.release.storeFile != null && signingConfigs.release.storePassword != null) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }

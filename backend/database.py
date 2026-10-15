@@ -12,15 +12,40 @@ raw_db_url = os.getenv(
     "postgresql+psycopg://neondb_owner:npg_ObrtiTZ9a5YW@ep-sweet-shape-b3jn07iv-pooler.c-4.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
 ).strip()
 
+# Automatically normalize postgres:// and postgresql:// for SQLAlchemy & psycopg 3
 if raw_db_url.startswith("postgres://"):
     raw_db_url = raw_db_url.replace("postgres://", "postgresql+psycopg://", 1)
 elif raw_db_url.startswith("postgresql://") and not raw_db_url.startswith("postgresql+psycopg://"):
     raw_db_url = raw_db_url.replace("postgresql://", "postgresql+psycopg://", 1)
 
-raw_db_url = raw_db_url.replace("&channel_binding=require", "").replace("channel_binding=require&", "").replace("channel_binding=require", "")
+# Enforce sslmode=require for Neon PostgreSQL cloud connections
+if "neon.tech" in raw_db_url or raw_db_url.startswith("postgresql"):
+    if "sslmode=" not in raw_db_url:
+        sep = "&" if "?" in raw_db_url else "?"
+        raw_db_url = f"{raw_db_url}{sep}sslmode=require"
+
+# Strip unsupported channel_binding if present
+raw_db_url = (
+    raw_db_url.replace("&channel_binding=require", "")
+    .replace("channel_binding=require&", "")
+    .replace("channel_binding=require", "")
+)
 
 DATABASE_URL = raw_db_url
-engine = create_engine(DATABASE_URL, pool_pre_ping=True, pool_size=10, max_overflow=20)
+
+# Connection pool resilience:
+# pool_pre_ping=True tests connections before checkout to catch stale/closed sockets.
+# pool_recycle=300 recycles connections after 5 minutes (300s) to survive Neon and Render idle sleep.
+if DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+else:
+    engine = create_engine(
+        DATABASE_URL,
+        pool_pre_ping=True,
+        pool_recycle=300,
+        pool_size=10,
+        max_overflow=20
+    )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()

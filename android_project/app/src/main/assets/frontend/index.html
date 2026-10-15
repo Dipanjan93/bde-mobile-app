@@ -3274,10 +3274,10 @@
       }
 
       try {
-        const res = await fetch('/api/auth/console-login', {
+        const res = await fetch('/api/staff/verify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pin: pin, remember: true })
+          body: JSON.stringify({ passcode: pin, remember: true })
         });
 
         if (!res.ok) {

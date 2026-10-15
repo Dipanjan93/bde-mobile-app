@@ -1,5 +1,4 @@
 const API_BASE = "";
-const ADMIN_PIN = "Dip@1993";
 let currentRole = null; // 'owner' | 'staff'
 let currentUserName = "";
 let isAdmin = false;
@@ -162,10 +161,10 @@ async function handleConsoleLogin(e) {
   }
 
   try {
-    const res = await fetch(`${API_BASE}/api/auth/console-login`, {
+    const res = await fetch(`${API_BASE}/api/staff/verify`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pin, remember })
+      body: JSON.stringify({ passcode: pin, remember })
     });
 
     if (!res.ok) {
@@ -335,23 +334,62 @@ function handleAuthClick() {
 
 function closePinModal() { document.getElementById('pinModal').classList.remove('show'); }
 
-function verifyPin() {
-  if (document.getElementById('pinInput').value.trim() === ADMIN_PIN) {
-    isAdmin = true;
-    document.body.classList.add('admin-unlocked');
-    document.getElementById('authBtn').textContent = "🔓 Admin Active (Lock)";
-    document.getElementById('authBtn').classList.replace('btn-secondary', 'btn-danger');
-    const badge = document.getElementById('sessionUserBadge');
-    if (badge) badge.textContent = "👑 Proprietor (Dipanjan)";
-    closePinModal();
-    onProductSelectChange();
-    renderRates(productsCache);
-    renderHistory(historyCache);
-    loadExecutiveBI();
-    showToast("Admin Mode Unlocked! Full Margins & BI Active.", "success");
-  } else {
-    showToast("Incorrect Security PIN", "error");
-    document.getElementById('pinInput').value = "";
+async function verifyPin() {
+  const pinInput = document.getElementById('pinInput');
+  const pinVal = (pinInput ? pinInput.value : "").trim();
+  if (!pinVal) {
+    showToast("Please enter security passcode", "warning");
+    return;
+  }
+  try {
+    const res = await fetch(`${API_BASE}/api/staff/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ passcode: pinVal, remember: true })
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      showToast(errData.detail || "Incorrect Security Passcode", "error");
+      if (pinInput) {
+        pinInput.value = "";
+        pinInput.focus();
+      }
+      return;
+    }
+
+    const data = await res.json();
+    if (data.token) {
+      localStorage.setItem('bde_auth_token', data.token);
+      localStorage.setItem('bde_auth_role', data.role);
+      localStorage.setItem('bde_auth_name', data.name);
+    }
+
+    if (data.role === 'owner') {
+      isAdmin = true;
+      document.body.classList.add('admin-unlocked');
+      document.getElementById('authBtn').textContent = "🔓 Admin Active (Lock)";
+      document.getElementById('authBtn').classList.replace('btn-secondary', 'btn-danger');
+      const badge = document.getElementById('sessionUserBadge');
+      if (badge) badge.textContent = `👑 ${data.name}`;
+      closePinModal();
+      onProductSelectChange();
+      renderRates(productsCache);
+      renderHistory(historyCache);
+      loadExecutiveBI();
+      showToast("Admin Mode Unlocked! Full Margins & BI Active.", "success");
+    } else {
+      isAdmin = false;
+      document.body.classList.remove('admin-unlocked');
+      document.getElementById('authBtn').textContent = "🔒 Staff Active (Unlock Admin)";
+      document.getElementById('authBtn').classList.replace('btn-danger', 'btn-secondary');
+      const badge = document.getElementById('sessionUserBadge');
+      if (badge) badge.textContent = `👤 ${data.name}`;
+      closePinModal();
+      showToast("Staff Access Verified. Counter View Active.", "info");
+    }
+  } catch (err) {
+    showToast("Server connection error during verification", "error");
   }
 }
 

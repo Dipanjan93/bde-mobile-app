@@ -107,7 +107,26 @@ def main():
     }
     test_endpoint("Submit Testimonial (POST /api/testimonials)", f"{BASE_URL}/api/testimonials", method="POST", data=test_data)
 
-    # 11. Backward Compatible Console
+    # 11. Staff / Manager Passcode Verification
+    staff_auth = test_endpoint(
+        "Staff Verification (POST /api/staff/verify - Staff)",
+        f"{BASE_URL}/api/staff/verify",
+        method="POST",
+        data={"passcode": "BDE@1234"}
+    )
+    if isinstance(staff_auth, dict):
+        print(f"       Verification: Staff Role: {staff_auth.get('role')}, Authenticated: {staff_auth.get('authenticated')}")
+
+    owner_auth = test_endpoint(
+        "Staff Verification (POST /api/staff/verify - Owner)",
+        f"{BASE_URL}/api/staff/verify",
+        method="POST",
+        data={"passcode": "Dip@1993"}
+    )
+    if isinstance(owner_auth, dict):
+        print(f"       Verification: Owner Role: {owner_auth.get('role')}, Token length: {len(owner_auth.get('token', ''))}")
+
+    # 12. Backward Compatible Console
     test_endpoint("Console Template (/console)", f"{BASE_URL}/console")
 
     print("\n=== ALL AUTOMATED TESTS COMPLETED SUCCESSFULLY ===")

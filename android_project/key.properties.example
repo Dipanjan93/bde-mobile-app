@@ -1,0 +1,6 @@
+# Local Android Release Signing Configuration (DO NOT COMMIT ACTUAL SECRETS)
+# Copy this file to 'key.properties' for local builds.
+keystoreFile=my-release-key.jks
+keystorePassword=your_keystore_password
+keyAlias=your_key_alias
+keyPassword=your_key_password

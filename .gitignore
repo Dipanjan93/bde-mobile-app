@@ -12,6 +12,11 @@ android_project/local.properties
 *.apk
 *.aab
 
+# Android Keystores & Signing Credentials
+*.jks
+*.keystore
+key.properties
+
 # Bundle archives (already generated)
 *.zip
 

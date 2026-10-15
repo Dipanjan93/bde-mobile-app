@@ -24,18 +24,42 @@ jobs:
       with:
         gradle-version: '8.4'
 
+    - name: Decode Android Keystore from GitHub Secrets
+      if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
+      env:
+        ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      run: |
+        mkdir -p android_project/app
+        echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android_project/app/my-release-key.jks
+        echo "Android keystore decoded into android_project/app/my-release-key.jks"
+
     - name: Build Release APK and Google Play AAB
+      env:
+        KEYSTORE_FILE: my-release-key.jks
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
       run: |
         cd android_project
-        gradle :app:assembleRelease :app:bundleRelease --stacktrace
+        if [ ! -f "app/my-release-key.jks" ]; then
+          echo "::warning::Keystore 'android_project/app/my-release-key.jks' not found. Ensure ANDROID_KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, and KEY_PASSWORD secrets are configured in GitHub repository Settings -> Secrets and variables -> Actions."
+        fi
+        if [ -f "./gradlew" ]; then
+          chmod +x ./gradlew
+          ./gradlew :app:assembleRelease :app:bundleRelease --stacktrace
+        else
+          gradle :app:assembleRelease :app:bundleRelease --stacktrace
+        fi
 
     - name: Upload Release APK
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: bde-store-release-apk
         path: android_project/app/build/outputs/apk/release/*.apk
 
     - name: Upload Google Play AAB Bundle
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: bde-store-release-aab

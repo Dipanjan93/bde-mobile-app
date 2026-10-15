@@ -225,8 +225,8 @@ def serve_sw():
 # ========================================================
 # SHOWROOM STAFF & MANAGEMENT CONSOLE SECURITY ENGINE
 # ========================================================
-ADMIN_PIN = os.getenv("ADMIN_PIN", "Dip@1993")
-STAFF_PIN = os.getenv("STAFF_PIN", "1993")
+ADMIN_PASSCODE = os.getenv("ADMIN_PIN", os.getenv("ADMIN_PASSCODE", "Dip@1993"))
+STAFF_PASSCODE = os.getenv("STAFF_PASSCODE", os.getenv("STAFF_PIN", "BDE@1234"))
 SECRET_KEY = os.getenv("SECRET_KEY", "bde-security-onda-bankura-2026")
 
 def create_session_token(role: str) -> str:
@@ -268,21 +268,30 @@ def get_console_role(request: Request) -> Optional[str]:
 
     return verify_session_token(token)
 
-@app.post("/api/auth/console-login")
-def console_login(req: schemas.ConsoleLoginRequest, response: Response):
-    pin_clean = (req.pin or "").strip()
-    if pin_clean == ADMIN_PIN:
-        role = "owner"
-        name = "Proprietor (Dipanjan)"
-    elif pin_clean == STAFF_PIN or pin_clean.lower() in ["bde1993", "bde@1993", "staff1993"]:
-        role = "staff"
-        name = "Counter Staff"
+def authenticate_passcode(pin_clean: str):
+    if not pin_clean:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Security passcode is required."
+        )
+    if pin_clean == ADMIN_PASSCODE:
+        return "owner", "Proprietor (Dipanjan)"
+    elif (
+        pin_clean == STAFF_PASSCODE
+        or pin_clean.lower() in ["1993", "bde1993", "bde@1993", "staff1993", "bde@1234"]
+    ):
+        return "staff", "Counter Staff"
     else:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect Security Passcode. Access restricted to BDE Onda showroom personnel."
         )
 
+@app.post("/api/staff/verify")
+@app.post("/api/auth/staff")
+def staff_verify(req: schemas.StaffVerifyRequest, response: Response):
+    pin_clean = ((req.passcode or req.pin) or "").strip()
+    role, name = authenticate_passcode(pin_clean)
     token = create_session_token(role)
     max_age = 30 * 86400 if req.remember else None
     response.set_cookie(
@@ -295,6 +304,29 @@ def console_login(req: schemas.ConsoleLoginRequest, response: Response):
     )
     return {
         "success": True,
+        "authenticated": True,
+        "role": role,
+        "name": name,
+        "token": token
+    }
+
+@app.post("/api/auth/console-login")
+def console_login(req: schemas.ConsoleLoginRequest, response: Response):
+    pin_clean = (req.pin or "").strip()
+    role, name = authenticate_passcode(pin_clean)
+    token = create_session_token(role)
+    max_age = 30 * 86400 if req.remember else None
+    response.set_cookie(
+        key="bde_console_token",
+        value=token,
+        max_age=max_age,
+        httponly=False,
+        samesite="lax",
+        secure=False
+    )
+    return {
+        "success": True,
+        "authenticated": True,
         "role": role,
         "name": name,
         "token": token

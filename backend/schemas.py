@@ -92,6 +92,11 @@ class ConsoleLoginRequest(BaseModel):
     remember: Optional[bool] = True
     role: Optional[str] = "owner"
 
+class StaffVerifyRequest(BaseModel):
+    passcode: Optional[str] = None
+    pin: Optional[str] = None
+    remember: Optional[bool] = True
+
 class CashbackUpdateRequest(BaseModel):
     cashback_amount: float = 0.0
     cashback_status: str = "Paid"
