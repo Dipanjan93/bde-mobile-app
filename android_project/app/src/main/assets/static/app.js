@@ -1667,7 +1667,11 @@ function renderWebsiteInquiries() {
         </td>
         <td><span class="badge" style="${typeBadgeStyle} font-size:11px; padding:3px 8px; border-radius:6px;">${q.quote_type}</span></td>
         <td class="mono" style="font-size:12px;"><a href="tel:${q.phone}" style="color:var(--text-main); text-decoration:none;">📞 ${q.phone}</a></td>
-        <td style="font-size:12px;">📍 ${q.delivery_locality}</td>
+        <td style="font-size:12px;">
+          <div style="font-weight:700; color:var(--text-main); display:inline-flex; align-items:center; gap:4px;">
+            <span>📍</span> <span>${q.delivery_locality || 'Onda, Bankura'}</span>
+          </div>
+        </td>
         <td style="white-space:pre-wrap; font-size:11.5px; max-width:320px; line-height:1.4;">${q.requested_items}</td>
         <td style="text-align:right;">
           <div style="display:flex; gap:6px; justify-content:flex-end; align-items:center;">

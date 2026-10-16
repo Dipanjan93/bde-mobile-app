@@ -19,6 +19,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/frontend/simulator.css">
   <link rel="stylesheet" href="/frontend/ar_visualizer.css" onerror="this.onerror=null;this.href='ar_visualizer.css';">
+  <!-- Interactive Leaflet Map Picker (No Paid API Key Required) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
   <style>
     /* =========================================================
@@ -2299,7 +2302,302 @@
       transform: translateY(-1px);
     }
 
-    /* Locality Selector Options */
+    /* =========================================================
+       UPGRADED INTERACTIVE DELIVERY LOCATION MAP PICKER
+       ========================================================= */
+    #locality-bottom-sheet {
+      max-height: 92vh;
+      max-height: 92dvh;
+      padding: 14px 18px calc(var(--safe-bottom) + 16px) 18px;
+    }
+
+    .loc-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .loc-modal-title {
+      font-size: 16px;
+      font-weight: 900;
+      color: #123B5D;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: -0.2px;
+    }
+
+    .loc-close-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1px solid #D1D5DB;
+      background: #F3F4F6;
+      color: #4B5563;
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      line-height: 1;
+    }
+    .loc-close-btn:hover {
+      background: #E5E7EB;
+      color: #111827;
+    }
+
+    /* Search & GPS Controls Row */
+    .loc-controls-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+      margin-bottom: 8px;
+      position: relative;
+    }
+
+    .loc-search-box {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .loc-search-input {
+      width: 100%;
+      height: 40px;
+      border-radius: 10px;
+      border: 1.5px solid #D1D5DB;
+      padding: 0 32px 0 12px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #111827;
+      background: #FFFFFF;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .loc-search-input:focus {
+      border-color: #F59E0B;
+      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
+    }
+
+    .loc-search-clear {
+      position: absolute;
+      right: 10px;
+      background: transparent;
+      border: none;
+      color: #9CA3AF;
+      font-size: 14px;
+      cursor: pointer;
+      display: none;
+    }
+
+    .loc-gps-btn {
+      flex-shrink: 0;
+      height: 40px;
+      padding: 0 12px;
+      border-radius: 10px;
+      border: 1.5px solid #123B5D;
+      background: #123B5D;
+      color: #FFFFFF;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .loc-gps-btn:hover {
+      background: #0d2840;
+      border-color: #0d2840;
+    }
+    .loc-gps-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* Nominatim Autocomplete Suggestions Dropdown */
+    .loc-suggestions-box {
+      position: absolute;
+      top: 44px;
+      left: 0;
+      right: 0;
+      background: #FFFFFF;
+      border: 1.5px solid #123B5D;
+      border-radius: 10px;
+      box-shadow: 0 12px 28px rgba(18, 59, 93, 0.28);
+      z-index: 1500;
+      max-height: 190px;
+      overflow-y: auto;
+      display: none;
+    }
+    .loc-suggestions-box.active {
+      display: block;
+    }
+    .loc-suggestion-item {
+      padding: 9px 12px;
+      border-bottom: 1px solid #F3F4F6;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      transition: background 0.15s ease;
+    }
+    .loc-suggestion-item:last-child {
+      border-bottom: none;
+    }
+    .loc-suggestion-item:hover {
+      background: #FEF3C7;
+      color: #123B5D;
+    }
+    .loc-suggestion-title {
+      font-weight: 700;
+      color: #111827;
+    }
+    .loc-suggestion-sub {
+      font-size: 10.5px;
+      color: #6B7280;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 260px;
+    }
+
+    /* Map Stage */
+    .loc-map-container {
+      width: 100%;
+      height: 220px;
+      border-radius: 12px;
+      border: 1.5px solid #123B5D;
+      overflow: hidden;
+      position: relative;
+      background: #E5E7EB;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.08);
+      margin-bottom: 8px;
+    }
+    #delivery-map-picker {
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    .loc-map-hint {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(18, 59, 93, 0.92);
+      color: #FFFFFF;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 99px;
+      pointer-events: none;
+      z-index: 400;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+      white-space: nowrap;
+    }
+
+    /* Selected Location Live Badge */
+    .loc-selected-card {
+      background: #F8FAFC;
+      border: 1px solid #D1D5DB;
+      border-left: 4px solid #F59E0B;
+      border-radius: 10px;
+      padding: 9px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-bottom: 8px;
+    }
+    .loc-selected-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .loc-selected-name {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #123B5D;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .loc-selected-address {
+      font-size: 11px;
+      color: #6B7280;
+      font-weight: 500;
+      line-height: 1.3;
+    }
+    .loc-distance-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #123B5D;
+      background: #EFF6FF;
+      border: 1px solid rgba(18, 59, 93, 0.25);
+      border-radius: 99px;
+      padding: 3px 9px;
+      margin-top: 4px;
+      align-self: flex-start;
+    }
+
+    /* Popular Quick-Select Pills */
+    .quick-villages-section {
+      margin-bottom: 8px;
+    }
+    .quick-villages-label {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: #6B7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .quick-villages-scroll {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 2px;
+    }
+    .quick-villages-scroll::-webkit-scrollbar {
+      display: none;
+    }
+    .quick-village-pill {
+      flex-shrink: 0;
+      padding: 5px 11px;
+      border-radius: 8px;
+      border: 1px solid #D1D5DB;
+      background: #FFFFFF;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #111827;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .quick-village-pill:hover {
+      border-color: #F59E0B;
+      color: #F59E0B;
+      background: #FEF3C7;
+    }
+    .quick-village-pill.active {
+      background: #123B5D;
+      border-color: #123B5D;
+      color: #FFFFFF;
+      box-shadow: 0 2px 6px rgba(18, 59, 93, 0.25);
+    }
+
+    /* Locality Selector Options (Backwards compatible fallback) */
     .locality-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -3299,22 +3597,83 @@
     </button>
   </div>
 
-  <!-- Locality Switcher Sheet -->
+  <!-- Locality Switcher Sheet with Interactive Leaflet Map Picker -->
   <div id="locality-bottom-sheet" class="bottom-sheet">
     <div class="sheet-drag-handle"></div>
-    <h3 class="sheet-title">Select Delivery Village</h3>
-    <p class="sheet-desc">Select your location in Bankura for accurate freight and delivery estimates.</p>
     
-    <div class="locality-grid">
-      <button class="locality-btn selected" onclick="setLocality('Onda Majhpara', '722144')">📍 Onda Majhpara (SBI Dol Tola Rd)</button>
-      <button class="locality-btn" onclick="setLocality('Onda Bazar', '722144')">📍 Onda Bazar</button>
-      <button class="locality-btn" onclick="setLocality('Punisole', '722152')">📍 Punisole</button>
-      <button class="locality-btn" onclick="setLocality('Ramsagar', '722122')">📍 Ramsagar</button>
-      <button class="locality-btn" onclick="setLocality('Taldangra', '722153')">📍 Taldangra</button>
-      <button class="locality-btn" onclick="setLocality('Bishnupur', '722122')">📍 Bishnupur</button>
-      <button class="locality-btn" onclick="setLocality('Bankura Town', '722101')">📍 Bankura Town</button>
-      <button class="locality-btn" onclick="setLocality('Lodna', '722144')">📍 Lodna</button>
-      <button class="locality-btn" onclick="setLocality('Santore', '722144')">📍 Santore</button>
+    <div class="loc-modal-header">
+      <h3 class="loc-modal-title"><span>📍</span> Select Delivery Location</h3>
+      <button type="button" class="loc-close-btn" onclick="closeAllSheets()" title="Close">×</button>
+    </div>
+    <p class="sheet-desc" style="margin-bottom: 6px;">
+      Pick anywhere in Bankura &amp; West Bengal on the live map, use your GPS, or search any village for Onda Depot dispatch &amp; freight estimates.
+    </p>
+
+    <!-- Top Controls: Search Input + GPS Button -->
+    <div class="loc-controls-row">
+      <div class="loc-search-box">
+        <input type="text" id="locality-search-input" class="loc-search-input" 
+               placeholder="🔍 Search village, town, or pincode (e.g. Khatra, Indpur)..." 
+               oninput="onLocalitySearchInput(event)" 
+               onkeydown="onLocalitySearchKeydown(event)" 
+               autocomplete="off" />
+        <button type="button" id="loc-search-clear" class="loc-search-clear" onclick="clearLocalitySearch()">✕</button>
+        <!-- Nominatim autocomplete dropdown -->
+        <div id="loc-search-suggestions" class="loc-suggestions-box"></div>
+      </div>
+      <button type="button" class="loc-gps-btn" onclick="useCurrentGpsLocation()" title="Detect Live GPS Location">
+        <span>🎯</span> GPS
+      </button>
+    </div>
+
+    <!-- Leaflet Interactive Map Picker Stage -->
+    <div class="loc-map-container">
+      <div id="delivery-map-picker"></div>
+      <div class="loc-map-hint">💡 Drag map or tap anywhere to place Delivery Pin</div>
+    </div>
+
+    <!-- Real-time Selected Location & Freight Distance Badge -->
+    <div class="loc-selected-card">
+      <div class="loc-selected-header">
+        <div class="loc-selected-name">
+          <span>📍</span>
+          <span id="loc-selected-name-text">Onda Majhpara</span>
+        </div>
+        <span id="loc-geocoding-spinner" style="font-size: 11px; color: #F59E0B; font-weight: 700; display: none;">⏳ Locating...</span>
+      </div>
+      <div id="loc-selected-address-text" class="loc-selected-address">
+        Onda Majhpara, State Bank - Dol Tola Rd, Bankura - 722144
+      </div>
+      <div id="loc-selected-distance-badge" class="loc-distance-badge">
+        📍 0.0 km from BDE Onda Depot • Express Local Delivery (Nominal Freight)
+      </div>
+    </div>
+
+    <!-- Quick Pick Popular Village Pills -->
+    <div class="quick-villages-section">
+      <div class="quick-villages-label">Quick-Select Popular Villages:</div>
+      <div class="quick-villages-scroll" id="quick-village-scroll-list">
+        <!-- Rendered via JS from POPULAR_VILLAGES -->
+      </div>
+    </div>
+
+    <!-- House / Landmark / Para Field -->
+    <div style="margin-top: 6px;">
+      <label style="display:block; font-size: 11px; font-weight: 700; color: #123B5D; text-transform: uppercase; margin-bottom: 3px;">
+        House / Landmark / Para Details (Optional)
+      </label>
+      <input type="text" id="locality-landmark-input" class="auth-input" style="height: 38px; font-size: 12.5px;" 
+             placeholder="e.g. Near Kali Mandir, Majhpara Primary School, NH-60 junction..." />
+    </div>
+
+    <!-- Modal Action Buttons -->
+    <div style="display: flex; gap: 8px; margin-top: 10px;">
+      <button type="button" class="locality-btn" style="flex: 1; text-align: center; padding: 11px; border-radius: 10px;" onclick="closeAllSheets()">
+        Cancel
+      </button>
+      <button type="button" class="btn-auth-submit" style="flex: 2; margin-top: 0; background: #F59E0B; color: #111827; font-weight: 800; font-size: 13.5px; border-radius: 10px;" onclick="confirmDeliveryLocation()">
+        ✅ Confirm Delivery Location
+      </button>
     </div>
   </div>
 
@@ -3698,9 +4057,21 @@
       // 2. Setup user state in UI
       updateUserUI();
 
-      // 3. Initialize Location Text
-      const locTextEl = document.getElementById('current-location-text');
-      if (locTextEl) locTextEl.innerText = 'Delivering to ' + STATE.currentLocality;
+      // 3. Initialize Location Text from Saved Delivery Details
+      try {
+        const savedDetails = JSON.parse(localStorage.getItem('bde_delivery_details') || 'null');
+        if (savedDetails && savedDetails.headerLabel) {
+          STATE.currentLocality = `${savedDetails.name}${savedDetails.landmark ? ' [' + savedDetails.landmark + ']' : ''} (${savedDetails.distanceKm} km from Onda Depot)`;
+          const locTextEl = document.getElementById('current-location-text');
+          if (locTextEl) locTextEl.innerText = 'Delivering to ' + savedDetails.headerLabel;
+        } else {
+          const locTextEl = document.getElementById('current-location-text');
+          if (locTextEl) locTextEl.innerText = 'Delivering to ' + STATE.currentLocality;
+        }
+      } catch (e) {
+        const locTextEl = document.getElementById('current-location-text');
+        if (locTextEl) locTextEl.innerText = 'Delivering to ' + STATE.currentLocality;
+      }
 
       // 4. Load Special Promotional Banners (Auto-Slider)
       loadSpecialBanners();
@@ -4796,15 +5167,472 @@
       }
     }
 
+    /* =========================================================
+       7. INTERACTIVE DELIVERY LOCATION MAP PICKER & LOCALITY ENGINE
+       ========================================================= */
+    const BDE_DEPOT = {
+      lat: 23.1388,
+      lng: 87.2025,
+      name: 'Baba Dugdheswar Enterprise (Onda Depot)',
+      address: 'Onda Majhpara, State Bank - Dol Tola Rd, Bankura - 722144'
+    };
+
+    const POPULAR_VILLAGES = [
+      { name: 'Onda Majhpara', pin: '722144', lat: 23.1388, lng: 87.2025 },
+      { name: 'Onda Bazar', pin: '722144', lat: 23.1332, lng: 87.2030 },
+      { name: 'Punisole', pin: '722152', lat: 23.1812, lng: 87.1654 },
+      { name: 'Ramsagar', pin: '722122', lat: 23.1118, lng: 87.2625 },
+      { name: 'Taldangra', pin: '722153', lat: 23.0185, lng: 87.1147 },
+      { name: 'Bishnupur', pin: '722122', lat: 23.0754, lng: 87.3197 },
+      { name: 'Bankura Town', pin: '722101', lat: 23.2324, lng: 87.0715 },
+      { name: 'Lodna', pin: '722144', lat: 23.1550, lng: 87.2180 },
+      { name: 'Santore', pin: '722144', lat: 23.1220, lng: 87.1850 },
+      { name: 'Khatra', pin: '722140', lat: 22.9808, lng: 86.8525 },
+      { name: 'Sonamukhi', pin: '722207', lat: 23.3032, lng: 87.4172 }
+    ];
+
+    let deliveryMap = null;
+    let deliveryPinMarker = null;
+    let bdeDepotMarker = null;
+    let reverseGeocodeTimeout = null;
+    let searchDebounceTimeout = null;
+
+    let CURRENT_PICKER_STATE = {
+      lat: 23.1388,
+      lng: 87.2025,
+      name: 'Onda Majhpara',
+      pincode: '722144',
+      fullAddress: 'Onda Majhpara, State Bank - Dol Tola Rd, Bankura - 722144',
+      distanceKm: 0.0,
+      landmark: ''
+    };
+
+    // Restore saved delivery details from localStorage if present
+    try {
+      const savedDetails = JSON.parse(localStorage.getItem('bde_delivery_details') || 'null');
+      if (savedDetails && savedDetails.name) {
+        CURRENT_PICKER_STATE = { ...CURRENT_PICKER_STATE, ...savedDetails };
+      }
+    } catch (e) {}
+
+    function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371; // Earth's radius in km
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return Math.round(R * c * 10) / 10;
+    }
+
+    function getFreightTierInfo(distanceKm) {
+      if (distanceKm <= 5) {
+        return `📍 ${distanceKm} km from BDE Onda Depot • Express Local Delivery (Nominal Freight)`;
+      } else if (distanceKm <= 15) {
+        return `📍 ${distanceKm} km from BDE Onda Depot • Direct Tata Ace / Pickup Van (Standard Freight)`;
+      } else if (distanceKm <= 35) {
+        return `📍 ${distanceKm} km from BDE Onda Depot • Bankura Sub-Division Scheduled Delivery`;
+      } else {
+        return `📍 ${distanceKm} km from BDE Onda Depot • Dedicated Truck Dispatch Available`;
+      }
+    }
+
+    function renderQuickVillagePills() {
+      const container = document.getElementById('quick-village-scroll-list');
+      if (!container) return;
+      container.innerHTML = POPULAR_VILLAGES.map(v => {
+        const isActive = v.name.toLowerCase() === (CURRENT_PICKER_STATE.name || '').toLowerCase();
+        return `<button type="button" class="quick-village-pill ${isActive ? 'active' : ''}" onclick="selectQuickVillage('${v.name}')">${v.name}</button>`;
+      }).join('');
+    }
+
+    function selectQuickVillage(villageName) {
+      const v = POPULAR_VILLAGES.find(item => item.name === villageName);
+      if (!v) return;
+      updateDeliveryPickerLocation(v.lat, v.lng, v.name, `${v.name}, Bankura - ${v.pin}`, v.pin, true);
+      renderQuickVillagePills();
+    }
+
+    async function reverseGeocodeNominatim(lat, lng) {
+      try {
+        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
+        const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+        if (!res.ok) throw new Error('Geocoding failed');
+        const data = await res.json();
+        const addr = data.address || {};
+        const name = addr.village || addr.suburb || addr.town || addr.city_district || addr.city || addr.hamlet || addr.county || data.name || 'Selected Location';
+        const postcode = addr.postcode || '';
+        const road = addr.road || addr.neighbourhood || '';
+        const state = addr.state || 'West Bengal';
+        const full = [road, name, postcode, state].filter(Boolean).join(', ');
+        return {
+          displayName: name,
+          fullAddress: full || 'Bankura District, West Bengal',
+          pincode: postcode
+        };
+      } catch (err) {
+        // Fallback: match closest popular village
+        let closest = POPULAR_VILLAGES[0];
+        let minD = 999999;
+        POPULAR_VILLAGES.forEach(v => {
+          const d = calculateHaversineDistance(lat, lng, v.lat, v.lng);
+          if (d < minD) { minD = d; closest = v; }
+        });
+        return {
+          displayName: closest.name,
+          fullAddress: `${closest.name}, Bankura (${closest.pin})`,
+          pincode: closest.pin
+        };
+      }
+    }
+
+    async function searchLocationNominatim(query) {
+      if (!query || query.trim().length < 2) return [];
+      try {
+        const q = encodeURIComponent(query.trim() + ", West Bengal, India");
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${q}&countrycodes=in&limit=5&addressdetails=1`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Search failed');
+        const list = await res.json();
+        return list.map(item => {
+          const a = item.address || {};
+          const title = a.village || a.town || a.suburb || a.city || a.hamlet || item.name || query;
+          return {
+            title,
+            displayName: item.display_name,
+            lat: parseFloat(item.lat),
+            lng: parseFloat(item.lon),
+            pincode: a.postcode || ''
+          };
+        });
+      } catch (err) {
+        // Fallback search in popular villages
+        const qLower = query.toLowerCase();
+        return POPULAR_VILLAGES.filter(v => v.name.toLowerCase().includes(qLower) || v.pin.includes(qLower))
+          .map(v => ({
+            title: v.name,
+            displayName: `${v.name}, Bankura - ${v.pin}`,
+            lat: v.lat,
+            lng: v.lng,
+            pincode: v.pin
+          }));
+      }
+    }
+
+    function updateDeliveryPickerLocation(lat, lng, name, fullAddress, pin, flyMap) {
+      const dist = calculateHaversineDistance(BDE_DEPOT.lat, BDE_DEPOT.lng, lat, lng);
+      CURRENT_PICKER_STATE.lat = lat;
+      CURRENT_PICKER_STATE.lng = lng;
+      CURRENT_PICKER_STATE.name = name;
+      CURRENT_PICKER_STATE.fullAddress = fullAddress;
+      CURRENT_PICKER_STATE.pincode = pin || CURRENT_PICKER_STATE.pincode;
+      CURRENT_PICKER_STATE.distanceKm = dist;
+
+      const nameEl = document.getElementById('loc-selected-name-text');
+      const addrEl = document.getElementById('loc-selected-address-text');
+      const distBadge = document.getElementById('loc-selected-distance-badge');
+
+      if (nameEl) nameEl.innerText = name;
+      if (addrEl) addrEl.innerText = fullAddress;
+      if (distBadge) distBadge.innerText = getFreightTierInfo(dist);
+
+      if (deliveryPinMarker) deliveryPinMarker.setLatLng([lat, lng]);
+      if (flyMap && deliveryMap) deliveryMap.flyTo([lat, lng], 14, { duration: 0.8 });
+    }
+
+    function onMapRepositioned(lat, lng) {
+      const dist = calculateHaversineDistance(BDE_DEPOT.lat, BDE_DEPOT.lng, lat, lng);
+      CURRENT_PICKER_STATE.lat = lat;
+      CURRENT_PICKER_STATE.lng = lng;
+      CURRENT_PICKER_STATE.distanceKm = dist;
+
+      const distBadge = document.getElementById('loc-selected-distance-badge');
+      if (distBadge) distBadge.innerText = getFreightTierInfo(dist);
+
+      const spinner = document.getElementById('loc-geocoding-spinner');
+      if (spinner) spinner.style.display = 'inline';
+
+      clearTimeout(reverseGeocodeTimeout);
+      reverseGeocodeTimeout = setTimeout(async () => {
+        try {
+          const geo = await reverseGeocodeNominatim(lat, lng);
+          CURRENT_PICKER_STATE.name = geo.displayName;
+          CURRENT_PICKER_STATE.pincode = geo.pincode;
+          CURRENT_PICKER_STATE.fullAddress = geo.fullAddress;
+
+          const nameEl = document.getElementById('loc-selected-name-text');
+          const addrEl = document.getElementById('loc-selected-address-text');
+          if (nameEl) nameEl.innerText = geo.displayName;
+          if (addrEl) addrEl.innerText = geo.fullAddress;
+          renderQuickVillagePills();
+        } catch (e) {
+          console.warn('Reverse geocode error:', e);
+        } finally {
+          if (spinner) spinner.style.display = 'none';
+        }
+      }, 400);
+    }
+
+    function onLocalitySearchInput(e) {
+      const q = e.target.value.trim();
+      const clearBtn = document.getElementById('loc-search-clear');
+      if (clearBtn) clearBtn.style.display = q ? 'block' : 'none';
+
+      clearTimeout(searchDebounceTimeout);
+      const suggestionsBox = document.getElementById('loc-search-suggestions');
+      if (!q || q.length < 2) {
+        if (suggestionsBox) {
+          suggestionsBox.classList.remove('active');
+          suggestionsBox.innerHTML = '';
+        }
+        return;
+      }
+
+      searchDebounceTimeout = setTimeout(async () => {
+        const results = await searchLocationNominatim(q);
+        if (!suggestionsBox) return;
+
+        if (results.length === 0) {
+          suggestionsBox.innerHTML = `<div style="padding:10px 12px; font-size:11.5px; color:#6B7280; text-align:center;">No matching locations found in Bankura/Bengal. You can tap on the map to place your pin.</div>`;
+          suggestionsBox.classList.add('active');
+          return;
+        }
+
+        suggestionsBox.innerHTML = results.map(r => `
+          <div class="loc-suggestion-item" onclick="selectSearchedLocation(${r.lat}, ${r.lng}, '${r.title.replace(/'/g, "\\'")}', '${r.displayName.replace(/'/g, "\\'")}', '${r.pincode}')">
+            <span style="color:#F59E0B; font-size:14px; margin-top:2px;">📍</span>
+            <div>
+              <div class="loc-suggestion-title">${r.title}</div>
+              <div class="loc-suggestion-sub">${r.displayName}</div>
+            </div>
+          </div>
+        `).join('');
+        suggestionsBox.classList.add('active');
+      }, 350);
+    }
+
+    function onLocalitySearchKeydown(e) {
+      if (e.key === 'Enter') {
+        const firstItem = document.querySelector('.loc-suggestion-item');
+        if (firstItem) {
+          firstItem.click();
+        }
+      }
+    }
+
+    function selectSearchedLocation(lat, lng, title, displayName, pin) {
+      updateDeliveryPickerLocation(lat, lng, title, displayName, pin, true);
+      const searchInput = document.getElementById('locality-search-input');
+      if (searchInput) searchInput.value = title;
+      const suggestionsBox = document.getElementById('loc-search-suggestions');
+      if (suggestionsBox) {
+        suggestionsBox.classList.remove('active');
+        suggestionsBox.innerHTML = '';
+      }
+      renderQuickVillagePills();
+    }
+
+    function clearLocalitySearch() {
+      const input = document.getElementById('locality-search-input');
+      if (input) input.value = '';
+      const clearBtn = document.getElementById('loc-search-clear');
+      if (clearBtn) clearBtn.style.display = 'none';
+      const suggestionsBox = document.getElementById('loc-search-suggestions');
+      if (suggestionsBox) {
+        suggestionsBox.classList.remove('active');
+        suggestionsBox.innerHTML = '';
+      }
+    }
+
+    function useCurrentGpsLocation() {
+      if (!navigator.geolocation) {
+        showToast('Geolocation is not supported by your browser.');
+        return;
+      }
+      showToast('🎯 Detecting your live GPS location...');
+      const gpsBtn = document.querySelector('.loc-gps-btn');
+      if (gpsBtn) gpsBtn.innerHTML = '<span>⏳</span> Locating...';
+
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          if (gpsBtn) gpsBtn.innerHTML = '<span>🎯</span> GPS';
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          updateDeliveryPickerLocation(lat, lng, 'My Location', 'Detecting address...', '', true);
+          onMapRepositioned(lat, lng);
+          showToast('Live GPS location detected!');
+        },
+        (err) => {
+          if (gpsBtn) gpsBtn.innerHTML = '<span>🎯</span> GPS';
+          console.warn('GPS error:', err);
+          showToast('Unable to detect GPS. Tap any point on the map to place your pin.');
+        },
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 30000 }
+      );
+    }
+
+    function confirmDeliveryLocation() {
+      const name = CURRENT_PICKER_STATE.name || 'Onda Majhpara';
+      const pin = CURRENT_PICKER_STATE.pincode || '722144';
+      const dist = CURRENT_PICKER_STATE.distanceKm !== undefined ? CURRENT_PICKER_STATE.distanceKm : 0.0;
+      const landmarkInput = document.getElementById('locality-landmark-input');
+      const landmark = landmarkInput ? landmarkInput.value.trim() : '';
+      CURRENT_PICKER_STATE.landmark = landmark;
+
+      const locHeaderLabel = `${name} (${dist} km)`;
+      const detailedLocality = `${name}${landmark ? ' [' + landmark + ']' : ''} (${dist} km from Onda Depot)`;
+
+      STATE.currentLocality = detailedLocality;
+      localStorage.setItem('bde_locality', `${name}, Bankura (${pin})`);
+      localStorage.setItem('bde_delivery_details', JSON.stringify({
+        name,
+        pincode: pin,
+        lat: CURRENT_PICKER_STATE.lat,
+        lng: CURRENT_PICKER_STATE.lng,
+        distanceKm: dist,
+        landmark,
+        fullAddress: CURRENT_PICKER_STATE.fullAddress,
+        headerLabel: locHeaderLabel
+      }));
+
+      const locEl = document.getElementById('current-location-text');
+      if (locEl) locEl.innerText = 'Delivering to ' + locHeaderLabel;
+
+      closeAllSheets();
+      showToast(`Delivery location set to ${name} (${dist} km from Onda Depot)`);
+    }
+
+    function initDeliveryMap() {
+      renderQuickVillagePills();
+
+      // Populate current state values in UI
+      const nameEl = document.getElementById('loc-selected-name-text');
+      const addrEl = document.getElementById('loc-selected-address-text');
+      const distBadge = document.getElementById('loc-selected-distance-badge');
+      const landmarkInput = document.getElementById('locality-landmark-input');
+
+      if (nameEl) nameEl.innerText = CURRENT_PICKER_STATE.name || 'Onda Majhpara';
+      if (addrEl) addrEl.innerText = CURRENT_PICKER_STATE.fullAddress || 'Onda Majhpara, Bankura - 722144';
+      if (distBadge) distBadge.innerText = getFreightTierInfo(CURRENT_PICKER_STATE.distanceKm || 0.0);
+      if (landmarkInput && CURRENT_PICKER_STATE.landmark) landmarkInput.value = CURRENT_PICKER_STATE.landmark;
+
+      if (typeof L === 'undefined') {
+        console.warn('Leaflet library is still loading or unavailable offline.');
+        return;
+      }
+
+      const mapContainer = document.getElementById('delivery-map-picker');
+      if (!mapContainer) return;
+
+      if (!deliveryMap) {
+        deliveryMap = L.map('delivery-map-picker', {
+          center: [CURRENT_PICKER_STATE.lat, CURRENT_PICKER_STATE.lng],
+          zoom: 14,
+          zoomControl: false,
+          attributionControl: false
+        });
+
+        L.control.zoom({ position: 'bottomright' }).addTo(deliveryMap);
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19
+        }).addTo(deliveryMap);
+
+        // BDE Onda Depot Marker
+        const bdeDepotIcon = L.divIcon({
+          className: 'bde-depot-pin',
+          html: `<div style="
+            width: 36px; height: 36px;
+            background: #123B5D;
+            border: 2px solid #F59E0B;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(18, 59, 93, 0.6);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+          " title="BDE Onda Depot">🏪</div>`,
+          iconSize: [36, 36],
+          iconAnchor: [18, 18],
+          popupAnchor: [0, -20]
+        });
+
+        bdeDepotMarker = L.marker([BDE_DEPOT.lat, BDE_DEPOT.lng], { icon: bdeDepotIcon, zIndexOffset: 500 }).addTo(deliveryMap);
+        bdeDepotMarker.bindPopup(`
+          <div style="font-family:'Plus Jakarta Sans',sans-serif; padding:4px;">
+            <strong style="color:#123B5D; font-size:12px;">Baba Dugdheswar Enterprise</strong><br>
+            <span style="font-size:10.5px; color:#4B5563;">Onda Majhpara (SBI Dol Tola Rd)<br>Bankura - 722144</span><br>
+            <span style="display:inline-block; margin-top:3px; background:#EFF6FF; color:#123B5D; font-size:9.5px; font-weight:800; padding:2px 6px; border-radius:4px; border:1px solid #123B5D;">Central Showroom & Depot</span>
+          </div>
+        `);
+
+        // Saffron Orange Pin Icon
+        const saffronPinIcon = L.divIcon({
+          className: 'bde-map-pin',
+          html: `<div style="
+            width: 34px; height: 34px;
+            background: #F59E0B;
+            border: 3px solid #FFFFFF;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.7);
+            display: flex; align-items: center; justify-content: center;
+            cursor: grab;
+          ">
+            <div style="
+              width: 10px; height: 10px;
+              background: #123B5D;
+              border-radius: 50%;
+              transform: rotate(45deg);
+            "></div>
+          </div>`,
+          iconSize: [34, 34],
+          iconAnchor: [17, 34],
+          popupAnchor: [0, -34]
+        });
+
+        deliveryPinMarker = L.marker([CURRENT_PICKER_STATE.lat, CURRENT_PICKER_STATE.lng], {
+          icon: saffronPinIcon,
+          draggable: true,
+          zIndexOffset: 1000
+        }).addTo(deliveryMap);
+
+        deliveryPinMarker.on('dragend', function (e) {
+          const pos = e.target.getLatLng();
+          onMapRepositioned(pos.lat, pos.lng);
+        });
+
+        deliveryMap.on('click', function (e) {
+          deliveryPinMarker.setLatLng(e.latlng);
+          onMapRepositioned(e.latlng.lat, e.latlng.lng);
+        });
+      } else {
+        if (deliveryPinMarker) {
+          deliveryPinMarker.setLatLng([CURRENT_PICKER_STATE.lat, CURRENT_PICKER_STATE.lng]);
+        }
+        deliveryMap.setView([CURRENT_PICKER_STATE.lat, CURRENT_PICKER_STATE.lng], 14);
+      }
+
+      // Smooth multi-frame size invalidation for bottom sheet animation
+      setTimeout(() => { if (deliveryMap) deliveryMap.invalidateSize(); }, 150);
+      setTimeout(() => { if (deliveryMap) deliveryMap.invalidateSize(); }, 350);
+      setTimeout(() => { if (deliveryMap) deliveryMap.invalidateSize(); }, 600);
+    }
+
     function openLocalitySheet() {
       document.getElementById('sheet-backdrop').classList.add('active');
       document.getElementById('locality-bottom-sheet').classList.add('active');
+      initDeliveryMap();
     }
 
     function setLocality(village, pin) {
-      STATE.currentLocality = `${village}, Bankura (${pin})`;
-      localStorage.setItem('bde_locality', STATE.currentLocality);
-      document.getElementById('current-location-text').innerText = 'Delivering to ' + STATE.currentLocality;
+      const v = POPULAR_VILLAGES.find(item => item.name === village);
+      if (v) {
+        selectQuickVillage(village);
+      } else {
+        STATE.currentLocality = `${village}, Bankura (${pin})`;
+        localStorage.setItem('bde_locality', STATE.currentLocality);
+        document.getElementById('current-location-text').innerText = 'Delivering to ' + village;
+      }
       closeAllSheets();
       showToast(`Delivery location set to ${village}`);
     }
@@ -4815,6 +5643,10 @@
       document.getElementById('locality-bottom-sheet').classList.remove('active');
       const staffSheet = document.getElementById('staff-auth-sheet');
       if (staffSheet) staffSheet.classList.remove('active');
+      const suggestionsBox = document.getElementById('loc-search-suggestions');
+      if (suggestionsBox) {
+        suggestionsBox.classList.remove('active');
+      }
     }
 
     /* =========================================================
