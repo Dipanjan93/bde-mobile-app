@@ -131,17 +131,19 @@
     }
 
     .splash-logo-badge {
-      width: 104px;
-      height: 104px;
+      width: 116px;
+      height: 116px;
       border-radius: 28px;
-      background: linear-gradient(135deg, #123B5D 0%, #0a2339 100%);
-      border: 2.5px solid #F59E0B;
+      background: #123B5D;
+      border: 3px solid #F59E0B;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 16px 36px -6px rgba(10, 35, 57, 0.8), 0 0 30px rgba(245, 158, 11, 0.45);
+      box-shadow: 0 16px 36px -6px rgba(10, 35, 57, 0.8), 0 0 35px rgba(245, 158, 11, 0.55);
       animation: pulseBadge 1.3s infinite alternate ease-in-out;
       position: relative;
+      overflow: hidden;
+      padding: 4px;
     }
 
     @keyframes pulseBadge {
@@ -149,14 +151,12 @@
       100% { transform: scale(1.08); box-shadow: 0 20px 48px -4px rgba(10, 35, 57, 0.95), 0 0 40px rgba(245, 158, 11, 0.6); }
     }
 
-    .splash-logo-text {
-      font-weight: 900;
-      font-size: 38px;
-      letter-spacing: -1px;
-      background: linear-gradient(135deg, #FFFFFF 0%, #FBBF24 50%, #F59E0B 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5));
+    .splash-logo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 22px;
+      display: block;
     }
 
     .splash-title {
@@ -312,16 +312,18 @@
     }
 
     .bde-header-logo:hover {
-      transform: scale(1.02);
+      transform: scale(1.04);
     }
 
     .bde-logo-img {
-      height: 32px;
-      width: auto;
-      max-width: 175px;
-      object-fit: contain;
+      height: 36px;
+      width: 36px;
+      border-radius: 9px;
+      object-fit: cover;
       display: block;
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+      border: 1.5px solid #F59E0B;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+      background: #123B5D;
     }
 
     .brand-pill {
@@ -2735,7 +2737,7 @@
   <div id="splash-screen">
     <div class="splash-content">
       <div class="splash-logo-badge">
-        <span class="splash-logo-text">BDE</span>
+        <img src="/static/img/logo/bde_logo.png" onerror="if(!this.src.endsWith('.svg')){this.src='/static/img/logo/bde_logo.svg';}else if(this.src.includes('/static/')){this.src='static/img/logo/bde_logo.svg';}" alt="BDE Emblem" class="splash-logo-img">
       </div>
       <h1 class="splash-title">Baba Dugdheswar Enterprise</h1>
       <p class="splash-bengali">বাবা দুগ্ধেশ্বর এন্টারপ্রাইজ</p>
@@ -3721,7 +3723,9 @@
     <!-- Top Floating Header Bar -->
     <header class="ar-header-bar">
       <div class="ar-brand-badge">
-        <div class="ar-logo-icon">🪵</div>
+        <div class="ar-logo-icon">
+          <img src="/static/img/logo/bde_logo.png" onerror="this.src='/static/img/logo/bde_logo.svg'" alt="BDE" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" />
+        </div>
         <div class="ar-title-group">
           <div class="ar-title">
             BDE Wall AR <span class="ar-beta-pill">BETA</span>
