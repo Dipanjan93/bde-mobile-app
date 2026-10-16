@@ -30,14 +30,17 @@
     textureRepeat: 2,
     textureRotation: 0, // 0 or 90 degrees
     brightness: 0, // -50 to +50
+    opacity: 85, // 20% to 100%
     blendMode: 'multiply', // 'multiply', 'normal', 'gloss'
+    isSheetMinimized: false,
     
     // 4 Corner points (normalized 0..1 relative to canvas width/height)
+    // Initialized well within the visible upper viewport above the bottom drawer (~20% inward margins)
     corners: [
-      { x: 0.18, y: 0.20 }, // 0: Top-Left
-      { x: 0.82, y: 0.20 }, // 1: Top-Right
-      { x: 0.82, y: 0.80 }, // 2: Bottom-Right
-      { x: 0.18, y: 0.80 }  // 3: Bottom-Left
+      { x: 0.20, y: 0.20 }, // 0: Top-Left
+      { x: 0.80, y: 0.20 }, // 1: Top-Right
+      { x: 0.80, y: 0.58 }, // 2: Bottom-Right
+      { x: 0.20, y: 0.58 }  // 3: Bottom-Left
     ],
     
     draggingCorner: -1,
@@ -314,10 +317,10 @@
     bedroom: {
       name: 'Master Bedroom Wardrobe',
       defaultCorners: [
-        { x: 0.18, y: 0.16 },
-        { x: 0.78, y: 0.14 },
-        { x: 0.81, y: 0.84 },
-        { x: 0.20, y: 0.86 }
+        { x: 0.20, y: 0.16 },
+        { x: 0.80, y: 0.16 },
+        { x: 0.80, y: 0.58 },
+        { x: 0.20, y: 0.58 }
       ],
       draw: function(ctx, w, h) {
         // Wall background
@@ -326,16 +329,16 @@
 
         // Floor
         ctx.fillStyle = '#0f172a';
-        ctx.fillRect(0, h * 0.75, w, h * 0.25);
+        ctx.fillRect(0, h * 0.60, w, h * 0.40);
         ctx.strokeStyle = 'rgba(255,255,255,0.08)';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(0, h * 0.75);
-        ctx.lineTo(w, h * 0.75);
+        ctx.moveTo(0, h * 0.60);
+        ctx.lineTo(w, h * 0.60);
         ctx.stroke();
 
         // Bare wardrobe wooden frame skeleton
-        const wx = w * 0.18, wy = h * 0.15, ww = w * 0.62, wh = h * 0.70;
+        const wx = w * 0.20, wy = h * 0.16, ww = w * 0.60, wh = h * 0.42;
         ctx.fillStyle = '#2d1c10';
         ctx.fillRect(wx - 8, wy - 8, ww + 16, wh + 16);
         ctx.fillStyle = '#452b19';
@@ -363,10 +366,10 @@
     living: {
       name: 'Living Room TV Feature Wall',
       defaultCorners: [
-        { x: 0.12, y: 0.15 },
-        { x: 0.88, y: 0.15 },
-        { x: 0.88, y: 0.78 },
-        { x: 0.12, y: 0.78 }
+        { x: 0.16, y: 0.15 },
+        { x: 0.84, y: 0.15 },
+        { x: 0.84, y: 0.58 },
+        { x: 0.16, y: 0.58 }
       ],
       draw: function(ctx, w, h) {
         // Room background
@@ -375,18 +378,18 @@
 
         // Wooden flooring
         ctx.fillStyle = '#1c130d';
-        ctx.fillRect(0, h * 0.72, w, h * 0.28);
+        ctx.fillRect(0, h * 0.60, w, h * 0.40);
 
         // Accent wall recess
-        const ax = w * 0.12, ay = h * 0.15, aw = w * 0.76, ah = h * 0.63;
+        const ax = w * 0.16, ay = h * 0.15, aw = w * 0.68, ah = h * 0.43;
         ctx.fillStyle = '#1f2937';
         ctx.fillRect(ax, ay, aw, ah);
         ctx.strokeStyle = 'rgba(245, 158, 11, 0.3)';
         ctx.strokeRect(ax, ay, aw, ah);
 
         // Floating TV Screen in center
-        const tvw = w * 0.45, tvh = h * 0.30;
-        const tvx = (w - tvw) / 2, tvy = ay + 40;
+        const tvw = w * 0.40, tvh = h * 0.22;
+        const tvx = (w - tvw) / 2, tvy = ay + 25;
         ctx.fillStyle = '#020617';
         ctx.fillRect(tvx, tvy, tvw, tvh);
         ctx.strokeStyle = '#475569';
@@ -394,20 +397,20 @@
         ctx.strokeRect(tvx, tvy, tvw, tvh);
 
         // LED Backlight behind TV
-        const led = ctx.createRadialGradient(w * 0.5, tvy + tvh * 0.5, 30, w * 0.5, tvy + tvh * 0.5, tvw * 0.7);
+        const led = ctx.createRadialGradient(w * 0.5, tvy + tvh * 0.5, 20, w * 0.5, tvy + tvh * 0.5, tvw * 0.7);
         led.addColorStop(0, 'rgba(254, 240, 138, 0.35)');
         led.addColorStop(1, 'rgba(0, 0, 0, 0)');
         ctx.fillStyle = led;
-        ctx.fillRect(tvx - 25, tvy - 25, tvw + 50, tvh + 50);
+        ctx.fillRect(tvx - 20, tvy - 20, tvw + 40, tvh + 40);
       }
     },
     plywood: {
       name: 'Raw Plywood Workshop Carcass',
       defaultCorners: [
-        { x: 0.15, y: 0.22 },
-        { x: 0.85, y: 0.18 },
-        { x: 0.86, y: 0.82 },
-        { x: 0.14, y: 0.85 }
+        { x: 0.18, y: 0.16 },
+        { x: 0.82, y: 0.16 },
+        { x: 0.82, y: 0.58 },
+        { x: 0.18, y: 0.58 }
       ],
       draw: function(ctx, w, h) {
         // Workshop background
@@ -416,10 +419,10 @@
 
         // Concrete floor
         ctx.fillStyle = '#1e2430';
-        ctx.fillRect(0, h * 0.78, w, h * 0.22);
+        ctx.fillRect(0, h * 0.60, w, h * 0.40);
 
         // Raw calibrated Gurjan core plywood carcass
-        const px = w * 0.14, py = h * 0.18, pw = w * 0.72, ph = h * 0.66;
+        const px = w * 0.18, py = h * 0.16, pw = w * 0.64, ph = h * 0.42;
         ctx.fillStyle = '#9a6b47';
         ctx.fillRect(px, py, pw, ph);
 
@@ -617,16 +620,19 @@
     if (texture) {
       ctx.save();
 
-      // Configure blend mode & opacity
+      // Configure blend mode & dynamic opacity
+      const opacityVal = (window.AR_STATE.opacity !== undefined ? window.AR_STATE.opacity : 85);
+      const opacityNorm = Math.max(0.20, Math.min(1.0, opacityVal / 100));
+
       if (window.AR_STATE.blendMode === 'multiply') {
         ctx.globalCompositeOperation = 'multiply';
-        ctx.globalAlpha = 0.88;
+        ctx.globalAlpha = opacityNorm;
       } else if (window.AR_STATE.blendMode === 'gloss') {
         ctx.globalCompositeOperation = 'source-over';
-        ctx.globalAlpha = 0.95;
+        ctx.globalAlpha = opacityNorm;
       } else {
         ctx.globalCompositeOperation = 'source-over';
-        ctx.globalAlpha = 0.90;
+        ctx.globalAlpha = opacityNorm;
       }
 
       // Brightness filter
@@ -650,9 +656,9 @@
         ctx.clip();
 
         const sheenGrad = ctx.createLinearGradient(p0.x, p0.y, p2.x, p2.y);
-        sheenGrad.addColorStop(0, 'rgba(255, 255, 255, 0.40)');
-        sheenGrad.addColorStop(0.35, 'rgba(255, 255, 255, 0.05)');
-        sheenGrad.addColorStop(0.55, 'rgba(255, 255, 255, 0.25)');
+        sheenGrad.addColorStop(0, `rgba(255, 255, 255, ${0.40 * opacityNorm})`);
+        sheenGrad.addColorStop(0.35, `rgba(255, 255, 255, ${0.05 * opacityNorm})`);
+        sheenGrad.addColorStop(0.55, `rgba(255, 255, 255, ${0.25 * opacityNorm})`);
         sheenGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
         ctx.fillStyle = sheenGrad;
         ctx.fillRect(0, 0, w, h);
@@ -847,6 +853,18 @@
       }
     }
 
+    function getBottomDrawerHeight() {
+      const sheet = document.getElementById('ar-bottom-sheet');
+      if (!sheet) return 180;
+      if (window.AR_STATE.isSheetMinimized) return 46;
+      return sheet.offsetHeight || 180;
+    }
+
+    function getSafeBottomFraction(canvasHeight) {
+      const drawerH = getBottomDrawerHeight();
+      return Math.max(0.40, Math.min(0.95, (canvasHeight - drawerH - 18) / canvasHeight));
+    }
+
     function onMove(e) {
       if (window.AR_STATE.draggingCorner < 0) return;
       e.preventDefault();
@@ -854,9 +872,12 @@
       const w = canvas.width;
       const h = canvas.height;
 
-      // Clamp inside canvas boundary
-      const nx = Math.max(0.02, Math.min(0.98, coords.x / w));
-      const ny = Math.max(0.02, Math.min(0.98, coords.y / h));
+      // Clamping: ensure pins stay strictly inside the visible interactive viewport
+      // and cannot be dragged behind the bottom drawer or above the header
+      const minSafeY = 0.08;
+      const maxSafeY = getSafeBottomFraction(h);
+      const nx = Math.max(0.04, Math.min(0.96, coords.x / w));
+      const ny = Math.max(minSafeY, Math.min(maxSafeY, coords.y / h));
 
       window.AR_STATE.corners[window.AR_STATE.draggingCorner] = { x: nx, y: ny };
       updateLiveAreaEstimate();
@@ -1025,23 +1046,71 @@
   };
 
   window.arResetCorners = function () {
+    const canvas = document.getElementById('ar-render-canvas');
+    const h = canvas ? canvas.height : window.innerHeight;
+    const drawerH = (document.getElementById('ar-bottom-sheet') || {}).offsetHeight || 180;
+    const safeBottom = Math.min(0.58, (h - drawerH - 20) / h);
+
     window.AR_STATE.corners = [
-      { x: 0.18, y: 0.20 },
-      { x: 0.82, y: 0.20 },
-      { x: 0.82, y: 0.80 },
-      { x: 0.18, y: 0.80 }
+      { x: 0.20, y: 0.20 },
+      { x: 0.80, y: 0.20 },
+      { x: 0.80, y: safeBottom },
+      { x: 0.20, y: safeBottom }
     ];
     updateLiveAreaEstimate();
   };
 
   window.arExpandCorners = function () {
+    const canvas = document.getElementById('ar-render-canvas');
+    const h = canvas ? canvas.height : window.innerHeight;
+    const drawerH = (document.getElementById('ar-bottom-sheet') || {}).offsetHeight || 180;
+    const safeBottom = Math.min(0.64, (h - drawerH - 15) / h);
+
     window.AR_STATE.corners = [
-      { x: 0.08, y: 0.12 },
-      { x: 0.92, y: 0.12 },
-      { x: 0.92, y: 0.88 },
-      { x: 0.08, y: 0.88 }
+      { x: 0.10, y: 0.14 },
+      { x: 0.90, y: 0.14 },
+      { x: 0.90, y: safeBottom },
+      { x: 0.10, y: safeBottom }
     ];
     updateLiveAreaEstimate();
+  };
+
+  window.arSetOpacity = function (val) {
+    const intVal = parseInt(val, 10);
+    window.AR_STATE.opacity = intVal;
+
+    const opSlider = document.getElementById('ar-opacity-slider');
+    const opVal = document.getElementById('ar-opacity-val');
+    const opQuickSlider = document.getElementById('ar-opacity-quick-slider');
+    const opQuickVal = document.getElementById('ar-opacity-quick-val');
+
+    if (opSlider && opSlider.value != intVal) opSlider.value = intVal;
+    if (opVal) opVal.textContent = `${intVal}%`;
+    if (opQuickSlider && opQuickSlider.value != intVal) opQuickSlider.value = intVal;
+    if (opQuickVal) opQuickVal.textContent = `${intVal}%`;
+  };
+
+  window.arToggleOpacityPopup = function () {
+    const popup = document.getElementById('ar-opacity-popup');
+    const btn = document.getElementById('ar-opacity-btn');
+    if (popup) {
+      popup.classList.toggle('active');
+      if (btn) btn.classList.toggle('active', popup.classList.contains('active'));
+    }
+  };
+
+  window.arToggleBottomSheet = function () {
+    const sheet = document.getElementById('ar-bottom-sheet');
+    if (!sheet) return;
+    sheet.classList.toggle('minimized');
+    window.AR_STATE.isSheetMinimized = sheet.classList.contains('minimized');
+
+    // Update collapsed badge
+    const badge = document.getElementById('ar-collapsed-finish-badge');
+    if (badge) {
+      const activeSwatch = AR_LAMINATES.find(l => l.id === window.AR_STATE.activeLaminateId);
+      if (activeSwatch) badge.textContent = `${activeSwatch.name} (${activeSwatch.code})`;
+    }
   };
 
   window.arToggleSettings = function () {
@@ -1197,9 +1266,22 @@
       canvas.height = window.innerHeight;
     }
 
+    // Ensure all 4 corner pins are initialized well inside the visible upper viewport
+    const drawerH = (document.getElementById('ar-bottom-sheet') || {}).offsetHeight || 180;
+    const safeBottom = Math.min(0.58, (window.innerHeight - drawerH - 20) / (window.innerHeight || 1));
+    window.AR_STATE.corners = [
+      { x: 0.20, y: 0.20 },
+      { x: 0.80, y: 0.20 },
+      { x: 0.80, y: safeBottom },
+      { x: 0.20, y: safeBottom }
+    ];
+
     if (preselectedLaminateId) {
       window.AR_STATE.activeLaminateId = preselectedLaminateId;
     }
+
+    // Sync opacity UI sliders
+    arSetOpacity(window.AR_STATE.opacity || 85);
 
     populateSwatchDrawer();
     setupInteractionListeners();

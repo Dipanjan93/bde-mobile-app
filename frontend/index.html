@@ -2807,6 +2807,9 @@
       <button type="button" id="ar-freeze-btn" class="ar-tool-btn" onclick="arToggleFreeze()" title="Freeze / Resume Camera">
         📷<span class="label">Freeze</span>
       </button>
+      <button type="button" id="ar-opacity-btn" class="ar-tool-btn" onclick="arToggleOpacityPopup()" title="Transparency / Opacity Slider">
+        💧<span class="label">Opacity</span>
+      </button>
       <button type="button" class="ar-tool-btn" onclick="arResetCorners()" title="Reset Corners to Center">
         🔄<span class="label">Reset</span>
       </button>
@@ -2817,6 +2820,13 @@
         🖼️<span class="label">Upload</span>
         <input type="file" accept="image/*" style="display: none;" onchange="arUploadRoomPhoto(event)">
       </label>
+    </div>
+
+    <!-- Quick Floating Opacity Slider Popup -->
+    <div id="ar-opacity-popup" class="ar-opacity-popup">
+      <span style="font-size: 11px; font-weight: 700; color: #fbbf24;">💧 Opacity</span>
+      <input type="range" min="20" max="100" step="1" value="85" id="ar-opacity-quick-slider" class="ar-slider" style="width: 100px;" oninput="arSetOpacity(this.value)">
+      <span id="ar-opacity-quick-val" style="font-size: 11px; font-weight: 800; color: #f0f6fc; min-width: 32px;">85%</span>
     </div>
 
     <!-- Collapsible Settings & Lighting Drawer -->
@@ -2836,6 +2846,15 @@
           <button type="button" id="ar-blend-gloss" class="ar-toggle-btn ar-blend-toggle" onclick="arSetBlendMode('gloss')">Gloss 3D</button>
           <button type="button" id="ar-blend-normal" class="ar-toggle-btn ar-blend-toggle" onclick="arSetBlendMode('normal')">Pure Matt</button>
         </div>
+      </div>
+
+      <!-- Transparency / Opacity Slider -->
+      <div class="ar-setting-row">
+        <div class="ar-setting-label">
+          <span>Laminate Opacity / Ghosting</span>
+          <span id="ar-opacity-val" class="ar-setting-val">85%</span>
+        </div>
+        <input type="range" min="20" max="100" step="1" value="85" id="ar-opacity-slider" class="ar-slider" oninput="arSetOpacity(this.value)">
       </div>
 
       <!-- Grain Rotation -->
@@ -2881,7 +2900,14 @@
     </div>
 
     <!-- Bottom Swatch Drawer & Order Floating Bar -->
-    <div class="ar-bottom-sheet">
+    <div id="ar-bottom-sheet" class="ar-bottom-sheet">
+      <div class="ar-sheet-drag-handle" onclick="arToggleBottomSheet()" title="Collapse / Expand Finishes"></div>
+      
+      <div class="ar-sheet-collapsed-bar" onclick="arToggleBottomSheet()">
+        <span style="font-size: 11.5px; font-weight: 800; color: #fbbf24;">▲ Tap to Browse 16 Finishes &amp; Colors</span>
+        <span id="ar-collapsed-finish-badge" style="font-size: 10.5px; color: #8b949e;">Royal Burma Teak</span>
+      </div>
+
       <!-- Swatch Category Tabs -->
       <div class="ar-swatch-categories">
         <button type="button" class="ar-cat-tab active" id="ar-tab-all" onclick="selectArCategory('all')">All Finishes (16)</button>
