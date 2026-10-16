@@ -101,4 +101,10 @@ class CashbackUpdateRequest(BaseModel):
     cashback_amount: float = 0.0
     cashback_status: str = "Paid"
 
+class AIEstimateRequest(BaseModel):
+    prompt: str
+    plywood_grade: Optional[str] = "marine"
+    finish_type: Optional[str] = "matte"
+
+
 

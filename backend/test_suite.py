@@ -186,7 +186,18 @@ def main():
         print(f"       Verification: {len(banners)} special banners loaded. First banner: {banners[0].get('title')}")
     test_endpoint("Banner 1 SVG (/static/img/special_banners/banner_1.svg)", f"{BASE_URL}/static/img/special_banners/banner_1.svg")
 
+    # 16. AI Project Estimator & BoQ Calculator
+    ai_est_data = {
+        "prompt": "Amar 6x6 ft er ekta wardrobe banate hobe, 18mm ply koto lagbe?",
+        "plywood_grade": "marine",
+        "finish_type": "matte"
+    }
+    ai_res = test_endpoint("AI Estimator (POST /api/ai-estimate)", f"{BASE_URL}/api/ai-estimate", method="POST", data=ai_est_data)
+    if isinstance(ai_res, dict):
+        print(f"       Verification: Item: {ai_res.get('item_type')}, Waste Area: {ai_res.get('surface_area_with_waste')} Sq.Ft, 18mm Sheets: {ai_res.get('plywood_18mm_sheets')}, Budget: Rs.{ai_res.get('estimated_min_price')} - Rs.{ai_res.get('estimated_max_price')}")
+
     print("\n=== ALL AUTOMATED TESTS COMPLETED SUCCESSFULLY ===")
+
 
 if __name__ == "__main__":
     main()

@@ -1,4 +1,6 @@
 import os
+import re
+import math
 import urllib.parse
 from datetime import datetime, timezone, timedelta
 from typing import Optional, List
@@ -592,6 +594,231 @@ def create_quote_request(q: schemas.QuoteRequestCreate, db: Session = Depends(ge
         "whatsapp_url": whatsapp_url,
         "message": "Quote saved successfully! Redirecting to Baba Dugdheswar Enterprise WhatsApp..."
     }
+
+
+# 2b. POST /api/ai-estimate (AI Project Estimator & BoQ Calculator)
+@app.post("/api/ai-estimate")
+def calculate_ai_estimate(req: schemas.AIEstimateRequest):
+    raw_prompt = (req.prompt or "").strip()
+    if not raw_prompt:
+        raise HTTPException(status_code=400, detail="Prompt requirement cannot be empty")
+
+    ply_grade = req.plywood_grade or "marine"
+    finish_type = req.finish_type or "matte"
+    p_lower = raw_prompt.lower()
+
+    # Extract dimensions (e.g. 6x6, 10x8, 8x6, 7x3.5)
+    dim_match = re.search(r"(\d+(?:\.\d+)?)\s*(?:ft|feet|'|fut|ফুট)?\s*(?:x|\*|by|ইনটু)\s*(\d+(?:\.\d+)?)", raw_prompt, re.IGNORECASE)
+    dims_w = float(dim_match.group(1)) if dim_match else None
+    dims_h = float(dim_match.group(2)) if dim_match else None
+
+    item_type = "Custom Woodwork"
+    title = "Custom Project Estimation"
+    w, h, d = 6.0, 6.0, 2.0
+    ply18, ply12, ply6 = 4, 2, 1
+    lam_outer, lam_inner = 3, 3
+    fevicol_kg = 6
+    hardware_list = []
+    min_price, max_price = 22000, 30000
+    area_sqft = 0.0
+
+    if any(k in p_lower for k in ["wardrobe", "almirah", "almari", "আলমারি", "ওয়ারড্রোব", "cupboard"]):
+        item_type = "Wardrobe (Almirah)"
+        title = "Designer Modular Wardrobe Estimation"
+        w = dims_w or 6.0
+        h = dims_h or 6.0
+        d = 2.0
+        area_sqft = round((2 * (h * d) + 2 * (w * d) + (w * h) + 1.5 * (w * d)), 1)
+        waste_area = round(area_sqft * 1.15, 1)
+
+        ply18 = max(3, math.ceil(waste_area / 32))
+        ply12 = max(1, math.ceil((w * h * 1.15) / 32))
+        ply6 = max(1, math.ceil((w * h * 0.9) / 32))
+        lam_outer = max(2, math.ceil(((w * h) + (2 * h * d)) * 1.15 / 32))
+        lam_inner = lam_outer
+        fevicol_kg = max(5, math.ceil(waste_area / 20))
+
+        hardware_list = [
+            {"name": "Soft-Close 3D Hydraulic Auto-Hinges (0 Crank)", "qty": f"{max(8, int(round(h * 2)))} Pcs"},
+            {"name": "Telescopic Ball-Bearing Drawer Slides (20\")", "qty": "2 Sets"},
+            {"name": "22mm PVC Edge Banding Tape (Matching Woodgrain)", "qty": "1 Roll (50m)"},
+            {"name": "Concealed Aluminum Edge Handle Profiles", "qty": "2 Pcs (6ft)"},
+            {"name": "Heavy-Duty SS Screw & Fasteners Kit", "qty": "1 Box (400 Pcs)"}
+        ]
+        base_unit = 2400 if ply_grade == "marine" else 1900
+        min_price = (ply18 * base_unit) + (ply12 * 1600) + (ply6 * 850) + (lam_outer * 1250) + (lam_inner * 850) + (fevicol_kg * 340) + 2800
+        max_price = round(min_price * 1.25)
+
+    elif any(k in p_lower for k in ["kitchen", "রান্না", "modular kitchen", "cabinet"]):
+        item_type = "Modular Kitchen"
+        title = "Modular Kitchen Cabinetry Estimation"
+        w = dims_w or 10.0
+        h = dims_h or 8.0
+        d = 2.0
+        area_sqft = round((w * 2.8 * 8 + h * 2), 1)
+        waste_area = round(area_sqft * 1.15, 1)
+
+        ply18 = max(6, math.ceil(waste_area / 30))
+        ply12 = max(2, math.ceil((w * 12) / 32))
+        ply6 = 2
+        lam_outer = max(5, math.ceil(waste_area * 0.45 / 32))
+        lam_inner = lam_outer
+        fevicol_kg = 10
+
+        hardware_list = [
+            {"name": "Soft-Close Clip-on Concealed Hinges", "qty": "20 Pcs (10 Pairs)"},
+            {"name": "Telescopic / Tandem Soft-Close Drawer Runners", "qty": "6 Sets"},
+            {"name": "SS G-Profile Handle Trim", "qty": "24 Ft"},
+            {"name": "Hydraulic Gas Lifters for Overhead Shutters", "qty": "4 Pcs"},
+            {"name": "Stainless Steel Fasteners & Shelf Pins", "qty": "1 Box"}
+        ]
+        min_price = 52000
+        max_price = 72000
+
+    elif any(k in p_lower for k in ["tv unit", "louver", "panel", "টিভি", "প্যানেল"]):
+        item_type = "TV Unit & Accent Wall"
+        title = "Designer TV Console & Fluted Panel Estimation"
+        w = dims_w or 8.0
+        h = dims_h or 6.0
+        d = 1.2
+        area_sqft = round((w * h + w * d * 2), 1)
+
+        ply18 = max(2, math.ceil(area_sqft * 1.15 / 32))
+        ply12 = 1
+        ply6 = 1
+        lam_outer = 2
+        lam_inner = 1
+        fevicol_kg = 4
+
+        hardware_list = [
+            {"name": "Charcoal 3D Fluted Louver Panels (8ft Length)", "qty": "10 Panels"},
+            {"name": "Concealed Heavy Wall-Mount Floating Brackets", "qty": "4 Sets"},
+            {"name": "Push-to-Open Latches & Magnet Catches", "qty": "2 Sets"},
+            {"name": "Aluminum LED Profile Channel with Diffuser", "qty": "10 Ft"},
+            {"name": "Fastener & Wire Grommet Kit", "qty": "1 Pack"}
+        ]
+        min_price = 17500
+        max_price = 24500
+
+    elif any(k in p_lower for k in ["bed", "khat", "খাট", "বেড"]):
+        item_type = "Double Bed with Box"
+        title = "King/Queen Storage Bed Estimation"
+        w = dims_w or 6.0
+        h = dims_h or 6.5
+        d = 1.5
+        area_sqft = round(((w * h * 2) + (2 * (w + h) * d) + (w * 3)), 1)
+
+        ply18 = 5
+        ply12 = 2
+        ply6 = 1
+        lam_outer = 3
+        lam_inner = 2
+        fevicol_kg = 5
+
+        hardware_list = [
+            {"name": "Heavy-Duty Hydraulic Bed Lifter Kit (150 Kg Force)", "qty": "1 Complete Set"},
+            {"name": "Bed Corner Structural Angle Brackets & Bolts", "qty": "8 Sets"},
+            {"name": "Center Support Beam Metal Fittings", "qty": "2 Sets"},
+            {"name": "PVC Edge Banding for Headboard & Outer Frame", "qty": "1 Roll (50m)"}
+        ]
+        min_price = 19500
+        max_price = 26500
+
+    elif any(k in p_lower for k in ["door", "দরজা"]):
+        item_type = "Solid Flush Door"
+        title = "Flush Door & Designer Laminate Estimation"
+        w = dims_w or 7.0
+        h = dims_h or 3.5
+        area_sqft = round(w * h, 1)
+
+        ply18 = 0
+        ply12 = 0
+        ply6 = 0
+        lam_outer = 2
+        lam_inner = 0
+        fevicol_kg = 2
+
+        hardware_list = [
+            {"name": "30mm Calibrated Solid Core Pinewood Flush Door (7x3.5)", "qty": "1 Pc"},
+            {"name": "1.0mm Natural Teak / High-Gloss Laminate", "qty": "2 Sheets"},
+            {"name": "SS 304 Heavy-Duty Ball Bearing Hinges (5 Inch)", "qty": "3 Pcs"},
+            {"name": "Mortise Lock with Premium Handle & Key Set", "qty": "1 Set"},
+            {"name": "Tower Bolt & Magnetic Door Stopper", "qty": "1 Set"}
+        ]
+        min_price = 6200
+        max_price = 8800
+
+    else:
+        w = dims_w or 6.0
+        h = dims_h or 4.0
+        d = 2.0
+        item_type = "Custom Woodwork"
+        title = f"Custom Project ({w}ft × {h}ft) Estimation"
+        area_sqft = round(w * h * 2.2, 1)
+        waste_area = round(area_sqft * 1.15, 1)
+
+        ply18 = max(2, math.ceil(waste_area / 32))
+        ply12 = max(1, math.ceil(waste_area * 0.3 / 32))
+        ply6 = 1
+        lam_outer = max(2, math.ceil(waste_area * 0.45 / 32))
+        lam_inner = lam_outer
+        fevicol_kg = max(3, math.ceil(waste_area / 22))
+
+        hardware_list = [
+            {"name": "Soft-Close Hinges / Channel Sliders", "qty": "6 Pairs"},
+            {"name": "Edge Banding Tape (22mm)", "qty": "1 Roll (50m)"},
+            {"name": "Standard Screws & Assembly Brackets", "qty": "1 Pack"}
+        ]
+        min_price = round((ply18 * 2300) + (ply12 * 1500) + (lam_outer * 1300) + (lam_inner * 800) + (fevicol_kg * 340) + 1500)
+        max_price = round(min_price * 1.25)
+
+    total_waste_area = round(area_sqft * 1.15, 1)
+    ply_label = "18mm BWP Marine 710" if ply_grade == "marine" else "18mm Commercial MR"
+    finish_label = "1.5mm Mirror Acrylic" if finish_type == "acrylic" else ("0.8mm High-Gloss" if finish_type == "gloss" else "1.0mm Super-Matte")
+
+    # Format WhatsApp Message
+    hw_text = "\n".join([f"• {h_item['name']}: {h_item['qty']}" for h_item in hardware_list])
+    ply_text = "• 30mm Solid Flush Door: 1 Pc" if item_type == "Solid Flush Door" else f"• {ply_label} (8x4): {ply18} Sheets\n• 12mm Plywood (8x4): {ply12} Sheets\n• 6mm Plywood (8x4): {ply6} Sheets"
+
+    wa_msg = (
+        f"*Namaskar Baba Dugdheswar Enterprise (Onda Depot)!*\n"
+        f"I used the *BDE AI Project Estimator* for my project requirement:\n\n"
+        f"📋 *Requirement:* {raw_prompt}\n"
+        f"📐 *Item & Dimensions:* {item_type} ({w} ft × {h} ft, Depth: {d} ft)\n"
+        f"📏 *Total Area (with 15% wastage margin):* {total_waste_area} Sq.Ft\n\n"
+        f"*Estimated Bill of Materials (BoQ):*\n"
+        f"{ply_text}\n"
+        f"• Decorative Sunmica ({finish_label}): {lam_outer} Sheets\n"
+        f"• Liner Sunmica (8x4): {lam_inner} Sheets\n"
+        f"• Fevicol Marine / SH: {fevicol_kg} kg\n"
+        f"{hw_text}\n\n"
+        f"💰 *Estimated Onda Counter Budget:* ₹{min_price:,} – ₹{max_price:,}\n\n"
+        f"Please verify current stock availability at Onda Depot, share final counter quote, and confirm delivery schedule."
+    )
+    whatsapp_url = f"https://wa.me/919867098952?text={urllib.parse.quote(wa_msg)}"
+
+    return {
+        "success": True,
+        "title": title,
+        "item_type": item_type,
+        "dimensions": f"{w} ft × {h} ft (Depth: {d} ft)",
+        "surface_area_sqft": area_sqft,
+        "surface_area_with_waste": total_waste_area,
+        "plywood_grade": ply_label,
+        "plywood_18mm_sheets": ply18,
+        "plywood_12mm_sheets": ply12,
+        "plywood_6mm_sheets": ply6,
+        "laminate_finish": finish_label,
+        "laminate_outer_sheets": lam_outer,
+        "laminate_inner_sheets": lam_inner,
+        "fevicol_kg": fevicol_kg,
+        "hardware": hardware_list,
+        "estimated_min_price": min_price,
+        "estimated_max_price": max_price,
+        "whatsapp_url": whatsapp_url,
+        "whatsapp_message": wa_msg
+    }
+
 
 
 # 3. GET /api/carpenters
