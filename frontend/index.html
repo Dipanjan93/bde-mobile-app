@@ -3478,7 +3478,778 @@
       cursor: pointer;
       text-decoration: underline;
     }
+
+    /* =========================================================
+       MISTRI GRAM (CRAFT SHOWCASE SOCIAL FEED) STYLES
+       Official BDE Corporate Theme: #123B5D, #F59E0B, White, #E6E7E9
+       ========================================================= */
+    .mg-container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 14px 12px 90px 12px;
+      font-family: inherit;
+    }
+
+    /* Hero Banner */
+    .mg-hero-card {
+      background: linear-gradient(135deg, #123B5D 0%, #1a4d78 100%);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: 18px;
+      padding: 22px 18px;
+      color: #FFFFFF;
+      box-shadow: 0 8px 24px rgba(18, 59, 93, 0.2);
+      margin-bottom: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mg-hero-card::before {
+      content: '';
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 140px;
+      height: 140px;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.25) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .mg-hero-badge {
+      display: inline-block;
+      background: #F59E0B;
+      color: #123B5D;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 99px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .mg-hero-title {
+      font-size: 21px;
+      font-weight: 900;
+      color: #FFFFFF;
+      margin: 0 0 6px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mg-hero-subtitle {
+      font-size: 12.5px;
+      color: #E6E7E9;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .mg-hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .mg-hero-tag {
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      padding: 3px 9px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    /* Leaderboard */
+    .mg-leaderboard-box {
+      background: #FFFFFF;
+      border-radius: 16px;
+      border: 1px solid #CBD5E1;
+      padding: 16px 14px;
+      margin-bottom: 18px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    .mg-lb-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .mg-lb-title {
+      font-size: 14.5px;
+      font-weight: 900;
+      color: #123B5D;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0;
+    }
+
+    .mg-lb-scroll {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+    }
+
+    .mg-lb-scroll::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .mg-lb-scroll::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 4px;
+    }
+
+    .mg-lb-card {
+      flex: 0 0 145px;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 14px;
+      padding: 12px 10px;
+      text-align: center;
+      position: relative;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .mg-lb-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(18, 59, 93, 0.08);
+    }
+
+    .mg-lb-rank {
+      position: absolute;
+      top: 6px;
+      left: 8px;
+      font-size: 13px;
+    }
+
+    .mg-lb-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #123B5D 0%, #F59E0B 100%);
+      color: #FFFFFF;
+      font-size: 17px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 6px auto;
+      box-shadow: 0 3px 8px rgba(18, 59, 93, 0.2);
+    }
+
+    .mg-lb-name {
+      font-size: 12px;
+      font-weight: 800;
+      color: #111827;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 2px;
+    }
+
+    .mg-lb-loc {
+      font-size: 10.5px;
+      color: #64748B;
+      font-weight: 600;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mg-lb-likes {
+      font-size: 11px;
+      font-weight: 800;
+      color: #DC2626;
+      margin-bottom: 8px;
+    }
+
+    .mg-lb-hire-btn {
+      width: 100%;
+      background: #123B5D;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 6px;
+      padding: 5px 0;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .mg-lb-hire-btn:hover {
+      background: #F59E0B;
+    }
+
+    /* Post Creation Form Card */
+    .mg-create-card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      border: 1px solid #CBD5E1;
+      padding: 16px 18px;
+      margin-bottom: 18px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    .mg-create-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .mg-create-title {
+      font-size: 14.5px;
+      font-weight: 900;
+      color: #123B5D;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0;
+    }
+
+    .mg-role-toggle {
+      display: inline-flex;
+      background: #F1F5F9;
+      border-radius: 8px;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .mg-role-pill {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      border: none;
+      background: transparent;
+      color: #64748B;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .mg-role-pill.active {
+      background: #123B5D;
+      color: #FFFFFF;
+      box-shadow: 0 2px 6px rgba(18, 59, 93, 0.2);
+    }
+
+    .mg-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .mg-field-group {
+      margin-bottom: 10px;
+    }
+
+    .mg-label {
+      display: block;
+      font-size: 11.5px;
+      font-weight: 800;
+      color: #123B5D;
+      margin-bottom: 4px;
+    }
+
+    .mg-input {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1.5px solid #CBD5E1;
+      font-size: 12.5px;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.2s ease;
+      background: #FFFFFF;
+      color: #0F172A;
+    }
+
+    .mg-input:focus {
+      border-color: #F59E0B;
+    }
+
+    .mg-textarea {
+      resize: vertical;
+      min-height: 55px;
+      font-family: inherit;
+    }
+
+    .mg-mat-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 6px 0 12px 0;
+    }
+
+    .mg-mat-pill {
+      padding: 5px 11px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1.5px solid #E2E8F0;
+      background: #F8FAFC;
+      color: #475569;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+
+    .mg-mat-pill.selected {
+      background: #FEF3C7;
+      border-color: #F59E0B;
+      color: #B45309;
+    }
+
+    .mg-upload-dropzone {
+      background: #F8FAFC;
+      border: 2px dashed #CBD5E1;
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 12px;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .mg-upload-dropzone:hover {
+      border-color: #F59E0B;
+      background: #FFFBEB;
+    }
+
+    .mg-preview-wrap {
+      display: none;
+      position: relative;
+      margin-bottom: 12px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1.5px solid #CBD5E1;
+      background: #0F172A;
+      max-height: 240px;
+    }
+
+    .mg-preview-img {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .mg-preview-stat-badge {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      background: rgba(18, 59, 93, 0.9);
+      color: #FBBF24;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 6px;
+      backdrop-filter: blur(4px);
+    }
+
+    .mg-preview-remove-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(220, 38, 38, 0.9);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mg-publish-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+      color: #FFFFFF;
+      border: none;
+      padding: 11px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+      transition: transform 0.15s ease;
+    }
+
+    .mg-publish-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    /* Filter Bar */
+    .mg-filter-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 0 14px 0;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .mg-filter-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .mg-filter-pill {
+      padding: 6px 14px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #FFFFFF;
+      border: 1.5px solid #CBD5E1;
+      color: #475569;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .mg-filter-pill.active {
+      background: #123B5D;
+      color: #FFFFFF;
+      border-color: #123B5D;
+      box-shadow: 0 2px 8px rgba(18, 59, 93, 0.2);
+    }
+
+    /* Post Cards */
+    .mg-post-card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      border: 1px solid #CBD5E1;
+      margin-bottom: 20px;
+      overflow: hidden;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+    }
+
+    .mg-post-header {
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #F1F5F9;
+    }
+
+    .mg-post-author {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mg-author-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #123B5D 0%, #2563EB 100%);
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .mg-author-meta {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mg-author-name-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mg-author-name {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    .mg-verified-tag {
+      font-size: 10px;
+      font-weight: 800;
+      background: #FEF3C7;
+      color: #B45309;
+      padding: 1px 6px;
+      border-radius: 4px;
+      border: 1px solid #FDE68A;
+    }
+
+    .mg-post-subtext {
+      font-size: 11px;
+      color: #64748B;
+      font-weight: 600;
+    }
+
+    .mg-post-cat-badge {
+      font-size: 11px;
+      font-weight: 800;
+      background: #EFF6FF;
+      color: #1E40AF;
+      padding: 4px 10px;
+      border-radius: 99px;
+      border: 1px solid #DBEAFE;
+    }
+
+    .mg-post-img-box {
+      position: relative;
+      width: 100%;
+      background: #0F172A;
+      overflow: hidden;
+      cursor: pointer;
+      user-select: none;
+      min-height: 240px;
+      max-height: 480px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mg-post-img {
+      width: 100%;
+      height: auto;
+      max-height: 480px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .mg-heart-pop {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      font-size: 80px;
+      pointer-events: none;
+      opacity: 0;
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.25s ease;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+    }
+
+    .mg-heart-pop.animate {
+      transform: translate(-50%, -50%) scale(1.3);
+      opacity: 1;
+      animation: mgHeartFade 0.65s forwards;
+    }
+
+    @keyframes mgHeartFade {
+      0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0; }
+      40% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+      75% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.9; }
+      100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0; }
+    }
+
+    .mg-post-body {
+      padding: 12px 14px 8px 14px;
+    }
+
+    .mg-mat-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 8px;
+    }
+
+    .mg-tag {
+      background: #F1F5F9;
+      color: #123B5D;
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      border: 1px solid #E2E8F0;
+    }
+
+    .mg-post-caption {
+      font-size: 13px;
+      color: #334155;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .mg-post-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px;
+      border-top: 1px solid #F1F5F9;
+      border-bottom: 1px solid #F1F5F9;
+    }
+
+    .mg-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: none;
+      font-size: 13px;
+      font-weight: 700;
+      color: #475569;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 8px;
+      transition: all 0.15s ease;
+    }
+
+    .mg-action-btn:hover {
+      background: #F8FAFC;
+    }
+
+    .mg-action-btn.loved {
+      color: #DC2626;
+    }
+
+    .mg-action-btn.loved span:first-child {
+      animation: mgPulse 0.3s ease;
+    }
+
+    @keyframes mgPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.35); }
+      100% { transform: scale(1); }
+    }
+
+    .mg-conversion-btns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 10px 14px;
+      background: #F8FAFC;
+    }
+
+    .mg-btn-hire {
+      background: #FFFFFF;
+      color: #123B5D;
+      border: 1.5px solid #123B5D;
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 11.5px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: background 0.15s ease;
+    }
+
+    .mg-btn-hire:hover {
+      background: #EFF6FF;
+    }
+
+    .mg-btn-buy {
+      background: #F59E0B;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 11.5px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      box-shadow: 0 2px 6px rgba(245, 158, 11, 0.25);
+      transition: background 0.15s ease;
+    }
+
+    .mg-btn-buy:hover {
+      background: #D97706;
+    }
+
+    /* Comments Section */
+    .mg-comments-box {
+      padding: 12px 14px;
+      background: #FAFAFA;
+      border-top: 1px solid #F1F5F9;
+      display: none;
+    }
+
+    .mg-comments-list {
+      max-height: 200px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+    }
+
+    .mg-comment-item {
+      margin-bottom: 7px;
+      font-size: 12px;
+      line-height: 1.4;
+      background: #FFFFFF;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid #E2E8F0;
+    }
+
+    .mg-comment-author {
+      font-weight: 800;
+      color: #123B5D;
+      margin-right: 6px;
+    }
+
+    .mg-comment-input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .mg-comment-input {
+      flex: 1;
+      padding: 7px 10px;
+      border-radius: 8px;
+      border: 1.5px solid #CBD5E1;
+      font-size: 12px;
+      outline: none;
+      background: #FFFFFF;
+    }
+
+    .mg-comment-input:focus {
+      border-color: #123B5D;
+    }
+
+    .mg-comment-send-btn {
+      background: #123B5D;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .mg-comment-send-btn:hover {
+      background: #F59E0B;
+    }
+
+    @media (max-width: 600px) {
+      .mg-grid-2 {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+      .mg-conversion-btns {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
+
 </head>
 <body>
 
@@ -3577,8 +4348,9 @@
               <span>💬</span> WhatsApp Helpline
             </a>
             <a href="javascript:void(0)" onclick="switchView('showcase'); toggleHeaderMoreMenu();" class="header-more-item">
-              <span>📸</span> Customer Projects
+              <span>🔨</span> Mistri Gram Feed
             </a>
+
             <a href="javascript:void(0)" onclick="openLocalitySheet(); toggleHeaderMoreMenu();" class="header-more-item">
               <span>📍</span> Onda Depot Info
             </a>
@@ -3663,7 +4435,16 @@
           <div class="category-underline"></div>
         </div>
 
+        <div class="category-item" id="cat-item-showcase" data-category="Showcase" onclick="switchView('showcase')">
+          <div class="category-icon-wrap">
+            <div class="category-icon-circle">🔨</div>
+          </div>
+          <span class="category-label">Mistri Feed</span>
+          <div class="category-underline"></div>
+        </div>
+
         <div class="category-item" data-category="Mistris" onclick="switchView('mistris')">
+
           <div class="category-icon-wrap">
             <div class="category-icon-circle">🪚</div>
           </div>
@@ -4366,76 +5147,154 @@
   </section>
 
 
-  <!-- VIEW 4: CUSTOMER PROJECT PHOTO SHOWCASE -->
-  <section id="view-showcase" style="display: none;" class="showcase-container">
-    <div style="margin-bottom: 12px;">
-      <h2 style="font-size: 17px; font-weight: 900; color: #fbbf24; text-shadow: 0 0 16px rgba(245, 158, 11, 0.25);">Customer Project Showcase</h2>
-      <p style="font-size: 11.5px; color: var(--text-muted); font-weight: 600;">Real homes in Bankura built with Baba Dugdheswar materials</p>
+  <!-- =========================================================
+       VIEW 4: MISTRI GRAM (CRAFT SHOWCASE SOCIAL COMMUNITY FEED)
+       ========================================================= -->
+  <section id="view-showcase" style="display: none;" class="mg-container">
+    <!-- Hero Banner Card -->
+    <div class="mg-hero-card">
+      <div class="mg-hero-badge">🔨 Bankura Social Community</div>
+      <h2 class="mg-hero-title">
+        <span>🔨</span> Mistri Gram • Craft Showcase
+      </h2>
+      <p class="mg-hero-subtitle">
+        Real furniture projects made by Bankura's finest master carpenters using 100% Baba Dugdheswar Enterprise materials. Double-tap to ❤️ Love, hire local mistris, or buy exact materials for any design!
+      </p>
+      <div class="mg-hero-tags">
+        <span class="mg-hero-tag">🏆 Verified Mistris</span>
+        <span class="mg-hero-tag">🪵 100% BDE Onda Materials</span>
+        <span class="mg-hero-tag">❤️ Community Loved</span>
+        <span class="mg-hero-tag">💬 Direct Carpenter Leads</span>
+      </div>
     </div>
 
-    <!-- Upload Card with HTML5 Canvas Compression & Bill QR Cashback -->
-    <div class="showcase-upload-card" id="showcase-cashback-card">
-      <div style="font-size: 32px; margin-bottom: 6px;">🎁</div>
-      <h3 style="font-size: 16px; color: #fbbf24; text-shadow: 0 0 16px rgba(245, 158, 11, 0.3);">Scan &amp; Upload Finished Furniture to Get Cashback!</h3>
-      <p style="margin-bottom: 8px; color: #c9d1d9;">
-        Did you purchase plywood or hardware from Baba Dugdheswar Enterprise? Upload photo of your completed wardrobe, modular kitchen, bed, or almirah to receive <strong>instant Cashback / Store Credit</strong> credited directly to your UPI!
-      </p>
-      <div style="font-size: 11px; color: #fbbf24; font-style: italic; margin-bottom: 12px; font-weight: 600;">
-        (আমাদের থেকে প্লাইউড ও হার্ডওয়্যার কিনে আসবাব তৈরি করেছেন? ছবি আপলোড করে পান নিশ্চিত ক্যাশব্যাক!)
+    <!-- 1. Leaderboard Box: "🏆 Trending Mistris in Bankura" -->
+    <div class="mg-leaderboard-box">
+      <div class="mg-lb-header">
+        <h3 class="mg-lb-title">
+          <span>🏆</span> Trending Mistris in Bankura
+        </h3>
+        <span style="font-size: 11px; color: #64748B; font-weight: 700;">Ranked by ❤️ Loves</span>
       </div>
-
-      <!-- Verified Bill Badge (shown when scanned from printed QR code) -->
-      <div id="cb-verified-banner" style="display: none; background: rgba(16, 185, 129, 0.15); border: 1.5px solid rgba(16, 185, 129, 0.4); color: #10b981; padding: 8px 12px; border-radius: 10px; font-size: 12px; font-weight: 700; margin-bottom: 12px;">
-        🎉 Verified BDE Cash Memo: <span id="cb-bill-no-badge" style="font-family: monospace; font-size: 13px; color: #fbbf24;"></span> &bull; Cashback Eligible
+      <div class="mg-lb-scroll" id="mg-leaderboard-scroll">
+        <!-- Injected via loadMistriGramFeed() -->
+        <div style="padding: 10px; font-size: 12px; color: #94A3B8;">Loading top carpenters...</div>
       </div>
+    </div>
 
-      <input type="file" id="camera-file-input" accept="image/*" capture="environment" style="display: none;" onchange="handleFileSelect(event)">
-      <button class="btn-choose-photo" onclick="triggerPhotoUpload()">
-        <span>📷</span> Take / Choose Furniture Photo
-      </button>
-
-      <!-- Client-side compressed preview & Cashback Form -->
-      <div id="upload-preview-wrap" class="upload-preview-wrap">
-        <img id="compressed-preview-img" src="" alt="Compressed Preview">
-        <div style="background: rgba(13, 17, 23, 0.85); border: 1px solid rgba(245, 158, 11, 0.25); padding: 14px; border-radius: 14px; margin-bottom: 10px;">
-          <div class="field-group" style="margin-bottom: 8px;">
-            <label style="font-size: 11px; font-weight: 700; color: #fbbf24; display: block; margin-bottom: 3px;">Bill / Invoice Number (from your printed Cash Memo)</label>
-            <input type="text" id="upload-invoice-no" class="field-input" placeholder="e.g. INV-2026-0042">
-          </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
-            <div class="field-group">
-              <label style="font-size: 11px; font-weight: 700; color: #fbbf24; display: block; margin-bottom: 3px;">Your Full Name</label>
-              <input type="text" id="upload-customer-name" class="field-input" placeholder="e.g. Debabrata Roy">
-            </div>
-            <div class="field-group">
-              <label style="font-size: 11px; font-weight: 700; color: #fbbf24; display: block; margin-bottom: 3px;">Phone Number *</label>
-              <input type="tel" id="upload-customer-phone" class="field-input" placeholder="e.g. 9434198273">
-            </div>
-          </div>
-          <div class="field-group" style="margin-bottom: 8px;">
-            <label style="font-size: 11px; font-weight: 700; color: #10b981; display: block; margin-bottom: 3px;">💸 UPI ID / GPay / PhonePe for Cashback Transfer *</label>
-            <input type="text" id="upload-cashback-upi" class="field-input" placeholder="e.g. 9434198273@ybl or your-upi-id">
-          </div>
-          <div class="field-group" style="margin-bottom: 8px;">
-            <label style="font-size: 11px; font-weight: 700; color: #fbbf24; display: block; margin-bottom: 3px;">Furniture Project Title</label>
-            <input type="text" id="upload-project-title" class="field-input" placeholder="e.g. 4-Door Master Bedroom Sliding Wardrobe">
-          </div>
-          <div class="field-group" style="margin-bottom: 12px;">
-            <label style="font-size: 11px; font-weight: 700; color: #fbbf24; display: block; margin-bottom: 3px;">Carpenter / Mistri Name</label>
-            <input type="text" id="upload-carpenter-name" class="field-input" placeholder="e.g. Mistri Swapan Sutradhar">
-          </div>
-          <button class="btn-auth-submit" onclick="submitCompressedTestimonial()" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%);">
-            🎁 Submit Photo &amp; Claim Cashback
-          </button>
+    <!-- 2. "Post Your Craft" Card -->
+    <div class="mg-create-card">
+      <div class="mg-create-header">
+        <h3 class="mg-create-title">
+          <span>✨</span> Showcase Your Finished Furniture
+        </h3>
+        <!-- Role Toggle: Verified Mistri vs Homeowner -->
+        <div class="mg-role-toggle">
+          <button type="button" class="mg-role-pill active" id="mg-role-mistri" onclick="selectMistriGramRole('Mistri')">Verified Mistri</button>
+          <button type="button" class="mg-role-pill" id="mg-role-homeowner" onclick="selectMistriGramRole('Homeowner')">Homeowner</button>
         </div>
       </div>
+
+      <div class="mg-grid-2">
+        <div class="mg-field-group">
+          <label class="mg-label" for="mg-post-author">Your Name *</label>
+          <input type="text" id="mg-post-author" class="mg-input" placeholder="e.g. Swapan Sutradhar">
+        </div>
+        <div class="mg-field-group">
+          <label class="mg-label" for="mg-post-phone">Phone Number (for client calls) *</label>
+          <input type="tel" id="mg-post-phone" class="mg-input" placeholder="e.g. 9434198273">
+        </div>
+      </div>
+
+      <div class="mg-grid-2">
+        <div class="mg-field-group">
+          <label class="mg-label" for="mg-post-village">Site Village / Town *</label>
+          <select id="mg-post-village" class="mg-input">
+            <option value="Onda Bazar">Onda Bazar, Bankura</option>
+            <option value="Onda Majhpara">Onda Majhpara, Bankura</option>
+            <option value="Punisole">Punisole, Bankura</option>
+            <option value="Bishnupur">Bishnupur, Bankura</option>
+            <option value="Ramsagar">Ramsagar, Bankura</option>
+            <option value="Taldangra">Taldangra, Bankura</option>
+            <option value="Bankura Town">Bankura Town</option>
+            <option value="Other">Other Bankura Location</option>
+          </select>
+        </div>
+        <div class="mg-field-group">
+          <label class="mg-label" for="mg-post-category">Furniture Category *</label>
+          <select id="mg-post-category" class="mg-input">
+            <option value="Wardrobe">Wardrobe (Almirah)</option>
+            <option value="Modular Kitchen">Modular Kitchen</option>
+            <option value="Box Bed">Hydraulic Box Bed</option>
+            <option value="TV Unit">TV Unit & Accent Wall</option>
+            <option value="Doors">Main & Interior Doors</option>
+            <option value="Dressing Table">Dressing Table & Mirror</option>
+            <option value="Custom Woodwork">Custom Interior Woodwork</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mg-field-group">
+        <label class="mg-label" for="mg-post-caption">Project Story / Caption</label>
+        <textarea id="mg-post-caption" class="mg-input mg-textarea" placeholder="Tell us about this project... e.g., '6-door sliding wardrobe with champagne profile handle and 18mm marine ply carcass.'"></textarea>
+      </div>
+
+      <!-- BDE Materials Checkbox Pills -->
+      <div class="mg-field-group">
+        <label class="mg-label">BDE Materials Used in this Project (Tap to select):</label>
+        <div class="mg-mat-pills" id="mg-mat-selector">
+          <div class="mg-mat-pill selected" onclick="toggleMistriGramMaterial(this, '18mm BWP Marine Ply')">🪵 18mm Marine Ply</div>
+          <div class="mg-mat-pill selected" onclick="toggleMistriGramMaterial(this, '1.0mm Designer Sunmica')">🎨 1.0mm Sunmica</div>
+          <div class="mg-mat-pill" onclick="toggleMistriGramMaterial(this, '1.5mm Acrylic High-Gloss')">✨ 1.5mm Acrylic</div>
+          <div class="mg-mat-pill" onclick="toggleMistriGramMaterial(this, 'Charcoal 3D Louvers')">🏛️ Charcoal Louvers</div>
+          <div class="mg-mat-pill selected" onclick="toggleMistriGramMaterial(this, 'Fevicol Marine')">🧴 Fevicol Marine</div>
+          <div class="mg-mat-pill" onclick="toggleMistriGramMaterial(this, 'Soft-Close Auto-Hinges')">🔩 Soft-Close Hinges</div>
+          <div class="mg-mat-pill" onclick="toggleMistriGramMaterial(this, 'Hydraulic Bed Lifters')">🛏️ Bed Hydraulic Kit</div>
+        </div>
+      </div>
+
+      <!-- Zero-Cost Client-Side HTML5 Canvas Compressed Photo Upload -->
+      <input type="file" id="mg-file-input" accept="image/*" capture="environment" style="display: none;" onchange="handleMistriGramFileSelect(event)">
+      
+      <div class="mg-upload-dropzone" id="mg-upload-zone" onclick="document.getElementById('mg-file-input').click()">
+        <span style="font-size: 28px;">📷</span>
+        <div style="font-size: 13px; font-weight: 800; color: #123B5D;">Tap to Take or Select Finished Furniture Photo</div>
+        <div style="font-size: 11px; color: #64748B;">Auto-resized &amp; compressed to WebP 800px on your phone for ultra-fast upload</div>
+      </div>
+
+      <!-- Preview Wrap -->
+      <div id="mg-preview-wrap" class="mg-preview-wrap">
+        <img id="mg-preview-img" class="mg-preview-img" src="" alt="Compressed Preview">
+        <div id="mg-preview-stat" class="mg-preview-stat-badge">⚡ Compressed: 48 KB (Ready)</div>
+        <button type="button" class="mg-preview-remove-btn" onclick="removeMistriGramPhoto()" title="Remove Photo">✕</button>
+      </div>
+
+      <!-- Submit CTA -->
+      <button type="button" class="mg-publish-btn" id="mg-publish-btn" onclick="submitMistriGramPost()">
+        <span>🚀</span> Publish to Mistri Gram Community
+      </button>
     </div>
 
-    <!-- Live Gallery Cards -->
-    <div id="showcase-gallery" class="showcase-masonry">
-      <!-- Injected from GET /api/testimonials -->
+    <!-- 3. Category Filter Pills -->
+    <div class="mg-filter-bar" id="mg-filter-bar">
+      <div class="mg-filter-pill active" onclick="filterMistriGram('All', this)">All Crafts</div>
+      <div class="mg-filter-pill" onclick="filterMistriGram('popular', this)">🔥 Most Loved</div>
+      <div class="mg-filter-pill" onclick="filterMistriGram('Wardrobe', this)">🚪 Wardrobes</div>
+      <div class="mg-filter-pill" onclick="filterMistriGram('Kitchen', this)">🍳 Kitchens</div>
+      <div class="mg-filter-pill" onclick="filterMistriGram('Bed', this)">🛏️ Beds</div>
+      <div class="mg-filter-pill" onclick="filterMistriGram('TV Unit', this)">📺 TV Units</div>
+      <div class="mg-filter-pill" onclick="filterMistriGram('Doors', this)">🚪 Doors</div>
+    </div>
+
+    <!-- 4. Community Feed Posts Stream -->
+    <div id="mg-feed-stream">
+      <div style="text-align: center; padding: 40px; color: #64748B;">
+        <div class="ai-loading-spinner" style="margin: 0 auto 12px auto;"></div>
+        <div>Loading Mistri Gram community showcase...</div>
+      </div>
     </div>
   </section>
+
 
 
   <!-- VIEW 5: ACCOUNT & OWNER ACCESS -->
@@ -4883,10 +5742,11 @@
     <div class="nav-tab" id="tab-showcase" onclick="switchView('showcase')">
       <div class="nav-indicator"></div>
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
       </svg>
-      <span class="nav-label">Showcase</span>
+      <span class="nav-label">Mistri Gram</span>
     </div>
+
 
     <div class="nav-tab" id="tab-account" onclick="switchView('account')">
       <div class="nav-indicator"></div>
@@ -5810,6 +6670,9 @@
       if (viewName === 'estimator') {
         viewName = 'ai-estimator';
       }
+      if (viewName === 'feed' || viewName === 'mistri-gram') {
+        viewName = 'showcase';
+      }
       STATE.activeView = viewName;
 
       // Update Service / Brand Pills
@@ -5822,10 +6685,17 @@
       if (viewName === 'ai-estimator') {
         const catAi = document.getElementById('cat-item-ai-estimator');
         if (catAi) catAi.classList.add('active');
+      } else if (viewName === 'showcase') {
+        const catShow = document.getElementById('cat-item-showcase');
+        if (catShow) catShow.classList.add('active');
+        if (typeof loadMistriGramFeed === 'function') {
+          loadMistriGramFeed();
+        }
       } else if (viewName === 'mistris') {
         const catMistri = document.querySelector('.category-item[data-category="Mistris"]');
         if (catMistri) catMistri.classList.add('active');
       }
+
 
       // Update Bottom Tabs
       document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -6244,127 +7114,507 @@ Please verify current stock availability at Onda Depot, share final counter quot
     }
 
     /* =========================================================
-       6. CUSTOMER PHOTO SHOWCASE WITH CLIENT-SIDE CANVAS COMPRESSION
+       6. MISTRI GRAM COMMUNITY FEED & ZERO-COST CANVAS COMPRESSION
        ========================================================= */
-    function triggerPhotoUpload() {
-      // Direct access so scanning customers can instantly choose photo
-      document.getElementById('camera-file-input').click();
+    const MISTRI_GRAM_STATE = {
+      posts: [],
+      leaderboard: [],
+      activeCategory: 'All',
+      activeSort: 'newest',
+      currentRole: 'Mistri',
+      selectedMaterials: new Set(['18mm BWP Marine Ply', '1.0mm Designer Sunmica', 'Fevicol Marine']),
+      compressedImageBase64: null,
+      compressedSizeKb: 0,
+      likedPosts: new Set(JSON.parse(localStorage.getItem('bde_liked_posts') || '[]')),
+      lastTapTime: 0
+    };
+
+    function selectMistriGramRole(role) {
+      MISTRI_GRAM_STATE.currentRole = role;
+      const bMistri = document.getElementById('mg-role-mistri');
+      const bOwner = document.getElementById('mg-role-homeowner');
+      if (bMistri) bMistri.classList.toggle('active', role === 'Mistri');
+      if (bOwner) bOwner.classList.toggle('active', role === 'Homeowner');
     }
 
-    function handleFileSelect(event) {
+    function toggleMistriGramMaterial(pillEl, matName) {
+      if (pillEl.classList.contains('selected')) {
+        pillEl.classList.remove('selected');
+        MISTRI_GRAM_STATE.selectedMaterials.delete(matName);
+      } else {
+        pillEl.classList.add('selected');
+        MISTRI_GRAM_STATE.selectedMaterials.add(matName);
+      }
+    }
+
+    // Zero-Cost Client-Side Image Compression with HTML5 <canvas>
+    function compressImageToWebP(file, maxWidth = 800, maxHeight = 800, quality = 0.70) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = new Image();
+          img.onload = function() {
+            let width = img.width;
+            let height = img.height;
+            if (width > maxWidth || height > maxHeight) {
+              if (width > height) {
+                height = Math.round((height * maxWidth) / width);
+                width = maxWidth;
+              } else {
+                width = Math.round((width * maxHeight) / height);
+                height = maxHeight;
+              }
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            let dataUrl = canvas.toDataURL('image/webp', quality);
+            if (!dataUrl.startsWith('data:image/webp')) {
+              dataUrl = canvas.toDataURL('image/jpeg', quality);
+            }
+            resolve(dataUrl);
+          };
+          img.onerror = reject;
+          img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function handleMistriGramFileSelect(event) {
       const file = event.target.files[0];
       if (!file) return;
 
-      showToast('Compressing photo on device...');
+      showToast('Compressing image on your device...');
+      try {
+        const compressedBase64 = await compressImageToWebP(file, 800, 800, 0.70);
+        MISTRI_GRAM_STATE.compressedImageBase64 = compressedBase64;
+        
+        // Calculate size in KB
+        const approxKb = Math.round((compressedBase64.length * 3 / 4) / 1024);
+        MISTRI_GRAM_STATE.compressedSizeKb = approxKb;
 
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-          // HTML5 Canvas client-side compression to max 1200px width/height & 0.82 quality
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-          const maxDim = 1200;
+        const previewImg = document.getElementById('mg-preview-img');
+        const previewWrap = document.getElementById('mg-preview-wrap');
+        const uploadZone = document.getElementById('mg-upload-zone');
+        const statBadge = document.getElementById('mg-preview-stat');
 
-          if (width > height) {
-            if (width > maxDim) {
-              height = Math.round((height * maxDim) / width);
-              width = maxDim;
-            }
-          } else {
-            if (height > maxDim) {
-              width = Math.round((width * maxDim) / height);
-              height = maxDim;
-            }
-          }
+        if (previewImg) previewImg.src = compressedBase64;
+        if (statBadge) statBadge.innerText = `⚡ Compressed: ${approxKb} KB (Ultra-fast Neon DB ready)`;
+        if (previewWrap) previewWrap.style.display = 'block';
+        if (uploadZone) uploadZone.style.display = 'none';
 
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-
-          // Export compressed JPEG base64
-          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.82);
-          STATE.compressedBase64 = compressedDataUrl;
-
-          // Display preview
-          document.getElementById('compressed-preview-img').src = compressedDataUrl;
-          document.getElementById('upload-preview-wrap').style.display = 'block';
-
-          // Pre-fill user data if available
-          if (STATE.user) {
-            const nameEl = document.getElementById('upload-customer-name');
-            const phoneEl = document.getElementById('upload-customer-phone');
-            if (nameEl && !nameEl.value) nameEl.value = STATE.user.name || '';
-            if (phoneEl && !phoneEl.value) phoneEl.value = STATE.user.phone || '';
-          }
-
-          showToast('Photo ready! Fill details below to claim cashback.');
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+        showToast(`Photo compressed to ${approxKb} KB!`);
+      } catch (err) {
+        console.error('Compression error:', err);
+        showToast('Could not compress photo. Please try another image.');
+      }
     }
 
-    async function submitCompressedTestimonial() {
-      if (!STATE.compressedBase64) {
-        showToast('Please select a photo of your finished furniture first.');
+    function removeMistriGramPhoto() {
+      MISTRI_GRAM_STATE.compressedImageBase64 = null;
+      MISTRI_GRAM_STATE.compressedSizeKb = 0;
+      const fileInput = document.getElementById('mg-file-input');
+      if (fileInput) fileInput.value = '';
+      const previewWrap = document.getElementById('mg-preview-wrap');
+      const uploadZone = document.getElementById('mg-upload-zone');
+      if (previewWrap) previewWrap.style.display = 'none';
+      if (uploadZone) uploadZone.style.display = 'block';
+    }
+
+    async function submitMistriGramPost() {
+      const author = (document.getElementById('mg-post-author').value || '').trim();
+      const phone = (document.getElementById('mg-post-phone').value || '').trim();
+      const village = (document.getElementById('mg-post-village').value || 'Onda Bazar').trim();
+      const category = (document.getElementById('mg-post-category').value || 'Wardrobe').trim();
+      const caption = (document.getElementById('mg-post-caption').value || '').trim();
+
+      if (!author) {
+        showToast('Please enter your name or Mistri business name.');
+        document.getElementById('mg-post-author').focus();
+        return;
+      }
+      if (!phone) {
+        showToast('Please enter phone number for direct client calls.');
+        document.getElementById('mg-post-phone').focus();
+        return;
+      }
+      if (!MISTRI_GRAM_STATE.compressedImageBase64) {
+        showToast('Please select or capture a finished furniture photo.');
         return;
       }
 
-      const invoiceNo = (document.getElementById('upload-invoice-no').value || '').trim();
-      const custName = (document.getElementById('upload-customer-name').value || '').trim() || (STATE.user && STATE.user.name) || 'Valued Customer';
-      const custPhone = (document.getElementById('upload-customer-phone').value || '').trim() || (STATE.user && STATE.user.phone) || '';
-      const upiId = (document.getElementById('upload-cashback-upi').value || '').trim();
-      const title = (document.getElementById('upload-project-title').value || '').trim() || 'Home Furniture Project';
-      const carpenter = (document.getElementById('upload-carpenter-name').value || '').trim() || 'Local BDE Mistri';
-
-      if (!custPhone) {
-        showToast('Please enter your mobile phone number for cashback confirmation.');
-        document.getElementById('upload-customer-phone').focus();
-        return;
-      }
-
-      // Auto-save user to localStorage so they are remembered
-      if (!STATE.user) {
-        STATE.user = { name: custName, phone: custPhone, location: 'Onda, Bankura' };
-        localStorage.setItem('bde_user', JSON.stringify(STATE.user));
-        updateUserUI();
-      }
-
+      const mats = Array.from(MISTRI_GRAM_STATE.selectedMaterials).join(', ');
       const payload = {
-        customer_name: custName,
-        customer_phone: custPhone,
-        customer_location: (STATE.user && STATE.user.location) || 'Onda, Bankura',
-        project_title: title,
-        carpenter_name: carpenter,
-        image_base64: STATE.compressedBase64,
-        invoice_no: invoiceNo || null,
-        cashback_upi: upiId || null
+        author_name: author,
+        author_role: MISTRI_GRAM_STATE.currentRole,
+        author_phone: phone,
+        village_location: village,
+        project_category: category,
+        caption: caption || `${category} fabricated with 100% BDE Onda materials.`,
+        materials_used: mats,
+        image_base64: MISTRI_GRAM_STATE.compressedImageBase64
       };
 
+      const btn = document.getElementById('mg-publish-btn');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳</span> Publishing to Mistri Gram...';
+      }
+
       try {
-        const res = await fetch('/api/testimonials', {
+        const res = await fetch('/api/feed/post', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
         const data = await res.json();
         if (data.success) {
-          showToast(data.message || '🎉 Photo submitted! Your cashback will be verified & credited within 24-48 hours.');
-          document.getElementById('upload-preview-wrap').style.display = 'none';
-          document.getElementById('camera-file-input').value = '';
-          STATE.compressedBase64 = null;
-          loadTestimonials();
+          showToast('🎉 Craft post published to Mistri Gram!');
+          // Reset form
+          document.getElementById('mg-post-caption').value = '';
+          removeMistriGramPhoto();
+          loadMistriGramFeed();
         } else {
-          showToast(data.message || 'Submission failed.');
+          showToast(data.detail || 'Failed to publish post.');
         }
       } catch (err) {
-        console.error(err);
-        showToast('Failed to submit photo.');
+        console.error('Post submit error:', err);
+        showToast('🎉 Offline preview: Post added to your device feed!');
+        const fakePost = {
+          id: Date.now(),
+          ...payload,
+          likes_count: 1,
+          comments_count: 0,
+          comments: [],
+          created_at: 'Just now'
+        };
+        MISTRI_GRAM_STATE.posts.unshift(fakePost);
+        renderMistriGramPosts(MISTRI_GRAM_STATE.posts);
+        removeMistriGramPhoto();
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<span>🚀</span> Publish to Mistri Gram Community';
+        }
       }
     }
+
+    function filterMistriGram(filterType, pillEl) {
+      document.querySelectorAll('.mg-filter-pill').forEach(p => p.classList.remove('active'));
+      if (pillEl) pillEl.classList.add('active');
+
+      if (filterType === 'popular') {
+        loadMistriGramFeed('All', 'popular');
+      } else {
+        loadMistriGramFeed(filterType, 'newest');
+      }
+    }
+
+    async function loadMistriGramFeed(category = 'All', sort = 'newest') {
+      MISTRI_GRAM_STATE.activeCategory = category;
+      MISTRI_GRAM_STATE.activeSort = sort;
+
+      let feedData = null;
+      try {
+        const url = `/api/feed?category=${encodeURIComponent(category)}&sort=${encodeURIComponent(sort)}`;
+        const res = await fetch(url);
+        if (res.ok) {
+          feedData = await res.json();
+        }
+      } catch (err) {
+        console.warn('Network offline or error fetching feed, loading fallback:', err);
+      }
+
+      if (!feedData || !feedData.success) {
+        if (window.BDE_OFFLINE_FEED) {
+          feedData = window.BDE_OFFLINE_FEED;
+        } else {
+          feedData = { posts: [], leaderboard: [] };
+        }
+      }
+
+      MISTRI_GRAM_STATE.posts = feedData.posts || [];
+      MISTRI_GRAM_STATE.leaderboard = feedData.leaderboard || [];
+
+      renderMistriGramLeaderboard(MISTRI_GRAM_STATE.leaderboard);
+      renderMistriGramPosts(MISTRI_GRAM_STATE.posts);
+    }
+
+    function renderMistriGramLeaderboard(leaderboard) {
+      const lbScroll = document.getElementById('mg-leaderboard-scroll');
+      if (!lbScroll) return;
+
+      if (!leaderboard || leaderboard.length === 0) {
+        lbScroll.innerHTML = '<div style="padding: 10px; font-size: 12px; color: #94A3B8;">No ranked mistris yet. Be the first to post!</div>';
+        return;
+      }
+
+      const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣'];
+      lbScroll.innerHTML = leaderboard.map((item, idx) => `
+        <div class="mg-lb-card">
+          <div class="mg-lb-rank">${medals[idx] || '#' + (idx + 1)}</div>
+          <div class="mg-lb-avatar">${item.name.charAt(0)}</div>
+          <div class="mg-lb-name" title="${item.name}">${item.name}</div>
+          <div class="mg-lb-loc">📍 ${item.village}</div>
+          <div class="mg-lb-likes">❤️ ${item.total_likes} Loves</div>
+          <button type="button" class="mg-lb-hire-btn" onclick="hireMistriFromPost('${item.name.replace(/'/g, "\\'")}', '', '${item.village.replace(/'/g, "\\'")}')">
+            📞 Hire Mistri
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function renderMistriGramPosts(posts) {
+      const stream = document.getElementById('mg-feed-stream');
+      if (!stream) return;
+
+      if (!posts || posts.length === 0) {
+        stream.innerHTML = `
+          <div style="text-align: center; padding: 45px 20px; background: #FFFFFF; border-radius: 16px; border: 1px solid #CBD5E1;">
+            <div style="font-size: 38px; margin-bottom: 8px;">🔨</div>
+            <div style="font-size: 16px; font-weight: 800; color: #123B5D;">No craft posts found in this category</div>
+            <p style="font-size: 12.5px; color: #64748B; margin-top: 4px;">Be the first carpenter to showcase your furniture and receive direct client orders!</p>
+          </div>
+        `;
+        return;
+      }
+
+      stream.innerHTML = posts.map(p => {
+        const isLoved = MISTRI_GRAM_STATE.likedPosts.has(p.id);
+        const mats = (p.materials_used || '').split(',').map(m => m.trim()).filter(Boolean);
+        const matTagsHtml = mats.map(m => `<span class="mg-tag">🏷️ ${m}</span>`).join('');
+
+        const commentsListHtml = (p.comments || []).map(c => `
+          <div class="mg-comment-item">
+            <span class="mg-comment-author">${c.commenter_name}:</span>
+            <span>${c.comment_text}</span>
+          </div>
+        `).join('');
+
+        return `
+          <div class="mg-post-card" id="mg-post-${p.id}">
+            <!-- Header -->
+            <div class="mg-post-header">
+              <div class="mg-post-author">
+                <div class="mg-author-avatar">${p.author_name.charAt(0)}</div>
+                <div class="mg-author-meta">
+                  <div class="mg-author-name-row">
+                    <span class="mg-author-name">${p.author_name}</span>
+                    <span class="mg-verified-tag">✓ ${p.author_role || 'Verified Mistri'}</span>
+                  </div>
+                  <div class="mg-post-subtext">📍 ${p.village_location} • ${p.created_at}</div>
+                </div>
+              </div>
+              <div class="mg-post-cat-badge">${p.project_category || 'Craft'}</div>
+            </div>
+
+            <!-- Media Box with Double-Tap to Love -->
+            <div class="mg-post-img-box" onclick="handleMistriGramImageTap(event, ${p.id})">
+              <img class="mg-post-img" src="${p.image_base64}" alt="${p.project_category} by ${p.author_name}" loading="lazy">
+              <div class="mg-heart-pop" id="mg-heart-pop-${p.id}">❤️</div>
+            </div>
+
+            <!-- Body & Tags -->
+            <div class="mg-post-body">
+              ${matTagsHtml ? `<div class="mg-mat-tags">${matTagsHtml}</div>` : ''}
+              <p class="mg-post-caption">
+                <strong>${p.author_name}:</strong> ${p.caption || ''}
+              </p>
+            </div>
+
+            <!-- Social Action Bar -->
+            <div class="mg-post-actions">
+              <button type="button" class="mg-action-btn ${isLoved ? 'loved' : ''}" id="mg-like-btn-${p.id}" onclick="likeMistriGramPost(${p.id}, this)">
+                <span>${isLoved ? '❤️' : '🤍'}</span>
+                <span id="mg-like-count-${p.id}">${p.likes_count || 0} Loves</span>
+              </button>
+
+              <button type="button" class="mg-action-btn" onclick="toggleMistriGramComments(${p.id})">
+                <span>💬</span>
+                <span id="mg-comment-count-${p.id}">${p.comments_count || 0} Comments</span>
+              </button>
+
+              <button type="button" class="mg-action-btn" onclick="shareMistriGramPost(${p.id})">
+                <span>🔗</span> Share WhatsApp
+              </button>
+            </div>
+
+            <!-- 2 Direct Business Conversion CTAs -->
+            <div class="mg-conversion-btns">
+              <button type="button" class="mg-btn-hire" onclick="hireMistriFromPost('${p.author_name.replace(/'/g, "\\'")}', '${p.author_phone || ''}', '${p.village_location.replace(/'/g, "\\'")}')">
+                <span>📞</span> Hire This Mistri
+              </button>
+              <button type="button" class="mg-btn-buy" onclick="buyPostMaterialsOnWhatsApp(${p.id})">
+                <span>🛒</span> Buy Materials for This Design
+              </button>
+            </div>
+
+            <!-- Expandable Comments Drawer -->
+            <div class="mg-comments-box" id="mg-comments-box-${p.id}">
+              <div class="mg-comments-list" id="mg-comments-list-${p.id}">
+                ${commentsListHtml || '<div style="font-size: 11.5px; color: #94A3B8; padding: 4px 0;">No comments yet. Ask a question to this carpenter!</div>'}
+              </div>
+              <div class="mg-comment-input-row">
+                <input type="text" id="mg-comment-input-${p.id}" class="mg-comment-input" placeholder="Ask about plywood grade, price or time..." onkeydown="if(event.key==='Enter') submitMistriGramComment(${p.id})">
+                <button type="button" class="mg-comment-send-btn" onclick="submitMistriGramComment(${p.id})">Post</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Double-tap to Love detection
+    function handleMistriGramImageTap(event, postId) {
+      const now = Date.now();
+      if (now - MISTRI_GRAM_STATE.lastTapTime < 320) {
+        const btn = document.getElementById(`mg-like-btn-${postId}`);
+        likeMistriGramPost(postId, btn);
+        animateHeartPop(postId);
+      }
+      MISTRI_GRAM_STATE.lastTapTime = now;
+    }
+
+    function animateHeartPop(postId) {
+      const heart = document.getElementById(`mg-heart-pop-${postId}`);
+      if (!heart) return;
+      heart.classList.remove('animate');
+      void heart.offsetWidth;
+      heart.classList.add('animate');
+    }
+
+    async function likeMistriGramPost(postId, btnEl) {
+      animateHeartPop(postId);
+
+      const countEl = document.getElementById(`mg-like-count-${postId}`);
+      let currentLikes = parseInt(countEl ? countEl.innerText : '0') || 0;
+      
+      const alreadyLoved = MISTRI_GRAM_STATE.likedPosts.has(postId);
+      if (!alreadyLoved) {
+        currentLikes += 1;
+        MISTRI_GRAM_STATE.likedPosts.add(postId);
+        localStorage.setItem('bde_liked_posts', JSON.stringify(Array.from(MISTRI_GRAM_STATE.likedPosts)));
+      }
+
+      if (countEl) countEl.innerText = `${currentLikes} Loves`;
+      if (btnEl) {
+        btnEl.classList.add('loved');
+        const icon = btnEl.querySelector('span:first-child');
+        if (icon) icon.innerText = '❤️';
+      }
+
+      try {
+        await fetch(`/api/feed/${postId}/like`, { method: 'POST' });
+      } catch (err) {
+        console.warn('Like sync failed (offline):', err);
+      }
+    }
+
+    function toggleMistriGramComments(postId) {
+      const box = document.getElementById(`mg-comments-box-${postId}`);
+      if (!box) return;
+      const isVisible = box.style.display === 'block';
+      box.style.display = isVisible ? 'none' : 'block';
+      if (!isVisible) {
+        const inp = document.getElementById(`mg-comment-input-${postId}`);
+        if (inp) inp.focus();
+      }
+    }
+
+    async function submitMistriGramComment(postId) {
+      const input = document.getElementById(`mg-comment-input-${postId}`);
+      if (!input) return;
+      const text = (input.value || '').trim();
+      if (!text) {
+        showToast('Please type a comment first.');
+        return;
+      }
+
+      const commenterName = (STATE.user && STATE.user.name) ? STATE.user.name : 'Customer in Bankura';
+      input.value = '';
+
+      const list = document.getElementById(`mg-comments-list-${postId}`);
+      const countEl = document.getElementById(`mg-comment-count-${postId}`);
+
+      if (list) {
+        const emptyDiv = list.querySelector('div');
+        if (emptyDiv && emptyDiv.innerText.includes('No comments yet')) {
+          list.innerHTML = '';
+        }
+        const commentDiv = document.createElement('div');
+        commentDiv.className = 'mg-comment-item';
+        commentDiv.innerHTML = `<span class="mg-comment-author">${commenterName}:</span><span>${text}</span>`;
+        list.appendChild(commentDiv);
+      }
+
+      if (countEl) {
+        const currentCount = (parseInt(countEl.innerText) || 0) + 1;
+        countEl.innerText = `${currentCount} Comments`;
+      }
+
+      showToast('Comment posted!');
+
+      try {
+        await fetch(`/api/feed/${postId}/comment`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            commenter_name: commenterName,
+            comment_text: text
+          })
+        });
+      } catch (err) {
+        console.warn('Comment sync offline:', err);
+      }
+    }
+
+    function shareMistriGramPost(postId) {
+      const post = (MISTRI_GRAM_STATE.posts || []).find(p => p.id === postId);
+      const title = post ? `${post.project_category} crafted by ${post.author_name} in ${post.village_location}` : 'Custom furniture craft';
+      const msg = `*Namaskar!* Check out this beautiful *${title}* built with 100% Baba Dugdheswar Enterprise (Onda Depot) materials on Mistri Gram:\n\n` +
+                  `🪵 Materials: ${post ? post.materials_used : 'Plywood & Laminates'}\n` +
+                  `📍 Site Location: ${post ? post.village_location : 'Bankura'}\n\n` +
+                  `👉 View & calculate exact materials on BDE App: https://bde-onda.com`;
+      const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+      window.open(url, '_blank');
+    }
+
+    function hireMistriFromPost(authorName, authorPhone, village) {
+      if (authorPhone) {
+        showToast(`Connecting call to ${authorName}...`);
+        setTimeout(() => {
+          window.location.href = `tel:+91${authorPhone}`;
+        }, 500);
+      } else {
+        const msg = `*Namaskar Baba Dugdheswar Enterprise!* I want to contact / hire master carpenter *${authorName}* from *${village}* whose work I saw on Mistri Gram. Please share his direct contact or connect us.`;
+        window.open(`https://wa.me/919867098952?text=${encodeURIComponent(msg)}`, '_blank');
+      }
+    }
+
+    function buyPostMaterialsOnWhatsApp(postId) {
+      const post = (MISTRI_GRAM_STATE.posts || []).find(p => p.id === postId);
+      if (!post) {
+        window.open('https://wa.me/919867098952', '_blank');
+        return;
+      }
+      const msg = 
+`*Namaskar Baba Dugdheswar Enterprise (Onda Depot)!*
+I loved this design on *Mistri Gram*:
+
+🪑 *Project:* ${post.project_category} (${post.village_location})
+👨‍🔧 *Crafted by:* ${post.author_name}
+📋 *Materials Used:* ${post.materials_used}
+
+Please share current Onda Depot counter prices for these materials, sheet availability, and delivery timeline to my village.`;
+
+      window.open(`https://wa.me/919867098952?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
 
     /* =========================================================
        7. NON-INTRUSIVE AUTH BOTTOM SHEET & LOCALITY HANDLERS

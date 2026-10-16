@@ -195,9 +195,94 @@ def seed_initial_data(db: Session):
             ]
             db.add_all(sample_testimonials)
             db.commit()
+
+        # 3. Mistri Gram Craft Posts
+        if db.query(models.CraftPost).count() == 0:
+            def make_svg_b64(title, subtitle, color1, color2, icon):
+                svg = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="bg_{icon}" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="{color1}"/>
+      <stop offset="100%" stop-color="{color2}"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg_{icon})"/>
+  <rect width="800" height="600" fill="rgba(18,59,93,0.35)"/>
+  <circle cx="400" cy="230" r="100" fill="rgba(245,158,11,0.22)" stroke="#F59E0B" stroke-width="4"/>
+  <text x="400" y="265" font-size="90" text-anchor="middle" font-family="system-ui, sans-serif">{icon}</text>
+  <text x="400" y="400" font-size="34" font-weight="bold" fill="#FFFFFF" text-anchor="middle" font-family="system-ui, sans-serif">{title}</text>
+  <text x="400" y="445" font-size="20" font-weight="600" fill="#FBBF24" text-anchor="middle" font-family="system-ui, sans-serif">{subtitle}</text>
+  <rect x="230" y="485" width="340" height="40" rx="20" fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.4)"/>
+  <text x="400" y="511" font-size="15" font-weight="700" fill="#FFFFFF" text-anchor="middle" font-family="system-ui, sans-serif">100% BDE Onda Materials Verified ✓</text>
+</svg>'''
+                return "data:image/svg+xml;base64," + base64.b64encode(svg.encode("utf-8")).decode("utf-8")
+
+            p1 = models.CraftPost(
+                author_name="Swapan Sutradhar",
+                author_role="Master Mistri",
+                author_phone="9434198273",
+                village_location="Onda Bazar",
+                project_category="Wardrobe",
+                caption="Completed this 6-door modern sliding wardrobe for a client in Onda Majhpara using 100% BDE materials. Seamless sliding with soft-close auto-hinges and champagne profile handle!",
+                materials_used="18mm BWP Marine Ply, 1.0mm Suede Sunmica, Fevicol Marine, Sleek Sliding Channels",
+                image_base64=make_svg_b64("6-Door Sliding Wardrobe", "Onda Majhpara Site • Swapan Sutradhar", "#1e3a5f", "#0f172a", "🚪"),
+                likes_count=42,
+                created_at=datetime.utcnow() - timedelta(hours=6)
+            )
+            p2 = models.CraftPost(
+                author_name="Tapan Karmakar",
+                author_role="Verified Mistri",
+                author_phone="9800523411",
+                village_location="Bishnupur",
+                project_category="Modular Kitchen",
+                caption="Full waterproof modular kitchen fabricated with BDE 710 Marine Ply and 1.5mm Mirror Acrylic finish in Bishnupur Dalmadal Road. Zero warping, 10-year durability with tandem soft-close baskets.",
+                materials_used="BWP 710 Marine Ply, 1.5mm Acrylic Sunmica, Hydraulic Gas Lifters, SS Tandem Box",
+                image_base64=make_svg_b64("L-Shaped Acrylic Modular Kitchen", "Bishnupur Dalmadal Rd • Tapan Karmakar", "#134e4a", "#042f2e", "🍳"),
+                likes_count=67,
+                created_at=datetime.utcnow() - timedelta(days=1, hours=4)
+            )
+            p3 = models.CraftPost(
+                author_name="Bikash Sutradhar",
+                author_role="Master Mistri",
+                author_phone="9832761902",
+                village_location="Taldangra",
+                project_category="Box Bed",
+                caption="Heavy hydraulic storage bed delivered in Taldangra Bazar. Heavy-duty 150kg lifters and 18mm heavy base frame with anti-termite calibrated marine ply.",
+                materials_used="18mm Calibrated Ply, 1.0mm Natural Teak Laminate, Hydraulic Bed Lifters, Fevicol ProBond",
+                image_base64=make_svg_b64("King-Size Hydraulic Teak Bed", "Taldangra Bazar • Bikash Sutradhar", "#713f12", "#451a03", "🛏️"),
+                likes_count=38,
+                created_at=datetime.utcnow() - timedelta(days=2)
+            )
+            p4 = models.CraftPost(
+                author_name="Subhas Sen",
+                author_role="Interior Specialist",
+                author_phone="9732812045",
+                village_location="Ramsagar",
+                project_category="TV Unit",
+                caption="Designer TV wall created with 3D fluted charcoal panels and hidden warm LED profiles in Ramsagar. Wall-mounted floating console with soft-close push latches.",
+                materials_used="Charcoal Fluted Louvers, 18mm Marine Ply, Push-to-Open Latches, Profile LED Channels",
+                image_base64=make_svg_b64("Fluted Louver TV Console Wall", "Ramsagar Station Rd • Subhas Sen", "#312e81", "#1e1b4b", "📺"),
+                likes_count=55,
+                created_at=datetime.utcnow() - timedelta(days=3)
+            )
+            db.add_all([p1, p2, p3, p4])
+            db.commit()
+            db.refresh(p1)
+            db.refresh(p2)
+            db.refresh(p3)
+            db.refresh(p4)
+
+            # Sample comments
+            c1 = models.CraftComment(post_id=p1.id, commenter_name="Animesh Ghosh", comment_text="Darun finishing Swapan da! Outer ply kon brand er use korechen?", created_at=datetime.utcnow() - timedelta(hours=4))
+            c2 = models.CraftComment(post_id=p1.id, commenter_name="Swapan Sutradhar", comment_text="BDE Onda theke BWP 710 Marine ply niyechilam Animesh babu, 100% calibrated.", created_at=datetime.utcnow() - timedelta(hours=3))
+            c3 = models.CraftComment(post_id=p2.id, commenter_name="Debabrata Roy", comment_text="Acrylic finish ta khub sundor lagche. Onda theke delivery koto dine holo?", created_at=datetime.utcnow() - timedelta(hours=18))
+            c4 = models.CraftComment(post_id=p4.id, commenter_name="Raju Karmakar", comment_text="Louvers gulo ki BDE Onda store e ready stock ache?", created_at=datetime.utcnow() - timedelta(days=1))
+            db.add_all([c1, c2, c3, c4])
+            db.commit()
     except Exception as e:
         db.rollback()
         print(f"Error seeding initial data: {e}")
+
 
 # Run seed on startup with session
 with Session(engine) as session:
@@ -995,8 +1080,190 @@ async def upload_testimonial_photo(
     }
 
 
+# =========================================================
+# 5b. MISTRI GRAM COMMUNITY SOCIAL FEED ENDPOINTS
+# =========================================================
+
+# 1. GET /api/feed
+@app.get("/api/feed")
+def get_feed(
+    category: Optional[str] = Query("All"),
+    sort: Optional[str] = Query("newest"),
+    db: Session = Depends(get_db)
+):
+    query = db.query(models.CraftPost)
+    
+    # Filter by category if not All
+    if category and category.strip().lower() not in ["all", "all crafts"]:
+        cat_term = category.strip().lower()
+        if "wardrobe" in cat_term:
+            query = query.filter(models.CraftPost.project_category.ilike("%wardrobe%"))
+        elif "kitchen" in cat_term:
+            query = query.filter(models.CraftPost.project_category.ilike("%kitchen%"))
+        elif "bed" in cat_term:
+            query = query.filter(models.CraftPost.project_category.ilike("%bed%"))
+        elif "tv" in cat_term:
+            query = query.filter(models.CraftPost.project_category.ilike("%tv%"))
+        elif "door" in cat_term:
+            query = query.filter(models.CraftPost.project_category.ilike("%door%"))
+        else:
+            query = query.filter(models.CraftPost.project_category.ilike(f"%{category.strip()}%"))
+
+    # Sort order
+    if sort and sort.strip().lower() in ["popular", "loved", "most loved"]:
+        query = query.order_by(desc(models.CraftPost.likes_count), desc(models.CraftPost.id))
+    else:
+        query = query.order_by(desc(models.CraftPost.id))
+
+    posts_records = query.limit(60).all()
+
+    # Aggregate Top Mistris Leaderboard
+    leaderboard_q = (
+        db.query(
+            models.CraftPost.author_name,
+            models.CraftPost.village_location,
+            models.CraftPost.author_role,
+            func.sum(models.CraftPost.likes_count).label("total_likes"),
+            func.count(models.CraftPost.id).label("post_count")
+        )
+        .group_by(models.CraftPost.author_name, models.CraftPost.village_location, models.CraftPost.author_role)
+        .order_by(desc("total_likes"))
+        .limit(8)
+        .all()
+    )
+
+    leaderboard = []
+    for rank, (name, village, role, total_likes, post_count) in enumerate(leaderboard_q, start=1):
+        leaderboard.append({
+            "rank": rank,
+            "name": name,
+            "village": village or "Onda",
+            "role": role or "Mistri",
+            "total_likes": int(total_likes or 0),
+            "post_count": int(post_count or 0)
+        })
+
+    posts = []
+    for p in posts_records:
+        post_comments = []
+        for c in (p.comments or [])[:20]:
+            post_comments.append({
+                "id": c.id,
+                "commenter_name": c.commenter_name,
+                "comment_text": c.comment_text,
+                "created_at": c.created_at.strftime("%d %b, %I:%M %p") if c.created_at else "Just now"
+            })
+
+        posts.append({
+            "id": p.id,
+            "author_name": p.author_name,
+            "author_role": p.author_role or "Mistri",
+            "author_phone": p.author_phone or "",
+            "village_location": p.village_location or "Onda",
+            "project_category": p.project_category or "Wardrobe",
+            "caption": p.caption or "",
+            "materials_used": p.materials_used or "",
+            "image_base64": p.image_base64,
+            "likes_count": p.likes_count or 0,
+            "comments_count": len(p.comments) if p.comments else 0,
+            "comments": post_comments,
+            "created_at": p.created_at.strftime("%d %b %Y, %I:%M %p") if p.created_at else "Recently"
+        })
+
+    return {
+        "success": True,
+        "count": len(posts),
+        "leaderboard": leaderboard,
+        "posts": posts
+    }
+
+# 2. POST /api/feed/post
+@app.post("/api/feed/post")
+def create_craft_post(req: schemas.CraftPostCreate, db: Session = Depends(get_db)):
+    author_name = (req.author_name or "").strip()
+    if not author_name:
+        raise HTTPException(status_code=400, detail="Author name is required")
+    if not req.image_base64:
+        raise HTTPException(status_code=400, detail="Image is required for craft showcase")
+
+    post = models.CraftPost(
+        author_name=author_name,
+        author_role=(req.author_role or "Mistri").strip(),
+        author_phone=(req.author_phone or "").strip(),
+        village_location=(req.village_location or "Onda, Bankura").strip(),
+        project_category=(req.project_category or "Wardrobe").strip(),
+        caption=(req.caption or "").strip(),
+        materials_used=(req.materials_used or "").strip(),
+        image_base64=req.image_base64,
+        likes_count=1,
+        created_at=datetime.utcnow()
+    )
+    db.add(post)
+    db.commit()
+    db.refresh(post)
+
+    return {
+        "success": True,
+        "post_id": post.id,
+        "message": "Craft post published successfully to Mistri Gram community feed!"
+    }
+
+# 3. POST /api/feed/{post_id}/like
+@app.post("/api/feed/{post_id}/like")
+def like_craft_post(post_id: int, db: Session = Depends(get_db)):
+    post = db.query(models.CraftPost).filter(models.CraftPost.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    post.likes_count = (post.likes_count or 0) + 1
+    db.commit()
+    db.refresh(post)
+
+    return {
+        "success": True,
+        "post_id": post.id,
+        "likes_count": post.likes_count
+    }
+
+# 4. POST /api/feed/{post_id}/comment
+@app.post("/api/feed/{post_id}/comment")
+def add_craft_comment(post_id: int, req: schemas.CraftCommentCreate, db: Session = Depends(get_db)):
+    post = db.query(models.CraftPost).filter(models.CraftPost.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    comment_text = (req.comment_text or "").strip()
+    if not comment_text:
+        raise HTTPException(status_code=400, detail="Comment text cannot be empty")
+
+    commenter_name = (req.commenter_name or "Valued Customer").strip()
+
+    comment = models.CraftComment(
+        post_id=post.id,
+        commenter_name=commenter_name,
+        comment_text=comment_text,
+        created_at=datetime.utcnow()
+    )
+    db.add(comment)
+    db.commit()
+    db.refresh(comment)
+
+    return {
+        "success": True,
+        "comment_id": comment.id,
+        "post_id": post.id,
+        "comment": {
+            "id": comment.id,
+            "commenter_name": comment.commenter_name,
+            "comment_text": comment.comment_text,
+            "created_at": "Just now"
+        }
+    }
+
+
 # 6. POST /api/app/login & POST /api/app/signup
 @app.post("/api/app/login")
+
 def app_login(req: schemas.AppLoginRequest, db: Session = Depends(get_db)):
     clean_phone = req.phone.strip()
     user = db.query(models.AppUser).filter(models.AppUser.phone == clean_phone).first()

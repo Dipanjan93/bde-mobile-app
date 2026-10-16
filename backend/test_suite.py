@@ -196,8 +196,46 @@ def main():
     if isinstance(ai_res, dict):
         print(f"       Verification: Item: {ai_res.get('item_type')}, Waste Area: {ai_res.get('surface_area_with_waste')} Sq.Ft, 18mm Sheets: {ai_res.get('plywood_18mm_sheets')}, Budget: Rs.{ai_res.get('estimated_min_price')} - Rs.{ai_res.get('estimated_max_price')}")
 
+    # 17. Mistri Gram Social Feed
+    feed_res = test_endpoint("Mistri Gram Feed (GET /api/feed)", f"{BASE_URL}/api/feed")
+    if isinstance(feed_res, dict):
+        print(f"       Verification: Posts count: {feed_res.get('count')}, Leaderboard entries: {len(feed_res.get('leaderboard', []))}")
+        if len(feed_res.get('posts', [])) > 0:
+            sample_post = feed_res['posts'][0]
+            print(f"       Verification: First post by: {sample_post.get('author_name')} ({sample_post.get('village_location')}) - Loves: {sample_post.get('likes_count')}")
+
+            # Test like
+            like_res = test_endpoint("Like Mistri Post (POST /api/feed/{id}/like)", f"{BASE_URL}/api/feed/{sample_post['id']}/like", method="POST")
+            if isinstance(like_res, dict):
+                print(f"       Verification: Post {sample_post['id']} updated likes: {like_res.get('likes_count')}")
+
+            # Test comment
+            comment_payload = {
+                "commenter_name": "Test Customer",
+                "comment_text": "Looking great! Are BDE materials available in Onda Depot?"
+            }
+            comm_res = test_endpoint("Comment on Post (POST /api/feed/{id}/comment)", f"{BASE_URL}/api/feed/{sample_post['id']}/comment", method="POST", data=comment_payload)
+            if isinstance(comm_res, dict):
+                print(f"       Verification: Comment ID: {comm_res.get('comment_id')}")
+
+    # Test creating a new craft post
+    new_post_payload = {
+        "author_name": "Ratan Mistri",
+        "author_role": "Master Mistri",
+        "author_phone": "9434000000",
+        "village_location": "Onda Bazar",
+        "project_category": "Wardrobe",
+        "caption": "Modern 4-door wardrobe with champagne handles and BWP marine ply.",
+        "materials_used": "18mm BWP Marine Ply, 1.0mm Sunmica",
+        "image_base64": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='blue'/></svg>"
+    }
+    post_create_res = test_endpoint("Create Craft Post (POST /api/feed/post)", f"{BASE_URL}/api/feed/post", method="POST", data=new_post_payload)
+    if isinstance(post_create_res, dict):
+        print(f"       Verification: New Post ID: {post_create_res.get('post_id')}")
+
     print("\n=== ALL AUTOMATED TESTS COMPLETED SUCCESSFULLY ===")
 
 
 if __name__ == "__main__":
     main()
+

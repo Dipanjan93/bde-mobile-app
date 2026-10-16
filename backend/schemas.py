@@ -106,5 +106,20 @@ class AIEstimateRequest(BaseModel):
     plywood_grade: Optional[str] = "marine"
     finish_type: Optional[str] = "matte"
 
+class CraftPostCreate(BaseModel):
+    author_name: str
+    author_role: Optional[str] = "Mistri"
+    author_phone: Optional[str] = ""
+    village_location: Optional[str] = "Onda"
+    project_category: Optional[str] = "Wardrobe"
+    caption: Optional[str] = ""
+    materials_used: Optional[str] = ""
+    image_base64: str
+
+class CraftCommentCreate(BaseModel):
+    commenter_name: str
+    comment_text: str
+
+
 
 

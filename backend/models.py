@@ -153,3 +153,30 @@ class CarpenterCallLog(Base):
     customer_phone = Column(String(20), nullable=False)
     customer_village = Column(String(100), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class CraftPost(Base):
+    __tablename__ = "craft_posts"
+    id = Column(Integer, primary_key=True, index=True)
+    author_name = Column(String(120), nullable=False)
+    author_role = Column(String(50), default="Mistri")
+    author_phone = Column(String(20), nullable=True)
+    village_location = Column(String(100), default="Onda")
+    project_category = Column(String(60), default="Wardrobe")
+    caption = Column(Text, nullable=True)
+    materials_used = Column(Text, nullable=True)
+    image_base64 = Column(Text, nullable=False)
+    likes_count = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    comments = relationship("CraftComment", back_populates="post", cascade="all, delete-orphan", order_by="desc(CraftComment.created_at)")
+
+class CraftComment(Base):
+    __tablename__ = "craft_comments"
+    id = Column(Integer, primary_key=True, index=True)
+    post_id = Column(Integer, ForeignKey("craft_posts.id"), nullable=False)
+    commenter_name = Column(String(120), nullable=False)
+    comment_text = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    post = relationship("CraftPost", back_populates="comments")
+
