@@ -6340,14 +6340,9 @@
         renderTestimonials(STATE.testimonials);
       } catch (err) {
         clearTimeout(timeoutId);
-        console.warn('Using default testimonials showcase:', err);
-        const defaults = [
-          { project_title: '4-Door Master Bedroom Sliding Wardrobe', customer_name: 'Subhasis Mondal', customer_location: 'Punisole, Bankura', carpenter_name: 'Tapan Karmakar', image_base64: '' },
-          { project_title: 'L-Shape Waterproof Marine Kitchen', customer_name: 'Debabrata Roy', customer_location: 'Onda Bazar, Bankura', carpenter_name: 'Swapan Sutradhar', image_base64: '' },
-          { project_title: 'Teak Finish Hydraulic Box Bed (Queen Size)', customer_name: 'Arup Banerjee', customer_location: 'Ramsagar, Bankura', carpenter_name: 'Dilip Mistri', image_base64: '' }
-        ];
-        STATE.testimonials = defaults;
-        renderTestimonials(defaults);
+        console.warn('Error loading customer testimonials:', err);
+        STATE.testimonials = [];
+        renderTestimonials([]);
       }
     }
 

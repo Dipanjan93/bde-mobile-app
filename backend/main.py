@@ -179,43 +179,6 @@ def seed_initial_data(db: Session):
             db.add_all(sample_carpenters)
             db.commit()
 
-        # 2. Showcase Testimonials
-        if db.query(models.CustomerTestimonial).count() <= 1:
-            sample_testimonials = [
-                models.CustomerTestimonial(
-                    customer_name="Subhasis Mondal",
-                    customer_phone="9867098952",
-                    customer_location="Punisole, Bankura",
-                    project_title="4-Door Master Bedroom Sliding Wardrobe",
-                    carpenter_name="Tapan Karmakar",
-                    image_base64="",
-                    is_approved=True,
-                    created_at=datetime.utcnow() - timedelta(days=2)
-                ),
-                models.CustomerTestimonial(
-                    customer_name="Debabrata Roy",
-                    customer_phone="9434001122",
-                    customer_location="Onda Bazar, Bankura",
-                    project_title="L-Shape Waterproof Marine Kitchen",
-                    carpenter_name="Swapan Sutradhar",
-                    image_base64="",
-                    is_approved=True,
-                    created_at=datetime.utcnow() - timedelta(days=5)
-                ),
-                models.CustomerTestimonial(
-                    customer_name="Arup Banerjee",
-                    customer_phone="9123456789",
-                    customer_location="Ramsagar, Bankura",
-                    project_title="Teak Finish Hydraulic Box Bed (Queen Size)",
-                    carpenter_name="Dilip Mistri",
-                    image_base64="",
-                    is_approved=True,
-                    created_at=datetime.utcnow() - timedelta(days=9)
-                )
-            ]
-            db.add_all(sample_testimonials)
-            db.commit()
-
     except Exception as e:
         db.rollback()
         print(f"Error seeding initial data: {e}")

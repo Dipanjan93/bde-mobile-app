@@ -55,9 +55,10 @@ def print_report(title, counts):
     print(f"   • Carpenter Call Logs            : {counts['carpenter_call_logs']}")
     print(f"   • App Settings                   : {counts['app_settings']}")
     print("\n [AUTHORIZED CLEANUP TARGETS]")
-    print(f"   • Website Enquiries (quote_inquiries) : {counts['quote_inquiries']}")
-    print(f"   • Mistri Gram Posts (craft_posts)     : {counts['craft_posts']}")
-    print(f"   • Mistri Gram Comments (craft_comments): {counts['craft_comments']}")
+    print(f"   • Website Enquiries (quote_inquiries)         : {counts['quote_inquiries']}")
+    print(f"   • Mistri Gram Posts (craft_posts)             : {counts['craft_posts']}")
+    print(f"   • Mistri Gram Comments (craft_comments)       : {counts['craft_comments']}")
+    print(f"   • Customer Claims (customer_testimonials)     : {counts['customer_testimonials']}")
     print("=" * 70)
 
 def main():
@@ -79,6 +80,9 @@ def main():
         res_inquiries = conn.execute(text("DELETE FROM quote_inquiries"))
         print(f" -> Cleared {res_inquiries.rowcount} rows from 'quote_inquiries'")
 
+        res_testimonials = conn.execute(text("DELETE FROM customer_testimonials"))
+        print(f" -> Cleared {res_testimonials.rowcount} rows from 'customer_testimonials'")
+
         # 3. Capture AFTER snapshot
         after_counts = get_row_counts(conn)
         print_report("AFTER CLEANUP DATABASE ROW COUNTS", after_counts)
@@ -93,13 +97,13 @@ def main():
         assert before_counts["total_customer_dues"] == after_counts["total_customer_dues"], "CRITICAL: total_customer_dues changed!"
         assert before_counts["total_sales_volume"] == after_counts["total_sales_volume"], "CRITICAL: total_sales_volume changed!"
         assert before_counts["carpenters"] == after_counts["carpenters"], "CRITICAL: carpenters changed!"
-        assert before_counts["customer_testimonials"] == after_counts["customer_testimonials"], "CRITICAL: customer_testimonials changed!"
         assert before_counts["app_users"] == after_counts["app_users"], "CRITICAL: app_users changed!"
         assert before_counts["app_settings"] == after_counts["app_settings"], "CRITICAL: app_settings changed!"
         
         assert after_counts["quote_inquiries"] == 0, "quote_inquiries not cleared!"
         assert after_counts["craft_posts"] == 0, "craft_posts not cleared!"
         assert after_counts["craft_comments"] == 0, "craft_comments not cleared!"
+        assert after_counts["customer_testimonials"] == 0, "customer_testimonials not cleared!"
 
         print("\n [ALL SAFETY CHECKS PASSED] Core business data 100% verified intact!")
 
