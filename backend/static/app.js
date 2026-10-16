@@ -1199,8 +1199,8 @@ async function loadExecutiveBI() {
             {
               label: 'Net Profit (₹)',
               data: d.category_breakdown.map(c => c.profit),
-              backgroundColor: 'rgba(16, 185, 129, 0.75)',
-              borderColor: '#10b981',
+              backgroundColor: 'rgba(18, 59, 93, 0.85)',
+              borderColor: '#123b5d',
               borderRadius: 5,
               borderWidth: 1.5
             }
@@ -1228,7 +1228,7 @@ async function loadExecutiveBI() {
           labels: d.location_breakdown.map(l => l.location),
           datasets: [{
             data: d.location_breakdown.map(l => l.revenue),
-            backgroundColor: ['#38bdf8', '#10b981', '#f59e0b', '#818cf8', '#f43f5e', '#a855f7'],
+            backgroundColor: ['#123B5D', '#F59E0B', '#10B981', '#1E40AF', '#D97706', '#8B5CF6'],
             borderWidth: 0
           }]
         },

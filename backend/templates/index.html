@@ -14,13 +14,18 @@
     /* Structural Layout Enhancements for Split-Screen POS & Brand Header */
     .brand-wrap { display: flex; align-items: center; gap: 14px; }
     .brand-logo {
-      width: 46px; height: 46px; border-radius: 12px;
-      background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
+      width: 48px; height: 48px; border-radius: 12px;
+      background: #123B5D;
       display: flex; align-items: center; justify-content: center;
       font-weight: 800; font-size: 17px; color: #fff; letter-spacing: -0.5px;
-      box-shadow: 0 8px 20px -4px rgba(2, 132, 199, 0.5);
-      border: 1px solid rgba(255, 255, 255, 0.22);
+      box-shadow: 0 8px 20px -4px rgba(18, 59, 93, 0.5);
+      border: 1.5px solid #F59E0B;
       flex-shrink: 0;
+      overflow: hidden;
+      padding: 3px;
+    }
+    .brand-logo img, .auth-gate-logo img {
+      width: 100%; height: 100%; object-fit: contain; border-radius: 8px;
     }
     .live-pill {
       display: inline-flex; align-items: center; gap: 7px;
@@ -54,7 +59,7 @@
     .step-badge {
       display: inline-flex; align-items: center; justify-content: center;
       width: 22px; height: 22px; border-radius: 6px;
-      background: rgba(56, 189, 248, 0.15); color: var(--primary);
+      background: rgba(245, 158, 11, 0.15); color: var(--primary);
       font-size: 12px; font-weight: 800; margin-right: 6px;
     }
     .table-scroll { overflow-x: auto; width: 100%; }
@@ -66,7 +71,9 @@
 <div id="consoleAuthGate" class="auth-gate-wrapper">
   <div class="auth-gate-card" id="authGateCard">
     <div class="auth-gate-brand">
-      <div class="auth-gate-logo">BDE</div>
+      <div class="auth-gate-logo">
+        <img src="/static/img/logo/bde_logo.png" onerror="this.onerror=null;if(!this.src.endsWith('.svg')){this.src='/static/img/logo/bde_logo.svg';}else{this.src='static/img/logo/bde_logo.svg';}" alt="BDE Emblem" />
+      </div>
       <div class="auth-gate-shield-tag">🛡️ RESTRICTED ACCESS</div>
     </div>
     
@@ -110,7 +117,9 @@
   <!-- Top Executive Header -->
   <header>
     <div class="brand-wrap">
-      <div class="brand-logo">BDE</div>
+      <div class="brand-logo">
+        <img src="/static/img/logo/bde_logo.png" onerror="this.onerror=null;if(!this.src.endsWith('.svg')){this.src='/static/img/logo/bde_logo.svg';}else{this.src='static/img/logo/bde_logo.svg';}" alt="BDE Emblem" />
+      </div>
       <div>
         <h1 style="font-size: 20px; font-weight: 800; letter-spacing: 0.4px;">BABA DUGDHESWAR ENTERPRISE</h1>
         <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Plywood, Laminate &amp; Hardware Merchant &bull; Onda Majhpara, State Bank - Dol Tola Road, Bankura - 722144</p>

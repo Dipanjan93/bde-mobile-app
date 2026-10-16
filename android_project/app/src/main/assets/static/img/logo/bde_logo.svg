@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 44" width="240" height="44" fill="none">
+  <defs>
+    <linearGradient id="bdeBadgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#123B5D" />
+      <stop offset="100%" stop-color="#0c273e" />
+    </linearGradient>
+    <linearGradient id="saffronGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FBBF24" />
+      <stop offset="100%" stop-color="#F59E0B" />
+    </linearGradient>
+    <filter id="logoGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Left Emblem / Shield -->
+  <g filter="url(#logoGlow)">
+    <rect x="2" y="2" width="40" height="40" rx="10" fill="url(#bdeBadgeGrad)" stroke="url(#saffronGrad)" stroke-width="2"/>
+    <!-- Stacked Plywood Plies Layer Icon -->
+    <path d="M10 13 L22 7 L34 13 L22 19 Z" fill="#F59E0B" opacity="0.95" />
+    <path d="M10 18 L22 24 L34 18" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M10 24 L22 30 L34 24" stroke="#FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M10 30 L22 36 L34 30" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+
+  <!-- Divider Bar -->
+  <line x1="49" y1="8" x2="49" y2="36" stroke="#F59E0B" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- Brand Typography -->
+  <g font-family="'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif">
+    <!-- Monogram Tag -->
+    <text x="56" y="16" fill="#F59E0B" font-size="10" font-weight="900" letter-spacing="1.2">BDE</text>
+    <circle cx="82" cy="13" r="1.5" fill="#FFFFFF" opacity="0.6"/>
+    <text x="88" y="15" fill="#FFFFFF" font-size="8" font-weight="700" letter-spacing="0.8" opacity="0.85">PLYWOOD &amp; SUNMICA</text>
+
+    <!-- Main Title -->
+    <text x="56" y="30" fill="#FFFFFF" font-size="12.5" font-weight="800" letter-spacing="0.3">BABA DUGDHESWAR</text>
+    <!-- Subtitle -->
+    <text x="56" y="40" fill="#FBBF24" font-size="8.5" font-weight="800" letter-spacing="1.8">ENTERPRISE</text>
+  </g>
+</svg>

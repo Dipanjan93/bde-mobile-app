@@ -4,32 +4,33 @@
    ========================================================================== */
 
 :root[data-theme="dark"] {
-  --bg: #0d1117;
-  --bg-mesh: radial-gradient(at 0% 0%, rgba(245, 158, 11, 0.08) 0px, transparent 50%),
-             radial-gradient(at 100% 0%, rgba(217, 119, 6, 0.06) 0px, transparent 50%),
-             radial-gradient(at 50% 100%, rgba(146, 64, 14, 0.05) 0px, transparent 50%);
-  --surface-card: rgba(22, 27, 34, 0.78);
-  --surface-elevated: rgba(33, 38, 45, 0.85);
-  --surface-border: rgba(245, 158, 11, 0.2);
-  --surface-highlight: rgba(245, 158, 11, 0.35);
+  --bg: #0b1522;
+  --bg-mesh: radial-gradient(at 0% 0%, rgba(18, 59, 93, 0.4) 0px, transparent 50%),
+             radial-gradient(at 100% 0%, rgba(245, 158, 11, 0.12) 0px, transparent 50%),
+             radial-gradient(at 50% 100%, rgba(18, 59, 93, 0.3) 0px, transparent 50%);
+  --surface-card: rgba(18, 28, 45, 0.88);
+  --surface-elevated: rgba(25, 39, 62, 0.92);
+  --surface-border: rgba(245, 158, 11, 0.22);
+  --surface-highlight: rgba(245, 158, 11, 0.4);
   --text-main: #f0f6fc;
-  --text-muted: #8b949e;
+  --text-muted: #a0a1a6;
   --primary: #f59e0b;
   --primary-hover: #d97706;
   --primary-glow: rgba(245, 158, 11, 0.35);
+  --brand-blue: #123b5d;
   --emerald: #10b981;
   --emerald-bg: rgba(16, 185, 129, 0.14);
   --amber: #f59e0b;
   --amber-bg: rgba(245, 158, 11, 0.16);
   --rose: #f43f5e;
   --rose-bg: rgba(244, 63, 94, 0.15);
-  --indigo: #d97706;
-  --input-bg: rgba(13, 17, 23, 0.85);
-  --thead-bg: rgba(22, 27, 34, 0.95);
-  --sheet-banner-bg: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #78350f 100%);
-  --sheet-kpi-bg: rgba(22, 27, 34, 0.75);
+  --indigo: #f59e0b;
+  --input-bg: rgba(11, 21, 34, 0.85);
+  --thead-bg: rgba(18, 28, 45, 0.95);
+  --sheet-banner-bg: linear-gradient(135deg, #0b1522 0%, #123b5d 50%, #1e3a5f 100%);
+  --sheet-kpi-bg: rgba(18, 28, 45, 0.75);
   --sheet-kpi-text: #f0f6fc;
-  --sheet-th-bg: #161b22;
+  --sheet-th-bg: #123b5d;
   --card-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 1px 1px rgba(245, 158, 11, 0.15) inset;
   --radius: 14px;
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
@@ -37,32 +38,33 @@
 }
 
 :root[data-theme="light"] {
-  --bg: #f1f5f9;
-  --bg-mesh: radial-gradient(at 0% 0%, rgba(2, 132, 199, 0.08) 0px, transparent 50%),
-             radial-gradient(at 100% 0%, rgba(79, 70, 229, 0.06) 0px, transparent 50%);
-  --surface-card: rgba(255, 255, 255, 0.92);
+  --bg: #e6e7e9;
+  --bg-mesh: radial-gradient(at 0% 0%, rgba(18, 59, 93, 0.06) 0px, transparent 50%),
+             radial-gradient(at 100% 0%, rgba(245, 158, 11, 0.05) 0px, transparent 50%);
+  --surface-card: #ffffff;
   --surface-elevated: #f8fafc;
-  --surface-border: #e2e8f0;
+  --surface-border: #d1d5db;
   --surface-highlight: #cbd5e1;
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-  --primary: #0284c7;
-  --primary-hover: #0369a1;
-  --primary-glow: rgba(2, 132, 199, 0.2);
+  --text-main: #111827;
+  --text-muted: #6b7280;
+  --primary: #f59e0b;
+  --primary-hover: #d97706;
+  --primary-glow: rgba(245, 158, 11, 0.25);
+  --brand-blue: #123b5d;
   --emerald: #059669;
   --emerald-bg: #ecfdf5;
-  --amber: #d97706;
+  --amber: #f59e0b;
   --amber-bg: #fffbeb;
   --rose: #e11d48;
   --rose-bg: #fff1f2;
-  --indigo: #4f46e5;
+  --indigo: #123b5d;
   --input-bg: #ffffff;
   --thead-bg: #f1f5f9;
-  --sheet-banner-bg: linear-gradient(135deg, #0369a1 0%, #0284c7 100%);
-  --sheet-kpi-bg: #f0f9ff;
-  --sheet-kpi-text: #0f172a;
-  --sheet-th-bg: #0284c7;
-  --card-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.07), 0 0 1px 1px rgba(15, 23, 42, 0.04);
+  --sheet-banner-bg: linear-gradient(135deg, #123b5d 0%, #1a4f7c 100%);
+  --sheet-kpi-bg: #ffffff;
+  --sheet-kpi-text: #111827;
+  --sheet-th-bg: #123b5d;
+  --card-shadow: 0 10px 30px -10px rgba(18, 59, 93, 0.08), 0 0 1px 1px rgba(18, 59, 93, 0.05);
   --radius: 14px;
 }
 
@@ -529,10 +531,10 @@ body.admin-unlocked .admin-tab { display: inline-flex !important; }
 }
 
 .auth-gate-logo {
-  width: 52px;
-  height: 52px;
+  width: 54px;
+  height: 54px;
   border-radius: 14px;
-  background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
+  background: #123B5D;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -540,8 +542,10 @@ body.admin-unlocked .admin-tab { display: inline-flex !important; }
   font-size: 20px;
   color: #fff;
   letter-spacing: -0.5px;
-  box-shadow: 0 10px 25px -4px rgba(2, 132, 199, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 10px 25px -4px rgba(18, 59, 93, 0.5);
+  border: 1.5px solid #F59E0B;
+  overflow: hidden;
+  padding: 4px;
 }
 
 .auth-gate-shield-tag {
@@ -728,10 +732,10 @@ body.admin-unlocked .admin-tab { display: inline-flex !important; }
   font-size: 14px;
   font-weight: 800;
   border-radius: 12px;
-  background: linear-gradient(135deg, #0284c7 0%, #4f46e5 100%);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.5);
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #111827;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.4);
   cursor: pointer;
   display: flex;
   align-items: center;

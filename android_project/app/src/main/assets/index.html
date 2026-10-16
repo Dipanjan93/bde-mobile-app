@@ -7,7 +7,7 @@
   
   <!-- PWA Metadata -->
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#3B0764">
+  <meta name="theme-color" content="#123B5D">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="BDE Store">
@@ -22,51 +22,50 @@
 
   <style>
     /* =========================================================
-       CSS VARIABLES & RESET (Immersive Material & Timber Glassmorphism)
+       CSS VARIABLES & RESET (Official BDE Corporate Palette)
        ========================================================= */
     :root {
-      /* Immersive Obsidian & Charcoal Palette */
-      --bg-page: #0d1117;
-      --bg-dark-secondary: #161b22;
-      --surface: rgba(22, 27, 34, 0.78);
-      --surface-2: rgba(33, 38, 45, 0.85);
-      --surface-glass: rgba(22, 27, 34, 0.75);
-      --surface-elevated: rgba(30, 41, 59, 0.7);
+      /* Official BDE Corporate Palette (Reliable, Energetic, Professional) */
+      --primary-deep-blue: #123B5D;
+      --primary-deep-blue-dark: #0d2840;
+      --primary-deep-blue-light: #1b4f7a;
+      --saffron-orange: #F59E0B;
+      --saffron-orange-hover: #D97706;
+      --pure-white: #FFFFFF;
+      --light-grey: #E6E7E9;
+      --dark-grey: #A0A1A6;
+      --rich-black: #111827;
+
+      /* Page & Structural Surface Tokens */
+      --bg-page: #E6E7E9;
+      --bg-header: #123B5D;
+      --surface-card: #FFFFFF;
+      --surface-elevated: #FFFFFF;
+      --surface-glass: rgba(255, 255, 255, 0.96);
       
-      /* Glowing Warm Amber & Architectural Timber Gold */
-      --amber-glow: #f59e0b;
-      --amber-light: #fbbf24;
-      --gold-accent: #d97706;
-      --gold-brass: #fbbf24;
-      --gold-border: rgba(245, 158, 11, 0.25);
+      /* Vibrant Accents & Indicators */
+      --amber-glow: #F59E0B;
+      --amber-light: #FBBF24;
+      --gold-accent: #D97706;
+      --gold-brass: #FBBF24;
+      --gold-border: rgba(245, 158, 11, 0.3);
       --wood-teak: #92400e;
-      --festive-yellow: #fbbf24;
-      --festive-gold: #f59e0b;
-      --primary-purple-dark: #0d1117;
-      --primary-purple: #161b22;
-      --primary-violet: #f59e0b;
-      --royal-indigo: #0d1117;
-      --accent-orange: #f97316;
-      --success-green: #10b981;
+      --success-green: #10B981;
       --success-green-dark: #059669;
-      --danger-red: #ef4444;
+      --danger-red: #EF4444;
 
       /* Typography & High-Contrast Readability */
-      --text-main: #f0f6fc;
-      --text-muted: #8b949e;
-      --text-light: #6e7681;
-      --border-color: rgba(245, 158, 11, 0.2);
+      --text-main: #111827;
+      --text-header: #FFFFFF;
+      --text-muted: #6B7280;
+      --text-light: #9CA3AF;
+      --border-color: #D1D5DB;
 
-      /* Glassmorphism & Shadow Tokens */
-      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
-      --shadow-md: 0 8px 24px -4px rgba(0, 0, 0, 0.55), 0 0 1px 1px rgba(245, 158, 11, 0.15);
-      --shadow-lg: 0 16px 36px -6px rgba(0, 0, 0, 0.7), 0 0 2px 1px rgba(245, 158, 11, 0.25);
-      --shadow-festive: 0 8px 32px 0 rgba(0, 0, 0, 0.5), 0 0 20px rgba(245, 158, 11, 0.18);
-      --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-
-      /* Flipkart-style badge tokens */
-      --fk-blue: #38bdf8;
-      --fk-green: #10b981;
+      /* Commercial High-Trust Shadows */
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+      --shadow-md: 0 4px 14px rgba(18, 59, 93, 0.08);
+      --shadow-lg: 0 10px 28px rgba(18, 59, 93, 0.12);
+      --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
 
       --safe-bottom: env(safe-area-inset-bottom, 16px);
       --bottom-nav-height: 64px;
@@ -86,12 +85,7 @@
 
     body {
       font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: var(--bg-page);
-      background-image: 
-        radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.08) 0%, transparent 45%),
-        radial-gradient(circle at 10% 30%, rgba(217, 119, 6, 0.04) 0%, transparent 35%),
-        radial-gradient(circle at 90% 70%, rgba(146, 64, 14, 0.04) 0%, transparent 40%);
-      background-attachment: fixed;
+      background-color: #E6E7E9;
       color: var(--text-main);
       overflow-x: hidden;
       min-height: 100vh;
@@ -100,13 +94,12 @@
     }
 
     /* =========================================================
-       1. SPLASH SCREEN (Obsidian & Glowing Gold BDE Emblem)
+       1. SPLASH SCREEN (Deep Blue #123B5D & Saffron Gold Emblem)
        ========================================================= */
     #splash-screen {
       position: fixed;
       inset: 0;
-      background: #0d1117;
-      background: radial-gradient(circle at center, #1f2937 0%, #111827 50%, #0d1117 100%);
+      background: radial-gradient(circle at center, #1b4f7a 0%, #123B5D 60%, #0a2339 100%);
       z-index: 99999;
       display: flex;
       flex-direction: column;
@@ -138,26 +131,26 @@
       width: 104px;
       height: 104px;
       border-radius: 28px;
-      background: linear-gradient(135deg, #161b22 0%, #21262d 100%);
-      border: 2px solid rgba(245, 158, 11, 0.5);
+      background: linear-gradient(135deg, #123B5D 0%, #0a2339 100%);
+      border: 2.5px solid #F59E0B;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.7), 0 0 30px rgba(245, 158, 11, 0.35);
+      box-shadow: 0 16px 36px -6px rgba(10, 35, 57, 0.8), 0 0 30px rgba(245, 158, 11, 0.45);
       animation: pulseBadge 1.3s infinite alternate ease-in-out;
       position: relative;
     }
 
     @keyframes pulseBadge {
-      0% { transform: scale(1); box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.7), 0 0 25px rgba(245, 158, 11, 0.25); }
-      100% { transform: scale(1.08); box-shadow: 0 20px 48px -4px rgba(0, 0, 0, 0.85), 0 0 40px rgba(245, 158, 11, 0.5); }
+      0% { transform: scale(1); box-shadow: 0 16px 36px -6px rgba(10, 35, 57, 0.8), 0 0 25px rgba(245, 158, 11, 0.35); }
+      100% { transform: scale(1.08); box-shadow: 0 20px 48px -4px rgba(10, 35, 57, 0.95), 0 0 40px rgba(245, 158, 11, 0.6); }
     }
 
     .splash-logo-text {
       font-weight: 900;
       font-size: 38px;
       letter-spacing: -1px;
-      background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #d97706 100%);
+      background: linear-gradient(135deg, #FFFFFF 0%, #FBBF24 50%, #F59E0B 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5));
@@ -167,22 +160,22 @@
       margin-top: 22px;
       font-weight: 900;
       font-size: 22px;
-      color: #f0f6fc;
-      text-shadow: 0 0 20px rgba(245, 158, 11, 0.35);
+      color: #FFFFFF;
+      text-shadow: 0 2px 14px rgba(0, 0, 0, 0.4);
       letter-spacing: -0.3px;
     }
 
     .splash-bengali {
       font-weight: 700;
       font-size: 15px;
-      color: #fbbf24;
+      color: #FBBF24;
       margin-top: 4px;
     }
 
     .splash-tagline {
       font-weight: 600;
       font-size: 12px;
-      color: #94a3b8;
+      color: #E6E7E9;
       margin-top: 10px;
       letter-spacing: 1.2px;
       text-transform: uppercase;
@@ -191,7 +184,7 @@
     .splash-loader-bar {
       width: 160px;
       height: 4px;
-      background: rgba(245, 158, 11, 0.15);
+      background: rgba(255, 255, 255, 0.2);
       border-radius: 99px;
       margin-top: 32px;
       overflow: hidden;
@@ -272,16 +265,14 @@
     }
 
     .app-header {
-      background: rgba(13, 17, 23, 0.88);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(245, 158, 11, 0.2);
-      color: #f0f6fc;
+      background: #123B5D;
+      color: #FFFFFF;
       padding-top: env(safe-area-inset-top, 8px);
       position: sticky;
       top: 0;
       z-index: 1000;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 4px 20px rgba(18, 59, 93, 0.35);
+      border-bottom: 1px solid #0d2840;
     }
 
     /* Flipkart-Style Header Rows 1 & 2 */
@@ -307,13 +298,36 @@
       display: none;
     }
 
+    /* Dedicated Corporate Brand Logo Slot */
+    .bde-header-logo {
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+      text-decoration: none;
+      margin-right: 6px;
+      transition: transform 0.2s ease;
+    }
+
+    .bde-header-logo:hover {
+      transform: scale(1.02);
+    }
+
+    .bde-logo-img {
+      height: 32px;
+      width: auto;
+      max-width: 175px;
+      object-fit: contain;
+      display: block;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    }
+
     .brand-pill {
       flex-shrink: 0;
-      background: rgba(22, 27, 34, 0.7);
-      border: 1px solid rgba(245, 158, 11, 0.22);
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.22);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      color: #c9d1d9;
+      color: #FFFFFF;
       padding: 4px 10px;
       border-radius: 99px;
       font-size: 11px;
@@ -323,34 +337,35 @@
       gap: 5px;
       cursor: pointer;
       white-space: nowrap;
-      transition: all 0.22s ease;
+      transition: all 0.2s ease;
     }
 
     .brand-pill:hover {
-      border-color: rgba(245, 158, 11, 0.55);
-      color: #ffffff;
+      background: rgba(255, 255, 255, 0.22);
+      border-color: #F59E0B;
+      color: #F59E0B;
       transform: translateY(-1px);
     }
 
     .brand-pill.active {
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.35) 100%);
-      color: #fbbf24;
-      border-color: #f59e0b;
-      box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
+      background: #F59E0B;
+      color: #FFFFFF;
+      border-color: #F59E0B;
+      box-shadow: 0 2px 10px rgba(245, 158, 11, 0.4);
     }
 
     .brand-pill-ar {
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.28));
-      border: 1px solid rgba(245, 158, 11, 0.55);
-      color: #fbbf24;
+      background: rgba(245, 158, 11, 0.22);
+      border: 1px solid #F59E0B;
+      color: #FBBF24;
     }
 
     .brand-pill-badge {
       font-size: 8px;
       padding: 1px 4px;
       border-radius: 4px;
-      background: #f59e0b;
-      color: #0d1117;
+      background: #FFFFFF;
+      color: #123B5D;
       font-weight: 800;
       margin-left: 2px;
     }
@@ -362,9 +377,9 @@
       gap: 5px;
       font-size: 11px;
       font-weight: 600;
-      color: #c9d1d9;
-      background: rgba(22, 27, 34, 0.6);
-      border: 1px solid rgba(245, 158, 11, 0.2);
+      color: #FFFFFF;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.22);
       border-radius: 99px;
       padding: 4px 10px;
       cursor: pointer;
@@ -376,9 +391,9 @@
     }
 
     .header-location-box:hover {
-      background: rgba(245, 158, 11, 0.12);
-      border-color: #f59e0b;
-      color: #fbbf24;
+      background: rgba(255, 255, 255, 0.22);
+      border-color: #F59E0B;
+      color: #FBBF24;
     }
 
     .header-location-box .loc-text {
@@ -388,7 +403,7 @@
     }
 
     .header-location-box .loc-arrow {
-      color: #fbbf24;
+      color: #F59E0B;
       font-weight: 800;
       font-size: 13px;
     }
@@ -421,9 +436,9 @@
       gap: 5px;
       padding: 7px 11px;
       border-radius: 10px;
-      background: rgba(22, 27, 34, 0.7);
-      border: 1px solid rgba(245, 158, 11, 0.22);
-      color: #f0f6fc;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #FFFFFF;
       font-size: 11.5px;
       font-weight: 700;
       cursor: pointer;
@@ -433,21 +448,27 @@
     }
 
     .header-action-btn:hover {
-      border-color: rgba(245, 158, 11, 0.5);
-      background: rgba(245, 158, 11, 0.12);
-      color: #fbbf24;
+      background: rgba(255, 255, 255, 0.22);
+      border-color: #F59E0B;
+      color: #F59E0B;
     }
 
     .header-action-cart {
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(217, 119, 6, 0.28) 100%);
-      border-color: rgba(245, 158, 11, 0.4);
-      color: #fbbf24;
+      background: #F59E0B;
+      border-color: #D97706;
+      color: #FFFFFF;
       position: relative;
+      font-weight: 800;
+    }
+
+    .header-action-cart:hover {
+      background: #D97706;
+      color: #FFFFFF;
     }
 
     .header-cart-badge {
-      background: #ef4444;
-      color: #ffffff;
+      background: #EF4444;
+      color: #FFFFFF;
       font-size: 9px;
       font-weight: 800;
       border-radius: 99px;
@@ -462,12 +483,10 @@
       position: absolute;
       top: calc(100% + 4px);
       right: 14px;
-      background: rgba(22, 27, 34, 0.96);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(245, 158, 11, 0.35);
+      background: #FFFFFF;
+      border: 1px solid #D1D5DB;
       border-radius: 12px;
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.75), 0 0 20px rgba(245, 158, 11, 0.2);
+      box-shadow: 0 10px 30px rgba(18, 59, 93, 0.2);
       padding: 6px;
       min-width: 180px;
       display: none;
@@ -483,7 +502,7 @@
       padding: 8px 12px;
       font-size: 12px;
       font-weight: 600;
-      color: #c9d1d9;
+      color: #123B5D;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -494,40 +513,38 @@
     }
 
     .header-more-item:hover {
-      background: rgba(245, 158, 11, 0.15);
-      color: #fbbf24;
+      background: #F3F4F6;
+      color: #F59E0B;
     }
 
-    /* Sticky Obsidian & Amber Search Bar */
+    /* Pure White High-Contrast Search Bar */
     .search-bar-wrap {
       padding: 8px 14px 10px 14px;
       position: relative;
     }
 
     .search-bar-box {
-      background: rgba(22, 27, 34, 0.85);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(245, 158, 11, 0.25);
-      border-radius: 12px;
+      background: #FFFFFF;
+      border: 1px solid #D1D5DB;
+      border-radius: 10px;
       height: 42px;
       display: flex;
       align-items: center;
       padding: 0 12px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
       position: relative;
       transition: all 0.2s ease;
     }
 
     .search-bar-box:focus-within {
-      border-color: #f59e0b;
-      box-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
+      border-color: #F59E0B;
+      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.35);
     }
 
     .search-bar-box svg {
       width: 18px;
       height: 18px;
-      color: #8b949e;
+      color: #123B5D;
       flex-shrink: 0;
     }
 
@@ -539,19 +556,19 @@
       margin-left: 8px;
       font-family: inherit;
       font-size: 13.5px;
-      font-weight: 500;
-      color: #f0f6fc;
+      font-weight: 600;
+      color: #111827;
       background: transparent;
     }
 
     .search-input::placeholder {
-      color: #6e7681;
+      color: #6B7280;
       font-weight: 400;
     }
 
     .search-clear-btn {
       display: none;
-      background: rgba(255, 255, 255, 0.1);
+      background: #E5E7EB;
       border: none;
       width: 20px;
       height: 20px;
@@ -559,18 +576,17 @@
       align-items: center;
       justify-content: center;
       font-size: 11px;
-      color: #8b949e;
+      color: #4B5563;
       cursor: pointer;
       margin-right: 6px;
     }
 
     .search-mic-icon {
-      color: #fbbf24;
+      color: #123B5D;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.4));
       width: 28px;
       height: 28px;
       border-radius: 50%;
@@ -579,14 +595,13 @@
     }
 
     .search-mic-icon:hover {
-      color: #f59e0b;
+      color: #F59E0B;
       transform: scale(1.1);
     }
 
     .search-mic-icon.listening {
-      color: #ffffff;
-      background: #ef4444;
-      filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.9));
+      color: #FFFFFF;
+      background: #EF4444;
       animation: micGlowPulse 1.2s infinite ease-in-out;
     }
 
@@ -611,16 +626,14 @@
       top: 56px;
       left: 14px;
       right: 14px;
-      background: rgba(22, 27, 34, 0.95);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-radius: 14px;
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7), 0 0 20px rgba(245, 158, 11, 0.2);
+      background: #FFFFFF;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(18, 59, 93, 0.2);
       max-height: 280px;
       overflow-y: auto;
       z-index: 2000;
       display: none;
-      border: 1px solid rgba(245, 158, 11, 0.3);
+      border: 1px solid #D1D5DB;
     }
 
     .suggestion-item {
@@ -628,21 +641,22 @@
       align-items: center;
       gap: 12px;
       padding: 10px 14px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      border-bottom: 1px solid #F3F4F6;
       cursor: pointer;
       transition: background 0.15s ease;
     }
 
     .suggestion-item:active, .suggestion-item:hover {
-      background: rgba(245, 158, 11, 0.12);
+      background: #F9FAFB;
+      color: #F59E0B;
     }
 
     .suggestion-thumb {
       width: 36px;
       height: 36px;
       border-radius: 8px;
-      background: rgba(13, 17, 23, 0.8);
-      border: 1px solid rgba(245, 158, 11, 0.2);
+      background: #F3F4F6;
+      border: 1px solid #E5E7EB;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -662,27 +676,25 @@
     .suggestion-name {
       font-size: 12.5px;
       font-weight: 700;
-      color: #f0f6fc;
+      color: #111827;
     }
 
     .suggestion-rate {
       font-size: 11px;
       font-weight: 600;
-      color: #fbbf24;
+      color: #D97706;
     }
 
     /* =========================================================
        FLIPKART-STYLE COLLAPSING CATEGORY STRIP (ROW 3)
        ========================================================= */
     .category-scroll-container {
-      background: rgba(13, 17, 23, 0.88);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(245, 158, 11, 0.18);
+      background: #FFFFFF;
+      border-bottom: 1px solid #E5E7EB;
       position: sticky;
       top: 0;
       z-index: 990;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 2px 10px rgba(18, 59, 93, 0.08);
       transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
       padding: 8px 6px;
     }
@@ -690,10 +702,11 @@
     .category-scroll-container.header-compact,
     .category-scroll-container.header-scrolled {
       padding: 2px 6px;
-      background: rgba(13, 17, 23, 0.72);
+      background: rgba(255, 255, 255, 0.96);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+      border-bottom: 2px solid #F59E0B;
+      box-shadow: 0 4px 16px rgba(18, 59, 93, 0.12);
     }
 
     .category-scroll {
@@ -759,32 +772,33 @@
       width: 42px;
       height: 42px;
       border-radius: 50%;
-      background: rgba(22, 27, 34, 0.85);
-      border: 1.5px solid rgba(245, 158, 11, 0.25);
+      background: #F3F4F6;
+      border: 1.5px solid #E5E7EB;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 19px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+      font-size: 20px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .category-item:hover .category-icon-circle {
       transform: translateY(-2px);
-      border-color: rgba(245, 158, 11, 0.5);
+      border-color: #F59E0B;
+      background: #FEF3C7;
     }
 
     .category-item.active .category-icon-circle {
-      border-color: #f59e0b;
-      background: rgba(245, 158, 11, 0.2);
-      box-shadow: 0 0 16px rgba(245, 158, 11, 0.45);
+      border-color: #F59E0B;
+      background: #FEF3C7;
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
       transform: scale(1.08);
     }
 
     .category-label {
       font-size: 11px;
-      font-weight: 600;
-      color: #c9d1d9;
+      font-weight: 700;
+      color: #123B5D;
       text-align: center;
       white-space: nowrap;
       transition: color 0.2s ease, font-weight 0.2s ease;
@@ -796,25 +810,23 @@
     }
 
     .category-item:hover .category-label {
-      color: #ffffff;
+      color: #F59E0B;
     }
 
     .category-item.active .category-label {
-      color: #fbbf24;
+      color: #F59E0B;
       font-weight: 800;
-      text-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
     }
 
     /* Active Underline Indicator */
     .category-underline {
       position: absolute;
       bottom: 0;
-      left: 10%;
-      right: 10%;
+      left: 12%;
+      right: 12%;
       height: 2.5px;
-      background: linear-gradient(90deg, #f59e0b, #fbbf24);
-      border-radius: 2px;
-      box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+      background: #F59E0B;
+      border-radius: 99px;
       opacity: 0;
       transform: scaleX(0);
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -859,9 +871,9 @@
       border-radius: 16px;
       overflow: hidden;
       position: relative;
-      border: 1px solid rgba(245, 158, 11, 0.28);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(245, 158, 11, 0.15);
-      background: #161b22;
+      border: 1px solid #D1D5DB;
+      box-shadow: 0 4px 14px rgba(18, 59, 93, 0.08);
+      background: #FFFFFF;
       cursor: pointer;
       transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
       aspect-ratio: 800 / 360;
@@ -885,8 +897,8 @@
 
     .special-banner-card:hover {
       transform: translateY(-3px) scale(1.01);
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7), 0 0 25px rgba(245, 158, 11, 0.3);
-      border-color: rgba(245, 158, 11, 0.6);
+      box-shadow: 0 10px 25px rgba(18, 59, 93, 0.16);
+      border-color: #F59E0B;
     }
 
     .special-banner-card img {
@@ -903,11 +915,9 @@
       width: 36px;
       height: 36px;
       border-radius: 50%;
-      background: rgba(13, 17, 23, 0.85);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(245, 158, 11, 0.4);
-      color: #fbbf24;
+      background: #FFFFFF;
+      border: 1px solid #D1D5DB;
+      color: #123B5D;
       font-size: 20px;
       font-weight: 800;
       display: flex;
@@ -915,13 +925,14 @@
       justify-content: center;
       cursor: pointer;
       z-index: 10;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
       transition: all 0.2s ease;
     }
 
     .banner-nav-btn:hover {
-      background: rgba(245, 158, 11, 0.25);
-      border-color: #f59e0b;
+      background: #F3F4F6;
+      border-color: #F59E0B;
+      color: #F59E0B;
       transform: translateY(-50%) scale(1.1);
     }
 
@@ -951,8 +962,8 @@
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: rgba(245, 158, 11, 0.25);
-      border: 1px solid rgba(245, 158, 11, 0.4);
+      background: #D1D5DB;
+      border: none;
       cursor: pointer;
       transition: all 0.25s ease;
     }
@@ -960,8 +971,8 @@
     .banner-dot.active {
       width: 22px;
       border-radius: 99px;
-      background: linear-gradient(90deg, #f59e0b, #fbbf24);
-      box-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+      background: #F59E0B;
+      box-shadow: 0 1px 4px rgba(245, 158, 11, 0.4);
     }
 
     /* =========================================================
@@ -975,12 +986,10 @@
     }
 
     .category-deal-shelf {
-      background: rgba(22, 27, 34, 0.72);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: #FFFFFF;
       border-radius: 18px;
-      border: 1px solid rgba(245, 158, 11, 0.2);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+      border: 1px solid #D1D5DB;
+      box-shadow: 0 4px 14px rgba(18, 59, 93, 0.06);
       padding: 14px 12px 14px 14px;
       position: relative;
       overflow: hidden;
@@ -1006,8 +1015,8 @@
       width: 38px;
       height: 38px;
       border-radius: 10px;
-      background: rgba(245, 158, 11, 0.12);
-      border: 1px solid rgba(245, 158, 11, 0.3);
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1017,9 +1026,8 @@
     .shelf-title {
       font-size: 14px;
       font-weight: 800;
-      color: #f0f6fc;
+      color: #123B5D;
       line-height: 1.25;
-      text-shadow: 0 0 16px rgba(245, 158, 11, 0.25);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -1028,7 +1036,7 @@
     .shelf-subtitle {
       font-size: 11px;
       font-weight: 600;
-      color: #8b949e;
+      color: #6B7280;
       margin-top: 2px;
       white-space: nowrap;
       overflow: hidden;
@@ -1037,9 +1045,9 @@
 
     .shelf-view-all-btn {
       flex-shrink: 0;
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.25) 100%);
-      border: 1px solid rgba(245, 158, 11, 0.35);
-      color: #fbbf24;
+      background: #F59E0B;
+      border: 1px solid #D97706;
+      color: #FFFFFF;
       font-size: 11.5px;
       font-weight: 800;
       padding: 5px 12px;
@@ -1052,9 +1060,9 @@
     }
 
     .shelf-view-all-btn:hover {
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      color: #0d1117;
-      box-shadow: 0 0 14px rgba(245, 158, 11, 0.4);
+      background: #D97706;
+      color: #FFFFFF;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
     }
 
     .shelf-track-container {
@@ -1081,9 +1089,9 @@
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background: rgba(13, 17, 23, 0.9);
-      border: 1px solid rgba(245, 158, 11, 0.4);
-      color: #fbbf24;
+      background: #FFFFFF;
+      border: 1px solid #D1D5DB;
+      color: #123B5D;
       font-size: 18px;
       font-weight: 800;
       display: flex;
@@ -1091,13 +1099,14 @@
       justify-content: center;
       cursor: pointer;
       z-index: 10;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
       transition: all 0.2s ease;
     }
 
     .shelf-arrow-btn:hover {
-      background: rgba(245, 158, 11, 0.3);
-      border-color: #f59e0b;
+      background: #F3F4F6;
+      border-color: #F59E0B;
+      color: #F59E0B;
       transform: translateY(-50%) scale(1.1);
     }
 
@@ -1118,15 +1127,13 @@
     /* Shelf Product Card */
     .shelf-card {
       flex: 0 0 160px;
-      background: rgba(13, 17, 23, 0.75);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: #FFFFFF;
       border-radius: 14px;
-      border: 1px solid rgba(245, 158, 11, 0.2);
+      border: 1px solid #E5E7EB;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
       cursor: pointer;
       transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
     }
@@ -1139,14 +1146,14 @@
 
     .shelf-card:hover {
       transform: translateY(-3px);
-      border-color: rgba(245, 158, 11, 0.55);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.55), 0 0 16px rgba(245, 158, 11, 0.2);
+      border-color: #F59E0B;
+      box-shadow: 0 8px 20px rgba(18, 59, 93, 0.12);
     }
 
     .shelf-card-thumb {
       width: 100%;
       height: 110px;
-      background: #0d1117;
+      background: #F9FAFB;
       position: relative;
       overflow: hidden;
       display: flex;
@@ -1169,9 +1176,9 @@
       position: absolute;
       top: 6px;
       left: 6px;
-      background: rgba(0, 0, 0, 0.75);
-      border: 1px solid rgba(245, 158, 11, 0.4);
-      color: #fbbf24;
+      background: #123B5D;
+      border: 1px solid #1e5684;
+      color: #FBBF24;
       font-size: 9px;
       font-weight: 800;
       padding: 2px 6px;
@@ -1190,8 +1197,8 @@
 
     .shelf-card-brand {
       font-size: 9.5px;
-      font-weight: 700;
-      color: #fbbf24;
+      font-weight: 800;
+      color: #D97706;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       margin-bottom: 2px;
@@ -1200,7 +1207,7 @@
     .shelf-card-name {
       font-size: 12px;
       font-weight: 700;
-      color: #f0f6fc;
+      color: #111827;
       line-height: 1.3;
       display: -webkit-box;
       -webkit-line-clamp: 2;
@@ -1215,7 +1222,7 @@
       gap: 4px;
       font-size: 10px;
       font-weight: 600;
-      color: #10b981;
+      color: #10B981;
       margin-top: 6px;
     }
 
@@ -1223,7 +1230,7 @@
       width: 5px;
       height: 5px;
       border-radius: 50%;
-      background: #10b981;
+      background: #10B981;
     }
 
     .shelf-card-btn {
@@ -1231,8 +1238,8 @@
       width: 100%;
       height: 28px;
       border-radius: 8px;
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      color: #0d1117;
+      background: #F59E0B;
+      color: #FFFFFF;
       font-size: 11px;
       font-weight: 800;
       border: none;
@@ -1245,7 +1252,8 @@
     }
 
     .shelf-card-btn:hover {
-      box-shadow: 0 0 12px rgba(245, 158, 11, 0.45);
+      background: #D97706;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
     }
 
     /* Store Sub-filter chips */
@@ -1264,44 +1272,40 @@
     .filter-chip {
       flex-shrink: 0;
       padding: 6px 14px;
-      background: rgba(22, 27, 34, 0.75);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(245, 158, 11, 0.2);
+      background: #FFFFFF;
+      border: 1px solid #D1D5DB;
       border-radius: 99px;
       font-size: 11.5px;
       font-weight: 600;
-      color: #c9d1d9;
+      color: #123B5D;
       cursor: pointer;
       transition: all 0.2s ease;
     }
 
     .filter-chip:hover {
-      border-color: rgba(245, 158, 11, 0.45);
-      color: #ffffff;
+      border-color: #F59E0B;
+      color: #F59E0B;
       transform: translateY(-1px);
     }
 
     .filter-chip.active {
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(217, 119, 6, 0.35) 100%);
-      color: #fbbf24;
-      border-color: #f59e0b;
+      background: #123B5D;
+      color: #FFFFFF;
+      border-color: #123B5D;
       font-weight: 700;
-      box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
+      box-shadow: 0 2px 8px rgba(18, 59, 93, 0.25);
     }
 
     /* Store Stats / Trust Banner */
     .trust-strip {
       display: flex;
       justify-content: space-around;
-      background: rgba(22, 27, 34, 0.75);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: #123B5D;
       margin: 8px 14px 12px 14px;
       padding: 10px 8px;
       border-radius: 12px;
-      border: 1px solid rgba(245, 158, 11, 0.2);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      border: 1px solid #0d2840;
+      box-shadow: 0 4px 14px rgba(18, 59, 93, 0.18);
     }
 
     .trust-item {
@@ -1310,14 +1314,14 @@
       gap: 6px;
       font-size: 11px;
       font-weight: 700;
-      color: #f0f6fc;
+      color: #FFFFFF;
     }
 
     .trust-item span.icon {
       font-size: 14px;
     }
 
-    /* 2-Column Product Grid (Frosted Glassmorphic Cards) */
+    /* 2-Column Product Grid (Clean White Cards) */
     .product-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -1326,28 +1330,26 @@
     }
 
     .product-card {
-      background: rgba(22, 27, 34, 0.75);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: #FFFFFF;
       border-radius: 14px;
-      border: 1px solid rgba(245, 158, 11, 0.2);
+      border: 1px solid #E5E7EB;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
       position: relative;
       transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
     }
 
     .product-card:hover {
       transform: translateY(-3px) scale(1.015);
-      border-color: rgba(245, 158, 11, 0.55);
-      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), 0 0 22px rgba(245, 158, 11, 0.22);
+      border-color: #F59E0B;
+      box-shadow: 0 8px 24px rgba(18, 59, 93, 0.12);
     }
 
     .product-card:active {
       transform: scale(0.985);
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
 
     .card-badge-wrap {
@@ -1365,7 +1367,7 @@
       text-transform: uppercase;
       letter-spacing: 0.3px;
       color: #FFFFFF;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
     }
 
     .deal-badge.festive {
@@ -1373,7 +1375,7 @@
     }
 
     .deal-badge.marine {
-      background: linear-gradient(135deg, #0284C7, #2563EB);
+      background: linear-gradient(135deg, #123B5D, #1e5684);
     }
 
     .deal-badge.gold {
@@ -1381,19 +1383,19 @@
     }
 
     .deal-badge.purple {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      color: #0d1117;
+      background: #F59E0B;
+      color: #FFFFFF;
     }
 
     .deal-badge.blue {
-      background: #2563EB;
+      background: #123B5D;
     }
 
     .card-media {
       width: 100%;
       height: 140px;
-      background: radial-gradient(circle at center, rgba(33, 38, 45, 0.85) 0%, rgba(13, 17, 23, 0.95) 100%);
-      border-bottom: 1px solid rgba(245, 158, 11, 0.12);
+      background: #F9FAFB;
+      border-bottom: 1px solid #F3F4F6;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1406,7 +1408,7 @@
       max-width: 100%;
       max-height: 100%;
       object-fit: contain;
-      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15));
       transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
@@ -1433,7 +1435,7 @@
     .brand-tag {
       font-size: 10px;
       font-weight: 800;
-      color: #fbbf24;
+      color: #D97706;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
@@ -1444,13 +1446,13 @@
       gap: 3px;
       font-size: 9.5px;
       font-weight: 700;
-      color: #10b981;
+      color: #10B981;
     }
 
     .card-title {
       font-size: 12.5px;
       font-weight: 700;
-      color: #f0f6fc;
+      color: #111827;
       line-height: 1.35;
       height: 34px;
       overflow: hidden;
@@ -1467,13 +1469,13 @@
     .price-main {
       font-size: 14.5px;
       font-weight: 800;
-      color: #f0f6fc;
+      color: #123B5D;
     }
 
     .price-mrp {
       font-size: 11px;
       font-weight: 600;
-      color: #8b949e;
+      color: #9CA3AF;
       text-decoration: line-through;
       margin-left: 4px;
     }
@@ -1481,14 +1483,14 @@
     .price-savings {
       font-size: 10.5px;
       font-weight: 700;
-      color: #10b981;
+      color: #10B981;
       margin-left: 4px;
     }
 
     .sheet-rate-note {
       font-size: 10.5px;
       font-weight: 600;
-      color: #8b949e;
+      color: #6B7280;
       margin-top: 2px;
     }
 
@@ -1496,9 +1498,9 @@
       margin-top: 10px;
       width: 100%;
       height: 32px;
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.16) 0%, rgba(217, 119, 6, 0.24) 100%);
-      color: #fbbf24;
-      border: 1px solid rgba(245, 158, 11, 0.35);
+      background: #F59E0B;
+      color: #FFFFFF;
+      border: 1px solid #D97706;
       border-radius: 8px;
       font-size: 11.5px;
       font-weight: 800;
@@ -1511,10 +1513,9 @@
     }
 
     .btn-card-enquire:hover, .btn-card-enquire:active {
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      color: #0d1117;
-      border-color: #fbbf24;
-      box-shadow: 0 0 16px rgba(245, 158, 11, 0.45);
+      background: #D97706;
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
       transform: translateY(-1px);
     }
 
@@ -1805,46 +1806,44 @@
     .village-chip {
       flex-shrink: 0;
       padding: 6px 14px;
-      background: rgba(22, 27, 34, 0.75);
-      border: 1px solid rgba(245, 158, 11, 0.2);
+      background: #FFFFFF;
+      border: 1px solid #D1D5DB;
       border-radius: 99px;
       font-size: 11.5px;
       font-weight: 600;
-      color: #c9d1d9;
+      color: #123B5D;
       cursor: pointer;
       transition: all 0.2s ease;
     }
 
     .village-chip:hover {
-      border-color: rgba(245, 158, 11, 0.45);
-      color: #ffffff;
+      border-color: #F59E0B;
+      color: #F59E0B;
       transform: translateY(-1px);
     }
 
     .village-chip.active {
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(217, 119, 6, 0.35) 100%);
-      color: #fbbf24;
-      border-color: #f59e0b;
+      background: #123B5D;
+      color: #FFFFFF;
+      border-color: #123B5D;
       font-weight: 700;
-      box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
+      box-shadow: 0 2px 8px rgba(18, 59, 93, 0.25);
     }
 
     .carpenter-card {
-      background: rgba(22, 27, 34, 0.75);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: #FFFFFF;
       border-radius: 14px;
       padding: 14px;
-      border: 1px solid rgba(245, 158, 11, 0.2);
+      border: 1px solid #D1D5DB;
       margin-bottom: 12px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
       transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
     .carpenter-card:hover {
       transform: translateY(-2px);
-      border-color: rgba(245, 158, 11, 0.55);
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5), 0 0 20px rgba(245, 158, 11, 0.2);
+      border-color: #F59E0B;
+      box-shadow: 0 8px 24px rgba(18, 59, 93, 0.12);
     }
 
     .carpenter-top {
@@ -1857,8 +1856,9 @@
       width: 50px;
       height: 50px;
       border-radius: 50%;
-      background: rgba(245, 158, 11, 0.15);
-      border: 2px solid rgba(245, 158, 11, 0.4);
+      background: #EFF6FF;
+      border: 2px solid #BFDBFE;
+      color: #123B5D;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1879,16 +1879,15 @@
     .carpenter-name {
       font-size: 14px;
       font-weight: 800;
-      color: #f0f6fc;
-      text-shadow: 0 0 14px rgba(245, 158, 11, 0.2);
+      color: #123B5D;
     }
 
     .carpenter-verified {
       font-size: 10px;
       font-weight: 700;
-      color: #10b981;
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #10B981;
+      background: #ECFDF5;
+      border: 1px solid #A7F3D0;
       padding: 2px 6px;
       border-radius: 4px;
       display: inline-flex;
@@ -1898,7 +1897,7 @@
 
     .carpenter-meta {
       font-size: 11.5px;
-      color: #8b949e;
+      color: #6B7280;
       margin-top: 2px;
       font-weight: 600;
     }
@@ -1909,7 +1908,7 @@
       gap: 4px;
       font-size: 11.5px;
       font-weight: 700;
-      color: #fbbf24;
+      color: #D97706;
       margin-top: 3px;
     }
 
@@ -1917,14 +1916,14 @@
       margin-top: 10px;
       font-size: 11.5px;
       font-weight: 600;
-      color: #c9d1d9;
-      background: rgba(13, 17, 23, 0.65);
+      color: #111827;
+      background: #F9FAFB;
       padding: 7px 10px;
       border-radius: 8px;
-      border-left: 3px solid #f59e0b;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      border-right: 1px solid rgba(255, 255, 255, 0.05);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      border-left: 3px solid #F59E0B;
+      border-top: 1px solid #E5E7EB;
+      border-right: 1px solid #E5E7EB;
+      border-bottom: 1px solid #E5E7EB;
     }
 
     .carpenter-actions {
@@ -1937,32 +1936,32 @@
       flex: 1;
       height: 38px;
       border-radius: 10px;
-      background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+      background: #123B5D;
       color: #FFFFFF;
       font-size: 12.5px;
       font-weight: 800;
-      border: 1px solid rgba(245, 158, 11, 0.5);
+      border: 1px solid #0d2840;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 2px 8px rgba(18, 59, 93, 0.2);
       transition: all 0.2s ease;
     }
 
     .btn-call-mistri:hover {
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      box-shadow: 0 0 16px rgba(245, 158, 11, 0.4);
+      background: #1b4f7a;
+      box-shadow: 0 4px 14px rgba(18, 59, 93, 0.35);
     }
 
     .btn-wa-mistri {
       width: 44px;
       height: 38px;
       border-radius: 10px;
-      background: rgba(16, 185, 129, 0.18);
-      color: #10b981;
-      border: 1px solid rgba(16, 185, 129, 0.4);
+      background: #ECFDF5;
+      color: #10B981;
+      border: 1px solid #A7F3D0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1983,10 +1982,8 @@
     }
 
     .showcase-upload-card {
-      background: rgba(22, 27, 34, 0.75);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 2px dashed rgba(245, 158, 11, 0.4);
+      background: #FFFFFF;
+      border: 2px dashed #F59E0B;
       border-radius: 16px;
       padding: 16px;
       margin-bottom: 16px;
@@ -1996,21 +1993,20 @@
     .showcase-upload-card h3 {
       font-size: 15px;
       font-weight: 800;
-      color: #fbbf24;
-      text-shadow: 0 0 14px rgba(245, 158, 11, 0.3);
+      color: #123B5D;
     }
 
     .showcase-upload-card p {
       font-size: 11.5px;
-      color: #8b949e;
+      color: #6B7280;
       margin-top: 4px;
       margin-bottom: 12px;
       font-weight: 600;
     }
 
     .btn-choose-photo {
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      color: #0d1117;
+      background: #F59E0B;
+      color: #FFFFFF;
       padding: 8px 18px;
       border-radius: 99px;
       font-size: 12.5px;
@@ -2020,13 +2016,13 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
       transition: all 0.2s ease;
     }
 
     .btn-choose-photo:hover {
+      background: #D97706;
       transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.55);
     }
 
     .upload-preview-wrap {
@@ -2050,19 +2046,17 @@
     }
 
     .showcase-card {
-      background: rgba(22, 27, 34, 0.75);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: #FFFFFF;
       border-radius: 14px;
       overflow: hidden;
-      border: 1px solid rgba(245, 158, 11, 0.2);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+      border: 1px solid #D1D5DB;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     }
 
     .showcase-img {
       width: 100%;
       height: 200px;
-      background: #0d1117;
+      background: #F3F4F6;
       position: relative;
     }
 
@@ -2079,12 +2073,12 @@
     .showcase-title {
       font-size: 14px;
       font-weight: 800;
-      color: #f0f6fc;
+      color: #111827;
     }
 
     .showcase-meta {
       font-size: 11px;
-      color: #8b949e;
+      color: #6B7280;
       margin-top: 3px;
       display: flex;
       flex-wrap: wrap;
@@ -2103,13 +2097,11 @@
     }
 
     .profile-card {
-      background: rgba(22, 27, 34, 0.75);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: #FFFFFF;
       border-radius: 16px;
       padding: 16px;
-      border: 1px solid rgba(245, 158, 11, 0.2);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+      border: 1px solid #D1D5DB;
+      box-shadow: 0 4px 14px rgba(18, 59, 93, 0.08);
       display: flex;
       align-items: center;
       gap: 14px;
@@ -2121,38 +2113,35 @@
       width: 54px;
       height: 54px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      background: linear-gradient(135deg, #123B5D 0%, #1e5684 100%);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 26px;
-      color: #0d1117;
+      color: #FFFFFF;
       font-weight: 800;
       flex-shrink: 0;
-      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+      box-shadow: 0 2px 8px rgba(18, 59, 93, 0.3);
     }
 
     .profile-info h3 {
       font-size: 15px;
       font-weight: 800;
-      color: #f0f6fc;
-      text-shadow: 0 0 14px rgba(245, 158, 11, 0.25);
+      color: #123B5D;
     }
 
     .profile-info p {
       font-size: 12px;
-      color: #8b949e;
+      color: #6B7280;
       margin-top: 2px;
       font-weight: 600;
     }
 
     .menu-group {
-      background: rgba(22, 27, 34, 0.75);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: #FFFFFF;
       border-radius: 14px;
-      border: 1px solid rgba(245, 158, 11, 0.2);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+      border: 1px solid #D1D5DB;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
       overflow: hidden;
       margin-bottom: 14px;
     }
@@ -2162,16 +2151,17 @@
       align-items: center;
       justify-content: space-between;
       padding: 14px 16px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      border-bottom: 1px solid #F3F4F6;
       font-size: 13px;
       font-weight: 700;
-      color: #f0f6fc;
+      color: #111827;
       cursor: pointer;
       transition: background 0.15s ease;
     }
 
     .menu-item:hover, .menu-item:active {
-      background: rgba(245, 158, 11, 0.12);
+      background: #F9FAFB;
+      color: #F59E0B;
     }
 
     .menu-item:last-child {
@@ -2194,9 +2184,9 @@
     .sheet-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(13, 17, 23, 0.75);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
+      background: rgba(18, 59, 93, 0.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
       z-index: 10000;
       opacity: 0;
       pointer-events: none;
@@ -2213,17 +2203,13 @@
       bottom: 0;
       left: 0;
       right: 0;
-      background: rgba(22, 27, 34, 0.94);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
+      background: #FFFFFF;
       border-radius: 24px 24px 0 0;
-      border-top: 1px solid rgba(245, 158, 11, 0.35);
-      border-left: 1px solid rgba(245, 158, 11, 0.2);
-      border-right: 1px solid rgba(245, 158, 11, 0.2);
+      border-top: 2px solid #F59E0B;
       z-index: 10001;
       padding: 16px 20px calc(var(--safe-bottom) + 20px) 20px;
-      box-shadow: 0 -15px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(245, 158, 11, 0.15);
-      color: #f0f6fc;
+      box-shadow: 0 -15px 40px rgba(18, 59, 93, 0.25);
+      color: #111827;
       transform: translateY(100%);
       transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
       max-height: 85vh;
@@ -2237,7 +2223,7 @@
     .sheet-drag-handle {
       width: 40px;
       height: 4px;
-      background: rgba(245, 158, 11, 0.35);
+      background: #D1D5DB;
       border-radius: 99px;
       margin: 0 auto 14px auto;
     }
@@ -2245,14 +2231,13 @@
     .sheet-title {
       font-size: 17px;
       font-weight: 900;
-      color: #fbbf24;
-      text-shadow: 0 0 16px rgba(245, 158, 11, 0.3);
+      color: #123B5D;
       margin-bottom: 4px;
     }
 
     .sheet-desc {
       font-size: 12px;
-      color: #8b949e;
+      color: #6B7280;
       margin-bottom: 16px;
       font-weight: 600;
     }
@@ -2265,7 +2250,7 @@
       display: block;
       font-size: 11px;
       font-weight: 700;
-      color: #c9d1d9;
+      color: #123B5D;
       margin-bottom: 4px;
       text-transform: uppercase;
     }
@@ -2274,27 +2259,27 @@
       width: 100%;
       height: 44px;
       border-radius: 10px;
-      border: 1.5px solid rgba(245, 158, 11, 0.25);
+      border: 1.5px solid #D1D5DB;
       padding: 0 14px;
       font-family: inherit;
       font-size: 14px;
       font-weight: 600;
-      color: #f0f6fc;
-      background: rgba(13, 17, 23, 0.85);
+      color: #111827;
+      background: #FFFFFF;
       outline: none;
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
     .auth-input:focus {
-      border-color: #f59e0b;
-      box-shadow: 0 0 14px rgba(245, 158, 11, 0.35);
+      border-color: #F59E0B;
+      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.35);
     }
 
     .btn-auth-submit {
       width: 100%;
       height: 46px;
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      color: #0d1117;
+      background: #F59E0B;
+      color: #FFFFFF;
       border: none;
       border-radius: 12px;
       font-size: 14px;
@@ -2305,13 +2290,13 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
-      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
       transition: all 0.2s ease;
     }
 
     .btn-auth-submit:hover, .btn-auth-submit:active {
+      background: #D97706;
       transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.55);
     }
 
     /* Locality Selector Options */
@@ -2325,30 +2310,30 @@
     .locality-btn {
       padding: 10px 12px;
       border-radius: 10px;
-      border: 1px solid rgba(245, 158, 11, 0.2);
-      background: rgba(13, 17, 23, 0.75);
+      border: 1px solid #D1D5DB;
+      background: #F9FAFB;
       font-size: 12px;
       font-weight: 700;
-      color: #c9d1d9;
+      color: #111827;
       text-align: left;
       cursor: pointer;
       transition: all 0.15s ease;
     }
 
     .locality-btn:hover {
-      border-color: rgba(245, 158, 11, 0.45);
-      color: #ffffff;
+      border-color: #F59E0B;
+      color: #F59E0B;
     }
 
     .locality-btn.selected {
-      background: rgba(245, 158, 11, 0.18);
-      border-color: #f59e0b;
-      color: #fbbf24;
-      box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+      background: #EFF6FF;
+      border-color: #123B5D;
+      color: #123B5D;
+      box-shadow: 0 0 0 1px #123B5D;
     }
 
     /* =========================================================
-       9. IMMERSIVE OBSIDIAN & GOLD BOTTOM NAVIGATION BAR
+       9. PURE WHITE & SAFFRON BOTTOM NAVIGATION BAR
        ========================================================= */
     .bottom-nav {
       position: fixed;
@@ -2357,15 +2342,13 @@
       right: 0;
       height: calc(var(--bottom-nav-height) + var(--safe-bottom));
       padding-bottom: var(--safe-bottom);
-      background: rgba(13, 17, 23, 0.92);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-top: 1px solid rgba(245, 158, 11, 0.2);
+      background: #FFFFFF;
+      border-top: 1px solid #E5E7EB;
       display: flex;
       align-items: center;
       justify-content: space-around;
       z-index: 5000;
-      box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
     }
 
     .nav-tab {
@@ -2376,7 +2359,7 @@
       flex: 1;
       height: 100%;
       cursor: pointer;
-      color: #8b949e;
+      color: #6B7280;
       transition: all 0.2s ease;
       position: relative;
     }
@@ -2395,8 +2378,7 @@
     }
 
     .nav-tab.active {
-      color: #fbbf24;
-      text-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+      color: #F59E0B;
     }
 
     .nav-tab.active svg {
@@ -2408,9 +2390,9 @@
       top: 0;
       width: 28px;
       height: 3px;
-      background: linear-gradient(90deg, #f59e0b, #fbbf24);
+      background: #F59E0B;
       border-radius: 0 0 4px 4px;
-      box-shadow: 0 0 8px #f59e0b;
+      box-shadow: 0 1px 4px rgba(245, 158, 11, 0.4);
       display: none;
     }
 
@@ -2424,16 +2406,14 @@
       bottom: calc(var(--bottom-nav-height) + var(--safe-bottom) + 20px);
       left: 20px;
       right: 20px;
-      background: rgba(22, 27, 34, 0.95);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(245, 158, 11, 0.3);
-      color: #f0f6fc;
+      background: #123B5D;
+      border: 1px solid #F59E0B;
+      color: #FFFFFF;
       padding: 12px 16px;
       border-radius: 12px;
       font-size: 13px;
       font-weight: 700;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(245, 158, 11, 0.15);
+      box-shadow: 0 10px 30px rgba(18, 59, 93, 0.4);
       z-index: 20000;
       display: flex;
       align-items: center;
@@ -2486,6 +2466,9 @@
     <!-- Row 1: Brand Switcher Pills (Left) & Delivery Location (Right) -->
     <div class="header-row-1">
       <div class="brand-pills-wrap">
+        <a class="bde-header-logo" href="#" onclick="switchView('home'); return false;" title="Baba Dugdheswar Enterprise">
+          <img src="/static/img/logo/bde_logo.png" onerror="if(!this.src.endsWith('.svg')){this.src='/static/img/logo/bde_logo.svg';}else if(this.src.includes('/static/')){this.src='static/img/logo/bde_logo.svg';}" alt="BDE | Baba Dugdheswar Enterprise" class="bde-logo-img">
+        </a>
         <div class="brand-pill active" id="pill-home" onclick="switchView('home')" title="Store Catalog">
           <span>🏷️</span> BDE Store
         </div>
