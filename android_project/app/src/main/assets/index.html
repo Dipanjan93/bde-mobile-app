@@ -420,6 +420,7 @@
       gap: 10px;
       padding: 4px 14px 8px 14px;
       position: relative;
+      z-index: 1050;
     }
 
     .header-search-wrap {
@@ -484,10 +485,15 @@
     }
 
     /* More Dropdown Menu */
+    .header-more-wrap {
+      position: relative;
+      z-index: 1200;
+    }
+
     .header-more-dropdown {
       position: absolute;
       top: calc(100% + 4px);
-      right: 14px;
+      right: 0;
       background: #FFFFFF;
       border: 1px solid #D1D5DB;
       border-radius: 12px;
@@ -496,7 +502,7 @@
       min-width: 180px;
       display: none;
       flex-direction: column;
-      z-index: 2500;
+      z-index: 3000;
     }
 
     .header-more-dropdown.show {
@@ -774,6 +780,8 @@
         padding: 4px 10px 8px 10px;
         width: 100%;
         box-sizing: border-box;
+        position: relative;
+        z-index: 1050;
       }
 
       .header-search-wrap {
@@ -835,7 +843,7 @@
         gap: 5px;
         flex-shrink: 0;
         position: relative;
-        z-index: 10;
+        z-index: 1100;
       }
 
       .header-action-btn {
@@ -846,12 +854,23 @@
         gap: 3px;
         box-sizing: border-box;
         position: relative;
-        z-index: 12;
+      }
+
+      .header-more-wrap {
+        position: relative;
+        z-index: 1200;
+      }
+
+      .header-more-dropdown {
+        right: 0;
+        top: calc(100% + 4px);
+        z-index: 3000;
+        box-shadow: 0 12px 35px rgba(18, 59, 93, 0.35);
       }
 
       #header-user-btn {
         position: relative;
-        z-index: 20; /* STRICT: Ensures Login button is always clickable and selectable */
+        z-index: 1150; /* STRICT: Ensures Login button is always clickable and selectable */
         cursor: pointer;
         -webkit-tap-highlight-color: rgba(245, 158, 11, 0.3);
       }
@@ -3040,7 +3059,7 @@
           <span id="header-user-label">Login</span>
         </button>
 
-        <div style="position: relative;">
+        <div class="header-more-wrap" style="position: relative; z-index: 1200;">
           <button type="button" class="header-action-btn" id="header-more-btn" onclick="toggleHeaderMoreMenu(event)" title="Showroom Info & Services">
             <span>More ▾</span>
           </button>
