@@ -1,0 +1,721 @@
+/* =========================================================
+   BABA DUGDHESWAR ENTERPRISE — AR "LAMINATE ON YOUR WALL" VISUALIZER
+   Immersive Material & Timber Glassmorphism WebAR Engine
+   ========================================================= */
+
+/* Full-Screen AR Modal Container */
+#ar-visualizer-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  background: #0d1117;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
+  color: #f0f6fc;
+}
+
+#ar-visualizer-modal.active {
+  display: flex;
+}
+
+/* Background Camera Video Stream & Canvas Stage */
+.ar-stage-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #07090e;
+}
+
+#ar-video-stream {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: cover;
+  z-index: 1;
+}
+
+#ar-render-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  cursor: crosshair;
+}
+
+/* Fallback Room Preset / Photo Image */
+#ar-photo-fallback {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  z-index: 1;
+  display: none;
+}
+
+/* Top Floating Header Bar (Glassmorphic) */
+.ar-header-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  padding: env(safe-area-inset-top, 14px) 16px 12px 16px;
+  background: linear-gradient(180deg, rgba(13, 17, 23, 0.88) 0%, rgba(13, 17, 23, 0.45) 75%, transparent 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.ar-brand-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ar-logo-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #161b22, #21262d);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
+}
+
+.ar-title-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.ar-title {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #f0f6fc;
+  letter-spacing: -0.2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ar-beta-pill {
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 1.5px 5.5px;
+  background: #f59e0b;
+  color: #0d1117;
+  border-radius: 5px;
+  letter-spacing: 0.4px;
+}
+
+.ar-subtitle {
+  font-size: 10.5px;
+  color: #8b949e;
+  font-weight: 500;
+}
+
+.ar-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ar-btn-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: rgba(22, 27, 34, 0.78);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  color: #f0f6fc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+}
+
+.ar-btn-icon:hover, .ar-btn-icon:active {
+  background: rgba(245, 158, 11, 0.25);
+  border-color: #f59e0b;
+  color: #fbbf24;
+  transform: scale(1.05);
+}
+
+.ar-btn-close {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+.ar-btn-close:hover {
+  background: rgba(239, 68, 68, 0.35);
+  border-color: #ef4444;
+  color: #fff;
+}
+
+/* Top Floating Guidance & Dimensions HUD Pill */
+.ar-hud-pill {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 14px) + 56px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  background: rgba(22, 27, 34, 0.88);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 6px 14px;
+  border-radius: 99px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fbbf24;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: fadeInDown 0.3s ease;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translate(-50%, -10px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.ar-hud-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+/* Quick Corner Action Toolbar (Left Floating) */
+.ar-corner-tools {
+  position: absolute;
+  top: 120px;
+  right: 14px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ar-tool-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(22, 27, 34, 0.82);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  color: #f0f6fc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+}
+
+.ar-tool-btn span.label {
+  font-size: 8px;
+  font-weight: 700;
+  margin-top: 1px;
+  color: #8b949e;
+}
+
+.ar-tool-btn:hover, .ar-tool-btn.active {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: #f59e0b;
+  color: #fbbf24;
+}
+
+.ar-tool-btn.active span.label {
+  color: #fbbf24;
+}
+
+/* Collapsible Settings Drawer */
+.ar-settings-drawer {
+  position: absolute;
+  top: 120px;
+  left: 14px;
+  z-index: 11;
+  width: 250px;
+  background: rgba(22, 27, 34, 0.92);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 16px;
+  padding: 14px;
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+  animation: slideInLeft 0.25s ease;
+}
+
+.ar-settings-drawer.active {
+  display: flex;
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-15px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.ar-settings-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #fbbf24;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ar-setting-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ar-setting-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #8b949e;
+  display: flex;
+  justify-content: space-between;
+}
+
+.ar-setting-val {
+  color: #f0f6fc;
+}
+
+.ar-slider {
+  width: 100%;
+  accent-color: #f59e0b;
+  height: 5px;
+  border-radius: 3px;
+  background: #21262d;
+  cursor: pointer;
+}
+
+.ar-toggle-group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.ar-toggle-btn {
+  padding: 5px 4px;
+  border-radius: 6px;
+  background: #21262d;
+  border: 1px solid rgba(245, 158, 11, 0.15);
+  color: #8b949e;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+}
+
+.ar-toggle-btn.active {
+  background: rgba(245, 158, 11, 0.25);
+  border-color: #f59e0b;
+  color: #fbbf24;
+}
+
+/* Preset Rooms Selector for Desktop Fallback */
+.ar-presets-row {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.ar-preset-chip {
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #161b22;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  color: #cbd5e1;
+  font-size: 9.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ar-preset-chip.active {
+  background: rgba(245, 158, 11, 0.25);
+  border-color: #f59e0b;
+  color: #fbbf24;
+}
+
+/* Bottom Swatch Drawer & Order Floating Bar */
+.ar-bottom-sheet {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background: linear-gradient(0deg, rgba(13, 17, 23, 0.96) 0%, rgba(13, 17, 23, 0.90) 80%, transparent 100%);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  padding: 12px 14px calc(env(safe-area-inset-bottom, 14px) + 8px) 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid rgba(245, 158, 11, 0.25);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.6);
+}
+
+/* Swatch Category Tabs */
+.ar-swatch-categories {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 2px;
+}
+
+.ar-swatch-categories::-webkit-scrollbar {
+  display: none;
+}
+
+.ar-cat-tab {
+  padding: 5px 11px;
+  border-radius: 99px;
+  background: rgba(22, 27, 34, 0.85);
+  border: 1px solid rgba(245, 158, 11, 0.18);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #8b949e;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.ar-cat-tab.active {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: #f59e0b;
+  color: #fbbf24;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
+}
+
+/* Horizontal Swatch Card Scroller */
+.ar-swatches-scroller {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 2px 8px 2px;
+}
+
+.ar-swatches-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.ar-swatch-card {
+  min-width: 90px;
+  max-width: 90px;
+  border-radius: 12px;
+  background: rgba(22, 27, 34, 0.85);
+  border: 1.5px solid rgba(245, 158, 11, 0.2);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.ar-swatch-card:hover, .ar-swatch-card:active {
+  transform: translateY(-3px) scale(1.02);
+  border-color: #f59e0b;
+}
+
+.ar-swatch-card.active {
+  border-color: #fbbf24;
+  background: rgba(33, 38, 45, 0.95);
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
+}
+
+.ar-swatch-thumb {
+  width: 100%;
+  height: 52px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+
+.ar-swatch-code {
+  font-size: 8.5px;
+  font-weight: 800;
+  color: #fbbf24;
+  letter-spacing: 0.3px;
+}
+
+.ar-swatch-name {
+  font-size: 9px;
+  font-weight: 700;
+  color: #f0f6fc;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  margin-top: 1px;
+}
+
+.ar-swatch-active-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #f59e0b;
+  color: #0d1117;
+  font-size: 10px;
+  font-weight: 900;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.ar-swatch-card.active .ar-swatch-active-badge {
+  display: flex;
+}
+
+/* Bottom Action & Quote Row */
+.ar-action-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ar-active-meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ar-meta-label {
+  font-size: 9.5px;
+  color: #8b949e;
+  font-weight: 600;
+}
+
+.ar-meta-val {
+  font-size: 12px;
+  font-weight: 800;
+  color: #fbbf24;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ar-btn-order {
+  flex: 2;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  color: #0d1117;
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 4px 18px rgba(245, 158, 11, 0.4);
+  transition: all 0.2s ease;
+}
+
+.ar-btn-order:hover, .ar-btn-order:active {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(245, 158, 11, 0.55);
+}
+
+/* Instant AR Quotation Bottom Sheet Modal */
+#ar-quote-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 100005;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.25s ease;
+}
+
+#ar-quote-sheet.active {
+  display: flex;
+}
+
+.ar-quote-content {
+  width: 100%;
+  max-width: 520px;
+  background: #161b22;
+  background: linear-gradient(180deg, #1c2128 0%, #161b22 100%);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 24px 24px 0 0;
+  padding: 20px 18px calc(env(safe-area-inset-bottom, 16px) + 16px) 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.8);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.ar-quote-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ar-quote-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #f0f6fc;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ar-quote-summary-card {
+  background: rgba(22, 27, 34, 0.8);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 16px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ar-quote-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12.5px;
+}
+
+.ar-quote-label {
+  color: #8b949e;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ar-quote-value {
+  color: #f0f6fc;
+  font-weight: 800;
+}
+
+.ar-quote-highlight {
+  color: #fbbf24;
+  font-size: 13.5px;
+}
+
+.ar-quote-divider {
+  height: 1px;
+  background: rgba(245, 158, 11, 0.15);
+  margin: 2px 0;
+}
+
+.ar-quote-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ar-btn-wa-direct {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  background: #10b981;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: none;
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 18px rgba(16, 185, 129, 0.4);
+}
+
+.ar-btn-studio-transfer {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(22, 27, 34, 0.9);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* Fallback Notice Bar */
+.ar-fallback-alert {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 11px;
+  color: #fbbf24;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}

@@ -1908,3 +1908,8 @@ async function deleteTestimonialAdmin(id) {
   showToast("Photo deleted.", "info");
   loadAdminTestimonials();
 }
+
+/* --- Showroom Staff AR Visualizer Helper --- */
+function launchArVisualizer() {
+  window.open('/#ar', '_blank');
+}

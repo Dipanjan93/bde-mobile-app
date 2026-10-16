@@ -18,6 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/frontend/simulator.css">
+  <link rel="stylesheet" href="/frontend/ar_visualizer.css" onerror="this.onerror=null;this.href='ar_visualizer.css';">
 
   <style>
     /* =========================================================
@@ -2033,6 +2034,9 @@
       <div class="service-pill" id="pill-showcase" onclick="switchView('showcase')">
         <span>📸</span> Photo Gallery
       </div>
+      <div class="service-pill" id="pill-ar" onclick="openArVisualizer()" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(217, 119, 6, 0.3)); border: 1px solid rgba(245, 158, 11, 0.6); color: #fbbf24; font-weight: 700;">
+        <span>✨</span> AR Visualizer <span style="font-size: 8.5px; padding: 1.5px 5px; border-radius: 4px; background: #f59e0b; color: #0d1117; font-weight: 800; margin-left: 3px;">BETA</span>
+      </div>
       <div class="service-pill" onclick="openStaffErpGate()" title="Showroom Staff &amp; Management Access">
         <span>🔒</span> Staff / ERP
       </div>
@@ -2137,6 +2141,14 @@
             <p class="slide-sub" style="color: #C7D2FE;">Mix & match laminates in real-time with instant ply calculations</p>
           </div>
           <button class="slide-action-btn" style="background: #FEF08A; color: #1E1B4B;" onclick="switchView('simulator')">Launch 3D Studio →</button>
+        </div>
+        <div class="hero-slide" style="background: linear-gradient(135deg, #090d16 0%, #1e1b4b 60%, #312e81 100%); border: 1px solid rgba(245, 158, 11, 0.45); box-shadow: 0 8px 32px rgba(245, 158, 11, 0.2);">
+          <div>
+            <div class="slide-badge" style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #0d1117; font-weight: 800;">✨ WebAR Live Camera Visualizer</div>
+            <h2 class="slide-heading" style="color: #FFFFFF;">Project Sunmica Finishes On Your Real Wall!</h2>
+            <p class="slide-sub" style="color: #fde68a;">Point camera at any bare wall or wardrobe &amp; try 16 luxury BDE finishes in real-time</p>
+          </div>
+          <button class="slide-action-btn" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #0d1117; font-weight: 800; box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);" onclick="openArVisualizer()">Launch AR Visualizer ➔</button>
         </div>
       </div>
     </div>
@@ -2755,7 +2767,199 @@
     </div>
   </div>
 
+  <!-- =========================================================
+       10. AR "LAMINATE ON YOUR WALL" VISUALIZER MODAL & QUOTE SHEET
+       ========================================================= -->
+  <div id="ar-visualizer-modal">
+    <!-- Camera Video & Canvas Stage -->
+    <div class="ar-stage-container">
+      <video id="ar-video-stream" autoplay playsinline muted></video>
+      <canvas id="ar-render-canvas"></canvas>
+      <img id="ar-photo-fallback" alt="Room Photo Fallback">
+    </div>
 
+    <!-- Top Floating Header Bar -->
+    <header class="ar-header-bar">
+      <div class="ar-brand-badge">
+        <div class="ar-logo-icon">🪵</div>
+        <div class="ar-title-group">
+          <div class="ar-title">
+            BDE Wall AR <span class="ar-beta-pill">BETA</span>
+          </div>
+          <div class="ar-subtitle">Onda Depot Live Surface Visualizer</div>
+        </div>
+      </div>
+      <div class="ar-header-actions">
+        <button type="button" class="ar-btn-icon" onclick="arFlipCamera()" title="Flip Camera (Front/Back)">🔄</button>
+        <button type="button" class="ar-btn-icon" onclick="arToggleSettings()" title="Surface &amp; Light Settings">⚙️</button>
+        <button type="button" class="ar-btn-icon ar-btn-close" onclick="closeArVisualizer()" title="Close AR Visualizer">✕</button>
+      </div>
+    </header>
+
+    <!-- Top Guidance & Live Dimension HUD Pill -->
+    <div class="ar-hud-pill">
+      <span class="ar-hud-dot"></span>
+      <span id="ar-hud-text">✨ Point camera at wall/wardrobe. Drag 4 corners to fit.</span>
+    </div>
+
+    <!-- Quick Corner Action Toolbar (Right Floating) -->
+    <div class="ar-corner-tools">
+      <button type="button" id="ar-freeze-btn" class="ar-tool-btn" onclick="arToggleFreeze()" title="Freeze / Resume Camera">
+        📷<span class="label">Freeze</span>
+      </button>
+      <button type="button" class="ar-tool-btn" onclick="arResetCorners()" title="Reset Corners to Center">
+        🔄<span class="label">Reset</span>
+      </button>
+      <button type="button" class="ar-tool-btn" onclick="arExpandCorners()" title="Expand Full Wall">
+        📐<span class="label">Expand</span>
+      </button>
+      <label class="ar-tool-btn" title="Upload Custom Room Photo" style="cursor: pointer;">
+        🖼️<span class="label">Upload</span>
+        <input type="file" accept="image/*" style="display: none;" onchange="arUploadRoomPhoto(event)">
+      </label>
+    </div>
+
+    <!-- Collapsible Settings & Lighting Drawer -->
+    <div id="ar-settings-drawer" class="ar-settings-drawer">
+      <div class="ar-settings-title">
+        <span>⚙️ Surface &amp; Lighting</span>
+        <button type="button" onclick="arToggleSettings()" style="background:none;border:none;color:#8b949e;cursor:pointer;font-size:14px;">✕</button>
+      </div>
+
+      <!-- Blend Mode (Natural Shadow vs Gloss) -->
+      <div class="ar-setting-row">
+        <div class="ar-setting-label">
+          <span>Surface Blending</span>
+        </div>
+        <div class="ar-toggle-group">
+          <button type="button" id="ar-blend-multiply" class="ar-toggle-btn active ar-blend-toggle" onclick="arSetBlendMode('multiply')">Shadows</button>
+          <button type="button" id="ar-blend-gloss" class="ar-toggle-btn ar-blend-toggle" onclick="arSetBlendMode('gloss')">Gloss 3D</button>
+          <button type="button" id="ar-blend-normal" class="ar-toggle-btn ar-blend-toggle" onclick="arSetBlendMode('normal')">Pure Matt</button>
+        </div>
+      </div>
+
+      <!-- Grain Rotation -->
+      <div class="ar-setting-row">
+        <div class="ar-setting-label">
+          <span>Grain Direction</span>
+        </div>
+        <div class="ar-toggle-group" style="grid-template-columns: 1fr 1fr;">
+          <button type="button" id="ar-rot-0" class="ar-toggle-btn active ar-rot-toggle" onclick="arSetRotation(0)">Vertical</button>
+          <button type="button" id="ar-rot-90" class="ar-toggle-btn ar-rot-toggle" onclick="arSetRotation(90)">Horizontal</button>
+        </div>
+      </div>
+
+      <!-- Calibrated Width (Ft) -->
+      <div class="ar-setting-row">
+        <div class="ar-setting-label">
+          <span>Calibrated Width</span>
+          <span id="ar-cal-val" class="ar-setting-val">8.0 ft</span>
+        </div>
+        <input type="range" min="4" max="16" step="0.5" value="8" class="ar-slider" oninput="window.AR_STATE.calibratedWidthFt = parseFloat(this.value); document.getElementById('ar-cal-val').textContent = this.value + ' ft'; updateLiveAreaEstimate();">
+      </div>
+
+      <!-- Brightness Slider -->
+      <div class="ar-setting-row">
+        <div class="ar-setting-label">
+          <span>Ambient Room Lighting</span>
+          <span id="ar-bright-val" class="ar-setting-val">0%</span>
+        </div>
+        <input type="range" min="-40" max="40" step="5" value="0" class="ar-slider" oninput="window.AR_STATE.brightness = parseInt(this.value); document.getElementById('ar-bright-val').textContent = (this.value > 0 ? '+' : '') + this.value + '%';">
+      </div>
+
+      <!-- Preset Rooms Selector (Fallback mode) -->
+      <div class="ar-setting-row" id="ar-presets-selector-container">
+        <div class="ar-setting-label">
+          <span>Room Preset (Simulator)</span>
+        </div>
+        <div class="ar-presets-row">
+          <button type="button" id="ar-preset-bedroom" class="ar-preset-chip active" onclick="arChangePreset('bedroom')">Wardrobe</button>
+          <button type="button" id="ar-preset-living" class="ar-preset-chip" onclick="arChangePreset('living')">TV Wall</button>
+          <button type="button" id="ar-preset-plywood" class="ar-preset-chip" onclick="arChangePreset('plywood')">Raw Ply</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Swatch Drawer & Order Floating Bar -->
+    <div class="ar-bottom-sheet">
+      <!-- Swatch Category Tabs -->
+      <div class="ar-swatch-categories">
+        <button type="button" class="ar-cat-tab active" id="ar-tab-all" onclick="selectArCategory('all')">All Finishes (16)</button>
+        <button type="button" class="ar-cat-tab" id="ar-tab-wood" onclick="selectArCategory('wood')">🪵 Woodgrains</button>
+        <button type="button" class="ar-cat-tab" id="ar-tab-marble" onclick="selectArCategory('marble')">🏛️ Italian Marble</button>
+        <button type="button" class="ar-cat-tab" id="ar-tab-fluted" onclick="selectArCategory('fluted')">📐 3D Fluted &amp; Brass</button>
+        <button type="button" class="ar-cat-tab" id="ar-tab-solid" onclick="selectArCategory('solid')">🎨 Super-Matte</button>
+      </div>
+
+      <!-- Swatches Horizontal Scroller -->
+      <div id="ar-swatches-scroller" class="ar-swatches-scroller">
+        <!-- Injected dynamically from AR_LAMINATES -->
+      </div>
+
+      <!-- Bottom Action Row -->
+      <div class="ar-action-row">
+        <div class="ar-active-meta">
+          <span class="ar-meta-label">Selected Finish</span>
+          <span id="ar-meta-val" class="ar-meta-val">Royal Burma Teak • ~56 sq.ft</span>
+        </div>
+        <button type="button" class="ar-btn-order" onclick="openArQuotationSheet()">
+          <span>Calculate &amp; Order Finish</span>
+          <span style="font-size: 15px;">➔</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Instant AR Quotation Bottom Sheet Modal -->
+  <div id="ar-quote-sheet">
+    <div class="ar-quote-content">
+      <div class="ar-quote-header">
+        <div class="ar-quote-title">
+          <span>🪵</span> Instant Wall AR Estimate &amp; Quote
+        </div>
+        <button type="button" onclick="closeArQuotationSheet()" style="background:none;border:none;color:#8b949e;font-size:18px;cursor:pointer;">✕</button>
+      </div>
+
+      <div class="ar-quote-summary-card">
+        <div class="ar-quote-row">
+          <span class="ar-quote-label">Selected Sunmica</span>
+          <span id="ar-quote-finish-name" class="ar-quote-value ar-quote-highlight">Royal Burma Teak (BDE-801)</span>
+        </div>
+        <div class="ar-quote-row">
+          <span class="ar-quote-label">Grade / Surface</span>
+          <span id="ar-quote-finish-desc" class="ar-quote-value" style="font-size: 11.5px; color: #8b949e;">1.0mm Gloss / Suede</span>
+        </div>
+        <div class="ar-quote-divider"></div>
+        <div class="ar-quote-row">
+          <span class="ar-quote-label">Estimated Wall Area</span>
+          <span id="ar-quote-sqft" class="ar-quote-value">~56.0 sq.ft</span>
+        </div>
+        <div class="ar-quote-row">
+          <span class="ar-quote-label">Sunmica Sheets (8ft × 4ft)</span>
+          <span id="ar-quote-sheets" class="ar-quote-value" style="color: #10b981;">2 Sheets</span>
+        </div>
+        <div class="ar-quote-row">
+          <span class="ar-quote-label">Recommended Adhesive</span>
+          <span id="ar-quote-fevicol" class="ar-quote-value">~2.5 Kg Fevicol Marine</span>
+        </div>
+        <div class="ar-quote-row">
+          <span class="ar-quote-label">Onda Depot Availability</span>
+          <span class="ar-quote-value" style="color: #10b981; display:flex; align-items:center; gap:4px;">
+            <span style="width:7px;height:7px;border-radius:50%;background:#10b981;display:inline-block;"></span> Ready Stock
+          </span>
+        </div>
+      </div>
+
+      <div class="ar-quote-actions">
+        <button type="button" class="ar-btn-wa-direct" onclick="submitArWhatsAppOrder()">
+          <span>💬 Order / Enquire via WhatsApp</span>
+        </button>
+        <button type="button" class="ar-btn-studio-transfer" onclick="transferArTo3DStudio()">
+          <span>🎨 Open in 3D Furniture Studio &amp; Estimator ➔</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- =========================================================
        9. CLEAN WHITE BOTTOM NAVIGATION BAR (SVG ICONS)
@@ -3276,6 +3480,12 @@
        VIEW SWITCHING
        ========================================================= */
     function switchView(viewName) {
+      if (viewName === 'ar') {
+        if (window.openArVisualizer) {
+          window.openArVisualizer();
+        }
+        return;
+      }
       if (viewName === 'estimator') {
         viewName = 'simulator';
       }
@@ -3741,5 +3951,7 @@
   </script>
   <!-- 3D Furniture & Laminate Studio Simulator Engine -->
   <script src="/frontend/simulator.js"></script>
+  <!-- AR Laminate on Your Wall Visualizer Engine -->
+  <script src="/frontend/ar_visualizer.js" onerror="this.onerror=null;this.src='ar_visualizer.js';"></script>
 </body>
 </html>
