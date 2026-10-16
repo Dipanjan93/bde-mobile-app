@@ -419,6 +419,18 @@ def authenticate_passcode(pin_clean: str):
             detail="Incorrect Security Passcode. Access restricted to BDE Onda showroom personnel."
         )
 
+def verify_owner_access(request: Request, passcode: Optional[str] = None):
+    role = get_console_role(request)
+    if role == "owner":
+        return True
+    p = (passcode or request.headers.get("x-admin-passcode") or request.headers.get("x-bde-passcode") or request.query_params.get("passcode") or "").strip()
+    if p and p == ADMIN_PASSCODE:
+        return True
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Owner authorization required (Passcode Dip@1993). Access restricted to Proprietor (Dipanjan)."
+    )
+
 @app.post("/api/staff/verify")
 @app.post("/api/auth/staff")
 def staff_verify(req: schemas.StaffVerifyRequest, response: Response):
@@ -1723,11 +1735,14 @@ def sales_history(db: Session = Depends(get_db)):
             date_str = "-"
 
         results.append({
+            "id": inv.id,
             "invoice_id": f"INV-{inv.id:04d}",
             "date": date_str,
+            "customer_id": cust.id if cust else None,
             "customer_name": cust.name if cust else "Walk-in Buyer",
             "customer_phone": cust.phone if cust else "-",
             "customer_category": cust.category if cust else "Retailer",
+            "customer_address": cust.address if cust else "Onda",
             "items_detail": ", ".join(lines),
             "total_amount": round(inv.total_amount, 2),
             "paid_amount": round(inv.paid_amount, 2),
@@ -1736,6 +1751,182 @@ def sales_history(db: Session = Depends(get_db)):
             "margin_pct": round(margin_pct, 1)
         })
     return results
+
+
+# ========================================================
+# OWNER-ONLY BILL CORRECTION & VOID WITH STOCK RESTORATION
+# ========================================================
+
+@app.delete("/api/erp/bills/{bill_id}")
+@app.delete("/api/invoices/{bill_id}")
+@app.post("/api/invoices/{bill_id}/void")
+def void_delete_bill(
+    bill_id: str,
+    request: Request,
+    passcode: Optional[str] = Query(None),
+    db: Session = Depends(get_db)
+):
+    """
+    Owner-Only Safe Bill Deletion / Void:
+    1. Looks up all line items and restores exact inventory counts back to products table.
+    2. Reverses customer ledger due balance by deleting the invoice.
+    3. Cascades and removes sale items cleanly.
+    """
+    verify_owner_access(request, passcode)
+
+    clean_id_str = str(bill_id).upper().replace("INV-", "").replace("INV", "").replace("#", "").strip()
+    if not clean_id_str.isdigit():
+        raise HTTPException(status_code=400, detail="Invalid invoice ID format. Expected numeric or INV-xxxx.")
+
+    inv_id = int(clean_id_str)
+    inv = db.query(models.Invoice).filter(models.Invoice.id == inv_id).first()
+    if not inv:
+        raise HTTPException(status_code=404, detail=f"Bill #INV-{inv_id:04d} not found.")
+
+    cust = inv.customer
+    cust_name = cust.name if cust else "Customer"
+    inv_no_display = f"INV-{inv.id:04d}"
+    due_amount = float(inv.due_amount or 0.0)
+    total_amount = float(inv.total_amount or 0.0)
+
+    restored_items = []
+
+    try:
+        # 1. Restore exact inventory stock quantities for every line item
+        for item in inv.items:
+            prod = db.query(models.Product).filter(models.Product.id == item.product_id).first()
+            if prod:
+                old_stock = prod.stock_qty
+                prod.stock_qty = round(prod.stock_qty + item.qty, 2)
+                restored_items.append({
+                    "product_id": prod.id,
+                    "sku": prod.sku,
+                    "name": prod.name,
+                    "qty_restored": item.qty,
+                    "unit": prod.unit,
+                    "previous_stock": old_stock,
+                    "restored_stock": prod.stock_qty
+                })
+
+        # 2. Delete invoice (cascade deletes associated sale_items)
+        db.delete(inv)
+        db.commit()
+
+        return {
+            "success": True,
+            "message": f"Bill #{inv_no_display} for {cust_name} (₹{total_amount:.2f}) deleted successfully. {len(restored_items)} items restored to Onda Depot stock.",
+            "invoice_id": inv_no_display,
+            "customer_name": cust_name,
+            "due_reversed": due_amount,
+            "total_amount": total_amount,
+            "restored_items_count": len(restored_items),
+            "restored_items": restored_items
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to void/delete bill: {str(e)}")
+
+
+@app.put("/api/erp/bills/{bill_id}/customer")
+@app.put("/api/invoices/{bill_id}/customer")
+def edit_bill_customer(
+    bill_id: str,
+    req: schemas.EditBillCustomerRequest,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """
+    Owner-Only Quick Customer Correction on Existing Bill:
+    Allows owner to fix misspelled names, phone numbers, or village location on a bill,
+    transferring the invoice and outstanding khata dues without re-billing inventory items.
+    """
+    verify_owner_access(request, req.passcode)
+
+    clean_id_str = str(bill_id).upper().replace("INV-", "").replace("INV", "").replace("#", "").strip()
+    if not clean_id_str.isdigit():
+        raise HTTPException(status_code=400, detail="Invalid invoice ID format. Expected numeric or INV-xxxx.")
+
+    inv_id = int(clean_id_str)
+    inv = db.query(models.Invoice).filter(models.Invoice.id == inv_id).first()
+    if not inv:
+        raise HTTPException(status_code=404, detail=f"Bill #INV-{inv_id:04d} not found.")
+
+    new_name = (req.customer_name or "").strip()
+    new_phone = (req.customer_phone or "").strip()
+    new_village = (req.village or req.address or "Onda").strip()
+    new_category = (req.category or "Retailer").strip()
+
+    if not new_name:
+        raise HTTPException(status_code=400, detail="Customer name is required.")
+    if not new_phone:
+        raise HTTPException(status_code=400, detail="Customer phone is required.")
+
+    # Format phone digits
+    digits = "".join(filter(str.isdigit, new_phone))
+    clean_phone = digits[-10:] if len(digits) >= 10 else new_phone
+
+    old_cust = inv.customer
+    old_cust_name = old_cust.name if old_cust else "Previous Customer"
+
+    try:
+        # Check if customer with this phone number already exists
+        target_cust = db.query(models.Customer).filter(models.Customer.phone == clean_phone).first()
+
+        if target_cust:
+            # Re-link invoice to target customer & update details
+            target_cust.name = new_name
+            target_cust.address = new_village
+            if new_category:
+                target_cust.category = new_category
+            inv.customer_id = target_cust.id
+            active_customer = target_cust
+        else:
+            # Check if old customer had other transactions
+            other_invs = db.query(models.Invoice).filter(
+                models.Invoice.customer_id == old_cust.id,
+                models.Invoice.id != inv.id
+            ).count() if old_cust else 0
+            other_pmts = db.query(models.PaymentReceipt).filter(
+                models.PaymentReceipt.customer_id == old_cust.id
+            ).count() if old_cust else 0
+
+            if old_cust and other_invs == 0 and other_pmts == 0:
+                # Update existing customer directly
+                old_cust.name = new_name
+                old_cust.phone = clean_phone
+                old_cust.address = new_village
+                old_cust.category = new_category
+                active_customer = old_cust
+            else:
+                # Create a new customer and transfer invoice
+                new_cust = models.Customer(
+                    name=new_name,
+                    phone=clean_phone,
+                    address=new_village,
+                    category=new_category,
+                    created_at=datetime.utcnow()
+                )
+                db.add(new_cust)
+                db.flush()
+                inv.customer_id = new_cust.id
+                active_customer = new_cust
+
+        db.commit()
+        db.refresh(inv)
+
+        return {
+            "success": True,
+            "message": f"Bill #INV-{inv.id:04d} customer updated from '{old_cust_name}' to '{active_customer.name}' ({active_customer.phone}).",
+            "invoice_id": f"INV-{inv.id:04d}",
+            "customer_id": active_customer.id,
+            "customer_name": active_customer.name,
+            "customer_phone": active_customer.phone,
+            "customer_village": active_customer.address,
+            "customer_category": active_customer.category
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to update customer: {str(e)}")
 
 @app.get("/analytics/executive-summary")
 def executive_summary(request: Request, db: Session = Depends(get_db)):

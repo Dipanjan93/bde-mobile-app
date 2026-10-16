@@ -774,6 +774,45 @@
   </div>
 </div>
 
+<!-- Modal: Edit Customer Details on Bill (Owner Only) -->
+<div class="modal-overlay" id="editBillCustomerModal">
+  <div class="modal-card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h3 style="margin:0;">✏️ Edit Customer Details on Bill</h3>
+      <button onclick="closeEditBillCustomerModal()" style="background:none; border:none; font-size:18px; cursor:pointer; color:var(--text-muted);">&times;</button>
+    </div>
+    <input type="hidden" id="editBillInvId" />
+    <div style="background:var(--surface-sunken); padding:10px 14px; border-radius:8px; margin-bottom:14px; font-size:13px; line-height:1.6;">
+      <div><strong>Bill Invoice:</strong> <span id="editBillInvBadge" class="mono" style="color:var(--primary); font-weight:700;"></span></div>
+      <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">Fix customer name, phone, or location. Billed items and inventory remain untouched, and ledger dues are transferred seamlessly.</div>
+    </div>
+    <div class="field-group" style="margin-bottom:12px;">
+      <label class="field-label">Customer Name *</label>
+      <input type="text" id="editBillCustName" placeholder="e.g. Swapan Sutradhar" style="font-size:14px;" />
+    </div>
+    <div class="field-group" style="margin-bottom:12px;">
+      <label class="field-label">Phone Number *</label>
+      <input type="tel" id="editBillCustPhone" placeholder="e.g. 9434198273" style="font-size:14px;" />
+    </div>
+    <div class="field-group" style="margin-bottom:12px;">
+      <label class="field-label">Village / Location</label>
+      <input type="text" id="editBillCustVillage" placeholder="e.g. Onda Bazar, Bankura" value="Onda" style="font-size:14px;" />
+    </div>
+    <div class="field-group" style="margin-bottom:16px;">
+      <label class="field-label">Customer Category</label>
+      <select id="editBillCustCategory" style="font-size:14px;">
+        <option value="Retailer">Retailer / Homeowner</option>
+        <option value="Carpenter">Carpenter / Mistri</option>
+        <option value="Contractor">Contractor / Builder</option>
+      </select>
+    </div>
+    <div style="display:flex; justify-content:flex-end; gap:8px;">
+      <button class="btn btn-secondary" onclick="closeEditBillCustomerModal()">Cancel</button>
+      <button class="btn" onclick="saveEditBillCustomer()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: Add New Product -->
 <div class="modal-overlay" id="newProdModal">
   <div class="modal-card">

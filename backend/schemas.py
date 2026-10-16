@@ -123,6 +123,19 @@ class CraftCommentCreate(BaseModel):
     commenter_name: str
     comment_text: str
 
+class EditBillCustomerRequest(BaseModel):
+    customer_name: str
+    customer_phone: str
+    village: Optional[str] = "Onda"
+    address: Optional[str] = None
+    category: Optional[str] = "Retailer"
+    passcode: Optional[str] = None
+
+class VoidBillRequest(BaseModel):
+    reason: Optional[str] = "Mistaken bill"
+    passcode: Optional[str] = None
+
+
 
 
 

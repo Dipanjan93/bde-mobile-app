@@ -250,6 +250,34 @@ def main():
         # Record Cashback Payout
         test_endpoint(f"Cashback Payout (POST /testimonials/{claim_id}/cashback)", f"{BASE_URL}/testimonials/{claim_id}/cashback", method="POST", data={"cashback_amount": 200.0, "cashback_status": "Paid"})
 
+    # 20. Owner-Only Bill Customer Edit & Void with Stock Reversal
+    test_bill_payload = {
+        "customer_id": 1,
+        "items": [{"product_id": 1, "qty": 5.0, "unit_price": 500.0}],
+        "paid_amount": 1000.0
+    }
+    bill_res = test_endpoint("Create Multi-Sale Bill (POST /sales/multi)", f"{BASE_URL}/sales/multi", method="POST", data=test_bill_payload)
+    if isinstance(bill_res, dict):
+        test_inv_id = bill_res.get("invoice_id")
+        print(f"       Verification: Created test bill: {test_inv_id}")
+
+        # Edit Customer on Bill (Owner Only with passcode)
+        edit_cust_payload = {
+            "customer_name": "Test Edited Customer",
+            "customer_phone": "9999900000",
+            "village": "Onda Bazar",
+            "category": "Carpenter",
+            "passcode": "Dip@1993"
+        }
+        edit_res = test_endpoint(f"Edit Bill Customer (PUT /api/erp/bills/{test_inv_id}/customer)", f"{BASE_URL}/api/erp/bills/{test_inv_id}/customer", method="PUT", data=edit_cust_payload)
+        if isinstance(edit_res, dict):
+            print(f"       Verification: Updated customer: {edit_res.get('customer_name')} ({edit_res.get('customer_phone')})")
+
+        # Void Bill & Restore Stock (Owner Only with passcode query)
+        void_res = test_endpoint(f"Void Bill & Restore Stock (DELETE /api/erp/bills/{test_inv_id})", f"{BASE_URL}/api/erp/bills/{test_inv_id}?passcode=Dip@1993", method="DELETE")
+        if isinstance(void_res, dict):
+            print(f"       Verification: Voided bill {void_res.get('invoice_id')}, Stock restored: {void_res.get('restored_items_count')} items, Dues reversed: Rs.{void_res.get('due_reversed')}")
+
     print("\n=== ALL AUTOMATED TESTS COMPLETED SUCCESSFULLY ===")
 
 

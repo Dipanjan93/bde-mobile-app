@@ -991,13 +991,104 @@ function renderHistory(list) {
         <td class="mono admin-only" style="color:var(--emerald); text-align:right; font-weight:700;">${fmtInr(inv.profit)}</td>
         <td class="mono admin-only" style="color:var(--primary); text-align:right;">${inv.margin_pct}%</td>
         <td style="text-align:center;">
-          <button class="btn btn-secondary" style="padding:4px 9px; font-size:11px;" onclick="reprintInvoice('${inv.invoice_id}')" title="Print Cash Memo with QR Code">
-            🖨️ Bill
-          </button>
+          <div style="display:inline-flex; gap:5px; align-items:center; justify-content:center; flex-wrap:nowrap;">
+            <button class="btn btn-secondary" style="padding:4px 7px; font-size:11px;" onclick="reprintInvoice('${inv.invoice_id}')" title="Print Cash Memo with QR Code">
+              🖨️ Bill
+            </button>
+            <button class="btn btn-secondary admin-only" style="padding:4px 7px; font-size:11px;" onclick="openEditBillCustomerModal('${inv.invoice_id}')" title="Edit Customer Details on this Bill">
+              ✏️ Edit
+            </button>
+            <button class="btn btn-danger admin-only" style="padding:4px 7px; font-size:11px; background:#dc2626;" onclick="deleteBillPrompt('${inv.invoice_id}', '${(inv.customer_name || '').replace(/'/g, "\\'")}', ${inv.total_amount})" title="Void Bill & Restore Inventory Stock">
+              🗑️ Void
+            </button>
+          </div>
         </td>
       </tr>
     `;
   }).join('');
+}
+
+function openEditBillCustomerModal(invoiceId) {
+  const inv = historyCache.find(x => x.invoice_id === invoiceId || String(x.id) === String(invoiceId));
+  if (!inv) return;
+  document.getElementById('editBillInvId').value = inv.invoice_id;
+  document.getElementById('editBillInvBadge').textContent = inv.invoice_id;
+  document.getElementById('editBillCustName').value = inv.customer_name || '';
+  document.getElementById('editBillCustPhone').value = (inv.customer_phone && inv.customer_phone !== '-') ? inv.customer_phone : '';
+  document.getElementById('editBillCustVillage').value = inv.customer_address || 'Onda';
+  document.getElementById('editBillCustCategory').value = inv.customer_category || 'Retailer';
+  document.getElementById('editBillCustomerModal').classList.add('show');
+}
+
+function closeEditBillCustomerModal() {
+  const modal = document.getElementById('editBillCustomerModal');
+  if (modal) modal.classList.remove('show');
+}
+
+async function saveEditBillCustomer() {
+  const invoiceId = document.getElementById('editBillInvId').value;
+  const name = (document.getElementById('editBillCustName').value || '').trim();
+  const phone = (document.getElementById('editBillCustPhone').value || '').trim();
+  const village = (document.getElementById('editBillCustVillage').value || 'Onda').trim();
+  const category = document.getElementById('editBillCustCategory').value;
+
+  if (!name) {
+    showToast("Customer name is required.", "error");
+    return;
+  }
+  if (!phone) {
+    showToast("Customer phone is required.", "error");
+    return;
+  }
+
+  try {
+    const res = await authFetch(`/api/erp/bills/${encodeURIComponent(invoiceId)}/customer`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customer_name: name,
+        customer_phone: phone,
+        village: village,
+        category: category
+      })
+    });
+    const d = await res.json();
+    if (res.ok && d.success) {
+      showToast(d.message || "Customer details updated on bill!", "success");
+      closeEditBillCustomerModal();
+      loadHistory();
+      loadCustomers();
+      if (typeof loadDuesSummary === 'function') loadDuesSummary();
+    } else {
+      showToast(d.detail || "Failed to update customer.", "error");
+    }
+  } catch (err) {
+    showToast("Network error updating customer.", "error");
+  }
+}
+
+async function deleteBillPrompt(invoiceId, customerName, totalAmount) {
+  const confirmMsg = `Are you sure you want to delete Bill #${invoiceId} for ${customerName} (₹${Number(totalAmount).toFixed(2)})?\n\n🚨 CRITICAL: This will automatically add all the billed items back into your live stock and reverse any customer due balance.`;
+  if (!confirm(confirmMsg)) return;
+
+  try {
+    const res = await authFetch(`/api/erp/bills/${encodeURIComponent(invoiceId)}`, {
+      method: 'DELETE'
+    });
+    const d = await res.json();
+    if (res.ok && d.success) {
+      showToast(d.message || `Bill #${invoiceId} voided and stock restored!`, "success");
+      loadHistory();
+      loadInventory();
+      loadCustomers();
+      if (typeof loadDuesSummary === 'function') loadDuesSummary();
+      if (typeof loadExecutiveBI === 'function') loadExecutiveBI();
+    } else {
+      showToast(d.detail || "Failed to void bill.", "error");
+    }
+  } catch (err) {
+    showToast("Network error deleting bill.", "error");
+  }
 }
 
 function filterHistory() {
