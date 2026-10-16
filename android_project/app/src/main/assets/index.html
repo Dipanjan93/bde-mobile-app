@@ -7431,16 +7431,34 @@ Please verify current stock availability at Onda Depot, share final counter quot
       `).join('');
     }
 
+    function scrollToMistriGramComposer() {
+      const card = document.querySelector('.mg-create-card');
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const authorInput = document.getElementById('mg-post-author');
+        if (authorInput) {
+          setTimeout(() => authorInput.focus(), 350);
+        }
+      }
+    }
+
     function renderMistriGramPosts(posts) {
       const stream = document.getElementById('mg-feed-stream');
       if (!stream) return;
 
       if (!posts || posts.length === 0) {
         stream.innerHTML = `
-          <div style="text-align: center; padding: 45px 20px; background: #FFFFFF; border-radius: 16px; border: 1px solid #CBD5E1;">
-            <div style="font-size: 38px; margin-bottom: 8px;">🔨</div>
-            <div style="font-size: 16px; font-weight: 800; color: #123B5D;">No craft posts found in this category</div>
-            <p style="font-size: 12.5px; color: #64748B; margin-top: 4px;">Be the first carpenter to showcase your furniture and receive direct client orders!</p>
+          <div style="text-align: center; padding: 48px 20px; background: #FFFFFF; border-radius: 16px; border: 1.5px dashed #CBD5E1; box-shadow: 0 4px 20px rgba(18,59,93,0.04); margin-bottom: 24px;">
+            <div style="font-size: 46px; margin-bottom: 12px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.08));">🔨</div>
+            <div style="font-size: 17px; font-weight: 800; color: #123B5D; margin-bottom: 8px; line-height: 1.4;">
+              Be the first Mistri or Homeowner in Bankura to showcase your finished furniture here!
+            </div>
+            <p style="font-size: 13px; color: #64748B; margin-top: 4px; margin-bottom: 22px; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.5;">
+              Upload your finished wardrobe, modular kitchen, or bed photo to showcase your craft, get direct client inquiries, and claim BDE cashbacks!
+            </p>
+            <button type="button" class="mg-empty-post-btn" onclick="scrollToMistriGramComposer()" style="background: linear-gradient(135deg, #F59E0B, #D97706); color: #FFFFFF; border: none; font-weight: 800; font-size: 14px; padding: 12px 28px; border-radius: 25px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 6px 18px rgba(245, 158, 11, 0.35); transition: transform 0.2s, box-shadow 0.2s;">
+              <span>📸</span> Post Your First Craft
+            </button>
           </div>
         `;
         return;

@@ -1847,80 +1847,8 @@ window.BDE_OFFLINE_CARPENTERS = [
 
 window.BDE_OFFLINE_FEED = {
   "success": true,
-  "leaderboard": [
-    { "rank": 1, "name": "Tapan Karmakar", "village": "Bishnupur", "role": "Verified Mistri", "total_likes": 67, "post_count": 1 },
-    { "rank": 2, "name": "Subhas Sen", "village": "Ramsagar", "role": "Interior Specialist", "total_likes": 55, "post_count": 1 },
-    { "rank": 3, "name": "Swapan Sutradhar", "village": "Onda Bazar", "role": "Master Mistri", "total_likes": 42, "post_count": 1 },
-    { "rank": 4, "name": "Bikash Sutradhar", "village": "Taldangra", "role": "Master Mistri", "total_likes": 38, "post_count": 1 }
-  ],
-  "posts": [
-    {
-      "id": 1,
-      "author_name": "Swapan Sutradhar",
-      "author_role": "Master Mistri",
-      "author_phone": "9434198273",
-      "village_location": "Onda Bazar",
-      "project_category": "Wardrobe",
-      "caption": "Completed this 6-door modern sliding wardrobe for a client in Onda Majhpara using 100% BDE materials. Seamless sliding with soft-close auto-hinges and champagne profile handle!",
-      "materials_used": "18mm BWP Marine Ply, 1.0mm Suede Sunmica, Fevicol Marine, Sleek Sliding Channels",
-      "image_base64": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'><defs><linearGradient id='g1' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%231e3a5f'/><stop offset='100%' stop-color='%230f172a'/></linearGradient></defs><rect width='800' height='600' fill='url(%23g1)'/><rect width='800' height='600' fill='rgba(18,59,93,0.35)'/><circle cx='400' cy='230' r='100' fill='rgba(245,158,11,0.22)' stroke='%23F59E0B' stroke-width='4'/><text x='400' y='270' font-size='90' text-anchor='middle'>🚪</text><text x='400' y='400' font-size='34' font-weight='bold' fill='%23FFFFFF' text-anchor='middle' font-family='sans-serif'>6-Door Sliding Wardrobe</text><text x='400' y='445' font-size='20' font-weight='600' fill='%23FBBF24' text-anchor='middle' font-family='sans-serif'>Onda Majhpara Site • Swapan Sutradhar</text><rect x='230' y='485' width='340' height='40' rx='20' fill='rgba(255,255,255,0.18)' stroke='rgba(255,255,255,0.4)'/><text x='400' y='511' font-size='15' font-weight='700' fill='%23FFFFFF' text-anchor='middle' font-family='sans-serif'>100% BDE Onda Materials Verified ✓</text></svg>",
-      "likes_count": 42,
-      "comments_count": 2,
-      "comments": [
-        { "id": 1, "commenter_name": "Animesh Ghosh", "comment_text": "Darun finishing Swapan da! Outer ply kon brand er use korechen?", "created_at": "4 hours ago" },
-        { "id": 2, "commenter_name": "Swapan Sutradhar", "comment_text": "BDE Onda theke BWP 710 Marine ply niyechilam Animesh babu, 100% calibrated.", "created_at": "3 hours ago" }
-      ],
-      "created_at": "6 hours ago"
-    },
-    {
-      "id": 2,
-      "author_name": "Tapan Karmakar",
-      "author_role": "Verified Mistri",
-      "author_phone": "9800523411",
-      "village_location": "Bishnupur",
-      "project_category": "Modular Kitchen",
-      "caption": "Full waterproof modular kitchen fabricated with BDE 710 Marine Ply and 1.5mm Mirror Acrylic finish in Bishnupur Dalmadal Road. Zero warping, 10-year durability with tandem soft-close baskets.",
-      "materials_used": "BWP 710 Marine Ply, 1.5mm Acrylic Sunmica, Hydraulic Gas Lifters, SS Tandem Box",
-      "image_base64": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'><defs><linearGradient id='g2' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23134e4a'/><stop offset='100%' stop-color='%23042f2e'/></linearGradient></defs><rect width='800' height='600' fill='url(%23g2)'/><rect width='800' height='600' fill='rgba(18,59,93,0.35)'/><circle cx='400' cy='230' r='100' fill='rgba(245,158,11,0.22)' stroke='%23F59E0B' stroke-width='4'/><text x='400' y='270' font-size='90' text-anchor='middle'>🍳</text><text x='400' y='400' font-size='34' font-weight='bold' fill='%23FFFFFF' text-anchor='middle' font-family='sans-serif'>L-Shaped Acrylic Modular Kitchen</text><text x='400' y='445' font-size='20' font-weight='600' fill='%23FBBF24' text-anchor='middle' font-family='sans-serif'>Bishnupur Dalmadal Rd • Tapan Karmakar</text><rect x='230' y='485' width='340' height='40' rx='20' fill='rgba(255,255,255,0.18)' stroke='rgba(255,255,255,0.4)'/><text x='400' y='511' font-size='15' font-weight='700' fill='%23FFFFFF' text-anchor='middle' font-family='sans-serif'>100% BDE Onda Materials Verified ✓</text></svg>",
-      "likes_count": 67,
-      "comments_count": 1,
-      "comments": [
-        { "id": 3, "commenter_name": "Debabrata Roy", "comment_text": "Acrylic finish ta khub sundor lagche. Onda theke delivery koto dine holo?", "created_at": "18 hours ago" }
-      ],
-      "created_at": "1 day ago"
-    },
-    {
-      "id": 3,
-      "author_name": "Bikash Sutradhar",
-      "author_role": "Master Mistri",
-      "author_phone": "9832761902",
-      "village_location": "Taldangra",
-      "project_category": "Box Bed",
-      "caption": "Heavy hydraulic storage bed delivered in Taldangra Bazar. Heavy-duty 150kg lifters and 18mm heavy base frame with anti-termite calibrated marine ply.",
-      "materials_used": "18mm Calibrated Ply, 1.0mm Natural Teak Laminate, Hydraulic Bed Lifters, Fevicol ProBond",
-      "image_base64": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'><defs><linearGradient id='g3' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23713f12'/><stop offset='100%' stop-color='%23451a03'/></linearGradient></defs><rect width='800' height='600' fill='url(%23g3)'/><rect width='800' height='600' fill='rgba(18,59,93,0.35)'/><circle cx='400' cy='230' r='100' fill='rgba(245,158,11,0.22)' stroke='%23F59E0B' stroke-width='4'/><text x='400' y='270' font-size='90' text-anchor='middle'>🛏️</text><text x='400' y='400' font-size='34' font-weight='bold' fill='%23FFFFFF' text-anchor='middle' font-family='sans-serif'>King-Size Hydraulic Teak Bed</text><text x='400' y='445' font-size='20' font-weight='600' fill='%23FBBF24' text-anchor='middle' font-family='sans-serif'>Taldangra Bazar • Bikash Sutradhar</text><rect x='230' y='485' width='340' height='40' rx='20' fill='rgba(255,255,255,0.18)' stroke='rgba(255,255,255,0.4)'/><text x='400' y='511' font-size='15' font-weight='700' fill='%23FFFFFF' text-anchor='middle' font-family='sans-serif'>100% BDE Onda Materials Verified ✓</text></svg>",
-      "likes_count": 38,
-      "comments_count": 0,
-      "comments": [],
-      "created_at": "2 days ago"
-    },
-    {
-      "id": 4,
-      "author_name": "Subhas Sen",
-      "author_role": "Interior Specialist",
-      "author_phone": "9732812045",
-      "village_location": "Ramsagar",
-      "project_category": "TV Unit",
-      "caption": "Designer TV wall created with 3D fluted charcoal panels and hidden warm LED profiles in Ramsagar. Wall-mounted floating console with soft-close push latches.",
-      "materials_used": "Charcoal Fluted Louvers, 18mm Marine Ply, Push-to-Open Latches, Profile LED Channels",
-      "image_base64": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'><defs><linearGradient id='g4' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23312e81'/><stop offset='100%' stop-color='%231e1b4b'/></linearGradient></defs><rect width='800' height='600' fill='url(%23g4)'/><rect width='800' height='600' fill='rgba(18,59,93,0.35)'/><circle cx='400' cy='230' r='100' fill='rgba(245,158,11,0.22)' stroke='%23F59E0B' stroke-width='4'/><text x='400' y='270' font-size='90' text-anchor='middle'>📺</text><text x='400' y='400' font-size='34' font-weight='bold' fill='%23FFFFFF' text-anchor='middle' font-family='sans-serif'>Fluted Louver TV Console Wall</text><text x='400' y='445' font-size='20' font-weight='600' fill='%23FBBF24' text-anchor='middle' font-family='sans-serif'>Ramsagar Station Rd • Subhas Sen</text><rect x='230' y='485' width='340' height='40' rx='20' fill='rgba(255,255,255,0.18)' stroke='rgba(255,255,255,0.4)'/><text x='400' y='511' font-size='15' font-weight='700' fill='%23FFFFFF' text-anchor='middle' font-family='sans-serif'>100% BDE Onda Materials Verified ✓</text></svg>",
-      "likes_count": 55,
-      "comments_count": 1,
-      "comments": [
-        { "id": 4, "commenter_name": "Raju Karmakar", "comment_text": "Louvers gulo ki BDE Onda store e ready stock ache?", "created_at": "1 day ago" }
-      ],
-      "created_at": "3 days ago"
-    }
-  ]
+  "leaderboard": [],
+  "posts": []
 };
+
 
