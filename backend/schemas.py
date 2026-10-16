@@ -115,6 +115,9 @@ class CraftPostCreate(BaseModel):
     caption: Optional[str] = ""
     materials_used: Optional[str] = ""
     image_base64: str
+    bill_number: Optional[str] = None
+    upi_id: Optional[str] = None
+
 
 class CraftCommentCreate(BaseModel):
     commenter_name: str

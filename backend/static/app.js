@@ -1801,13 +1801,24 @@ async function loadAdminTestimonials() {
         : `<span style="color:var(--text-muted); font-size:11px;">None provided</span>`;
 
       let cbStatusBadge = `<span class="badge-cat badge-retailer" style="font-size:10.5px;">⏳ PENDING REVIEW</span>`;
-      if (t.cashback_status === 'Paid') {
+      if (t.cashback_status === 'Paid' || t.cashback_status === 'paid') {
         cbStatusBadge = `<span class="badge-instock" style="background:#059669; color:#fff; font-size:10.5px;">✅ PAID (₹${t.cashback_amount || 0})</span>`;
-      } else if (t.cashback_status === 'Approved') {
+      } else if (t.cashback_status === 'Approved' || t.cashback_status === 'approved') {
         cbStatusBadge = `<span class="badge-lowstock" style="background:#d97706; color:#fff; font-size:10.5px;">⏳ APPROVED (₹${t.cashback_amount || 0})</span>`;
-      } else if (t.cashback_status === 'Rejected') {
+      } else if (t.cashback_status === 'Rejected' || t.cashback_status === 'rejected') {
         cbStatusBadge = `<span class="badge-cat" style="background:#dc2626; color:#fff; font-size:10.5px;">❌ REJECTED</span>`;
       }
+
+      let modStatusBadge = `<span class="badge-lowstock" style="background:#d97706; color:#fff; font-size:10.5px;">⏳ PENDING</span>`;
+      if (t.status === 'approved' || t.is_approved) {
+        modStatusBadge = `<span class="badge-instock" style="background:#059669; color:#fff; font-size:10.5px;">✅ LIVE</span>`;
+      } else if (t.status === 'rejected') {
+        modStatusBadge = `<span class="badge-cat" style="background:#dc2626; color:#fff; font-size:10.5px;">❌ REJECTED</span>`;
+      }
+
+      const roleBadge = t.author_role 
+        ? `<span style="font-size:10px; color:var(--text-muted); background:var(--surface-sunken); padding:2px 5px; border-radius:4px; margin-left:4px;">${t.author_role}</span>` 
+        : '';
 
       return `
         <tr>
@@ -1821,25 +1832,31 @@ async function loadAdminTestimonials() {
             <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
               ${t.created_at} &bull; Mistri: <strong>${t.carpenter_name}</strong>
             </div>
+            ${t.materials_used ? `<div style="font-size:10.5px; color:var(--primary); margin-top:2px;">🪵 ${t.materials_used}</div>` : ''}
           </td>
           <td>
-            <strong>${t.customer_name}</strong>
+            <strong>${t.customer_name}</strong>${roleBadge}
             <div class="mono" style="font-size:11px; color:var(--text-muted);">${t.customer_phone}</div>
             <div style="font-size:11px; color:var(--text-muted);">${t.customer_location}</div>
           </td>
           <td>${invBadge}</td>
           <td>${upiText}</td>
           <td>${cbStatusBadge}</td>
-          <td>${t.is_approved ? '<span class="badge-instock">LIVE</span>' : '<span class="badge-lowstock">HIDDEN</span>'}</td>
+          <td>${modStatusBadge}</td>
           <td style="text-align:right;">
             <div style="display:flex; gap:6px; justify-content:flex-end; flex-wrap:wrap;">
-              <button class="btn" style="padding:5px 10px; font-size:11px; background:#059669;" onclick="openCashbackModalById(${t.id})">
+              <button class="btn" style="padding:5px 10px; font-size:11px; background:#059669;" onclick="openCashbackModalById('${t.id}')">
                 💸 Cashback
               </button>
-              <button class="btn btn-secondary" style="padding:5px 9px; font-size:11px;" onclick="toggleTestimonialApprove(${t.id})">
-                ${t.is_approved ? 'Hide' : 'Publish'}
-              </button>
-              <button class="btn btn-danger" style="padding:5px 8px; font-size:11px;" onclick="deleteTestimonialAdmin(${t.id})">
+              ${(t.is_approved || t.status === 'approved')
+                ? `<button class="btn btn-secondary" style="padding:5px 9px; font-size:11px;" onclick="toggleTestimonialApprove('${t.id}')">Hide</button>`
+                : `<button class="btn" style="padding:5px 9px; font-size:11px; background:#2563eb; color:#fff;" onclick="approveClaim('${t.id}')">✅ Publish</button>`
+              }
+              ${t.status !== 'rejected'
+                ? `<button class="btn btn-secondary" style="padding:5px 8px; font-size:11px; background:rgba(220,38,38,0.12); color:#dc2626; border-color:rgba(220,38,38,0.3);" onclick="rejectClaim('${t.id}')">❌ Reject</button>`
+                : ''
+              }
+              <button class="btn btn-danger" style="padding:5px 8px; font-size:11px;" onclick="deleteTestimonialAdmin('${t.id}')">
                 🗑️
               </button>
             </div>
@@ -1853,7 +1870,7 @@ async function loadAdminTestimonials() {
 }
 
 function openCashbackModalById(id) {
-  const t = adminTestimonialsCache.find(x => x.id === id);
+  const t = adminTestimonialsCache.find(x => String(x.id) === String(id));
   if (!t) return;
   document.getElementById('cbItemId').value = t.id;
   document.getElementById('cbCustName').textContent = t.customer_name;
@@ -1897,6 +1914,29 @@ async function saveCashbackPayout() {
     loadAdminTestimonials();
   } catch (err) {
     showToast("Failed to save cashback update.", "error");
+  }
+}
+
+async function approveClaim(id) {
+  try {
+    const res = await authFetch(`/testimonials/${id}/approve`, { method: 'POST' });
+    const d = await res.json();
+    showToast(d.message || "Photo approved and published live to Mistri Gram!", "success");
+    loadAdminTestimonials();
+  } catch (err) {
+    showToast("Failed to approve photo.", "error");
+  }
+}
+
+async function rejectClaim(id) {
+  if (!confirm("Reject this photo submission? It will be hidden from Mistri Gram.")) return;
+  try {
+    const res = await authFetch(`/testimonials/${id}/reject`, { method: 'POST' });
+    const d = await res.json();
+    showToast(d.message || "Photo submission rejected.", "info");
+    loadAdminTestimonials();
+  } catch (err) {
+    showToast("Failed to reject photo.", "error");
   }
 }
 

@@ -173,7 +173,8 @@ def main():
         with urllib.request.urlopen(req, timeout=10) as resp:
             up_res = json.loads(resp.read().decode("utf-8"))
             print(f"[200] Multipart Photo Upload (POST /api/upload/photo) - id: {up_res.get('id')}")
-            print(f"       Verification: {up_res.get('message')[:70]}...")
+            safe_msg = str(up_res.get('message', '')).encode('ascii', errors='ignore').decode('ascii')
+            print(f"       Verification: {safe_msg[:70]}...")
     except Exception as e:
         print(f"[FAIL] Multipart Photo Upload: {e}")
 
@@ -218,7 +219,7 @@ def main():
             if isinstance(comm_res, dict):
                 print(f"       Verification: Comment ID: {comm_res.get('comment_id')}")
 
-    # Test creating a new craft post
+    # 18. Create Craft Post with QR Bill No & UPI
     new_post_payload = {
         "author_name": "Ratan Mistri",
         "author_role": "Master Mistri",
@@ -227,11 +228,27 @@ def main():
         "project_category": "Wardrobe",
         "caption": "Modern 4-door wardrobe with champagne handles and BWP marine ply.",
         "materials_used": "18mm BWP Marine Ply, 1.0mm Sunmica",
-        "image_base64": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='blue'/></svg>"
+        "image_base64": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='blue'/></svg>",
+        "bill_number": "BDE-TEST-999",
+        "upi_id": "ratan@okaxis"
     }
     post_create_res = test_endpoint("Create Craft Post (POST /api/feed/post)", f"{BASE_URL}/api/feed/post", method="POST", data=new_post_payload)
     if isinstance(post_create_res, dict):
-        print(f"       Verification: New Post ID: {post_create_res.get('post_id')}")
+        created_post_id = post_create_res.get('post_id')
+        print(f"       Verification: New Post ID: {created_post_id}, Status: {post_create_res.get('status')}")
+
+    # 19. Admin Moderation Queue & Cashback Claims
+    admin_claims = test_endpoint("Admin Moderation Queue (GET /testimonials/admin)", f"{BASE_URL}/testimonials/admin")
+    if isinstance(admin_claims, list) and len(admin_claims) > 0:
+        first_claim = admin_claims[0]
+        claim_id = first_claim['id']
+        print(f"       Verification: Total queue items: {len(admin_claims)}, First: #{claim_id} ({first_claim.get('customer_name')}) - Bill: {first_claim.get('invoice_no')}")
+
+        # Approve item
+        test_endpoint(f"Approve Claim (POST /testimonials/{claim_id}/approve)", f"{BASE_URL}/testimonials/{claim_id}/approve", method="POST")
+
+        # Record Cashback Payout
+        test_endpoint(f"Cashback Payout (POST /testimonials/{claim_id}/cashback)", f"{BASE_URL}/testimonials/{claim_id}/cashback", method="POST", data={"cashback_amount": 200.0, "cashback_status": "Paid"})
 
     print("\n=== ALL AUTOMATED TESTS COMPLETED SUCCESSFULLY ===")
 

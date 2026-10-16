@@ -166,9 +166,16 @@ class CraftPost(Base):
     materials_used = Column(Text, nullable=True)
     image_base64 = Column(Text, nullable=False)
     likes_count = Column(Integer, default=0)
+    status = Column(String(30), default="pending", index=True) # pending, approved, rejected
+    is_approved = Column(Boolean, default=False)
+    bill_number = Column(String(60), nullable=True)
+    upi_id = Column(String(100), nullable=True)
+    cashback_amount = Column(Float, default=0.0)
+    cashback_status = Column(String(30), default="unpaid") # unpaid, paid
     created_at = Column(DateTime, default=datetime.utcnow)
 
     comments = relationship("CraftComment", back_populates="post", cascade="all, delete-orphan", order_by="desc(CraftComment.created_at)")
+
 
 class CraftComment(Base):
     __tablename__ = "craft_comments"

@@ -18,7 +18,7 @@ from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from sqlalchemy import func, desc
+from sqlalchemy import func, desc, text
 
 from database import engine, Base, get_db
 import models
@@ -27,6 +27,26 @@ from models import IST, get_now_ist
 
 # Ensure all tables are created in Neon PostgreSQL
 Base.metadata.create_all(bind=engine)
+
+# Safe column addition for CraftPost without touching live business tables
+try:
+    with engine.connect() as conn:
+        for col_name, col_def in [
+            ("status", "VARCHAR(30) DEFAULT 'pending'"),
+            ("is_approved", "BOOLEAN DEFAULT FALSE"),
+            ("bill_number", "VARCHAR(60)"),
+            ("upi_id", "VARCHAR(100)"),
+            ("cashback_amount", "FLOAT DEFAULT 0.0"),
+            ("cashback_status", "VARCHAR(30) DEFAULT 'unpaid'")
+        ]:
+            try:
+                conn.execute(text(f"ALTER TABLE craft_posts ADD COLUMN IF NOT EXISTS {col_name} {col_def};"))
+                conn.commit()
+            except Exception:
+                pass
+except Exception as e:
+    print(f"Safe column migration notice: {e}")
+
 
 app = FastAPI(
     title="Baba Dugdheswar Enterprise - Mobile E-Commerce & Business Engine",
@@ -227,6 +247,8 @@ def seed_initial_data(db: Session):
                 materials_used="18mm BWP Marine Ply, 1.0mm Suede Sunmica, Fevicol Marine, Sleek Sliding Channels",
                 image_base64=make_svg_b64("6-Door Sliding Wardrobe", "Onda Majhpara Site • Swapan Sutradhar", "#1e3a5f", "#0f172a", "🚪"),
                 likes_count=42,
+                status="approved",
+                is_approved=True,
                 created_at=datetime.utcnow() - timedelta(hours=6)
             )
             p2 = models.CraftPost(
@@ -239,6 +261,8 @@ def seed_initial_data(db: Session):
                 materials_used="BWP 710 Marine Ply, 1.5mm Acrylic Sunmica, Hydraulic Gas Lifters, SS Tandem Box",
                 image_base64=make_svg_b64("L-Shaped Acrylic Modular Kitchen", "Bishnupur Dalmadal Rd • Tapan Karmakar", "#134e4a", "#042f2e", "🍳"),
                 likes_count=67,
+                status="approved",
+                is_approved=True,
                 created_at=datetime.utcnow() - timedelta(days=1, hours=4)
             )
             p3 = models.CraftPost(
@@ -251,6 +275,8 @@ def seed_initial_data(db: Session):
                 materials_used="18mm Calibrated Ply, 1.0mm Natural Teak Laminate, Hydraulic Bed Lifters, Fevicol ProBond",
                 image_base64=make_svg_b64("King-Size Hydraulic Teak Bed", "Taldangra Bazar • Bikash Sutradhar", "#713f12", "#451a03", "🛏️"),
                 likes_count=38,
+                status="approved",
+                is_approved=True,
                 created_at=datetime.utcnow() - timedelta(days=2)
             )
             p4 = models.CraftPost(
@@ -263,6 +289,8 @@ def seed_initial_data(db: Session):
                 materials_used="Charcoal Fluted Louvers, 18mm Marine Ply, Push-to-Open Latches, Profile LED Channels",
                 image_base64=make_svg_b64("Fluted Louver TV Console Wall", "Ramsagar Station Rd • Subhas Sen", "#312e81", "#1e1b4b", "📺"),
                 likes_count=55,
+                status="approved",
+                is_approved=True,
                 created_at=datetime.utcnow() - timedelta(days=3)
             )
             db.add_all([p1, p2, p3, p4])
@@ -279,6 +307,17 @@ def seed_initial_data(db: Session):
             c4 = models.CraftComment(post_id=p4.id, commenter_name="Raju Karmakar", comment_text="Louvers gulo ki BDE Onda store e ready stock ache?", created_at=datetime.utcnow() - timedelta(days=1))
             db.add_all([c1, c2, c3, c4])
             db.commit()
+
+        # Ensure any pre-existing initial posts have status='approved' and is_approved=True
+        try:
+            db.query(models.CraftPost).filter(models.CraftPost.id <= 4).update({
+                models.CraftPost.status: "approved",
+                models.CraftPost.is_approved: True
+            })
+            db.commit()
+        except Exception:
+            db.rollback()
+
     except Exception as e:
         db.rollback()
         print(f"Error seeding initial data: {e}")
@@ -1014,7 +1053,7 @@ def submit_testimonial(item: schemas.TestimonialCreate, db: Session = Depends(ge
         project_title=item.project_title.strip(),
         carpenter_name=item.carpenter_name.strip() if item.carpenter_name else "BDE Mistri",
         image_base64=item.image_base64,
-        is_approved=True,  # Approved for showcase with admin moderation
+        is_approved=False,  # Submissions require admin review before going live
         invoice_no=item.invoice_no.strip() if item.invoice_no else None,
         cashback_upi=item.cashback_upi.strip() if item.cashback_upi else None,
         cashback_status="Pending Review",
@@ -1024,13 +1063,12 @@ def submit_testimonial(item: schemas.TestimonialCreate, db: Session = Depends(ge
     db.commit()
     db.refresh(record)
 
-    msg = "Photo uploaded successfully! Your entry is now showcased in Baba Dugdheswar Gallery."
-    if item.invoice_no or item.cashback_upi:
-        msg = f"Photo for Bill #{item.invoice_no or ''} submitted successfully! Your cashback will be verified and credited within 24-48 hours."
+    msg = "✅ Submitted! Your finished furniture photo has been sent to BDE Admin for verification. Once approved, it will go live on Mistri Gram and your UPI cashback will be processed!"
 
     return {
         "success": True,
         "id": record.id,
+        "status": "pending",
         "message": msg
     }
 
@@ -1061,7 +1099,7 @@ async def upload_testimonial_photo(
         project_title=(project_title or "Finished Furniture Project").strip(),
         carpenter_name=(carpenter_name or "BDE Mistri").strip(),
         image_base64=data_url,
-        is_approved=True,
+        is_approved=False,
         invoice_no=invoice_no.strip() if invoice_no else None,
         cashback_upi=cashback_upi.strip() if cashback_upi else None,
         cashback_status="Pending Review",
@@ -1071,11 +1109,12 @@ async def upload_testimonial_photo(
     db.commit()
     db.refresh(record)
 
-    msg = f"Photo for Bill #{invoice_no} uploaded and permanently saved in Neon PostgreSQL!" if invoice_no else "Photo uploaded and permanently saved in Neon PostgreSQL!"
+    msg = "✅ Submitted! Your finished furniture photo has been sent to BDE Admin for verification. Once approved, it will go live on Mistri Gram and your UPI cashback will be processed!"
     return {
         "success": True,
         "id": record.id,
         "image_base64": data_url,
+        "status": "pending",
         "message": msg
     }
 
@@ -1091,7 +1130,10 @@ def get_feed(
     sort: Optional[str] = Query("newest"),
     db: Session = Depends(get_db)
 ):
-    query = db.query(models.CraftPost)
+    # Only return approved posts on the public social feed
+    query = db.query(models.CraftPost).filter(
+        (models.CraftPost.status == 'approved') | (models.CraftPost.is_approved == True)
+    )
     
     # Filter by category if not All
     if category and category.strip().lower() not in ["all", "all crafts"]:
@@ -1117,7 +1159,7 @@ def get_feed(
 
     posts_records = query.limit(60).all()
 
-    # Aggregate Top Mistris Leaderboard
+    # Aggregate Top Mistris Leaderboard (Only from approved posts)
     leaderboard_q = (
         db.query(
             models.CraftPost.author_name,
@@ -1126,6 +1168,7 @@ def get_feed(
             func.sum(models.CraftPost.likes_count).label("total_likes"),
             func.count(models.CraftPost.id).label("post_count")
         )
+        .filter((models.CraftPost.status == 'approved') | (models.CraftPost.is_approved == True))
         .group_by(models.CraftPost.author_name, models.CraftPost.village_location, models.CraftPost.author_role)
         .order_by(desc("total_likes"))
         .limit(8)
@@ -1196,6 +1239,12 @@ def create_craft_post(req: schemas.CraftPostCreate, db: Session = Depends(get_db
         materials_used=(req.materials_used or "").strip(),
         image_base64=req.image_base64,
         likes_count=1,
+        status="pending",
+        is_approved=False,
+        bill_number=(req.bill_number or "").strip() or None,
+        upi_id=(req.upi_id or "").strip() or None,
+        cashback_amount=0.0,
+        cashback_status="unpaid",
         created_at=datetime.utcnow()
     )
     db.add(post)
@@ -1205,7 +1254,9 @@ def create_craft_post(req: schemas.CraftPostCreate, db: Session = Depends(get_db
     return {
         "success": True,
         "post_id": post.id,
-        "message": "Craft post published successfully to Mistri Gram community feed!"
+        "id": post.id,
+        "status": "pending",
+        "message": "✅ Submitted! Your finished furniture photo has been sent to BDE Admin for verification. Once approved, it will go live on Mistri Gram and your UPI cashback will be processed!"
     }
 
 # 3. POST /api/feed/{post_id}/like
@@ -1991,56 +2042,150 @@ def delete_quote_inquiry(inquiry_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"success": True, "message": f"Inquiry #Q-{inquiry_id} deleted."}
 
+def serialize_craft_post_for_admin(r: models.CraftPost):
+    title = f"{r.project_category}"
+    if r.caption:
+        title += f" • {r.caption[:40]}"
+    status = r.status or ("approved" if r.is_approved else "pending")
+    return {
+        "id": f"cp_{r.id}",
+        "raw_id": r.id,
+        "source": "craft_post",
+        "customer_name": r.author_name,
+        "customer_phone": r.author_phone or "-",
+        "customer_location": r.village_location or "Onda, Bankura",
+        "project_title": title,
+        "carpenter_name": r.author_name if (r.author_role or "").lower() == "mistri" else "BDE Mistri",
+        "author_role": r.author_role or "Mistri",
+        "materials_used": r.materials_used or "",
+        "image_base64": r.image_base64,
+        "is_approved": bool(r.is_approved or status == "approved"),
+        "status": status,
+        "invoice_no": r.bill_number or "-",
+        "cashback_upi": r.upi_id or "-",
+        "cashback_amount": float(r.cashback_amount or 0.0),
+        "cashback_status": r.cashback_status or "Pending Review",
+        "created_at": r.created_at.strftime("%d %b %Y, %I:%M %p") if r.created_at else "Recent",
+        "created_dt": r.created_at or datetime.min
+    }
+
+def serialize_testimonial_for_admin(r: models.CustomerTestimonial):
+    status = "approved" if r.is_approved else ("rejected" if r.cashback_status == "Rejected" else "pending")
+    return {
+        "id": f"tm_{r.id}",
+        "raw_id": r.id,
+        "source": "testimonial",
+        "customer_name": r.customer_name,
+        "customer_phone": r.customer_phone or "-",
+        "customer_location": r.customer_location or "Onda, Bankura",
+        "project_title": r.project_title,
+        "carpenter_name": r.carpenter_name or "BDE Mistri",
+        "author_role": "Customer",
+        "materials_used": "",
+        "image_base64": r.image_base64,
+        "is_approved": bool(r.is_approved),
+        "status": status,
+        "invoice_no": r.invoice_no or "-",
+        "cashback_upi": r.cashback_upi or "-",
+        "cashback_amount": float(r.cashback_amount or 0.0),
+        "cashback_status": r.cashback_status or "Pending Review",
+        "created_at": r.created_at.strftime("%d %b %Y") if r.created_at else "Recent",
+        "created_dt": r.created_at or datetime.min
+    }
+
+def find_item_by_identifier(item_id: str, db: Session):
+    s = str(item_id).strip()
+    if s.startswith("cp_") or s.startswith("cp-"):
+        cid = int(s.split("_")[-1].split("-")[-1])
+        return ("craft_post", db.query(models.CraftPost).filter(models.CraftPost.id == cid).first())
+    elif s.startswith("tm_") or s.startswith("tm-"):
+        tid = int(s.split("_")[-1].split("-")[-1])
+        return ("testimonial", db.query(models.CustomerTestimonial).filter(models.CustomerTestimonial.id == tid).first())
+    elif s.isdigit():
+        num = int(s)
+        cp = db.query(models.CraftPost).filter(models.CraftPost.id == num).first()
+        if cp:
+            return ("craft_post", cp)
+        tm = db.query(models.CustomerTestimonial).filter(models.CustomerTestimonial.id == num).first()
+        if tm:
+            return ("testimonial", tm)
+    return (None, None)
+
 @app.get("/testimonials/admin")
+@app.get("/api/admin/cashback-claims")
 def get_all_testimonials_admin(db: Session = Depends(get_db)):
-    rows = db.query(models.CustomerTestimonial).order_by(models.CustomerTestimonial.id.desc()).all()
-    return [
-        {
-            "id": r.id,
-            "customer_name": r.customer_name,
-            "customer_phone": r.customer_phone,
-            "customer_location": r.customer_location,
-            "project_title": r.project_title,
-            "carpenter_name": r.carpenter_name or "-",
-            "image_base64": r.image_base64,
-            "is_approved": r.is_approved,
-            "invoice_no": r.invoice_no or "-",
-            "cashback_upi": r.cashback_upi or "-",
-            "cashback_amount": float(r.cashback_amount or 0.0),
-            "cashback_status": r.cashback_status or "Pending Review",
-            "created_at": r.created_at.strftime("%d %b %Y") if r.created_at else "Recent"
-        }
-        for r in rows
-    ]
+    craft_posts = db.query(models.CraftPost).order_by(models.CraftPost.id.desc()).all()
+    testimonials = db.query(models.CustomerTestimonial).order_by(models.CustomerTestimonial.id.desc()).all()
+    
+    combined = [serialize_craft_post_for_admin(cp) for cp in craft_posts] + [serialize_testimonial_for_admin(tm) for tm in testimonials]
+    combined.sort(key=lambda x: x["created_dt"], reverse=True)
+    for item in combined:
+        item.pop("created_dt", None)
+    return combined
 
 @app.post("/testimonials/{item_id}/cashback")
-def update_testimonial_cashback(item_id: int, req: schemas.CashbackUpdateRequest, db: Session = Depends(get_db)):
-    row = db.query(models.CustomerTestimonial).filter(models.CustomerTestimonial.id == item_id).first()
+@app.post("/api/admin/cashback-claims/{item_id}/cashback")
+def update_testimonial_cashback(item_id: str, req: schemas.CashbackUpdateRequest, db: Session = Depends(get_db)):
+    source, row = find_item_by_identifier(item_id, db)
     if not row:
-        raise HTTPException(status_code=404, detail="Photo not found")
+        raise HTTPException(status_code=404, detail="Photo claim not found")
     row.cashback_amount = req.cashback_amount
     row.cashback_status = req.cashback_status
     db.commit()
     return {
         "success": True,
-        "message": f"Cashback for #{row.id} ({row.customer_name}) updated to {req.cashback_status} (₹{req.cashback_amount})",
+        "message": f"Cashback updated to {req.cashback_status} (₹{req.cashback_amount})",
         "cashback_amount": row.cashback_amount,
         "cashback_status": row.cashback_status
     }
 
 @app.post("/testimonials/{item_id}/approve")
-def approve_testimonial(item_id: int, db: Session = Depends(get_db)):
-    row = db.query(models.CustomerTestimonial).filter(models.CustomerTestimonial.id == item_id).first()
+@app.post("/api/admin/cashback-claims/{item_id}/approve")
+def approve_testimonial(item_id: str, db: Session = Depends(get_db)):
+    source, row = find_item_by_identifier(item_id, db)
     if not row:
-        raise HTTPException(status_code=404, detail="Photo not found")
-    row.is_approved = not row.is_approved
+        raise HTTPException(status_code=404, detail="Photo claim not found")
+    if source == "craft_post":
+        row.status = "approved"
+        row.is_approved = True
+    else:
+        row.is_approved = True
+        if row.cashback_status == "Rejected":
+            row.cashback_status = "Approved"
     db.commit()
-    return {"message": "Updated approval status", "is_approved": row.is_approved}
+    return {
+        "success": True,
+        "message": "Photo approved and published live to customer showcase & Mistri Gram!",
+        "is_approved": True,
+        "status": "approved"
+    }
+
+@app.post("/testimonials/{item_id}/reject")
+@app.post("/api/admin/cashback-claims/{item_id}/reject")
+def reject_testimonial(item_id: str, db: Session = Depends(get_db)):
+    source, row = find_item_by_identifier(item_id, db)
+    if not row:
+        raise HTTPException(status_code=404, detail="Photo claim not found")
+    if source == "craft_post":
+        row.status = "rejected"
+        row.is_approved = False
+    else:
+        row.is_approved = False
+        row.cashback_status = "Rejected"
+    db.commit()
+    return {
+        "success": True,
+        "message": "Photo submission rejected.",
+        "is_approved": False,
+        "status": "rejected"
+    }
 
 @app.delete("/testimonials/{item_id}")
-def delete_testimonial(item_id: int, db: Session = Depends(get_db)):
-    row = db.query(models.CustomerTestimonial).filter(models.CustomerTestimonial.id == item_id).first()
+@app.delete("/api/admin/cashback-claims/{item_id}")
+def delete_testimonial(item_id: str, db: Session = Depends(get_db)):
+    source, row = find_item_by_identifier(item_id, db)
     if row:
         db.delete(row)
         db.commit()
-    return {"message": "Deleted photo"}
+        return {"success": True, "message": "Photo claim deleted permanently"}
+    raise HTTPException(status_code=404, detail="Photo claim not found")
