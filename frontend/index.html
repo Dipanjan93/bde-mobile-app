@@ -523,8 +523,41 @@
       color: #fbbf24;
       display: flex;
       align-items: center;
+      justify-content: center;
       cursor: pointer;
       filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.4));
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+
+    .search-mic-icon:hover {
+      color: #f59e0b;
+      transform: scale(1.1);
+    }
+
+    .search-mic-icon.listening {
+      color: #ffffff;
+      background: #ef4444;
+      filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.9));
+      animation: micGlowPulse 1.2s infinite ease-in-out;
+    }
+
+    @keyframes micGlowPulse {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+      }
+      50% {
+        transform: scale(1.18);
+        box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+      }
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+      }
     }
 
     /* Search Auto-suggest dropdown */
@@ -2046,7 +2079,7 @@
     <div class="location-strip" onclick="openLocalitySheet()">
       <div class="loc-left">
         <span>📍</span>
-        <span id="current-location-text">Delivering to Onda Bazar, Bankura (722144)</span>
+        <span id="current-location-text">Delivering to Onda Majhpara, Bankura (722144)</span>
       </div>
       <div class="loc-change">Change</div>
     </div>
@@ -2059,7 +2092,7 @@
         </svg>
         <input type="text" id="store-search-input" class="search-input" placeholder="Search 18mm ply, Fevicol, Sunmica, Hinges..." autocomplete="off">
         <button id="search-clear-btn" class="search-clear-btn" onclick="clearSearch()">✕</button>
-        <div class="search-mic-icon" onclick="showToast('Voice Search active: speak product name')">
+        <div id="search-mic-btn" class="search-mic-icon" onclick="startVoiceSearch()" title="Voice Search (Speak product name)">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
           </svg>
@@ -2682,7 +2715,7 @@
 
     <div style="text-align: center; margin-top: 30px; color: var(--text-muted); font-size: 11.5px;">
       <p><strong>Baba Dugdheswar Enterprise</strong></p>
-      <p>Onda Bazar Main Road, Bankura, West Bengal - 722144</p>
+      <p>Onda Majhpara, State Bank - Dol Tola Road, Bankura, West Bengal - 722144</p>
       <p style="margin-top: 4px;">Plywood • Laminates • Hardware • Fiber Sheet</p>
     </div>
   </section>
@@ -2726,7 +2759,8 @@
     <p class="sheet-desc">Select your location in Bankura for accurate freight and delivery estimates.</p>
     
     <div class="locality-grid">
-      <button class="locality-btn selected" onclick="setLocality('Onda Bazar', '722144')">📍 Onda Bazar</button>
+      <button class="locality-btn selected" onclick="setLocality('Onda Majhpara', '722144')">📍 Onda Majhpara (SBI Dol Tola Rd)</button>
+      <button class="locality-btn" onclick="setLocality('Onda Bazar', '722144')">📍 Onda Bazar</button>
       <button class="locality-btn" onclick="setLocality('Punisole', '722152')">📍 Punisole</button>
       <button class="locality-btn" onclick="setLocality('Ramsagar', '722122')">📍 Ramsagar</button>
       <button class="locality-btn" onclick="setLocality('Taldangra', '722153')">📍 Taldangra</button>
@@ -3055,7 +3089,7 @@
       currentSubFilter: 'all',
       searchQuery: '',
       activeView: 'home',
-      currentLocality: localStorage.getItem('bde_locality') || 'Onda Bazar, Bankura (722144)',
+      currentLocality: localStorage.getItem('bde_locality') || 'Onda Majhpara, Bankura (722144)',
       pendingAction: null,
       compressedBase64: null,
       calc: {
@@ -3451,6 +3485,85 @@
       document.getElementById('search-suggestions-box').style.display = 'none';
       STATE.searchQuery = '';
       applySubFilter('all');
+    }
+
+    /* =========================================================
+       VOICE SEARCH ENGINE (Web Speech API)
+       ========================================================= */
+    let speechRecognitionInstance = null;
+
+    function startVoiceSearch() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        showToast('Voice Search is not supported on this browser. Please type to search.');
+        return;
+      }
+
+      const micIcon = document.getElementById('search-mic-btn') || document.querySelector('.search-mic-icon');
+      const input = document.getElementById('store-search-input');
+      const clearBtn = document.getElementById('search-clear-btn');
+
+      if (speechRecognitionInstance) {
+        try { speechRecognitionInstance.abort(); } catch (e) {}
+        speechRecognitionInstance = null;
+        if (micIcon) micIcon.classList.remove('listening');
+        showToast('Voice search listening stopped.');
+        return;
+      }
+
+      try {
+        const recognition = new SpeechRecognition();
+        speechRecognitionInstance = recognition;
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.lang = 'en-IN'; // Optimized for Indian English and regional transliterations
+
+        if (micIcon) micIcon.classList.add('listening');
+        showToast('🎙️ Listening... Speak product name (e.g. 18mm ply, Fevicol, Teak)');
+
+        recognition.onresult = (event) => {
+          let transcript = '';
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            transcript += event.results[i][0].transcript;
+          }
+          transcript = transcript.trim();
+          if (input) {
+            input.value = transcript;
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+          if (clearBtn && transcript) {
+            clearBtn.style.display = 'flex';
+          }
+        };
+
+        recognition.onerror = (event) => {
+          console.warn('Speech recognition error:', event.error);
+          if (micIcon) micIcon.classList.remove('listening');
+          speechRecognitionInstance = null;
+          if (event.error === 'not-allowed') {
+            showToast('Microphone access blocked. Please allow mic permission in browser.');
+          } else if (event.error === 'no-speech') {
+            showToast('No speech detected. Please tap mic and speak clearly.');
+          } else {
+            showToast('Voice search: ' + event.error);
+          }
+        };
+
+        recognition.onend = () => {
+          if (micIcon) micIcon.classList.remove('listening');
+          speechRecognitionInstance = null;
+          if (input && input.value.trim()) {
+            showToast(`🎙️ Searched: "${input.value.trim()}"`);
+          }
+        };
+
+        recognition.start();
+      } catch (err) {
+        console.error('Error starting speech recognition:', err);
+        if (micIcon) micIcon.classList.remove('listening');
+        speechRecognitionInstance = null;
+        showToast('Could not start speech recognition. Please type.');
+      }
     }
 
     function selectCategory(cat, elem) {

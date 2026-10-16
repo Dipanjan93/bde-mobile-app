@@ -1220,7 +1220,7 @@
     const sqft = calculateEstimatedSqft(p0, p1, p2, p3);
     const sheets = Math.ceil(sqft / 32);
     const activeSwatch = AR_LAMINATES.find(l => l.id === window.AR_STATE.activeLaminateId) || AR_LAMINATES[0];
-    const locality = (document.getElementById('current-location-text') || {}).innerText || 'Onda Bazar, Bankura';
+    const locality = (document.getElementById('current-location-text') || {}).innerText || 'Onda Majhpara, Bankura';
 
     const waMsg = 
       `Namaskar Baba Dugdheswar Enterprise! 🪵✨\n` +
