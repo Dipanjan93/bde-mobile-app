@@ -7,6 +7,7 @@ import hmac
 import hashlib
 import time
 import base64
+import json
 
 os.environ["DISABLE_SQLALCHEMY_CEXT"] = "1"
 
@@ -407,6 +408,76 @@ def serve_product_image(sku_filename: str):
 # ========================================================
 # MOBILE APP E-COMMERCE ENDPOINTS
 # ========================================================
+
+# 0. GET /api/special-banners
+@app.get("/api/special-banners")
+def get_special_banners():
+    """Returns promotional banners from static/img/special_banners directory."""
+    banners_cfg_path = os.path.join(STATIC_DIR, "img", "special_banners", "banners_config.json")
+    if os.path.exists(banners_cfg_path):
+        try:
+            with open(banners_cfg_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+
+    return [
+        {
+            "id": "banner-plywood-deals",
+            "title": "BWP Marine 710 Plywood Deals",
+            "subtitle": "100% Calibrated Gurjan Core • Onda Depot Ready Stock",
+            "badge": "⚡ FESTIVE MEGA DEALS",
+            "image_url": "/static/img/special_banners/banner_1.svg",
+            "target_category": "Plywood",
+            "action_type": "category",
+            "action_label": "Browse Plywood →",
+            "accent_color": "#f59e0b"
+        },
+        {
+            "id": "banner-sunmica-louvers",
+            "title": "Luxury Sunmica & Louvers 2026",
+            "subtitle": "400+ Zero-Fingerprint Matt & Gloss Finishes in Stock",
+            "badge": "🎨 2026 DESIGNER MICA",
+            "image_url": "/static/img/special_banners/banner_2.svg",
+            "target_category": "Laminate",
+            "action_type": "category",
+            "action_label": "Explore Laminates →",
+            "accent_color": "#ec4899"
+        },
+        {
+            "id": "banner-fevicol-contractor",
+            "title": "Fevicol & Adhesives Super-Packs",
+            "subtitle": "Marine, HeatX & SH Contractor Pails • Instant Loyalty Bonus",
+            "badge": "🧴 PIDILITE OFFICIAL HUB",
+            "image_url": "/static/img/special_banners/banner_3.svg",
+            "target_category": "Adhesive",
+            "action_type": "category",
+            "action_label": "Order Adhesives →",
+            "accent_color": "#10b981"
+        },
+        {
+            "id": "banner-ar-visualizer",
+            "title": "Live AR Wall & Wardrobe Visualizer",
+            "subtitle": "Project BDE Laminates Onto Your Room Wall via Smartphone Camera",
+            "badge": "✨ WEBAR CAMERA STUDIO",
+            "image_url": "/static/img/special_banners/banner_4.svg",
+            "target_view": "ar",
+            "action_type": "ar_visualizer",
+            "action_label": "Launch AR Camera ➔",
+            "accent_color": "#38bdf8"
+        },
+        {
+            "id": "banner-mistri-network",
+            "title": "Verified Onda Mistri Network",
+            "subtitle": "Connect Directly with 150+ Skilled Carpenters in Bankura",
+            "badge": "🪚 VERIFIED CARPENTERS",
+            "image_url": "/static/img/special_banners/banner_5.svg",
+            "target_view": "mistris",
+            "action_type": "view",
+            "action_label": "Find Mistri →",
+            "accent_color": "#ea580c"
+        }
+    ]
 
 # 1. GET /api/catalog
 @app.get("/api/catalog")

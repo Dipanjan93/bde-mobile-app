@@ -180,6 +180,12 @@ def main():
     # 14. Backward Compatible Console
     test_endpoint("Console Template (/console)", f"{BASE_URL}/console")
 
+    # 15. Special Promotional Banners
+    banners = test_endpoint("Special Banners (GET /api/special-banners)", f"{BASE_URL}/api/special-banners")
+    if isinstance(banners, list) and len(banners) > 0:
+        print(f"       Verification: {len(banners)} special banners loaded. First banner: {banners[0].get('title')}")
+    test_endpoint("Banner 1 SVG (/static/img/special_banners/banner_1.svg)", f"{BASE_URL}/static/img/special_banners/banner_1.svg")
+
     print("\n=== ALL AUTOMATED TESTS COMPLETED SUCCESSFULLY ===")
 
 if __name__ == "__main__":

@@ -284,173 +284,218 @@
       box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
     }
 
-    /* Top Row: Brand & WhatsApp Quick Button */
-    .header-top {
+    /* Flipkart-Style Header Rows 1 & 2 */
+    .header-row-1 {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 14px 6px 14px;
-    }
-
-    .header-brand {
-      display: flex;
-      align-items: center;
+      padding: 7px 14px 4px 14px;
       gap: 10px;
     }
 
-    .header-badge {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 900;
-      font-size: 16px;
-      color: #0d1117;
-      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
-      border: 1px solid rgba(254, 240, 138, 0.4);
-    }
-
-    .header-brand-info h1 {
-      font-size: 15px;
-      font-weight: 800;
-      letter-spacing: -0.2px;
-      line-height: 1.15;
-      color: #f0f6fc;
-      text-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
-    }
-
-    .header-brand-info span {
-      font-size: 10.5px;
-      font-weight: 600;
-      color: #8b949e;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .durga-puja-pill {
-      background: linear-gradient(90deg, rgba(245, 158, 11, 0.2), rgba(239, 68, 68, 0.25));
-      border: 1px solid rgba(245, 158, 11, 0.45);
-      color: #fbbf24;
-      font-size: 9.5px;
-      font-weight: 800;
-      padding: 2px 7px;
-      border-radius: 99px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      animation: glowFestive 2s infinite alternate;
-    }
-
-    @keyframes glowFestive {
-      from { box-shadow: 0 0 4px rgba(245, 158, 11, 0.3); }
-      to { box-shadow: 0 0 12px rgba(245, 158, 11, 0.6); }
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn-icon-wa {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      color: #FFFFFF;
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      font-size: 16px;
-      transition: transform 0.2s ease;
-    }
-
-    .btn-icon-wa:hover {
-      transform: scale(1.08);
-    }
-
-    /* Service Pills Strip */
-    .service-pills-row {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding: 4px 14px 8px 14px;
-      scrollbar-width: none;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .service-pills-row::-webkit-scrollbar {
-      display: none;
-    }
-
-    .service-pill {
-      flex-shrink: 0;
-      background: rgba(22, 27, 34, 0.7);
-      border: 1px solid rgba(245, 158, 11, 0.22);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      color: #c9d1d9;
-      padding: 5px 12px;
-      border-radius: 99px;
-      font-size: 11.5px;
-      font-weight: 700;
+    .brand-pills-wrap {
       display: flex;
       align-items: center;
       gap: 6px;
-      cursor: pointer;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      flex: 1;
     }
 
-    .service-pill:hover {
-      border-color: rgba(245, 158, 11, 0.5);
+    .brand-pills-wrap::-webkit-scrollbar {
+      display: none;
+    }
+
+    .brand-pill {
+      flex-shrink: 0;
+      background: rgba(22, 27, 34, 0.7);
+      border: 1px solid rgba(245, 158, 11, 0.22);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: #c9d1d9;
+      padding: 4px 10px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.22s ease;
+    }
+
+    .brand-pill:hover {
+      border-color: rgba(245, 158, 11, 0.55);
       color: #ffffff;
       transform: translateY(-1px);
     }
 
-    .service-pill.active {
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.3) 100%);
+    .brand-pill.active {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.35) 100%);
       color: #fbbf24;
       border-color: #f59e0b;
-      box-shadow: 0 0 14px rgba(245, 158, 11, 0.35);
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
     }
 
-    /* Location Strip */
-    .location-strip {
-      background: rgba(0, 0, 0, 0.35);
-      border-top: 1px solid rgba(245, 158, 11, 0.12);
-      border-bottom: 1px solid rgba(245, 158, 11, 0.12);
-      padding: 6px 14px;
+    .brand-pill-ar {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.28));
+      border: 1px solid rgba(245, 158, 11, 0.55);
+      color: #fbbf24;
+    }
+
+    .brand-pill-badge {
+      font-size: 8px;
+      padding: 1px 4px;
+      border-radius: 4px;
+      background: #f59e0b;
+      color: #0d1117;
+      font-weight: 800;
+      margin-left: 2px;
+    }
+
+    .header-location-box {
+      flex-shrink: 0;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      font-size: 11.5px;
+      gap: 5px;
+      font-size: 11px;
       font-weight: 600;
       color: #c9d1d9;
+      background: rgba(22, 27, 34, 0.6);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      border-radius: 99px;
+      padding: 4px 10px;
       cursor: pointer;
-      transition: background 0.2s ease;
+      transition: all 0.2s ease;
+      max-width: 260px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .location-strip:hover {
-      background: rgba(245, 158, 11, 0.08);
+    .header-location-box:hover {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: #f59e0b;
+      color: #fbbf24;
     }
 
-    .location-strip .loc-left {
+    .header-location-box .loc-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .header-location-box .loc-arrow {
+      color: #fbbf24;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    /* Row 2: Search Bar + Login + More + Estimate Cart */
+    .header-row-2 {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 10px;
+      padding: 4px 14px 8px 14px;
+      position: relative;
     }
 
-    .location-strip .loc-change {
-      color: #fbbf24;
+    .header-search-wrap {
+      flex: 1;
+      position: relative;
+      min-width: 0;
+    }
+
+    .header-quick-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .header-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 11px;
+      border-radius: 10px;
+      background: rgba(22, 27, 34, 0.7);
+      border: 1px solid rgba(245, 158, 11, 0.22);
+      color: #f0f6fc;
+      font-size: 11.5px;
       font-weight: 700;
-      font-size: 11px;
-      text-decoration: underline;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .header-action-btn:hover {
+      border-color: rgba(245, 158, 11, 0.5);
+      background: rgba(245, 158, 11, 0.12);
+      color: #fbbf24;
+    }
+
+    .header-action-cart {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(217, 119, 6, 0.28) 100%);
+      border-color: rgba(245, 158, 11, 0.4);
+      color: #fbbf24;
+      position: relative;
+    }
+
+    .header-cart-badge {
+      background: #ef4444;
+      color: #ffffff;
+      font-size: 9px;
+      font-weight: 800;
+      border-radius: 99px;
+      padding: 1px 5px;
+      margin-left: 2px;
+      min-width: 16px;
+      text-align: center;
+    }
+
+    /* More Dropdown Menu */
+    .header-more-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      right: 14px;
+      background: rgba(22, 27, 34, 0.96);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: 12px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.75), 0 0 20px rgba(245, 158, 11, 0.2);
+      padding: 6px;
+      min-width: 180px;
+      display: none;
+      flex-direction: column;
+      z-index: 2500;
+    }
+
+    .header-more-dropdown.show {
+      display: flex;
+    }
+
+    .header-more-item {
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #c9d1d9;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+      text-decoration: none;
+    }
+
+    .header-more-item:hover {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
     }
 
     /* Sticky Obsidian & Amber Search Bar */
@@ -626,23 +671,38 @@
       color: #fbbf24;
     }
 
-    /* Circular Category Icon Row */
+    /* =========================================================
+       FLIPKART-STYLE COLLAPSING CATEGORY STRIP (ROW 3)
+       ========================================================= */
     .category-scroll-container {
-      background: rgba(13, 17, 23, 0.85);
+      background: rgba(13, 17, 23, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(245, 158, 11, 0.18);
+      position: sticky;
+      top: 0;
+      z-index: 990;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 8px 6px;
+    }
+
+    .category-scroll-container.header-compact {
+      padding: 2px 6px;
+      background: rgba(13, 17, 23, 0.72);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      padding: 12px 10px;
-      border-bottom: 1px solid rgba(245, 158, 11, 0.15);
-      box-shadow: var(--shadow-sm);
+      border-bottom: 1px solid rgba(245, 158, 11, 0.2);
     }
 
     .category-scroll {
       display: flex;
-      gap: 14px;
+      gap: 10px;
       overflow-x: auto;
       scrollbar-width: none;
       -webkit-overflow-scrolling: touch;
-      padding: 0 4px;
+      padding: 0 6px;
+      align-items: center;
     }
 
     .category-scroll::-webkit-scrollbar {
@@ -653,34 +713,65 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       flex-shrink: 0;
-      width: 58px;
+      min-width: 60px;
+      padding: 4px 6px 6px 6px;
       cursor: pointer;
-      transition: transform 0.2s ease;
+      position: relative;
+      transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 8px;
     }
 
-    .category-item:hover {
-      transform: translateY(-2px);
+    .category-scroll-container.header-compact .category-item {
+      min-width: auto;
+      padding: 6px 12px;
     }
 
-    .category-icon-circle {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: rgba(22, 27, 34, 0.85);
-      border: 1.5px solid rgba(245, 158, 11, 0.2);
+    /* Icon Container - Collapses to 0 on scroll */
+    .category-icon-wrap {
+      max-height: 48px;
+      opacity: 1;
+      transform: translateY(0);
+      transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
+      margin-bottom: 4px;
+      overflow: hidden;
+    }
+
+    .category-scroll-container.header-compact .category-icon-wrap {
+      max-height: 0;
+      opacity: 0;
+      transform: translateY(-8px);
+      margin: 0;
+      pointer-events: none;
+    }
+
+    .category-icon-circle {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(22, 27, 34, 0.85);
+      border: 1.5px solid rgba(245, 158, 11, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 19px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .category-item:hover .category-icon-circle {
+      transform: translateY(-2px);
+      border-color: rgba(245, 158, 11, 0.5);
     }
 
     .category-item.active .category-icon-circle {
       border-color: #f59e0b;
       background: rgba(245, 158, 11, 0.2);
-      box-shadow: 0 0 16px rgba(245, 158, 11, 0.4);
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.45);
       transform: scale(1.08);
     }
 
@@ -688,12 +779,17 @@
       font-size: 11px;
       font-weight: 600;
       color: #c9d1d9;
-      margin-top: 5px;
       text-align: center;
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      width: 100%;
+      transition: color 0.2s ease, font-weight 0.2s ease;
+    }
+
+    .category-scroll-container.header-compact .category-label {
+      font-size: 11.5px;
+    }
+
+    .category-item:hover .category-label {
+      color: #ffffff;
     }
 
     .category-item.active .category-label {
@@ -702,107 +798,447 @@
       text-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
     }
 
+    /* Active Underline Indicator */
+    .category-underline {
+      position: absolute;
+      bottom: 0;
+      left: 10%;
+      right: 10%;
+      height: 2.5px;
+      background: linear-gradient(90deg, #f59e0b, #fbbf24);
+      border-radius: 2px;
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+      opacity: 0;
+      transform: scaleX(0);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .category-item.active .category-underline {
+      opacity: 1;
+      transform: scaleX(1);
+    }
+
     /* =========================================================
-       3. STOREFRONT: HERO BANNERS & 2-COLUMN PRODUCTS
+       FLIPKART-STYLE MULTI-CARD PROMOTIONAL BANNER AUTO-SLIDER
        ========================================================= */
-    .storefront-view {
-      display: block;
+    .special-banners-section {
+      padding: 12px 14px 4px 14px;
+      position: relative;
     }
 
-    /* Hero Promo Carousel */
-    .hero-carousel-wrap {
-      padding: 12px 14px 6px 14px;
-      overflow: hidden;
+    .banners-slider-container {
+      position: relative;
+      border-radius: 18px;
     }
 
-    .hero-carousel {
+    .banners-track {
       display: flex;
-      gap: 12px;
+      gap: 14px;
       overflow-x: auto;
       scroll-snap-type: x mandatory;
       scrollbar-width: none;
       -webkit-overflow-scrolling: touch;
-      border-radius: 16px;
+      padding: 2px 2px 8px 2px;
     }
 
-    .hero-carousel::-webkit-scrollbar {
+    .banners-track::-webkit-scrollbar {
       display: none;
     }
 
-    .hero-slide {
-      flex: 0 0 100%;
-      scroll-snap-align: start;
+    .special-banner-card {
+      flex: 0 0 88%;
+      max-width: 440px;
+      scroll-snap-align: center;
       border-radius: 16px;
-      padding: 18px 20px;
-      color: #FFFFFF;
-      position: relative;
       overflow: hidden;
-      border: 1px solid rgba(245, 158, 11, 0.3);
-      backdrop-filter: blur(12px);
+      position: relative;
+      border: 1px solid rgba(245, 158, 11, 0.28);
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(245, 158, 11, 0.15);
+      background: #161b22;
+      cursor: pointer;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+      aspect-ratio: 800 / 360;
+    }
+
+    @media (min-width: 768px) {
+      .special-banner-card {
+        flex: 0 0 calc(50% - 8px);
+        max-width: none;
+        scroll-snap-align: start;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .special-banner-card {
+        flex: 0 0 calc(33.333% - 10px);
+        max-width: none;
+        scroll-snap-align: start;
+      }
+    }
+
+    .special-banner-card:hover {
+      transform: translateY(-3px) scale(1.01);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7), 0 0 25px rgba(245, 158, 11, 0.3);
+      border-color: rgba(245, 158, 11, 0.6);
+    }
+
+    .special-banner-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .banner-nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(13, 17, 23, 0.85);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #fbbf24;
+      font-size: 20px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+      transition: all 0.2s ease;
+    }
+
+    .banner-nav-btn:hover {
+      background: rgba(245, 158, 11, 0.25);
+      border-color: #f59e0b;
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .banner-nav-btn.prev {
+      left: -8px;
+    }
+
+    .banner-nav-btn.next {
+      right: -8px;
+    }
+
+    @media (max-width: 600px) {
+      .banner-nav-btn {
+        display: none;
+      }
+    }
+
+    .banner-pagination-dots {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .banner-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(245, 158, 11, 0.25);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .banner-dot.active {
+      width: 22px;
+      border-radius: 99px;
+      background: linear-gradient(90deg, #f59e0b, #fbbf24);
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+    }
+
+    /* =========================================================
+       FLIPKART-STYLE HORIZONTAL CATEGORY DEAL SHELVES
+       ========================================================= */
+    .deal-shelves-container {
       display: flex;
       flex-direction: column;
+      gap: 16px;
+      padding: 8px 14px 16px 14px;
+    }
+
+    .category-deal-shelf {
+      background: rgba(22, 27, 34, 0.72);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 18px;
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+      padding: 14px 12px 14px 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .shelf-header {
+      display: flex;
+      align-items: center;
       justify-content: space-between;
-      min-height: 140px;
+      margin-bottom: 12px;
+      gap: 10px;
     }
 
-    .slide-puja-1 {
-      background: linear-gradient(135deg, rgba(124, 45, 18, 0.95) 0%, rgba(234, 88, 12, 0.9) 50%, rgba(245, 158, 11, 0.85) 100%);
+    .shelf-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
     }
 
-    .slide-puja-2 {
-      background: linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(49, 46, 129, 0.9) 50%, rgba(67, 56, 202, 0.85) 100%);
+    .shelf-icon {
+      font-size: 22px;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
 
-    .slide-puja-3 {
-      background: linear-gradient(135deg, rgba(20, 83, 45, 0.95) 0%, rgba(22, 163, 74, 0.85) 100%);
-    }
-
-    .slide-badge {
-      background: rgba(0, 0, 0, 0.45);
-      border: 1px solid rgba(254, 240, 138, 0.4);
-      padding: 3px 10px;
-      border-radius: 99px;
-      font-size: 10px;
+    .shelf-title {
+      font-size: 14px;
       font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      align-self: flex-start;
-      margin-bottom: 6px;
-      color: #fef08a;
-    }
-
-    .slide-heading {
-      font-size: 17px;
-      font-weight: 900;
+      color: #f0f6fc;
       line-height: 1.25;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+      text-shadow: 0 0 16px rgba(245, 158, 11, 0.25);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .slide-sub {
-      font-size: 11.5px;
+    .shelf-subtitle {
+      font-size: 11px;
       font-weight: 600;
-      opacity: 0.95;
-      margin-top: 4px;
+      color: #8b949e;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .slide-action-btn {
-      align-self: flex-start;
-      margin-top: 10px;
+    .shelf-view-all-btn {
+      flex-shrink: 0;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.25) 100%);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: #fbbf24;
+      font-size: 11.5px;
+      font-weight: 800;
+      padding: 5px 12px;
+      border-radius: 99px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .shelf-view-all-btn:hover {
       background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
       color: #0d1117;
-      font-size: 11.5px;
-      font-weight: 800;
-      padding: 6px 14px;
-      border-radius: 99px;
-      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
-      border: 1px solid rgba(254, 240, 138, 0.5);
-      cursor: pointer;
-      transition: transform 0.15s ease;
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.4);
     }
 
-    .slide-action-btn:hover {
-      transform: translateY(-1px);
+    .shelf-track-container {
+      position: relative;
+    }
+
+    .shelf-track {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      padding: 4px 2px 8px 2px;
+    }
+
+    .shelf-track::-webkit-scrollbar {
+      display: none;
+    }
+
+    .shelf-arrow-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(13, 17, 23, 0.9);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #fbbf24;
+      font-size: 18px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+      transition: all 0.2s ease;
+    }
+
+    .shelf-arrow-btn:hover {
+      background: rgba(245, 158, 11, 0.3);
+      border-color: #f59e0b;
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .shelf-arrow-btn.prev {
+      left: -6px;
+    }
+
+    .shelf-arrow-btn.next {
+      right: -6px;
+    }
+
+    @media (max-width: 600px) {
+      .shelf-arrow-btn {
+        display: none;
+      }
+    }
+
+    /* Shelf Product Card */
+    .shelf-card {
+      flex: 0 0 160px;
+      background: rgba(13, 17, 23, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 14px;
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+      cursor: pointer;
+      transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+    }
+
+    @media (min-width: 768px) {
+      .shelf-card {
+        flex: 0 0 190px;
+      }
+    }
+
+    .shelf-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(245, 158, 11, 0.55);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.55), 0 0 16px rgba(245, 158, 11, 0.2);
+    }
+
+    .shelf-card-thumb {
+      width: 100%;
+      height: 110px;
+      background: #0d1117;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .shelf-card-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .shelf-card:hover .shelf-card-thumb img {
+      transform: scale(1.06);
+    }
+
+    .shelf-badge {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      background: rgba(0, 0, 0, 0.75);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #fbbf24;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 99px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .shelf-card-body {
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      justify-content: space-between;
+    }
+
+    .shelf-card-brand {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: #fbbf24;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+
+    .shelf-card-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: #f0f6fc;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      min-height: 31px;
+    }
+
+    .shelf-card-stock {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #10b981;
+      margin-top: 6px;
+    }
+
+    .shelf-card-stock-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #10b981;
+    }
+
+    .shelf-card-btn {
+      margin-top: 8px;
+      width: 100%;
+      height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #0d1117;
+      font-size: 11px;
+      font-weight: 800;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .shelf-card-btn:hover {
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.45);
     }
 
     /* Store Sub-filter chips */
@@ -2022,7 +2458,7 @@
   </div>
 
   <!-- =========================================================
-       2. FESTIVE HEADER & SERVICE PILLS & LOCATION & SEARCH
+       2. FLIPKART-STYLE STOREFRONT HEADER (ROWS 1, 2, 3)
        ========================================================= -->
   <header class="app-header">
     <!-- Sleek Glassmorphic Timber & Trade Advisory Micro-Banner -->
@@ -2035,104 +2471,151 @@
       </div>
     </div>
 
-    <div class="header-top">
-      <div class="header-brand">
-        <div class="header-badge">BDE</div>
-        <div class="header-brand-info">
-          <h1>Baba Dugdheswar Enterprise</h1>
-          <span>
-            <span class="durga-puja-pill">🪵 Architectural Timber &amp; Hardware</span>
-            <span>• Onda, Bankura</span>
-          </span>
+    <!-- Row 1: Brand Switcher Pills (Left) & Delivery Location (Right) -->
+    <div class="header-row-1">
+      <div class="brand-pills-wrap">
+        <div class="brand-pill active" id="pill-home" onclick="switchView('home')" title="Store Catalog">
+          <span>🏷️</span> BDE Store
+        </div>
+        <div class="brand-pill" id="pill-simulator" onclick="switchView('simulator')" title="3D Studio">
+          <span>🎨</span> 3D Studio
+        </div>
+        <div class="brand-pill brand-pill-ar" id="pill-ar" onclick="openArVisualizer()" title="Wall AR Visualizer">
+          <span>✨</span> Wall AR <span class="brand-pill-badge">BETA</span>
+        </div>
+        <div class="brand-pill" id="pill-mistris" onclick="switchView('mistris')" title="Find Mistri">
+          <span>🪚</span> Find Mistri
         </div>
       </div>
-      <div class="header-actions">
-        <a href="javascript:void(0)" onclick="openWhatsAppHelpline()" class="btn-icon-wa" title="WhatsApp Showroom">
-          💬
-        </a>
-      </div>
-    </div>
-
-    <!-- Service Pills -->
-    <div class="service-pills-row">
-      <div class="service-pill active" id="pill-home" onclick="switchView('home')">
-        <span>🏷️</span> BDE Store
-      </div>
-      <div class="service-pill" id="pill-simulator" onclick="switchView('simulator')">
-        <span>🎨</span> 3D Studio &amp; Estimator
-      </div>
-      <div class="service-pill" id="pill-mistris" onclick="switchView('mistris')">
-        <span>🪚</span> Find Mistri
-      </div>
-      <div class="service-pill" id="pill-showcase" onclick="switchView('showcase')">
-        <span>📸</span> Photo Gallery
-      </div>
-      <div class="service-pill" id="pill-ar" onclick="openArVisualizer()" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(217, 119, 6, 0.3)); border: 1px solid rgba(245, 158, 11, 0.6); color: #fbbf24; font-weight: 700;">
-        <span>✨</span> AR Visualizer <span style="font-size: 8.5px; padding: 1.5px 5px; border-radius: 4px; background: #f59e0b; color: #0d1117; font-weight: 800; margin-left: 3px;">BETA</span>
-      </div>
-      <div class="service-pill" onclick="openStaffErpGate()" title="Showroom Staff &amp; Management Access">
-        <span>🔒</span> Staff / ERP
-      </div>
-    </div>
-
-    <!-- Location Strip -->
-    <div class="location-strip" onclick="openLocalitySheet()">
-      <div class="loc-left">
+      <div class="header-location-box" onclick="openLocalitySheet()" title="Change Delivery Locality">
         <span>📍</span>
-        <span id="current-location-text">Delivering to Onda Majhpara, Bankura (722144)</span>
+        <span class="loc-text" id="current-location-text">Delivering to Onda Majhpara, 722144</span>
+        <span class="loc-arrow">›</span>
       </div>
-      <div class="loc-change">Change</div>
     </div>
 
-    <!-- Sticky White Search Bar -->
-    <div class="search-bar-wrap">
-      <div class="search-bar-box">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
-        </svg>
-        <input type="text" id="store-search-input" class="search-input" placeholder="Search 18mm ply, Fevicol, Sunmica, Hinges..." autocomplete="off">
-        <button id="search-clear-btn" class="search-clear-btn" onclick="clearSearch()">✕</button>
-        <div id="search-mic-btn" class="search-mic-icon" onclick="startVoiceSearch()" title="Voice Search (Speak product name)">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
+    <!-- Row 2: Wide Search Bar + Login / Account + More + Estimate Cart -->
+    <div class="header-row-2">
+      <div class="header-search-wrap">
+        <div class="search-bar-box">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
           </svg>
+          <input type="text" id="store-search-input" class="search-input" placeholder="Search Plywood, Sunmica, Fevicol, Hinges..." autocomplete="off">
+          <button id="search-clear-btn" class="search-clear-btn" onclick="clearSearch()">✕</button>
+          <div id="search-mic-btn" class="search-mic-icon" onclick="startVoiceSearch()" title="Voice Search (Speak product name)">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
+            </svg>
+          </div>
         </div>
+        <!-- Auto Suggestions Dropdown -->
+        <div id="search-suggestions-box" class="search-suggestions"></div>
       </div>
 
-      <!-- Auto Suggestions Dropdown -->
-      <div id="search-suggestions-box" class="search-suggestions"></div>
+      <div class="header-quick-actions">
+        <button type="button" class="header-action-btn" id="header-user-btn" onclick="handleHeaderUserClick()" title="User Account">
+          <span id="header-user-icon">👤</span>
+          <span id="header-user-label">Login</span>
+        </button>
+
+        <div style="position: relative;">
+          <button type="button" class="header-action-btn" id="header-more-btn" onclick="toggleHeaderMoreMenu(event)" title="Showroom Info & Services">
+            <span>More ▾</span>
+          </button>
+          <div class="header-more-dropdown" id="header-more-menu">
+            <a href="javascript:void(0)" onclick="openWhatsAppHelpline(); toggleHeaderMoreMenu();" class="header-more-item">
+              <span>💬</span> WhatsApp Helpline
+            </a>
+            <a href="javascript:void(0)" onclick="switchView('showcase'); toggleHeaderMoreMenu();" class="header-more-item">
+              <span>📸</span> Customer Projects
+            </a>
+            <a href="javascript:void(0)" onclick="openLocalitySheet(); toggleHeaderMoreMenu();" class="header-more-item">
+              <span>📍</span> Onda Depot Info
+            </a>
+            <a href="javascript:void(0)" onclick="openStaffErpGate(); toggleHeaderMoreMenu();" class="header-more-item">
+              <span>🔒</span> Staff / ERP Login
+            </a>
+          </div>
+        </div>
+
+        <button type="button" class="header-action-btn header-action-cart" onclick="openCartEstimateSheet()" title="Material Estimate Cart">
+          <span>🛒</span>
+          <span class="header-cart-label">Estimate</span>
+          <span class="header-cart-badge" id="header-cart-count">0</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Row 3: Horizontal Category Strip with Custom Icons + Labels + Active Underline -->
+    <div class="category-scroll-container" id="category-bar">
+      <div class="category-scroll">
+        <div class="category-item active" data-category="All" onclick="selectCategory('All', this)">
+          <div class="category-icon-wrap">
+            <div class="category-icon-circle">🌟</div>
+          </div>
+          <span class="category-label">For You</span>
+          <div class="category-underline"></div>
+        </div>
+
+        <div class="category-item" data-category="Plywood" onclick="selectCategory('Plywood', this)">
+          <div class="category-icon-wrap">
+            <div class="category-icon-circle">🪵</div>
+          </div>
+          <span class="category-label">Plywood</span>
+          <div class="category-underline"></div>
+        </div>
+
+        <div class="category-item" data-category="Laminate" onclick="selectCategory('Laminate', this)">
+          <div class="category-icon-wrap">
+            <div class="category-icon-circle">🎨</div>
+          </div>
+          <span class="category-label">Sunmica</span>
+          <div class="category-underline"></div>
+        </div>
+
+        <div class="category-item" data-category="Louvers" onclick="selectCategory('Louvers', this)">
+          <div class="category-icon-wrap">
+            <div class="category-icon-circle">🏛️</div>
+          </div>
+          <span class="category-label">Louvers</span>
+          <div class="category-underline"></div>
+        </div>
+
+        <div class="category-item" data-category="Hardware" onclick="selectCategory('Hardware', this)">
+          <div class="category-icon-wrap">
+            <div class="category-icon-circle">🔩</div>
+          </div>
+          <span class="category-label">Hardware</span>
+          <div class="category-underline"></div>
+        </div>
+
+        <div class="category-item" data-category="Adhesive" onclick="selectCategory('Adhesive', this)">
+          <div class="category-icon-wrap">
+            <div class="category-icon-circle">🧴</div>
+          </div>
+          <span class="category-label">Fevicol</span>
+          <div class="category-underline"></div>
+        </div>
+
+        <div class="category-item" data-category="Doors" onclick="selectCategory('Doors', this)">
+          <div class="category-icon-wrap">
+            <div class="category-icon-circle">🚪</div>
+          </div>
+          <span class="category-label">Doors</span>
+          <div class="category-underline"></div>
+        </div>
+
+        <div class="category-item" data-category="Mistris" onclick="switchView('mistris')">
+          <div class="category-icon-wrap">
+            <div class="category-icon-circle">🪚</div>
+          </div>
+          <span class="category-label">Mistris</span>
+          <div class="category-underline"></div>
+        </div>
+      </div>
     </div>
   </header>
-
-  <!-- Circular Category Icon Row -->
-  <div class="category-scroll-container">
-    <div class="category-scroll">
-      <div class="category-item active" onclick="selectCategory('All', this)">
-        <div class="category-icon-circle">🌟</div>
-        <span class="category-label">For You</span>
-      </div>
-      <div class="category-item" onclick="selectCategory('Plywood', this)">
-        <div class="category-icon-circle">🪵</div>
-        <span class="category-label">Plywood</span>
-      </div>
-      <div class="category-item" onclick="selectCategory('Laminate', this)">
-        <div class="category-icon-circle">🎨</div>
-        <span class="category-label">Sunmica</span>
-      </div>
-      <div class="category-item" onclick="selectCategory('Hardware', this)">
-        <div class="category-icon-circle">🔩</div>
-        <span class="category-label">Hardware</span>
-      </div>
-      <div class="category-item" onclick="selectCategory('Adhesive', this)">
-        <div class="category-icon-circle">🧴</div>
-        <span class="category-label">Fevicol</span>
-      </div>
-      <div class="category-item" onclick="switchView('mistris')">
-        <div class="category-icon-circle">🪚</div>
-        <span class="category-label">Mistris</span>
-      </div>
-    </div>
-  </div>
 
   <!-- =========================================================
        MAIN APP VIEWS
@@ -2140,50 +2623,16 @@
 
   <!-- VIEW 1: HOME STOREFRONT -->
   <section id="view-home" class="storefront-view">
-    <!-- Hero Snap Carousels -->
-    <div class="hero-carousel-wrap">
-      <div class="hero-carousel">
-        <div class="hero-slide slide-puja-1">
-          <div>
-            <div class="slide-badge">⚡ Durga Puja Festival Specials</div>
-            <h2 class="slide-heading">Premium Marine & BWR Plywood Ready Stock</h2>
-            <p class="slide-sub">Free direct delivery to Onda, Punisole & Bankura Town</p>
-          </div>
-          <button class="slide-action-btn" onclick="selectCategory('Plywood')">Browse Plywood →</button>
+    <!-- Flipkart-Style Multi-Card Promotional Banner Slider (Decoupled from products) -->
+    <div class="special-banners-section" id="special-banners-section">
+      <div class="banners-slider-container">
+        <button type="button" class="banner-nav-btn prev" onclick="scrollBannerSlide(-1)" aria-label="Previous Slide">‹</button>
+        <div class="banners-track" id="special-banners-track">
+          <!-- Banners dynamically loaded from GET /api/special-banners -->
         </div>
-        <div class="hero-slide slide-puja-2">
-          <div>
-            <div class="slide-badge">🪵 Pidilite Official Partner</div>
-            <h2 class="slide-heading">Fevicol Marine & HeatX Fresh Stock</h2>
-            <p class="slide-sub">Buy in bulk & claim instant carpenter counter points</p>
-          </div>
-          <button class="slide-action-btn" onclick="selectCategory('Adhesive')">View Adhesives →</button>
-        </div>
-        <div class="hero-slide slide-puja-3">
-          <div>
-            <div class="slide-badge">🎨 Designer Sunmica 2026</div>
-            <h2 class="slide-heading">400+ 1.0mm Gloss & Fluted Laminates</h2>
-            <p class="slide-sub">Scratch-resistant & anti-fingerprint finishes</p>
-          </div>
-          <button class="slide-action-btn" onclick="selectCategory('Laminate')">Explore Mica →</button>
-        </div>
-        <div class="hero-slide" style="background: linear-gradient(135deg, #1E1B4B 0%, #4338CA 100%);">
-          <div>
-            <div class="slide-badge" style="background: #FEF08A; color: #854D0E;">✨ New 3D Studio Simulator</div>
-            <h2 class="slide-heading" style="color: #FFFFFF;">Visualize Your Wardrobe, Bed & TV Unit!</h2>
-            <p class="slide-sub" style="color: #C7D2FE;">Mix & match laminates in real-time with instant ply calculations</p>
-          </div>
-          <button class="slide-action-btn" style="background: #FEF08A; color: #1E1B4B;" onclick="switchView('simulator')">Launch 3D Studio →</button>
-        </div>
-        <div class="hero-slide" style="background: linear-gradient(135deg, #090d16 0%, #1e1b4b 60%, #312e81 100%); border: 1px solid rgba(245, 158, 11, 0.45); box-shadow: 0 8px 32px rgba(245, 158, 11, 0.2);">
-          <div>
-            <div class="slide-badge" style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #0d1117; font-weight: 800;">✨ WebAR Live Camera Visualizer</div>
-            <h2 class="slide-heading" style="color: #FFFFFF;">Project Sunmica Finishes On Your Real Wall!</h2>
-            <p class="slide-sub" style="color: #fde68a;">Point camera at any bare wall or wardrobe &amp; try 16 luxury BDE finishes in real-time</p>
-          </div>
-          <button class="slide-action-btn" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #0d1117; font-weight: 800; box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);" onclick="openArVisualizer()">Launch AR Visualizer ➔</button>
-        </div>
+        <button type="button" class="banner-nav-btn next" onclick="scrollBannerSlide(1)" aria-label="Next Slide">›</button>
       </div>
+      <div class="banner-pagination-dots" id="banner-pagination-dots"></div>
     </div>
 
     <!-- Trust Strip -->
@@ -2191,6 +2640,109 @@
       <div class="trust-item"><span class="icon">✅</span> 100% Genuine Brands</div>
       <div class="trust-item"><span class="icon">🚚</span> Fast Onda Delivery</div>
       <div class="trust-item"><span class="icon">💰</span> Best Counter Rates</div>
+    </div>
+
+    <!-- Flipkart-Style "Products by Category" Horizontal Deal Shelves -->
+    <div class="deal-shelves-container" id="deal-shelves-container">
+      <!-- Shelf 1: Plywood & Blockboards -->
+      <div class="category-deal-shelf" id="shelf-plywood">
+        <div class="shelf-header">
+          <div class="shelf-title-wrap">
+            <span class="shelf-icon">🪵</span>
+            <div>
+              <h3 class="shelf-title">Best Value Deals on Plywood &amp; Blockboards</h3>
+              <p class="shelf-subtitle">BWP Marine 710, Calibrated Gurjan Core &amp; Commercial MR</p>
+            </div>
+          </div>
+          <button type="button" class="shelf-view-all-btn" onclick="selectCategory('Plywood')">
+            View All <span>›</span>
+          </button>
+        </div>
+        <div class="shelf-track-container">
+          <button type="button" class="shelf-arrow-btn prev" onclick="scrollShelf('shelf-track-plywood', -1)" aria-label="Scroll Left">‹</button>
+          <div class="shelf-track" id="shelf-track-plywood">
+            <!-- Dynamically populated from catalog -->
+          </div>
+          <button type="button" class="shelf-arrow-btn next" onclick="scrollShelf('shelf-track-plywood', 1)" aria-label="Scroll Right">›</button>
+        </div>
+      </div>
+
+      <!-- Shelf 2: Designer Sunmica & Louvers -->
+      <div class="category-deal-shelf" id="shelf-laminate">
+        <div class="shelf-header">
+          <div class="shelf-title-wrap">
+            <span class="shelf-icon">🎨</span>
+            <div>
+              <h3 class="shelf-title">Top Deals on Designer Sunmica &amp; Louvers</h3>
+              <p class="shelf-subtitle">400+ Zero-Fingerprint Matt, High Gloss &amp; 3D Fluted Panels</p>
+            </div>
+          </div>
+          <button type="button" class="shelf-view-all-btn" onclick="selectCategory('Laminate')">
+            View All <span>›</span>
+          </button>
+        </div>
+        <div class="shelf-track-container">
+          <button type="button" class="shelf-arrow-btn prev" onclick="scrollShelf('shelf-track-laminate', -1)" aria-label="Scroll Left">‹</button>
+          <div class="shelf-track" id="shelf-track-laminate">
+            <!-- Dynamically populated from catalog -->
+          </div>
+          <button type="button" class="shelf-arrow-btn next" onclick="scrollShelf('shelf-track-laminate', 1)" aria-label="Scroll Right">›</button>
+        </div>
+      </div>
+
+      <!-- Shelf 3: Adhesives & Fevicol Contractor Packs -->
+      <div class="category-deal-shelf" id="shelf-adhesive">
+        <div class="shelf-header">
+          <div class="shelf-title-wrap">
+            <span class="shelf-icon">🧴</span>
+            <div>
+              <h3 class="shelf-title">Adhesives &amp; Fevicol Contractor Packs</h3>
+              <p class="shelf-subtitle">Pidilite Marine, HeatX &amp; SH Heavy Contractor Pails</p>
+            </div>
+          </div>
+          <button type="button" class="shelf-view-all-btn" onclick="selectCategory('Adhesive')">
+            View All <span>›</span>
+          </button>
+        </div>
+        <div class="shelf-track-container">
+          <button type="button" class="shelf-arrow-btn prev" onclick="scrollShelf('shelf-track-adhesive', -1)" aria-label="Scroll Left">‹</button>
+          <div class="shelf-track" id="shelf-track-adhesive">
+            <!-- Dynamically populated from catalog -->
+          </div>
+          <button type="button" class="shelf-arrow-btn next" onclick="scrollShelf('shelf-track-adhesive', 1)" aria-label="Scroll Right">›</button>
+        </div>
+      </div>
+
+      <!-- Shelf 4: Architectural Hardware, Locks & Channels -->
+      <div class="category-deal-shelf" id="shelf-hardware">
+        <div class="shelf-header">
+          <div class="shelf-title-wrap">
+            <span class="shelf-icon">🔩</span>
+            <div>
+              <h3 class="shelf-title">Architectural Hardware, Locks &amp; Channels</h3>
+              <p class="shelf-subtitle">Soft-Close Telescopic Drawer Slides, Hinges &amp; Handles</p>
+            </div>
+          </div>
+          <button type="button" class="shelf-view-all-btn" onclick="selectCategory('Hardware')">
+            View All <span>›</span>
+          </button>
+        </div>
+        <div class="shelf-track-container">
+          <button type="button" class="shelf-arrow-btn prev" onclick="scrollShelf('shelf-track-hardware', -1)" aria-label="Scroll Left">‹</button>
+          <div class="shelf-track" id="shelf-track-hardware">
+            <!-- Dynamically populated from catalog -->
+          </div>
+          <button type="button" class="shelf-arrow-btn next" onclick="scrollShelf('shelf-track-hardware', 1)" aria-label="Scroll Right">›</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Explore All Depot Products Section Header -->
+    <div style="padding: 10px 14px 2px 14px; display: flex; align-items: center; justify-content: space-between;">
+      <h3 style="font-size: 15px; font-weight: 800; color: #f0f6fc; display: flex; align-items: center; gap: 6px;">
+        <span>📦</span> All Depot Catalog Items
+      </h3>
+      <span style="font-size: 11.5px; font-weight: 600; color: #fbbf24;">Onda Warehouse Direct</span>
     </div>
 
     <!-- Quick Filter Chips & Sorter -->
@@ -3103,6 +3655,9 @@
     };
 
     // Initialize on DOM load
+    let bannerSliderTimer = null;
+
+    // Initialize on DOM load
     document.addEventListener('DOMContentLoaded', () => {
       // 1. Splash Screen dismiss after 1.3 seconds
       setTimeout(() => {
@@ -3117,17 +3672,41 @@
       updateUserUI();
 
       // 3. Initialize Location Text
-      document.getElementById('current-location-text').innerText = 'Delivering to ' + STATE.currentLocality;
+      const locTextEl = document.getElementById('current-location-text');
+      if (locTextEl) locTextEl.innerText = 'Delivering to ' + STATE.currentLocality;
 
-      // 4. Fetch initial API data from backend (with offline cache fallback)
+      // 4. Load Special Promotional Banners (Auto-Slider)
+      loadSpecialBanners();
+
+      // 5. Fetch initial API data from backend (with offline cache fallback)
       loadCatalog();
       loadCarpenters();
       loadTestimonials();
 
-      // 5. Setup Search Bar Event Listeners
+      // 6. Setup Search Bar Event Listeners
       setupSearch();
 
-      // 6. Check URL parameters for Bill QR code scanning (Cashback Upload)
+      // 7. Sticky Header & Collapsing Category Strip on Scroll (window.scrollY > 40)
+      window.addEventListener('scroll', () => {
+        const isScrolled = window.scrollY > 40;
+        const header = document.querySelector('.app-header');
+        const catBar = document.getElementById('category-bar');
+        if (header) header.classList.toggle('header-compact', isScrolled);
+        if (catBar) catBar.classList.toggle('header-compact', isScrolled);
+      }, { passive: true });
+
+      // 8. Close More menu on outside click
+      document.addEventListener('click', (e) => {
+        const menu = document.getElementById('header-more-menu');
+        const btn = document.getElementById('header-more-btn');
+        if (menu && menu.classList.contains('show')) {
+          if (!menu.contains(e.target) && (!btn || !btn.contains(e.target))) {
+            menu.classList.remove('show');
+          }
+        }
+      });
+
+      // 9. Check URL parameters for Bill QR code scanning (Cashback Upload)
       const urlParams = new URLSearchParams(window.location.search);
       const tabParam = urlParams.get('tab');
       const invParam = urlParams.get('inv');
@@ -3160,20 +3739,257 @@
         }, 350);
       }
 
-      // 7. Register Service Worker if supported
+      // 10. Register Service Worker if supported
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').catch(() => {});
       }
     });
 
     /* =========================================================
+       FLIPKART-STYLE PROMOTIONAL BANNER AUTO-SLIDER ENGINE
+       ========================================================= */
+    async function loadSpecialBanners() {
+      const track = document.getElementById('special-banners-track');
+      const dotsContainer = document.getElementById('banner-pagination-dots');
+      if (!track) return;
+
+      let banners = [];
+      try {
+        const res = await fetch('/api/special-banners');
+        if (res.ok) {
+          banners = await res.json();
+        }
+      } catch (e) {
+        console.warn('Using offline special banners fallback');
+      }
+
+      if (!Array.isArray(banners) || banners.length === 0) {
+        banners = [
+          {
+            "id": "banner-plywood-deals",
+            "title": "BWP Marine 710 Plywood Deals",
+            "subtitle": "100% Calibrated Gurjan Core • Onda Depot Ready Stock",
+            "badge": "⚡ FESTIVE MEGA DEALS",
+            "image_url": "/static/img/special_banners/banner_1.svg",
+            "target_category": "Plywood",
+            "action_type": "category"
+          },
+          {
+            "id": "banner-sunmica-louvers",
+            "title": "Luxury Sunmica & Louvers 2026",
+            "subtitle": "400+ Zero-Fingerprint Matt & Gloss Finishes in Stock",
+            "badge": "🎨 2026 DESIGNER MICA",
+            "image_url": "/static/img/special_banners/banner_2.svg",
+            "target_category": "Laminate",
+            "action_type": "category"
+          },
+          {
+            "id": "banner-fevicol-contractor",
+            "title": "Fevicol & Adhesives Super-Packs",
+            "subtitle": "Marine, HeatX & SH Contractor Pails • Instant Loyalty Bonus",
+            "badge": "🧴 PIDILITE OFFICIAL HUB",
+            "image_url": "/static/img/special_banners/banner_3.svg",
+            "target_category": "Adhesive",
+            "action_type": "category"
+          },
+          {
+            "id": "banner-ar-visualizer",
+            "title": "Live AR Wall & Wardrobe Visualizer",
+            "subtitle": "Project BDE Laminates Onto Your Room Wall via Smartphone Camera",
+            "badge": "✨ WEBAR CAMERA STUDIO",
+            "image_url": "/static/img/special_banners/banner_4.svg",
+            "target_view": "ar",
+            "action_type": "ar_visualizer"
+          },
+          {
+            "id": "banner-mistri-network",
+            "title": "Verified Onda Mistri Network",
+            "subtitle": "Connect Directly with 150+ Skilled Carpenters in Bankura",
+            "badge": "🪚 VERIFIED CARPENTERS",
+            "image_url": "/static/img/special_banners/banner_5.svg",
+            "target_view": "mistris",
+            "action_type": "view"
+          }
+        ];
+      }
+
+      track.innerHTML = banners.map((b, idx) => `
+        <div class="special-banner-card" onclick="handleBannerClick('${b.action_type || 'category'}', '${b.target_category || ''}', '${b.target_view || ''}')" title="${b.title}">
+          <img src="${b.image_url}" alt="${b.title}" loading="${idx === 0 ? 'eager' : 'lazy'}">
+        </div>
+      `).join('');
+
+      if (dotsContainer) {
+        dotsContainer.innerHTML = banners.map((_, i) => `
+          <div class="banner-dot ${i === 0 ? 'active' : ''}" onclick="goToBannerSlide(${i})"></div>
+        `).join('');
+      }
+
+      // Update dots on scroll
+      track.addEventListener('scroll', () => {
+        const card = track.querySelector('.special-banner-card');
+        if (!card) return;
+        const cardWidth = card.offsetWidth + 14;
+        const activeIndex = Math.min(banners.length - 1, Math.max(0, Math.round(track.scrollLeft / cardWidth)));
+        const dots = dotsContainer.querySelectorAll('.banner-dot');
+        dots.forEach((dot, idx) => dot.classList.toggle('active', idx === activeIndex));
+      }, { passive: true });
+
+      // Pause on hover
+      track.addEventListener('mouseenter', stopBannerAutoSlide);
+      track.addEventListener('mouseleave', startBannerAutoSlide);
+
+      // Pause on touch
+      track.addEventListener('touchstart', stopBannerAutoSlide, { passive: true });
+      track.addEventListener('touchend', () => {
+        setTimeout(startBannerAutoSlide, 2000);
+      }, { passive: true });
+
+      startBannerAutoSlide();
+    }
+
+    function handleBannerClick(actionType, targetCategory, targetView) {
+      if (actionType === 'category' && targetCategory) {
+        selectCategory(targetCategory);
+      } else if (actionType === 'ar_visualizer') {
+        openArVisualizer();
+      } else if (actionType === 'view' && targetView) {
+        switchView(targetView);
+      } else {
+        selectCategory('Plywood');
+      }
+    }
+
+    function startBannerAutoSlide() {
+      stopBannerAutoSlide();
+      bannerSliderTimer = setInterval(() => {
+        const track = document.getElementById('special-banners-track');
+        if (!track) return;
+        const card = track.querySelector('.special-banner-card');
+        if (!card) return;
+        const cardWidth = card.offsetWidth + 14;
+        const maxScroll = track.scrollWidth - track.clientWidth - 10;
+        if (track.scrollLeft >= maxScroll) {
+          track.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          track.scrollBy({ left: cardWidth, behavior: 'smooth' });
+        }
+      }, 3500);
+    }
+
+    function stopBannerAutoSlide() {
+      if (bannerSliderTimer) {
+        clearInterval(bannerSliderTimer);
+        bannerSliderTimer = null;
+      }
+    }
+
+    function scrollBannerSlide(direction) {
+      stopBannerAutoSlide();
+      const track = document.getElementById('special-banners-track');
+      if (!track) return;
+      const card = track.querySelector('.special-banner-card');
+      const cardWidth = (card ? card.offsetWidth + 14 : 320);
+      track.scrollBy({ left: direction * cardWidth, behavior: 'smooth' });
+      setTimeout(startBannerAutoSlide, 5000);
+    }
+
+    function goToBannerSlide(index) {
+      stopBannerAutoSlide();
+      const track = document.getElementById('special-banners-track');
+      if (!track) return;
+      const card = track.querySelector('.special-banner-card');
+      const cardWidth = (card ? card.offsetWidth + 14 : 320);
+      track.scrollTo({ left: index * cardWidth, behavior: 'smooth' });
+      setTimeout(startBannerAutoSlide, 5000);
+    }
+
+    /* =========================================================
+       FLIPKART-STYLE HORIZONTAL CATEGORY DEAL SHELVES ENGINE
+       ========================================================= */
+    function renderDealShelves(catalog) {
+      if (!Array.isArray(catalog) || catalog.length === 0) return;
+
+      const plywoodItems = catalog.filter(p => (p.category || '').toLowerCase().includes('ply'));
+      const laminateItems = catalog.filter(p => (p.category || '').toLowerCase().includes('laminate') || (p.name || '').toLowerCase().includes('mica') || (p.name || '').toLowerCase().includes('louver'));
+      const adhesiveItems = catalog.filter(p => (p.category || '').toLowerCase().includes('adhesive') || (p.name || '').toLowerCase().includes('fevicol'));
+      const hardwareItems = catalog.filter(p => (p.category || '').toLowerCase().includes('hardware') || (p.category || '').toLowerCase().includes('channel') || (p.category || '').toLowerCase().includes('hinge'));
+
+      renderSingleShelf('shelf-track-plywood', plywoodItems.length ? plywoodItems : catalog.slice(0, 6));
+      renderSingleShelf('shelf-track-laminate', laminateItems.length ? laminateItems : catalog.slice(0, 6));
+      renderSingleShelf('shelf-track-adhesive', adhesiveItems.length ? adhesiveItems : catalog.slice(0, 6));
+      renderSingleShelf('shelf-track-hardware', hardwareItems.length ? hardwareItems : catalog.slice(0, 6));
+    }
+
+    function renderSingleShelf(trackId, items) {
+      const track = document.getElementById(trackId);
+      if (!track) return;
+
+      track.innerHTML = items.map(p => `
+        <div class="shelf-card" onclick="openProductEnquiry('${p.sku}')" title="${p.name}">
+          <div class="shelf-card-thumb">
+            <span class="shelf-badge">${p.badge || 'Depot Stock'}</span>
+            <img src="${p.image_url}" alt="${p.name}" loading="lazy" onerror="this.onerror=null; this.src='/static/img/products/PLY-COMM-18-8X4.jpg';">
+          </div>
+          <div class="shelf-card-body">
+            <div>
+              <div class="shelf-card-brand">${p.brand || 'BDE Onda'}</div>
+              <h4 class="shelf-card-name">${p.name}</h4>
+            </div>
+            <div>
+              <div class="shelf-card-stock">
+                <span class="shelf-card-stock-dot"></span>
+                <span>${p.in_stock ? 'Depot Ready Stock' : 'On Order'}</span>
+              </div>
+              <button type="button" class="shelf-card-btn" onclick="event.stopPropagation(); openProductEnquiry('${p.sku}')">
+                ⚡ Enquire / Estimate
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function scrollShelf(trackId, direction) {
+      const track = document.getElementById(trackId);
+      if (!track) return;
+      const scrollAmount = track.clientWidth * 0.75;
+      track.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+    }
+
+    /* =========================================================
+       HEADER QUICK ACTIONS & USER HELPERS
+       ========================================================= */
+    function handleHeaderUserClick() {
+      if (STATE.user) {
+        switchView('account');
+      } else {
+        triggerAuthSheet('login');
+      }
+    }
+
+    function toggleHeaderMoreMenu(e) {
+      if (e) e.stopPropagation();
+      const menu = document.getElementById('header-more-menu');
+      if (menu) {
+        menu.classList.toggle('show');
+      }
+    }
+
+    function openCartEstimateSheet() {
+      showToast('Opening 3D Material Studio & Estimator...');
+      switchView('simulator');
+    }
+
+    /* =========================================================
        API FETCHERS (Live Network First -> Resilient Offline Fallback)
        ========================================================= */
     async function loadCatalog() {
-      // 1. Immediately render offline catalogue so the user never sees an infinite spinner
+      // 1. Immediately render offline catalogue & deal shelves
       if (window.BDE_OFFLINE_CATALOG && window.BDE_OFFLINE_CATALOG.length > 0 && (!STATE.catalog || STATE.catalog.length === 0)) {
         STATE.catalog = window.BDE_OFFLINE_CATALOG;
         renderProducts(STATE.catalog);
+        renderDealShelves(STATE.catalog);
       }
 
       // 2. 5-second cold-start timeout for Render / Neon wakeups
@@ -3188,6 +4004,7 @@
         if (Array.isArray(liveCatalog) && liveCatalog.length > 0) {
           STATE.catalog = liveCatalog;
           renderProducts(STATE.catalog);
+          renderDealShelves(STATE.catalog);
         }
       } catch (err) {
         clearTimeout(timeoutId);
@@ -3196,6 +4013,7 @@
           if (!STATE.catalog || STATE.catalog.length === 0) {
             STATE.catalog = window.BDE_OFFLINE_CATALOG;
             renderProducts(STATE.catalog);
+            renderDealShelves(STATE.catalog);
           }
         } else if (!STATE.catalog || STATE.catalog.length === 0) {
           document.getElementById('product-grid').innerHTML = `
@@ -3214,6 +4032,7 @@
               if (Array.isArray(fresh) && fresh.length > 0) {
                 STATE.catalog = fresh;
                 renderProducts(STATE.catalog);
+                renderDealShelves(STATE.catalog);
               }
             }
           } catch (e) {}
@@ -3569,13 +4388,46 @@
     function selectCategory(cat, elem) {
       STATE.currentCategory = cat;
       document.querySelectorAll('.category-item').forEach(el => el.classList.remove('active'));
-      if (elem) elem.classList.add('active');
+      if (elem) {
+        elem.classList.add('active');
+      } else {
+        const matching = document.querySelector(`.category-item[data-category="${cat}"]`);
+        if (matching) matching.classList.add('active');
+      }
 
       switchView('home');
 
       let filtered = STATE.catalog;
-      if (cat !== 'All') {
-        filtered = filtered.filter(p => p.category.toLowerCase().includes(cat.toLowerCase()));
+      if (cat !== 'All' && cat !== 'For You') {
+        const catLower = cat.toLowerCase();
+        filtered = filtered.filter(p => {
+          const pCat = (p.category || '').toLowerCase();
+          const pName = (p.name || '').toLowerCase();
+          if (catLower === 'laminate' || catLower === 'sunmica') {
+            return pCat.includes('laminate') || pName.includes('mica') || pCat.includes('sunmica');
+          }
+          if (catLower === 'louvers') {
+            return pName.includes('louver') || pCat.includes('laminate') || pCat.includes('wood beads');
+          }
+          if (catLower === 'adhesive' || catLower === 'fevicol') {
+            return pCat.includes('adhesive') || pName.includes('fevicol');
+          }
+          if (catLower === 'doors') {
+            return pCat.includes('door') || pName.includes('door') || pCat.includes('plywood');
+          }
+          return pCat.includes(catLower) || pName.includes(catLower);
+        });
+
+        // Scroll smoothly to corresponding shelf if available
+        let shelfId = 'shelf-' + catLower;
+        if (catLower === 'sunmica') shelfId = 'shelf-laminate';
+        if (catLower === 'fevicol') shelfId = 'shelf-adhesive';
+        const targetShelf = document.getElementById(shelfId);
+        if (targetShelf) {
+          setTimeout(() => {
+            targetShelf.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 150);
+        }
       }
       renderProducts(filtered);
     }
@@ -3889,12 +4741,20 @@
     }
 
     function updateUserUI() {
+      const userBtnLabel = document.getElementById('header-user-label');
+      const userBtnIcon = document.getElementById('header-user-icon');
       if (STATE.user) {
         document.getElementById('account-name-display').innerText = STATE.user.name;
         document.getElementById('account-phone-display').innerText = '+91 ' + STATE.user.phone + ' • ' + (STATE.user.location || 'Onda');
         document.getElementById('account-status-pill').innerText = '✓ Verified Customer Profile';
         document.getElementById('account-status-pill').style.background = '#DCFCE7';
         document.getElementById('account-avatar').innerText = STATE.user.name.charAt(0).toUpperCase();
+
+        if (userBtnLabel) userBtnLabel.innerText = STATE.user.name.split(' ')[0] || 'Account';
+        if (userBtnIcon) userBtnIcon.innerText = '👤';
+      } else {
+        if (userBtnLabel) userBtnLabel.innerText = 'Login';
+        if (userBtnIcon) userBtnIcon.innerText = '👤';
       }
     }
 
