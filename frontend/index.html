@@ -691,6 +691,232 @@
     }
 
     /* =========================================================
+       MOBILE-ONLY HEADER FIXES (SCREEN <= 768px)
+       Desktop (> 768px) remains 100% untouched and pristine.
+       ========================================================= */
+    @media (max-width: 768px) {
+      /* --- ROW 1: 2-Line Grid Layout for Logo, Location, and 4 Mode Pills --- */
+      .header-row-1 {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-gap: 6px 4px;
+        padding: 6px 10px 4px 10px;
+        align-items: center;
+      }
+
+      .brand-pills-wrap {
+        display: contents; /* Flattens brand-pills-wrap so its children participate directly in the grid */
+      }
+
+      /* Line 1: Logo (Left) and Delivery Location (Right) */
+      .bde-header-logo {
+        grid-column: 1 / 2;
+        grid-row: 1;
+        justify-self: start;
+        margin-right: 0;
+      }
+
+      .bde-logo-img {
+        height: 32px;
+        width: 32px;
+        border-radius: 8px;
+      }
+
+      .header-location-box {
+        grid-column: 2 / -1;
+        grid-row: 1;
+        justify-self: end;
+        max-width: 100%;
+        margin: 0;
+        font-size: 11px;
+        padding: 3px 8px;
+        height: 30px;
+      }
+
+      /* Line 2: The 4 Mode Switcher Pills displayed evenly across 100% width */
+      .brand-pill {
+        grid-row: 2;
+        padding: 5px 2px;
+        font-size: 10.5px;
+        font-weight: 700;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        gap: 2px;
+        min-width: 0;
+        white-space: nowrap;
+        letter-spacing: -0.2px;
+      }
+
+      #pill-home { grid-column: 1; }
+      #pill-simulator { grid-column: 2; }
+      #pill-ar { grid-column: 3; }
+      #pill-mistris { grid-column: 4; }
+
+      .brand-pill span {
+        font-size: 11px;
+      }
+
+      .brand-pill-badge {
+        font-size: 7.5px;
+        padding: 1px 3px;
+        margin-left: 2px;
+      }
+
+      /* --- ROW 2: Search Bar + Action Buttons (No Overlap, Login Clickable) --- */
+      .header-row-2 {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        padding: 4px 10px 8px 10px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .header-search-wrap {
+        flex: 1 1 auto;
+        min-width: 0;
+        width: 0;
+        position: relative;
+      }
+
+      .search-bar-box {
+        width: 100%;
+        min-width: 0;
+        height: 38px;
+        padding: 0 8px;
+        box-sizing: border-box;
+        overflow: hidden; /* STRICT: Nothing inside can spill or bleed outside */
+        border-radius: 9px;
+      }
+
+      .search-bar-box svg {
+        width: 15px;
+        height: 15px;
+        flex-shrink: 0;
+      }
+
+      .search-input {
+        flex: 1 1 auto;
+        min-width: 0 !important; /* STRICT: Disables HTML input default intrinsic width */
+        width: 100%;
+        height: 100%;
+        font-size: 12px;
+        margin-left: 6px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .search-input::placeholder {
+        font-size: 11.5px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .search-mic-icon {
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+      }
+
+      .search-mic-icon svg {
+        width: 15px;
+        height: 15px;
+      }
+
+      .header-quick-actions {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 10;
+      }
+
+      .header-action-btn {
+        padding: 6px 8px;
+        font-size: 11px;
+        height: 36px;
+        border-radius: 8px;
+        gap: 3px;
+        box-sizing: border-box;
+        position: relative;
+        z-index: 12;
+      }
+
+      #header-user-btn {
+        position: relative;
+        z-index: 20; /* STRICT: Ensures Login button is always clickable and selectable */
+        cursor: pointer;
+        -webkit-tap-highlight-color: rgba(245, 158, 11, 0.3);
+      }
+    }
+
+    @media (max-width: 540px) {
+      .header-row-2 {
+        padding: 3px 8px 7px 8px;
+        gap: 5px;
+      }
+
+      .header-quick-actions {
+        gap: 4px;
+      }
+
+      .header-action-btn {
+        padding: 5px 7px;
+        font-size: 10.5px;
+        height: 34px;
+      }
+
+      /* Compact Cart on mobile: Show 🛒 + badge counter, hide "Estimate" text */
+      .header-cart-label {
+        display: none;
+      }
+
+      .header-action-cart {
+        padding: 5px 6px;
+        min-width: 36px;
+        justify-content: center;
+      }
+
+      .header-cart-badge {
+        font-size: 8.5px;
+        padding: 1px 4px;
+        min-width: 14px;
+        margin-left: 1px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .header-row-1 {
+        padding: 5px 6px 3px 6px;
+        grid-gap: 5px 3px;
+      }
+
+      .brand-pill {
+        font-size: 9.5px;
+        padding: 4px 1px;
+        gap: 1px;
+      }
+
+      .brand-pill-badge {
+        font-size: 7px;
+        padding: 0 2px;
+      }
+
+      .header-action-btn {
+        padding: 4px 5px;
+        font-size: 9.5px;
+        height: 32px;
+      }
+    }
+
+    /* =========================================================
        FLIPKART-STYLE COLLAPSING CATEGORY STRIP (ROW 3)
        ========================================================= */
     .category-scroll-container {
@@ -4645,6 +4871,15 @@
       const input = document.getElementById('store-search-input');
       const clearBtn = document.getElementById('search-clear-btn');
       const suggestBox = document.getElementById('search-suggestions-box');
+
+      function updateSearchPlaceholder() {
+        if (!input) return;
+        input.placeholder = window.innerWidth <= 768 
+          ? "Search Plywood, Sunmica..." 
+          : "Search Plywood, Sunmica, Fevicol, Hinges...";
+      }
+      updateSearchPlaceholder();
+      window.addEventListener('resize', updateSearchPlaceholder);
 
       input.addEventListener('input', (e) => {
         const query = e.target.value.trim().toLowerCase();
