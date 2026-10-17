@@ -434,7 +434,14 @@
             </label>
             <input type="number" id="calcLengthInches" placeholder="Inches (e.g. 14)" step="any" min="0" oninput="calculateMaterialPiece()" style="font-size:16px; font-weight:700; font-family:var(--font-mono);" />
             <div class="suta-btn-group" id="lengthSutaGroup">
-              <!-- Suta buttons 0..7 injected by JavaScript -->
+              <button type="button" class="suta-btn active" onclick="setLengthSuta(0)" title="0 Suta (0.000 in)">0</button>
+              <button type="button" class="suta-btn" onclick="setLengthSuta(1)" title="1 Suta (0.125 in)">1</button>
+              <button type="button" class="suta-btn" onclick="setLengthSuta(2)" title="2 Suta (0.250 in)">2</button>
+              <button type="button" class="suta-btn" onclick="setLengthSuta(3)" title="3 Suta (0.375 in)">3</button>
+              <button type="button" class="suta-btn" onclick="setLengthSuta(4)" title="4 Suta (0.500 in)">4</button>
+              <button type="button" class="suta-btn" onclick="setLengthSuta(5)" title="5 Suta (0.625 in)">5</button>
+              <button type="button" class="suta-btn" onclick="setLengthSuta(6)" title="6 Suta (0.750 in)">6</button>
+              <button type="button" class="suta-btn" onclick="setLengthSuta(7)" title="7 Suta (0.875 in)">7</button>
             </div>
           </div>
 
@@ -446,7 +453,14 @@
             </label>
             <input type="number" id="calcWidthInches" placeholder="Inches (e.g. 20)" step="any" min="0" oninput="calculateMaterialPiece()" style="font-size:16px; font-weight:700; font-family:var(--font-mono);" />
             <div class="suta-btn-group" id="widthSutaGroup">
-              <!-- Suta buttons 0..7 injected by JavaScript -->
+              <button type="button" class="suta-btn active" onclick="setWidthSuta(0)" title="0 Suta (0.000 in)">0</button>
+              <button type="button" class="suta-btn" onclick="setWidthSuta(1)" title="1 Suta (0.125 in)">1</button>
+              <button type="button" class="suta-btn" onclick="setWidthSuta(2)" title="2 Suta (0.250 in)">2</button>
+              <button type="button" class="suta-btn" onclick="setWidthSuta(3)" title="3 Suta (0.375 in)">3</button>
+              <button type="button" class="suta-btn" onclick="setWidthSuta(4)" title="4 Suta (0.500 in)">4</button>
+              <button type="button" class="suta-btn" onclick="setWidthSuta(5)" title="5 Suta (0.625 in)">5</button>
+              <button type="button" class="suta-btn" onclick="setWidthSuta(6)" title="6 Suta (0.750 in)">6</button>
+              <button type="button" class="suta-btn" onclick="setWidthSuta(7)" title="7 Suta (0.875 in)">7</button>
             </div>
           </div>
         </div>
@@ -1263,6 +1277,6 @@
 <!-- Floating Toast Notifications Hook -->
 <div id="toastContainer" style="position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;"></div>
 
-<script src="/static/app.js"></script>
+<script src="/static/app.js?v=2.6.0"></script>
 </body>
 </html>

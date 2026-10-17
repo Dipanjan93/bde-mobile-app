@@ -2086,20 +2086,34 @@ function initSutaButtons() {
   const lGroup = document.getElementById('lengthSutaGroup');
   const wGroup = document.getElementById('widthSutaGroup');
 
-  if (lGroup && lGroup.children.length === 0) {
-    let lHtml = '';
-    for (let i = 0; i <= 7; i++) {
-      lHtml += `<button type="button" class="suta-btn ${i === currentLengthSuta ? 'active' : ''}" onclick="setLengthSuta(${i})" title="${i} Suta (${(i * 0.125).toFixed(3)} inch)">${i}</button>`;
+  if (lGroup) {
+    if (lGroup.children.length === 0) {
+      let lHtml = '';
+      for (let i = 0; i <= 7; i++) {
+        lHtml += `<button type="button" class="suta-btn ${i === currentLengthSuta ? 'active' : ''}" onclick="setLengthSuta(${i})" title="${i} Suta (${(i * 0.125).toFixed(3)} inch)">${i}</button>`;
+      }
+      lGroup.innerHTML = lHtml;
+    } else {
+      Array.from(lGroup.children).forEach((btn, idx) => {
+        if (idx === currentLengthSuta) btn.classList.add('active');
+        else btn.classList.remove('active');
+      });
     }
-    lGroup.innerHTML = lHtml;
   }
 
-  if (wGroup && wGroup.children.length === 0) {
-    let wHtml = '';
-    for (let i = 0; i <= 7; i++) {
-      wHtml += `<button type="button" class="suta-btn ${i === currentWidthSuta ? 'active' : ''}" onclick="setWidthSuta(${i})" title="${i} Suta (${(i * 0.125).toFixed(3)} inch)">${i}</button>`;
+  if (wGroup) {
+    if (wGroup.children.length === 0) {
+      let wHtml = '';
+      for (let i = 0; i <= 7; i++) {
+        wHtml += `<button type="button" class="suta-btn ${i === currentWidthSuta ? 'active' : ''}" onclick="setWidthSuta(${i})" title="${i} Suta (${(i * 0.125).toFixed(3)} inch)">${i}</button>`;
+      }
+      wGroup.innerHTML = wHtml;
+    } else {
+      Array.from(wGroup.children).forEach((btn, idx) => {
+        if (idx === currentWidthSuta) btn.classList.add('active');
+        else btn.classList.remove('active');
+      });
     }
-    wGroup.innerHTML = wHtml;
   }
 }
 
