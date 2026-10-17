@@ -413,6 +413,11 @@ function switchTab(name) {
 
   if (name === 'inventory') renderInventory(productsCache);
   if (name === 'rates') renderRates(productsCache);
+  if (name === 'matcalc') {
+    initSutaButtons();
+    calculateMaterialPiece();
+    renderMaterialEstimateTable();
+  }
   if (name === 'broadcast') renderBroadcastList();
   if (name === 'exec') loadExecutiveBI();
   if (name === 'dues') loadDues();
@@ -2054,4 +2059,395 @@ async function deleteTestimonialAdmin(id) {
 /* --- Showroom Staff AR Visualizer Helper --- */
 function launchArVisualizer() {
   window.open('/#ar', '_blank');
+}
+
+/* ==========================================================================
+   📐 MATERIAL CALCULATOR (Cut-Piece Price & Sq.Ft. Engine)
+   Counter-friendly calculator with Suta button groups, rounding rules,
+   live reactive calculation & multi-item scratchpad.
+   ========================================================================== */
+
+let currentLengthSuta = 0;
+let currentWidthSuta = 0;
+let currentRoundingRule = 'next3'; // 'next3' | 'next6' | 'exact'
+let materialEstimateList = [];
+
+function escapeCalcHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function initSutaButtons() {
+  const lGroup = document.getElementById('lengthSutaGroup');
+  const wGroup = document.getElementById('widthSutaGroup');
+
+  if (lGroup && lGroup.children.length === 0) {
+    let lHtml = '';
+    for (let i = 0; i <= 7; i++) {
+      lHtml += `<button type="button" class="suta-btn ${i === currentLengthSuta ? 'active' : ''}" onclick="setLengthSuta(${i})" title="${i} Suta (${(i * 0.125).toFixed(3)} inch)">${i}</button>`;
+    }
+    lGroup.innerHTML = lHtml;
+  }
+
+  if (wGroup && wGroup.children.length === 0) {
+    let wHtml = '';
+    for (let i = 0; i <= 7; i++) {
+      wHtml += `<button type="button" class="suta-btn ${i === currentWidthSuta ? 'active' : ''}" onclick="setWidthSuta(${i})" title="${i} Suta (${(i * 0.125).toFixed(3)} inch)">${i}</button>`;
+    }
+    wGroup.innerHTML = wHtml;
+  }
+}
+
+function setLengthSuta(suta) {
+  currentLengthSuta = Number(suta);
+  const lGroup = document.getElementById('lengthSutaGroup');
+  if (lGroup) {
+    Array.from(lGroup.children).forEach((btn, idx) => {
+      if (idx === currentLengthSuta) btn.classList.add('active');
+      else btn.classList.remove('active');
+    });
+  }
+  calculateMaterialPiece();
+}
+
+function setWidthSuta(suta) {
+  currentWidthSuta = Number(suta);
+  const wGroup = document.getElementById('widthSutaGroup');
+  if (wGroup) {
+    Array.from(wGroup.children).forEach((btn, idx) => {
+      if (idx === currentWidthSuta) btn.classList.add('active');
+      else btn.classList.remove('active');
+    });
+  }
+  calculateMaterialPiece();
+}
+
+function setCalcRoundingRule(rule) {
+  currentRoundingRule = rule;
+  ['next3', 'next6', 'exact'].forEach(r => {
+    const card = document.getElementById(`ruleCard-${r}`);
+    if (card) {
+      if (r === rule) card.classList.add('active');
+      else card.classList.remove('active');
+    }
+  });
+
+  const badge = document.getElementById('calcRuleBadge');
+  if (badge) {
+    if (rule === 'next3') badge.textContent = 'Standard Margin (Next 3")';
+    else if (rule === 'next6') badge.textContent = 'Heavy Margin (Next 6")';
+    else badge.textContent = 'Exact Size (No Rounding)';
+  }
+
+  calculateMaterialPiece();
+}
+
+function setCalcMaterial(name, rate) {
+  const nameEl = document.getElementById('calcItemName');
+  const rateEl = document.getElementById('calcRate');
+  if (nameEl) nameEl.value = name;
+  if (rateEl && rate !== undefined) rateEl.value = rate;
+  calculateMaterialPiece();
+}
+
+function resetMaterialPiece() {
+  const nameEl = document.getElementById('calcItemName');
+  const lInchesEl = document.getElementById('calcLengthInches');
+  const wInchesEl = document.getElementById('calcWidthInches');
+  const rateEl = document.getElementById('calcRate');
+  const qtyEl = document.getElementById('calcQty');
+  const cutEl = document.getElementById('calcCuttingCharge');
+
+  if (nameEl) nameEl.value = '';
+  if (lInchesEl) lInchesEl.value = '';
+  if (wInchesEl) wInchesEl.value = '';
+  if (rateEl) rateEl.value = '';
+  if (qtyEl) qtyEl.value = '1';
+  if (cutEl) cutEl.value = '';
+
+  currentLengthSuta = 0;
+  currentWidthSuta = 0;
+  setLengthSuta(0);
+  setWidthSuta(0);
+  calculateMaterialPiece();
+  showToast("Material calculator form reset", "info");
+}
+
+function calculateMaterialPiece() {
+  initSutaButtons();
+
+  const lInchesRaw = parseFloat(document.getElementById('calcLengthInches')?.value) || 0;
+  const wInchesRaw = parseFloat(document.getElementById('calcWidthInches')?.value) || 0;
+  const rate = parseFloat(document.getElementById('calcRate')?.value) || 0;
+  const qty = parseInt(document.getElementById('calcQty')?.value, 10) || 1;
+  const cutting = parseFloat(document.getElementById('calcCuttingCharge')?.value) || 0;
+
+  // Actual dimensions (1 Suta = 0.125 inches)
+  const actualL = Math.max(0, lInchesRaw + (currentLengthSuta * 0.125));
+  const actualW = Math.max(0, wInchesRaw + (currentWidthSuta * 0.125));
+
+  // Billed dimensions based on currentRoundingRule
+  let billedL = actualL;
+  let billedW = actualW;
+
+  if (actualL > 0) {
+    if (currentRoundingRule === 'next3') {
+      billedL = Math.ceil(actualL / 3) * 3;
+    } else if (currentRoundingRule === 'next6') {
+      billedL = Math.ceil(actualL / 6) * 6;
+    } else {
+      billedL = actualL;
+    }
+  }
+
+  if (actualW > 0) {
+    if (currentRoundingRule === 'next3') {
+      billedW = Math.ceil(actualW / 3) * 3;
+    } else if (currentRoundingRule === 'next6') {
+      billedW = Math.ceil(actualW / 6) * 6;
+    } else {
+      billedW = actualW;
+    }
+  }
+
+  // Sq.Ft. calculations (1 Sq.Ft = 144 sq. inches)
+  const actualSqft = (actualL * actualW) / 144;
+  const billedSqftPerPc = (billedL * billedW) / 144;
+  const totalBilledSqft = billedSqftPerPc * qty;
+
+  const subtotal = totalBilledSqft * rate;
+  const finalPrice = subtotal + cutting;
+
+  // Update Echoes
+  const lEcho = document.getElementById('calcLengthEcho');
+  if (lEcho) {
+    lEcho.textContent = actualL > 0 
+      ? (currentLengthSuta > 0 ? `${lInchesRaw}" ${currentLengthSuta}s (${actualL.toFixed(2)}")` : `${actualL.toFixed(2)}"`)
+      : '0"';
+  }
+  const wEcho = document.getElementById('calcWidthEcho');
+  if (wEcho) {
+    wEcho.textContent = actualW > 0 
+      ? (currentWidthSuta > 0 ? `${wInchesRaw}" ${currentWidthSuta}s (${actualW.toFixed(2)}")` : `${actualW.toFixed(2)}"`)
+      : '0"';
+  }
+
+  // Update Display Box
+  const dispActual = document.getElementById('dispActualSize');
+  if (dispActual) {
+    dispActual.textContent = actualL > 0 || actualW > 0
+      ? `${actualL.toFixed(2)}" × ${actualW.toFixed(2)}"${(currentLengthSuta > 0 || currentWidthSuta > 0) ? ` (${lInchesRaw}" ${currentLengthSuta}s × ${wInchesRaw}" ${currentWidthSuta}s)` : ''}`
+      : '0" × 0"';
+  }
+
+  const dispActSqft = document.getElementById('dispActualSqft');
+  if (dispActSqft) dispActSqft.textContent = `${actualSqft.toFixed(2)} Sq.Ft.`;
+
+  const dispBilled = document.getElementById('dispBilledSize');
+  if (dispBilled) {
+    dispBilled.textContent = billedL > 0 || billedW > 0
+      ? `${Number(billedL.toFixed(2))}" × ${Number(billedW.toFixed(2))}"`
+      : '0" × 0"';
+  }
+
+  const dispBilledSqft = document.getElementById('dispBilledSqft');
+  if (dispBilledSqft) dispBilledSqft.textContent = `${billedSqftPerPc.toFixed(2)} Sq.Ft. / pc`;
+
+  const dispTotSqft = document.getElementById('dispTotalSqft');
+  if (dispTotSqft) dispTotSqft.textContent = `${totalBilledSqft.toFixed(2)} Sq.Ft. (${qty} pc${qty > 1 ? 's' : ''})`;
+
+  const dispSub = document.getElementById('dispSubtotal');
+  if (dispSub) dispSub.textContent = `₹ ${subtotal.toFixed(2)}`;
+
+  const dispCut = document.getElementById('dispCutting');
+  if (dispCut) dispCut.textContent = `₹ ${cutting.toFixed(2)}`;
+
+  const dispFinal = document.getElementById('dispFinalPrice');
+  if (dispFinal) dispFinal.textContent = `₹ ${Math.round(finalPrice).toLocaleString('en-IN')}`;
+
+  const dispExact = document.getElementById('dispExactPrice');
+  if (dispExact) dispExact.textContent = `(₹${finalPrice.toFixed(2)})`;
+
+  return {
+    actualL, actualW, lInchesRaw, wInchesRaw, lengthSuta: currentLengthSuta, widthSuta: currentWidthSuta,
+    billedL, billedW, actualSqft, billedSqftPerPc, totalBilledSqft,
+    rate, qty, cutting, subtotal, finalPrice
+  };
+}
+
+function addMaterialPieceToEstimate() {
+  const calc = calculateMaterialPiece();
+  if (calc.actualL <= 0 || calc.actualW <= 0) {
+    showToast("Please enter valid length and width in inches", "warning");
+    return;
+  }
+  if (calc.rate <= 0) {
+    showToast("Please enter a valid rate per sq.ft.", "warning");
+    return;
+  }
+
+  const itemName = document.getElementById('calcItemName')?.value.trim() || 'Cut Piece';
+
+  const piece = {
+    id: Date.now() + Math.random().toString(36).substring(2, 5),
+    itemName,
+    actualL: calc.actualL,
+    actualW: calc.actualW,
+    lInchesRaw: calc.lInchesRaw,
+    wInchesRaw: calc.wInchesRaw,
+    lengthSuta: calc.lengthSuta,
+    widthSuta: calc.widthSuta,
+    billedL: calc.billedL,
+    billedW: calc.billedW,
+    roundingRule: currentRoundingRule,
+    rate: calc.rate,
+    qty: calc.qty,
+    cutting: calc.cutting,
+    billedSqftPerPc: calc.billedSqftPerPc,
+    totalBilledSqft: calc.totalBilledSqft,
+    finalPrice: calc.finalPrice
+  };
+
+  materialEstimateList.push(piece);
+  renderMaterialEstimateTable();
+  showToast(`Added "${itemName}" (${piece.qty} pcs) to scratchpad!`, "success");
+}
+
+function removeMaterialPiece(id) {
+  materialEstimateList = materialEstimateList.filter(p => p.id !== id);
+  renderMaterialEstimateTable();
+  showToast("Item removed from estimate", "info");
+}
+
+function clearMaterialEstimateList() {
+  if (materialEstimateList.length === 0) return;
+  if (!confirm("Are you sure you want to clear all items in the estimate scratchpad?")) return;
+  materialEstimateList = [];
+  renderMaterialEstimateTable();
+  showToast("Estimate scratchpad cleared", "info");
+}
+
+function renderMaterialEstimateTable() {
+  const tbody = document.getElementById('materialEstimateBody');
+  const badge = document.getElementById('estimateCountBadge');
+  const footQty = document.getElementById('footTotalQty');
+  const footSqft = document.getElementById('footTotalSqft');
+  const footPrice = document.getElementById('footTotalPrice');
+
+  if (badge) badge.textContent = `${materialEstimateList.length} item${materialEstimateList.length === 1 ? '' : 's'}`;
+
+  if (!tbody) return;
+
+  if (materialEstimateList.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="10" style="text-align:center; color:var(--text-muted); padding:24px;">No items added yet. Calculate a piece above and click "➕ Add to Estimate Scratchpad".</td>
+      </tr>
+    `;
+    if (footQty) footQty.textContent = '0';
+    if (footSqft) footSqft.textContent = '0.00';
+    if (footPrice) footPrice.textContent = '₹ 0';
+    return;
+  }
+
+  let totalQty = 0;
+  let grandSqft = 0;
+  let grandTotal = 0;
+
+  let html = '';
+  materialEstimateList.forEach((p, idx) => {
+    totalQty += p.qty;
+    grandSqft += p.totalBilledSqft;
+    grandTotal += p.finalPrice;
+
+    const actualDesc = `${p.actualL.toFixed(2)}" × ${p.actualW.toFixed(2)}"` +
+      ((p.lengthSuta > 0 || p.widthSuta > 0) ? `<br><small style="color:var(--text-muted);">${p.lInchesRaw}" ${p.lengthSuta}s × ${p.wInchesRaw}" ${p.widthSuta}s</small>` : '');
+    
+    const billedDesc = `${Number(p.billedL.toFixed(2))}" × ${Number(p.billedW.toFixed(2))}"` +
+      `<br><small style="color:var(--primary); font-size:10px;">${p.roundingRule === 'next3' ? 'Next 3"' : (p.roundingRule === 'next6' ? 'Next 6"' : 'Exact')}</small>`;
+
+    html += `
+      <tr>
+        <td style="text-align:center; font-family:var(--font-mono); font-size:12px;">${idx + 1}</td>
+        <td><strong>${escapeCalcHtml(p.itemName)}</strong></td>
+        <td>${actualDesc}</td>
+        <td>${billedDesc}</td>
+        <td style="text-align:center; font-family:var(--font-mono); font-weight:700;">${p.qty}</td>
+        <td style="text-align:right; font-family:var(--font-mono);">${p.totalBilledSqft.toFixed(2)}</td>
+        <td style="text-align:right; font-family:var(--font-mono);">₹${p.rate.toFixed(2)}</td>
+        <td style="text-align:right; font-family:var(--font-mono);">${p.cutting > 0 ? '₹' + p.cutting.toFixed(2) : '-'}</td>
+        <td style="text-align:right; font-family:var(--font-mono); font-weight:700; color:var(--primary);">₹${Math.round(p.finalPrice).toLocaleString('en-IN')} <small style="color:var(--text-muted); font-size:10.5px;">(${p.finalPrice.toFixed(2)})</small></td>
+        <td style="text-align:center;">
+          <button class="btn btn-danger" style="padding:3px 8px; font-size:12px; border-radius:6px;" onclick="removeMaterialPiece('${p.id}')" title="Remove this row">✕</button>
+        </td>
+      </tr>
+    `;
+  });
+
+  tbody.innerHTML = html;
+
+  if (footQty) footQty.textContent = totalQty;
+  if (footSqft) footSqft.textContent = grandSqft.toFixed(2) + ' Sq.Ft.';
+  if (footPrice) footPrice.textContent = `₹ ${Math.round(grandTotal).toLocaleString('en-IN')} (₹${grandTotal.toFixed(2)})`;
+}
+
+function sendEstimateWhatsApp() {
+  if (materialEstimateList.length === 0) {
+    showToast("Estimate scratchpad is empty! Add items first.", "warning");
+    return;
+  }
+
+  let phone = prompt("Enter customer 10-digit mobile number for WhatsApp (or leave empty to select contact in WhatsApp):", "");
+  if (phone === null) return; // cancelled by user
+  phone = phone.replace(/[^0-9]/g, '');
+  if (phone.length === 10) phone = '91' + phone;
+
+  let totalQty = 0;
+  let grandSqft = 0;
+  let grandTotal = 0;
+
+  let msg = `*BABA DUGDHESWAR ENTERPRISE*\n`;
+  msg += `_Plywood, Laminates & Hardware Merchant_\n`;
+  msg += `📍 Onda Majhpara, Bankura (722144) | 📞 +91 98670 98952\n`;
+  msg += `─────────────────────────\n`;
+  msg += `*📐 MATERIAL CUT-PIECE ESTIMATE*\n`;
+  msg += `Date: ${new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })}\n`;
+  msg += `─────────────────────────\n`;
+
+  materialEstimateList.forEach((p, idx) => {
+    totalQty += p.qty;
+    grandSqft += p.totalBilledSqft;
+    grandTotal += p.finalPrice;
+
+    msg += `*${idx + 1}. ${p.itemName}*\n`;
+    msg += `   • Cut Size: ${p.actualL.toFixed(2)}" × ${p.actualW.toFixed(2)}"`;
+    if (p.lengthSuta > 0 || p.widthSuta > 0) {
+      msg += ` (${p.lInchesRaw}" ${p.lengthSuta}s × ${p.wInchesRaw}" ${p.widthSuta}s)`;
+    }
+    msg += `\n`;
+    msg += `   • Billed Size: ${Number(p.billedL.toFixed(2))}" × ${Number(p.billedW.toFixed(2))}" (${p.billedSqftPerPc.toFixed(2)} Sq.Ft/pc)\n`;
+    msg += `   • Qty: ${p.qty} pc${p.qty > 1 ? 's' : ''} | Rate: ₹${p.rate}/Sq.Ft`;
+    if (p.cutting > 0) msg += ` | Cutting: ₹${p.cutting}`;
+    msg += `\n`;
+    msg += `   • Total Sq.Ft: ${p.totalBilledSqft.toFixed(2)} | *Subtotal: ₹${Math.round(p.finalPrice)}*\n\n`;
+  });
+
+  msg += `─────────────────────────\n`;
+  msg += `*Grand Total Pieces:* ${totalQty}\n`;
+  msg += `*Grand Total Billed Sq.Ft:* ${grandSqft.toFixed(2)} Sq.Ft.\n`;
+  msg += `*ESTIMATE GRAND TOTAL: ₹ ${Math.round(grandTotal).toLocaleString('en-IN')}*\n`;
+  msg += `─────────────────────────\n`;
+  msg += `_Note: Rates are subject to market change and valid for 3 days._\n`;
+  msg += `_Thank you for choosing Baba Dugdheswar Enterprise!_`;
+
+  const waUrl = phone 
+    ? `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`
+    : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+
+  window.open(waUrl, '_blank');
 }

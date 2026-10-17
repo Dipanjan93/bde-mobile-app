@@ -63,6 +63,55 @@
       font-size: 12px; font-weight: 800; margin-right: 6px;
     }
     .table-scroll { overflow-x: auto; width: 100%; }
+
+    /* Material Cut-Piece Calculator Ergonomic Styling */
+    .suta-btn-group { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+    .suta-btn {
+      flex: 1; min-width: 32px; height: 34px; border-radius: 8px;
+      border: 1px solid var(--surface-border); background: var(--input-bg);
+      color: var(--text-main); font-family: var(--font-mono); font-weight: 700;
+      font-size: 13px; cursor: pointer; transition: all 0.15s ease;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .suta-btn:hover { border-color: #F59E0B; background: rgba(245, 158, 11, 0.12); }
+    .suta-btn.active {
+      background: #F59E0B !important; color: #FFFFFF !important;
+      border-color: #F59E0B !important; box-shadow: 0 0 10px rgba(245, 158, 11, 0.45);
+    }
+    .calc-rule-toggle { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 6px; }
+    @media (max-width: 768px) { .calc-rule-toggle { grid-template-columns: 1fr; } }
+    .calc-rule-card {
+      border: 1px solid var(--surface-border); background: var(--input-bg);
+      padding: 10px 12px; border-radius: 10px; cursor: pointer;
+      transition: all 0.15s ease; display: flex; flex-direction: column; gap: 3px; user-select: none;
+    }
+    .calc-rule-card:hover { border-color: #F59E0B; }
+    .calc-rule-card.active {
+      border-color: #F59E0B !important; background: rgba(245, 158, 11, 0.14) !important;
+      box-shadow: 0 0 0 1px #F59E0B;
+    }
+    .calc-rule-card .rule-title { font-weight: 800; font-size: 12px; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
+    .calc-rule-card .rule-desc { font-size: 10px; color: var(--text-muted); }
+    .calc-result-box {
+      background: linear-gradient(135deg, rgba(18, 59, 93, 0.95), rgba(11, 21, 34, 0.98));
+      border: 1.5px solid #F59E0B; border-radius: 14px; padding: 20px;
+      color: #FFFFFF; box-shadow: 0 12px 30px -8px rgba(18, 59, 93, 0.6);
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .calc-price-big {
+      font-size: 38px; font-weight: 800; color: #F59E0B;
+      font-family: var(--font-mono); line-height: 1.1; text-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+    }
+    .calc-chip {
+      display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px;
+      border-radius: 8px; background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.3); font-size: 11.5px;
+      font-weight: 700; color: var(--text-main); cursor: pointer; transition: all 0.15s;
+    }
+    .calc-chip:hover { background: #F59E0B; color: #FFFFFF; }
+    @media (max-width: 900px) {
+      .matcalc-grid { grid-template-columns: 1fr !important; }
+    }
   </style>
 </head>
 <body>
@@ -141,6 +190,7 @@
     <button class="tab-btn active" onclick="switchTab('pos')">🧾 Multi-Item Billing POS</button>
     <button class="tab-btn" onclick="switchTab('inventory')">📦 Live Inventory</button>
     <button class="tab-btn" onclick="switchTab('rates')">🏷️ Product Rate Chart</button>
+    <button class="tab-btn" onclick="switchTab('matcalc')">📐 Material Calculator</button>
     <button class="tab-btn" onclick="switchTab('dues')">📒 Khata / Due Ledger</button>
     <button class="tab-btn" onclick="switchTab('history')">🕒 Sales History</button>
     <button class="tab-btn admin-tab admin-only" onclick="switchTab('purchase')">🚛 Inward Purchase Register</button>
@@ -340,6 +390,200 @@
         </thead>
         <tbody id="rateChartBody"></tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- 3B. Material Calculator (Cut-Piece Price & Sq.Ft. Calculator) -->
+  <div id="tab-matcalc" class="panel">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; flex-wrap:wrap; gap:12px;">
+      <div>
+        <h3 style="display:flex; align-items:center; gap:8px;">📐 Material Cut-Piece Calculator</h3>
+        <p style="font-size: 12px; color: var(--text-muted);">High-speed counter tool for Fiber Sheet, Glass, Plywood &amp; Mica cut-pieces with custom Suta fractions &amp; margin rounding</p>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button class="btn btn-secondary" onclick="resetMaterialPiece()" title="Reset inputs for new piece">🔄 Reset Form</button>
+      </div>
+    </div>
+
+    <!-- Quick Presets -->
+    <div style="margin-bottom: 16px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+      <span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Quick Presets:</span>
+      <span class="calc-chip" onclick="setCalcMaterial('4mm Fiber Sheet', 55)">🪟 4mm Fiber Sheet (₹55)</span>
+      <span class="calc-chip" onclick="setCalcMaterial('Glass (5mm)', 65)">🪞 Glass 5mm (₹65)</span>
+      <span class="calc-chip" onclick="setCalcMaterial('18mm BWP Ply', 98)">🪵 18mm BWP Ply (₹98)</span>
+      <span class="calc-chip" onclick="setCalcMaterial('12mm Ply', 72)">🪵 12mm Ply (₹72)</span>
+      <span class="calc-chip" onclick="setCalcMaterial('6mm Ply', 46)">🪵 6mm Ply (₹46)</span>
+      <span class="calc-chip" onclick="setCalcMaterial('Sunmica / Mica 0.8mm', 28)">✨ Sunmica 0.8mm (₹28)</span>
+    </div>
+
+    <!-- 2-Column Split: Inputs & Live Reactive Display -->
+    <div style="display:grid; grid-template-columns: 1.25fr 1fr; gap: 18px; margin-bottom: 22px;" class="matcalc-grid">
+      <!-- Left: Form Inputs -->
+      <div class="card-box" style="margin-bottom:0;">
+        <div style="margin-bottom: 14px;">
+          <label class="field-label">Material / Item Description</label>
+          <input type="text" id="calcItemName" placeholder="e.g. 4mm Fiber Sheet / Plywood Cut-Piece" oninput="calculateMaterialPiece()" />
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+          <!-- Length -->
+          <div>
+            <label class="field-label" style="display:flex; justify-content:space-between;">
+              <span>Length (Inches &amp; Suta)</span>
+              <span id="calcLengthEcho" style="color:var(--primary); font-family:var(--font-mono); font-weight:700;">0"</span>
+            </label>
+            <input type="number" id="calcLengthInches" placeholder="Inches (e.g. 14)" step="any" min="0" oninput="calculateMaterialPiece()" style="font-size:16px; font-weight:700; font-family:var(--font-mono);" />
+            <div class="suta-btn-group" id="lengthSutaGroup">
+              <!-- Suta buttons 0..7 injected by JavaScript -->
+            </div>
+          </div>
+
+          <!-- Width -->
+          <div>
+            <label class="field-label" style="display:flex; justify-content:space-between;">
+              <span>Width (Inches &amp; Suta)</span>
+              <span id="calcWidthEcho" style="color:var(--primary); font-family:var(--font-mono); font-weight:700;">0"</span>
+            </label>
+            <input type="number" id="calcWidthInches" placeholder="Inches (e.g. 20)" step="any" min="0" oninput="calculateMaterialPiece()" style="font-size:16px; font-weight:700; font-family:var(--font-mono);" />
+            <div class="suta-btn-group" id="widthSutaGroup">
+              <!-- Suta buttons 0..7 injected by JavaScript -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Rounding Margin Rules -->
+        <div style="margin-bottom: 14px;">
+          <label class="field-label">Chargeable / Billing Rounding Margin</label>
+          <div class="calc-rule-toggle">
+            <div class="calc-rule-card active" id="ruleCard-next3" onclick="setCalcRoundingRule('next3')">
+              <div class="rule-title"><span>📐 Next 3 Inches</span></div>
+              <div class="rule-desc">Standard margin (e.g. 14" &rarr; 15")</div>
+            </div>
+            <div class="calc-rule-card" id="ruleCard-next6" onclick="setCalcRoundingRule('next6')">
+              <div class="rule-title"><span>🛡️ Next 6 Inches</span></div>
+              <div class="rule-desc">Heavy margin (e.g. 14" &rarr; 18")</div>
+            </div>
+            <div class="calc-rule-card" id="ruleCard-exact" onclick="setCalcRoundingRule('exact')">
+              <div class="rule-title"><span>🎯 Exact Size</span></div>
+              <div class="rule-desc">No rounding (cut-to-size precision)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rate, Quantity, Cutting Charge -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+          <div>
+            <label class="field-label">Rate / Sq.Ft. (₹)</label>
+            <input type="number" id="calcRate" placeholder="₹ Rate" step="any" min="0" oninput="calculateMaterialPiece()" style="font-size:15px; font-weight:700; font-family:var(--font-mono);" />
+          </div>
+          <div>
+            <label class="field-label">Quantity (Pcs)</label>
+            <input type="number" id="calcQty" value="1" min="1" step="1" oninput="calculateMaterialPiece()" style="font-size:15px; font-weight:700; font-family:var(--font-mono);" />
+          </div>
+          <div>
+            <label class="field-label">Cutting / Wastage (₹)</label>
+            <input type="number" id="calcCuttingCharge" placeholder="0" step="any" min="0" oninput="calculateMaterialPiece()" style="font-size:15px; font-weight:700; font-family:var(--font-mono);" />
+          </div>
+        </div>
+
+        <button class="btn" style="width: 100%; justify-content: center; padding: 12px; font-size: 14px; font-weight: 800;" onclick="addMaterialPieceToEstimate()">
+          ➕ Add to Estimate Scratchpad
+        </button>
+      </div>
+
+      <!-- Right: Live Reactive Result Box -->
+      <div class="calc-result-box">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 10px; margin-bottom: 14px;">
+            <span style="font-size: 12px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: #F59E0B;">⚡ Live Calculation</span>
+            <span id="calcRuleBadge" style="font-size: 11px; background: rgba(245, 158, 11, 0.2); border: 1px solid #F59E0B; padding: 2px 8px; border-radius: 6px; color: #fbbf24; font-weight: 700;">Standard Margin (Next 3")</span>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+            <div style="background: rgba(255,255,255,0.05); padding: 10px 12px; border-radius: 8px;">
+              <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: rgba(255,255,255,0.6); margin-bottom: 3px;">Actual Cut Size (Carpenter)</div>
+              <div id="dispActualSize" style="font-size: 15px; font-weight: 700; font-family: var(--font-mono); color: #FFFFFF;">0" × 0"</div>
+              <div id="dispActualSqft" style="font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 2px;">0.00 Sq.Ft.</div>
+            </div>
+            <div style="background: rgba(245, 158, 11, 0.12); padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.3);">
+              <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #F59E0B; margin-bottom: 3px;">Chargeable / Billed Size</div>
+              <div id="dispBilledSize" style="font-size: 15px; font-weight: 700; font-family: var(--font-mono); color: #fbbf24;">0" × 0"</div>
+              <div id="dispBilledSqft" style="font-size: 11px; color: #fde68a; margin-top: 2px;">0.00 Sq.Ft. / pc</div>
+            </div>
+          </div>
+
+          <div style="background: rgba(255,255,255,0.04); padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom: 6px; font-size: 12px;">
+              <span style="color: rgba(255,255,255,0.7);">Total Chargeable Sq.Ft.:</span>
+              <span id="dispTotalSqft" style="font-weight: 700; font-family: var(--font-mono); color: #FFFFFF;">0.00 Sq.Ft.</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom: 6px; font-size: 12px;">
+              <span style="color: rgba(255,255,255,0.7);">Material Subtotal:</span>
+              <span id="dispSubtotal" style="font-weight: 700; font-family: var(--font-mono); color: #FFFFFF;">₹ 0.00</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size: 12px;">
+              <span style="color: rgba(255,255,255,0.7);">Cutting / Handling:</span>
+              <span id="dispCutting" style="font-weight: 700; font-family: var(--font-mono); color: #FFFFFF;">₹ 0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: rgba(255,255,255,0.7); margin-bottom: 4px;">Piece Price (Estimated)</div>
+          <div style="display:flex; align-items:baseline; gap:8px;">
+            <div class="calc-price-big" id="dispFinalPrice">₹ 0</div>
+            <div style="font-size: 12px; color: rgba(255,255,255,0.65); font-family: var(--font-mono);" id="dispExactPrice">(₹0.00)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Multi-Item Estimate Scratchpad Table -->
+    <div class="card-box" style="margin-top: 14px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px; flex-wrap:wrap; gap:8px;">
+        <h4 style="color: var(--text-main); display:flex; align-items:center; gap:8px;">
+          📋 Counter Estimate Scratchpad
+          <span id="estimateCountBadge" style="background:var(--primary); color:#fff; font-size:11px; font-weight:800; padding:2px 8px; border-radius:10px;">0 items</span>
+        </h4>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-secondary" onclick="clearMaterialEstimateList()" style="padding:6px 12px; font-size:12px;">🗑️ Clear All</button>
+          <button class="btn" onclick="sendEstimateWhatsApp()" style="padding:6px 14px; font-size:12px; background:#22c55e; border-color:#22c55e;">📲 Send Estimate to Customer WhatsApp</button>
+        </div>
+      </div>
+
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 40px; text-align:center;">#</th>
+              <th>Material / Item</th>
+              <th>Actual Cut (L × W)</th>
+              <th>Billed Size (L × W)</th>
+              <th style="text-align:center;">Qty</th>
+              <th style="text-align:right;">Billed Sq.Ft.</th>
+              <th style="text-align:right;">Rate (₹)</th>
+              <th style="text-align:right;">Cutting (₹)</th>
+              <th style="text-align:right;">Total (₹)</th>
+              <th style="text-align:center; width: 60px;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="materialEstimateBody">
+            <tr>
+              <td colspan="10" style="text-align:center; color:var(--text-muted); padding:24px;">No items added yet. Calculate a piece above and click "➕ Add to Estimate Scratchpad".</td>
+            </tr>
+          </tbody>
+          <tfoot id="materialEstimateFoot" style="font-weight:700; background:rgba(245, 158, 11, 0.08);">
+            <tr>
+              <td colspan="4" style="text-align:right;">Grand Totals:</td>
+              <td id="footTotalQty" style="text-align:center;">0</td>
+              <td id="footTotalSqft" style="text-align:right;">0.00</td>
+              <td colspan="2"></td>
+              <td id="footTotalPrice" style="text-align:right; color:var(--primary); font-size:15px; font-family:var(--font-mono);">₹ 0</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
     </div>
   </div>
 
