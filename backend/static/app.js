@@ -2056,11 +2056,6 @@ async function deleteTestimonialAdmin(id) {
   loadAdminTestimonials();
 }
 
-/* --- Showroom Staff AR Visualizer Helper --- */
-function launchArVisualizer() {
-  window.open('/#ar', '_blank');
-}
-
 /* ==========================================================================
    📐 MATERIAL CALCULATOR (Cut-Piece Price & Sq.Ft. Engine)
    Counter-friendly calculator with Suta button groups, rounding rules,
