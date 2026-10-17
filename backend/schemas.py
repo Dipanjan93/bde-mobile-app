@@ -8,7 +8,7 @@ class CustomerCreate(BaseModel):
     category: Optional[str] = "Retailer"
 
 class CustomerUpdate(BaseModel):
-    name: str = Field(..., min_length=1)
+    name: Optional[str] = None
     phone: Optional[str] = ""
     address: Optional[str] = "Onda"
     category: Optional[str] = "Retailer"

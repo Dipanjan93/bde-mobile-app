@@ -278,6 +278,17 @@ def main():
         if isinstance(void_res, dict):
             print(f"       Verification: Voided bill {void_res.get('invoice_id')}, Stock restored: {void_res.get('restored_items_count')} items, Dues reversed: Rs.{void_res.get('due_reversed')}")
 
+    # 21. POS Customer Profile Update (PUT /customers/{customer_id})
+    update_cust_payload = {
+        "name": "Bhole Carpenter",
+        "phone": "1234567988",
+        "address": "Onda Majhpara",
+        "category": "Carpenter"
+    }
+    cust_res = test_endpoint("Edit Customer Profile from POS (PUT /customers/25)", f"{BASE_URL}/customers/25", method="PUT", data=update_cust_payload)
+    if isinstance(cust_res, dict):
+        print(f"       Verification: Customer #{cust_res.get('id')} updated to {cust_res.get('name')} | {cust_res.get('category')} | {cust_res.get('phone')} | {cust_res.get('address')}")
+
     print("\n=== ALL AUTOMATED TESTS COMPLETED SUCCESSFULLY ===")
 
 

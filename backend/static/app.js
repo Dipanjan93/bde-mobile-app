@@ -863,9 +863,14 @@ function renderDues(list) {
         <td class="mono" style="text-align:center;">${d.oldest_due_date}</td>
         <td class="mono" style="text-align:center; color:var(--amber); font-weight:700;">${d.overdue_days} days</td>
         <td style="text-align:right;">
-          <button class="btn btn-secondary" style="padding: 5px 12px; font-size: 11.5px;" onclick="openPaymentModal(${d.customer_id}, '${d.customer_name}', ${d.pending_due})">
-            💳 Receive Payment
-          </button>
+          <div style="display:flex; gap:6px; justify-content:flex-end;">
+            <button class="btn btn-secondary" style="padding: 5px 9px; font-size: 11.5px;" onclick="openEditCustomerModal(${d.customer_id})" title="Edit Customer Details">
+              ✏️ Edit
+            </button>
+            <button class="btn btn-secondary" style="padding: 5px 12px; font-size: 11.5px;" onclick="openPaymentModal(${d.customer_id}, '${d.customer_name}', ${d.pending_due})">
+              💳 Receive Payment
+            </button>
+          </div>
         </td>
       </tr>
     `;
@@ -1482,6 +1487,8 @@ async function saveCustomer(e) {
       return showToast("Failed to save: " + errorDetail, "error");
     }
     closeCustomerModal();
+    const searchInput = document.getElementById('posCustSearch');
+    if (searchInput) searchInput.value = '';
     await loadCustomers();
     const posSelect = document.getElementById('posCustomerSelect');
     if (posSelect && data && data.id) posSelect.value = data.id;

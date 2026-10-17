@@ -1383,6 +1383,70 @@ def create_customer(item: schemas.CustomerCreate, db: Session = Depends(get_db))
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
+@app.get("/customers/{customer_id}")
+@app.get("/api/customers/{customer_id}")
+def get_customer(customer_id: int, db: Session = Depends(get_db)):
+    cust = db.query(models.Customer).filter(models.Customer.id == customer_id).first()
+    if not cust:
+        raise HTTPException(status_code=404, detail=f"Customer #{customer_id} not found.")
+    return cust
+
+@app.put("/customers/{customer_id}")
+@app.put("/api/customers/{customer_id}")
+@app.post("/customers/{customer_id}")
+@app.patch("/customers/{customer_id}")
+def update_customer(customer_id: int, item: schemas.CustomerUpdate, db: Session = Depends(get_db)):
+    cust = db.query(models.Customer).filter(models.Customer.id == customer_id).first()
+    if not cust:
+        raise HTTPException(status_code=404, detail=f"Customer #{customer_id} not found.")
+
+    new_name = item.name.strip() if item.name and item.name.strip() else cust.name
+    new_address = item.address.strip() if item.address and item.address.strip() else (cust.address or "Onda")
+    new_category = item.category.strip() if item.category and item.category.strip() else (cust.category or "Retailer")
+
+    phone_clean = (item.phone or "").strip()
+    if not phone_clean or phone_clean in ["0", "0000000000", "NA", "-"]:
+        if cust.phone and cust.phone.startswith("NA-"):
+            phone_clean = cust.phone
+        else:
+            phone_clean = f"NA-{int(datetime.utcnow().timestamp() * 1000) % 1000000:06d}"
+
+    try:
+        if phone_clean != cust.phone:
+            # Check if another customer already has this phone number
+            existing_other = db.query(models.Customer).filter(
+                models.Customer.phone == phone_clean,
+                models.Customer.id != customer_id
+            ).first()
+
+            if existing_other:
+                # Merge records safely: transfer invoices and payments to existing_other
+                for inv in cust.invoices:
+                    inv.customer_id = existing_other.id
+                for pmt in cust.payments:
+                    pmt.customer_id = existing_other.id
+
+                existing_other.name = new_name
+                existing_other.address = new_address
+                existing_other.category = new_category
+
+                db.delete(cust)
+                db.commit()
+                db.refresh(existing_other)
+                return existing_other
+
+        cust.name = new_name
+        cust.phone = phone_clean
+        cust.address = new_address
+        cust.category = new_category
+
+        db.commit()
+        db.refresh(cust)
+        return cust
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error updating customer: {str(e)}")
+
 @app.post("/sales/multi")
 def create_multi_sale(order: schemas.MultiSaleCreate, db: Session = Depends(get_db)):
     cust = db.query(models.Customer).filter(models.Customer.id == order.customer_id).first()
