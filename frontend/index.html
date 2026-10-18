@@ -17,7 +17,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/frontend/simulator.css">
+  <link rel="stylesheet" href="/frontend/simulator.css" onerror="this.onerror=null;this.href='simulator.css';">
   <link rel="stylesheet" href="/frontend/ar_visualizer.css" onerror="this.onerror=null;this.href='ar_visualizer.css';">
   <!-- Interactive Leaflet Map Picker (No Paid API Key Required) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
@@ -5790,6 +5790,34 @@
   <!-- Offline Data Fallback for standalone APK and spotty connectivity -->
   <script src="/frontend/offline_data.js" onerror="this.onerror=null;this.src='offline_data.js';"></script>
   <script>
+    // Dynamic API_BASE & Automatic window.fetch Interceptor for Android WebView & Web
+    const LIVE_RENDER_ORIGIN = 'https://bde-mobile-app.onrender.com';
+    const IS_FILE_OR_WEBVIEW = (
+      window.location.protocol === 'file:' ||
+      window.location.origin === 'null' ||
+      window.location.hostname === ''
+    );
+    const API_BASE = IS_FILE_OR_WEBVIEW ? LIVE_RENDER_ORIGIN : '';
+    window.API_BASE = API_BASE;
+
+    // Automatic window.fetch interceptor: prepends API_BASE for root-relative API calls
+    const _origFetch = window.fetch;
+    window.fetch = function(input, init) {
+      if (typeof input === 'string') {
+        if (input.startsWith('/')) {
+          input = API_BASE + input;
+        }
+      } else if (input instanceof Request && input.url) {
+        if (input.url.startsWith('/') || (IS_FILE_OR_WEBVIEW && input.url.startsWith('file:///api/'))) {
+          const targetUrl = input.url.startsWith('/')
+            ? API_BASE + input.url
+            : input.url.replace(/^file:\/\/\/api\//, API_BASE + '/api/');
+          input = new Request(targetUrl, input);
+        }
+      }
+      return _origFetch.call(this, input, init);
+    };
+
     // State Store
     const STATE = {
       user: JSON.parse(localStorage.getItem('bde_user') || 'null'),
@@ -8431,7 +8459,7 @@ Please share current Onda Depot counter prices for these materials, sheet availa
     }
   </script>
   <!-- 3D Furniture & Laminate Studio Simulator Engine -->
-  <script src="/frontend/simulator.js"></script>
+  <script src="/frontend/simulator.js" onerror="this.onerror=null;this.src='simulator.js';"></script>
   <!-- AR Laminate on Your Wall Visualizer Engine -->
   <script src="/frontend/ar_visualizer.js" onerror="this.onerror=null;this.src='ar_visualizer.js';"></script>
 </body>

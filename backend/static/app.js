@@ -1,4 +1,31 @@
-const API_BASE = "";
+// Dynamic API_BASE & Automatic window.fetch Interceptor for Android WebView & Web
+const LIVE_RENDER_ORIGIN = 'https://bde-mobile-app.onrender.com';
+const IS_FILE_OR_WEBVIEW = (
+  window.location.protocol === 'file:' ||
+  window.location.origin === 'null' ||
+  window.location.hostname === ''
+);
+const API_BASE = IS_FILE_OR_WEBVIEW ? LIVE_RENDER_ORIGIN : '';
+window.API_BASE = API_BASE;
+
+// Automatic window.fetch interceptor: prepends API_BASE for root-relative API calls
+const _origFetch = window.fetch;
+window.fetch = function(input, init) {
+  if (typeof input === 'string') {
+    if (input.startsWith('/')) {
+      input = API_BASE + input;
+    }
+  } else if (input instanceof Request && input.url) {
+    if (input.url.startsWith('/') || (IS_FILE_OR_WEBVIEW && input.url.startsWith('file:///api/'))) {
+      const targetUrl = input.url.startsWith('/')
+        ? API_BASE + input.url
+        : input.url.replace(/^file:\/\/\/api\//, API_BASE + '/api/');
+      input = new Request(targetUrl, input);
+    }
+  }
+  return _origFetch.call(this, input, init);
+};
+
 let currentRole = null; // 'owner' | 'staff'
 let currentUserName = "";
 let isAdmin = false;

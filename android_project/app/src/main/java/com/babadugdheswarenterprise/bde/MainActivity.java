@@ -28,8 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int FILE_CHOOSER_REQUEST_CODE = 1001;
 
     // Production Server URL or local asset fallback
-    // When deploying backend publicly, change this to your HTTPS domain!
-    public static final String BACKEND_URL = "http://10.0.2.2:8000"; // 10.0.2.2 is host PC from Android Emulator
+    public static final String BACKEND_URL = "https://bde-mobile-app.onrender.com";
     public static final String LOCAL_ASSET_URL = "file:///android_asset/index.html";
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -53,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setDatabaseEnabled(true);
         webSettings.setAllowFileAccess(true);
         webSettings.setAllowContentAccess(true);
+        webSettings.setAllowFileAccessFromFileURLs(true);
+        webSettings.setAllowUniversalAccessFromFileURLs(true);
         webSettings.setLoadWithOverviewMode(true);
         webSettings.setUseWideViewPort(true);
         webSettings.setMediaPlaybackRequiresUserGesture(false);
