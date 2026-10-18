@@ -44,19 +44,6 @@ try:
                 conn.commit()
             except Exception:
                 pass
-
-        # Safe column addition for AppUser (Google & Facebook login)
-        for col_name, col_def in [
-            ("email", "VARCHAR(120)"),
-            ("auth_provider", "VARCHAR(30) DEFAULT 'phone'"),
-            ("oauth_id", "VARCHAR(120)"),
-            ("avatar", "VARCHAR(255)")
-        ]:
-            try:
-                conn.execute(text(f"ALTER TABLE app_users ADD COLUMN IF NOT EXISTS {col_name} {col_def};"))
-                conn.commit()
-            except Exception:
-                pass
 except Exception as e:
     print(f"Safe column migration notice: {e}")
 
@@ -1274,93 +1261,9 @@ def get_user_me(phone: str, db: Session = Depends(get_db)):
     return {
         "id": user.id,
         "name": user.name,
-        "phone": user.phone if not (user.phone.startswith("+91-G-") or user.phone.startswith("+91-FB-")) else "",
-        "email": getattr(user, 'email', '') or "",
-        "avatar": getattr(user, 'avatar', '') or "",
-        "auth_provider": getattr(user, 'auth_provider', 'phone') or "phone",
+        "phone": user.phone,
         "location": user.location,
         "role": user.role
-    }
-
-@app.post("/api/app/oauth/login")
-@app.post("/api/app/oauth/google")
-@app.post("/api/app/oauth/facebook")
-def app_oauth_login(req: schemas.OAuthLoginRequest, db: Session = Depends(get_db)):
-    provider = (req.provider or "google").lower()
-    clean_email = (req.email or "").strip().lower()
-    clean_name = (req.name or "").strip() or ("Google User" if provider == "google" else "Facebook User")
-    clean_phone = (req.phone or "").strip()
-    clean_oauth_id = (req.oauth_id or "").strip()
-    clean_loc = (req.location or "Onda, Bankura").strip()
-
-    user = None
-    # 1. Try finding user by email if provided
-    if clean_email:
-        user = db.query(models.AppUser).filter(models.AppUser.email == clean_email).first()
-
-    # 2. Try finding user by oauth_id and provider if available
-    if not user and clean_oauth_id:
-        user = db.query(models.AppUser).filter(
-            models.AppUser.oauth_id == clean_oauth_id,
-            models.AppUser.auth_provider == provider
-        ).first()
-
-    # 3. Try finding user by phone if provided
-    if not user and clean_phone:
-        user = db.query(models.AppUser).filter(models.AppUser.phone == clean_phone).first()
-
-    if user:
-        # Update user details if updated
-        if clean_name and (user.name == "Valued Customer" or not user.name):
-            user.name = clean_name
-        if clean_email and not getattr(user, 'email', None):
-            user.email = clean_email
-        if clean_oauth_id and not getattr(user, 'oauth_id', None):
-            user.oauth_id = clean_oauth_id
-            user.auth_provider = provider
-        if req.avatar and not getattr(user, 'avatar', None):
-            user.avatar = req.avatar
-        if clean_phone and (user.phone.startswith("+91-G-") or user.phone.startswith("+91-FB-")):
-            user.phone = clean_phone
-        db.commit()
-        db.refresh(user)
-    else:
-        # Generate safe unique phone identifier if no phone was provided to respect DB schema
-        fallback_phone = clean_phone
-        if not fallback_phone:
-            prefix = "G" if provider == "google" else "FB"
-            safe_id = re.sub(r'[^0-9a-zA-Z]', '', clean_oauth_id or clean_email)[:8] or str(int(time.time()))[-8:]
-            fallback_phone = f"+91-{prefix}-{safe_id}"
-
-        user = models.AppUser(
-            name=clean_name,
-            phone=fallback_phone,
-            email=clean_email or None,
-            auth_provider=provider,
-            oauth_id=clean_oauth_id or None,
-            avatar=req.avatar or None,
-            location=clean_loc,
-            pin_code="1234",
-            role="Customer",
-            created_at=datetime.utcnow()
-        )
-        db.add(user)
-        db.commit()
-        db.refresh(user)
-
-    return {
-        "success": True,
-        "token": f"bde_tok_{user.id}_{int(datetime.utcnow().timestamp())}",
-        "user": {
-            "id": user.id,
-            "name": user.name,
-            "phone": user.phone if not (user.phone.startswith("+91-G-") or user.phone.startswith("+91-FB-")) else "",
-            "email": getattr(user, 'email', '') or "",
-            "avatar": getattr(user, 'avatar', '') or "",
-            "auth_provider": getattr(user, 'auth_provider', provider) or provider,
-            "location": user.location or "Onda, Bankura",
-            "role": user.role or "Customer"
-        }
     }
 
 

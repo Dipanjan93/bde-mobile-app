@@ -2572,160 +2572,6 @@
       transform: translateY(-1px);
     }
 
-    /* Multi-Provider Auth Sheet Styles (Facebook, Google, Mobile Number) */
-    .auth-social-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-    .btn-social-auth {
-      width: 100%;
-      height: 44px;
-      border-radius: 10px;
-      font-size: 13.5px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      user-select: none;
-    }
-    .btn-google {
-      background: #FFFFFF;
-      color: #1F2937;
-      border: 1.5px solid #E5E7EB;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-    }
-    .btn-google:hover, .btn-google:active {
-      background: #F9FAFB;
-      border-color: #D1D5DB;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
-    }
-    .btn-facebook {
-      background: #1877F2;
-      color: #FFFFFF;
-      border: 1px solid #1877F2;
-      box-shadow: 0 2px 6px rgba(24, 119, 242, 0.3);
-    }
-    .btn-facebook:hover, .btn-facebook:active {
-      background: #166FE5;
-      border-color: #166FE5;
-      box-shadow: 0 4px 10px rgba(24, 119, 242, 0.4);
-    }
-    .social-icon-svg {
-      width: 20px;
-      height: 20px;
-      flex-shrink: 0;
-    }
-    .auth-divider {
-      display: flex;
-      align-items: center;
-      text-align: center;
-      margin: 14px 0;
-      color: #9CA3AF;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .auth-divider::before, .auth-divider::after {
-      content: '';
-      flex: 1;
-      border-bottom: 1px solid #E5E7EB;
-    }
-    .auth-divider span {
-      padding: 0 10px;
-    }
-    .auth-phone-input-wrap {
-      display: flex;
-      align-items: center;
-      border: 1.5px solid #D1D5DB;
-      border-radius: 10px;
-      overflow: hidden;
-      background: #FFFFFF;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-    .auth-phone-input-wrap:focus-within {
-      border-color: #F59E0B;
-      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.35);
-    }
-    .auth-country-code {
-      background: #F3F4F6;
-      padding: 0 12px;
-      height: 44px;
-      display: flex;
-      align-items: center;
-      font-weight: 700;
-      font-size: 13px;
-      color: #374151;
-      border-right: 1.5px solid #D1D5DB;
-      user-select: none;
-      flex-shrink: 0;
-    }
-    .auth-phone-input {
-      border: none !important;
-      height: 44px !important;
-      border-radius: 0 !important;
-      box-shadow: none !important;
-      padding-left: 12px !important;
-    }
-    .oauth-dialog-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(4px);
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-    .oauth-dialog-card {
-      background: #FFFFFF;
-      width: 100%;
-      max-width: 400px;
-      border-radius: 16px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-      overflow: hidden;
-      animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    @keyframes popIn {
-      from { transform: scale(0.92); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-    .oauth-account-chip {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 14px;
-      border: 1px solid #E5E7EB;
-      border-radius: 10px;
-      cursor: pointer;
-      background: #FFFFFF;
-      transition: all 0.15s ease;
-      text-align: left;
-    }
-    .oauth-account-chip:hover {
-      border-color: #123B5D;
-      background: #F8FAFC;
-    }
-    .oauth-avatar-circle {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: #123B5D;
-      color: #FFFFFF;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 14px;
-      flex-shrink: 0;
-    }
-
     /* =========================================================
        UPGRADED INTERACTIVE DELIVERY LOCATION MAP PICKER
        ========================================================= */
@@ -5487,14 +5333,7 @@
       <div class="menu-item" onclick="triggerAuthSheet('login')">
         <div class="menu-item-left">
           <span class="menu-icon">👤</span>
-          <span id="account-auth-toggle-text">Sign In / Switch Account (Google, Facebook, Mobile)</span>
-        </div>
-        <span>›</span>
-      </div>
-      <div class="menu-item" id="account-logout-item" onclick="logoutUser()" style="display: none; color: #DC2626;">
-        <div class="menu-item-left">
-          <span class="menu-icon">🚪</span>
-          <span style="font-weight: 700;">Sign Out of Account</span>
+          <span>Switch / Login Mobile Account</span>
         </div>
         <span>›</span>
       </div>
@@ -5534,56 +5373,20 @@
        ========================================================= -->
   <div id="sheet-backdrop" class="sheet-overlay" onclick="closeAllSheets()"></div>
 
-  <!-- Auth Bottom Sheet (Google, Facebook & Mobile Number) -->
+  <!-- Auth Bottom Sheet -->
   <div id="auth-bottom-sheet" class="bottom-sheet">
     <div class="sheet-drag-handle"></div>
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-      <div>
-        <h3 class="sheet-title" id="auth-sheet-title" style="margin-bottom: 3px; font-size: 18px; font-weight: 800; color: #123B5D;">Sign In / Register</h3>
-        <p class="sheet-desc" id="auth-sheet-desc" style="margin-bottom: 0; font-size: 12px; color: #64748B;">Access wholesale rates, saved estimates & verified mistri contacts.</p>
-      </div>
-      <button type="button" onclick="closeAllSheets()" style="background: none; border: none; font-size: 20px; color: #9CA3AF; cursor: pointer; padding: 2px 6px; line-height: 1;">✕</button>
-    </div>
-
-    <!-- 1. One-Tap Social Logins (Google & Facebook) -->
-    <div class="auth-social-buttons" style="margin-top: 14px;">
-      <!-- Google Sign-In Button -->
-      <button type="button" class="btn-social-auth btn-google" onclick="loginWithGoogle()" title="Sign in with Google">
-        <svg class="social-icon-svg" viewBox="0 0 24 24">
-          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-        </svg>
-        <span>Continue with Google</span>
-      </button>
-
-      <!-- Facebook Sign-In Button -->
-      <button type="button" class="btn-social-auth btn-facebook" onclick="loginWithFacebook()" title="Sign in with Facebook">
-        <svg class="social-icon-svg" viewBox="0 0 24 24" fill="#FFFFFF">
-          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-        </svg>
-        <span>Continue with Facebook</span>
-      </button>
-    </div>
-
-    <!-- Divider -->
-    <div class="auth-divider">
-      <span>or continue with Mobile Number</span>
-    </div>
-
-    <!-- 2. Mobile Number Sign-In Form -->
-    <div class="auth-input-group">
-      <label class="auth-input-label">Mobile Number</label>
-      <div class="auth-phone-input-wrap">
-        <span class="auth-country-code">🇮🇳 +91</span>
-        <input type="tel" id="auth-phone" class="auth-input auth-phone-input" placeholder="10-digit mobile number" maxlength="10">
-      </div>
-    </div>
+    <h3 class="sheet-title" id="auth-sheet-title">Sign In to Continue</h3>
+    <p class="sheet-desc" id="auth-sheet-desc">Enter your mobile number to get instant WhatsApp quotes and call verified mistris.</p>
 
     <div class="auth-input-group">
       <label class="auth-input-label">Full Name</label>
       <input type="text" id="auth-name" class="auth-input" placeholder="e.g. Subir Karmakar">
+    </div>
+
+    <div class="auth-input-group">
+      <label class="auth-input-label">Mobile Number</label>
+      <input type="tel" id="auth-phone" class="auth-input" placeholder="10-digit mobile number" maxlength="10">
     </div>
 
     <div class="auth-input-group">
@@ -5592,52 +5395,8 @@
     </div>
 
     <button class="btn-auth-submit" onclick="submitAuth()">
-      <span>📱</span> Continue with Mobile Number
+      Continue & Verify
     </button>
-  </div>
-
-  <!-- Social Login Prompt Modal (Google & Facebook) -->
-  <div id="oauth-dialog-modal" class="oauth-dialog-backdrop" style="display: none;">
-    <div class="oauth-dialog-card">
-      <div id="oauth-dialog-header" style="padding: 16px 20px; border-bottom: 1px solid #F3F4F6; display: flex; align-items: center; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <span id="oauth-provider-icon" style="font-size: 24px;">🌐</span>
-          <div>
-            <h4 id="oauth-dialog-title" style="margin: 0; font-size: 15px; font-weight: 800; color: #111827;">Continue with Google</h4>
-            <p style="margin: 2px 0 0 0; font-size: 11px; color: #6B7280;">Sign in to Baba Dugdheswar Enterprise</p>
-          </div>
-        </div>
-        <button type="button" onclick="closeOAuthDialog()" style="background: none; border: none; font-size: 18px; color: #9CA3AF; cursor: pointer; padding: 4px;">✕</button>
-      </div>
-
-      <div style="padding: 18px 20px;">
-        <div id="oauth-account-picker" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
-          <!-- Quick Account Chips populated via JS -->
-        </div>
-
-        <div style="border-top: 1px dashed #E5E7EB; padding-top: 14px;">
-          <div class="auth-input-group">
-            <label class="auth-input-label" id="oauth-name-label">Your Name</label>
-            <input type="text" id="oauth-input-name" class="auth-input" placeholder="Full name">
-          </div>
-          <div class="auth-input-group">
-            <label class="auth-input-label" id="oauth-email-label">Email Address</label>
-            <input type="email" id="oauth-input-email" class="auth-input" placeholder="e.g. yourname@gmail.com">
-          </div>
-          <div class="auth-input-group">
-            <label class="auth-input-label">Mobile Number (Optional for WhatsApp)</label>
-            <div class="auth-phone-input-wrap">
-              <span class="auth-country-code">🇮🇳 +91</span>
-              <input type="tel" id="oauth-input-phone" class="auth-input auth-phone-input" placeholder="10-digit number" maxlength="10">
-            </div>
-          </div>
-        </div>
-
-        <button type="button" id="oauth-submit-btn" class="btn-auth-submit" onclick="submitOAuthConfirm()">
-          Confirm &amp; Sign In
-        </button>
-      </div>
-    </div>
   </div>
 
   <!-- Locality Switcher Sheet with Interactive Leaflet Map Picker -->
@@ -7933,23 +7692,21 @@ Please share current Onda Depot counter prices for these materials, sheet availa
 
 
     /* =========================================================
-       7. MULTI-PROVIDER AUTH HANDLERS (GOOGLE, FACEBOOK & MOBILE NO)
+       7. NON-INTRUSIVE AUTH BOTTOM SHEET & LOCALITY HANDLERS
        ========================================================= */
-    let currentOAuthProvider = 'google';
-
     function triggerAuthSheet(intent = 'general') {
       const titleEl = document.getElementById('auth-sheet-title');
       const descEl = document.getElementById('auth-sheet-desc');
 
       if (intent === 'quote') {
         titleEl.innerText = '📦 Onda Depot Stock & Delivery';
-        descEl.innerText = 'Sign in with Google, Facebook or Mobile to receive instant material requirements on WhatsApp.';
+        descEl.innerText = 'Enter your details to receive instant material requirements & loading status on WhatsApp.';
       } else if (intent === 'call') {
         titleEl.innerText = '📞 Call Verified Mistri';
-        descEl.innerText = 'Sign in with Google, Facebook or Mobile to connect directly with the master carpenter.';
+        descEl.innerText = 'Enter your mobile number to connect directly with the master carpenter.';
       } else if (intent === 'photo') {
         titleEl.innerText = '📸 Submit Project & Win Gift Voucher';
-        descEl.innerText = 'Sign in to claim your Onda showroom gift voucher.';
+        descEl.innerText = 'Enter your name and village so we can send your Onda showroom gift voucher.';
       } else {
         titleEl.innerText = 'Sign In to BDE Mobile';
         descEl.innerText = 'Seamless ordering, saved estimates & verified carpenter directory.';
@@ -7959,150 +7716,6 @@ Please share current Onda Depot counter prices for these materials, sheet availa
       document.getElementById('auth-bottom-sheet').classList.add('active');
     }
 
-    /* --- Social Login: Google --- */
-    function loginWithGoogle() {
-      openOAuthDialog('google');
-    }
-
-    /* --- Social Login: Facebook --- */
-    function loginWithFacebook() {
-      openOAuthDialog('facebook');
-    }
-
-    /* --- Social OAuth Dialog Modal --- */
-    function openOAuthDialog(provider = 'google') {
-      currentOAuthProvider = provider;
-      const modal = document.getElementById('oauth-dialog-modal');
-      const iconEl = document.getElementById('oauth-provider-icon');
-      const titleEl = document.getElementById('oauth-dialog-title');
-      const pickerEl = document.getElementById('oauth-account-picker');
-      const nameInput = document.getElementById('oauth-input-name');
-      const emailInput = document.getElementById('oauth-input-email');
-      const phoneInput = document.getElementById('oauth-input-phone');
-      const submitBtn = document.getElementById('oauth-submit-btn');
-
-      if (provider === 'google') {
-        iconEl.innerHTML = `
-          <svg class="social-icon-svg" style="width:24px;height:24px;" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-          </svg>`;
-        titleEl.innerText = 'Continue with Google';
-        submitBtn.style.background = '#123B5D';
-        submitBtn.innerHTML = `<span>✓</span> Continue with Google`;
-
-        pickerEl.innerHTML = `
-          <div style="font-size: 11px; font-weight: 700; color: #4B5563; text-transform: uppercase; margin-bottom: 2px;">One-Tap Google Accounts:</div>
-          <div class="oauth-account-chip" onclick="selectQuickOAuth('Subir Karmakar', 'subir.karmakar@gmail.com', '9800521122')">
-            <div class="oauth-avatar-circle" style="background: #4285F4;">S</div>
-            <div style="flex: 1; overflow: hidden;">
-              <div style="font-size: 13px; font-weight: 700; color: #111827;">Subir Karmakar</div>
-              <div style="font-size: 11px; color: #6B7280; text-overflow: ellipsis; overflow: hidden;">subir.karmakar@gmail.com</div>
-            </div>
-            <span style="font-size: 12px; font-weight: 700; color: #4285F4;">Select</span>
-          </div>
-          <div class="oauth-account-chip" onclick="selectQuickOAuth('Amit Mondal', 'amit.mondal.onda@gmail.com', '9434882190')">
-            <div class="oauth-avatar-circle" style="background: #34A853;">A</div>
-            <div style="flex: 1; overflow: hidden;">
-              <div style="font-size: 13px; font-weight: 700; color: #111827;">Amit Mondal (Onda)</div>
-              <div style="font-size: 11px; color: #6B7280; text-overflow: ellipsis; overflow: hidden;">amit.mondal.onda@gmail.com</div>
-            </div>
-            <span style="font-size: 12px; font-weight: 700; color: #34A853;">Select</span>
-          </div>
-        `;
-      } else {
-        iconEl.innerHTML = `
-          <svg class="social-icon-svg" style="width:24px;height:24px;" viewBox="0 0 24 24" fill="#1877F2">
-            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-          </svg>`;
-        titleEl.innerText = 'Continue with Facebook';
-        submitBtn.style.background = '#1877F2';
-        submitBtn.innerHTML = `<span>✓</span> Continue with Facebook`;
-
-        pickerEl.innerHTML = `
-          <div style="font-size: 11px; font-weight: 700; color: #4B5563; text-transform: uppercase; margin-bottom: 2px;">Connected Facebook Profiles:</div>
-          <div class="oauth-account-chip" onclick="selectQuickOAuth('Subir Karmakar', 'subir.fb@facebook.com', '9800521122')">
-            <div class="oauth-avatar-circle" style="background: #1877F2;">f</div>
-            <div style="flex: 1; overflow: hidden;">
-              <div style="font-size: 13px; font-weight: 700; color: #111827;">Subir Karmakar</div>
-              <div style="font-size: 11px; color: #6B7280;">Facebook Verified User</div>
-            </div>
-            <span style="font-size: 12px; font-weight: 700; color: #1877F2;">Continue</span>
-          </div>
-        `;
-      }
-
-      // Pre-fill fields if user already entered something
-      if (nameInput) nameInput.value = document.getElementById('auth-name').value || '';
-      if (phoneInput) phoneInput.value = document.getElementById('auth-phone').value || '';
-      if (emailInput && !emailInput.value) emailInput.value = '';
-
-      modal.style.display = 'flex';
-    }
-
-    function selectQuickOAuth(name, email, phone) {
-      document.getElementById('oauth-input-name').value = name;
-      document.getElementById('oauth-input-email').value = email;
-      if (phone) document.getElementById('oauth-input-phone').value = phone;
-      submitOAuthConfirm();
-    }
-
-    function closeOAuthDialog() {
-      const modal = document.getElementById('oauth-dialog-modal');
-      if (modal) modal.style.display = 'none';
-    }
-
-    async function submitOAuthConfirm() {
-      const name = (document.getElementById('oauth-input-name').value || '').trim();
-      const email = (document.getElementById('oauth-input-email').value || '').trim();
-      const phone = (document.getElementById('oauth-input-phone').value || '').trim();
-      const location = (document.getElementById('auth-location').value || 'Onda, Bankura').trim();
-
-      if (!name) {
-        showToast('Please enter your name');
-        return;
-      }
-
-      try {
-        const res = await fetch('/api/app/oauth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            provider: currentOAuthProvider,
-            name: name,
-            email: email,
-            phone: phone,
-            location: location,
-            oauth_id: email ? email.split('@')[0] : 'user_' + Date.now()
-          })
-        });
-
-        const data = await res.json();
-        if (data.success && data.user) {
-          STATE.user = data.user;
-          localStorage.setItem('bde_user', JSON.stringify(data.user));
-          updateUserUI();
-          closeOAuthDialog();
-          closeAllSheets();
-          showToast(`Welcome, ${data.user.name}! Signed in via ${currentOAuthProvider === 'google' ? 'Google' : 'Facebook'}.`);
-
-          if (typeof STATE.pendingAction === 'function') {
-            const act = STATE.pendingAction;
-            STATE.pendingAction = null;
-            act();
-          }
-        } else {
-          showToast('Sign-in failed. Please try again.');
-        }
-      } catch (err) {
-        console.error(err);
-        showToast('Error connecting. Please try again.');
-      }
-    }
-
-    /* --- Mobile Number Direct Login / Signup --- */
     async function submitAuth() {
       const name = document.getElementById('auth-name').value.trim();
       const phone = document.getElementById('auth-phone').value.trim();
@@ -8113,7 +7726,7 @@ Please share current Onda Depot counter prices for these materials, sheet availa
         return;
       }
       if (!name) {
-        showToast('Please enter your full name');
+        showToast('Please enter your name');
         return;
       }
 
@@ -8130,7 +7743,7 @@ Please share current Onda Depot counter prices for these materials, sheet availa
           localStorage.setItem('bde_user', JSON.stringify(data.user));
           updateUserUI();
           closeAllSheets();
-          showToast(`Welcome, ${data.user.name}! Mobile login verified.`);
+          showToast(`Welcome, ${data.user.name}!`);
 
           // Resume pending user action if any
           if (typeof STATE.pendingAction === 'function') {
@@ -8145,50 +7758,21 @@ Please share current Onda Depot counter prices for these materials, sheet availa
       }
     }
 
-    /* --- Sign Out --- */
-    function logoutUser() {
-      STATE.user = null;
-      localStorage.removeItem('bde_user');
-      updateUserUI();
-      showToast('Signed out successfully. Guest mode active.');
-    }
-
     function updateUserUI() {
       const userBtnLabel = document.getElementById('header-user-label');
       const userBtnIcon = document.getElementById('header-user-icon');
-      const logoutItem = document.getElementById('account-logout-item');
-      const authToggleText = document.getElementById('account-auth-toggle-text');
-
       if (STATE.user) {
-        const providerName = STATE.user.auth_provider === 'google' ? 'Google' : STATE.user.auth_provider === 'facebook' ? 'Facebook' : 'Mobile';
-        const providerEmoji = STATE.user.auth_provider === 'google' ? '🌐' : STATE.user.auth_provider === 'facebook' ? '📘' : '📱';
-
         document.getElementById('account-name-display').innerText = STATE.user.name;
-        const phoneOrEmail = STATE.user.phone ? `+91 ${STATE.user.phone}` : (STATE.user.email || 'Verified Profile');
-        document.getElementById('account-phone-display').innerText = `${phoneOrEmail} • ${STATE.user.location || 'Onda'}`;
-        document.getElementById('account-status-pill').innerText = `✓ ${providerEmoji} ${providerName} Verified Profile`;
+        document.getElementById('account-phone-display').innerText = '+91 ' + STATE.user.phone + ' • ' + (STATE.user.location || 'Onda');
+        document.getElementById('account-status-pill').innerText = '✓ Verified Customer Profile';
         document.getElementById('account-status-pill').style.background = '#DCFCE7';
-        document.getElementById('account-status-pill').style.color = '#15803D';
         document.getElementById('account-avatar').innerText = STATE.user.name.charAt(0).toUpperCase();
 
         if (userBtnLabel) userBtnLabel.innerText = STATE.user.name.split(' ')[0] || 'Account';
-        if (userBtnIcon) userBtnIcon.innerText = STATE.user.auth_provider === 'google' ? '🌐' : STATE.user.auth_provider === 'facebook' ? '📘' : '👤';
-
-        if (logoutItem) logoutItem.style.display = 'flex';
-        if (authToggleText) authToggleText.innerText = 'Switch Profile (Google, Facebook, Mobile)';
+        if (userBtnIcon) userBtnIcon.innerText = '👤';
       } else {
-        document.getElementById('account-name-display').innerText = 'Valued Customer';
-        document.getElementById('account-phone-display').innerText = '+91 • Guest Browsing';
-        document.getElementById('account-status-pill').innerText = 'Guest Mode (Instant Checkout)';
-        document.getElementById('account-status-pill').style.background = '#F1F5F9';
-        document.getElementById('account-status-pill').style.color = '#475569';
-        document.getElementById('account-avatar').innerText = 'BDE';
-
         if (userBtnLabel) userBtnLabel.innerText = 'Login';
         if (userBtnIcon) userBtnIcon.innerText = '👤';
-
-        if (logoutItem) logoutItem.style.display = 'none';
-        if (authToggleText) authToggleText.innerText = 'Sign In / Register (Google, Facebook, Mobile)';
       }
     }
 
