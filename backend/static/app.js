@@ -7,9 +7,23 @@ function getStoredToken() {
   return localStorage.getItem('bde_auth_token') || '';
 }
 
+function getStoredPasscode() {
+  return localStorage.getItem('bde_auth_passcode') || '';
+}
+
 function getAuthHeaders() {
   const t = getStoredToken();
-  return t ? { 'x-bde-auth': t, 'Authorization': `Bearer ${t}` } : {};
+  const p = getStoredPasscode();
+  const headers = {};
+  if (t) {
+    headers['x-bde-auth'] = t;
+    headers['Authorization'] = `Bearer ${t}`;
+    headers['x-admin-token'] = t;
+  }
+  if (p) {
+    headers['x-passcode'] = p;
+  }
+  return headers;
 }
 
 async function authFetch(url, options = {}, timeoutMs = 6000) {
@@ -18,7 +32,13 @@ async function authFetch(url, options = {}, timeoutMs = 6000) {
   if (t) {
     options.headers['x-bde-auth'] = t;
     options.headers['Authorization'] = `Bearer ${t}`;
+    options.headers['x-admin-token'] = t;
   }
+  const p = getStoredPasscode();
+  if (p) {
+    options.headers['x-passcode'] = p;
+  }
+  options.credentials = options.credentials || 'include';
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -173,6 +193,7 @@ async function handleConsoleLogin(e) {
     const res = await fetch(`${API_BASE}/api/staff/verify`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ passcode: pin, remember })
     });
 
@@ -199,6 +220,7 @@ async function handleConsoleLogin(e) {
     localStorage.setItem('bde_auth_token', data.token);
     localStorage.setItem('bde_auth_role', data.role);
     localStorage.setItem('bde_auth_name', data.name);
+    localStorage.setItem('bde_auth_passcode', pin);
 
     if (errEl) errEl.classList.remove('show');
     showToast(`Access granted! Welcome, ${data.name}.`, "success");
@@ -271,7 +293,8 @@ async function checkConsoleAuth() {
 
   try {
     const res = await fetch(`${API_BASE}/api/auth/verify-session`, {
-      headers: { 'x-bde-auth': token }
+      headers: getAuthHeaders(),
+      credentials: "include"
     });
     const data = await res.json();
     if (data.authenticated) {
@@ -280,6 +303,7 @@ async function checkConsoleAuth() {
       localStorage.removeItem('bde_auth_token');
       localStorage.removeItem('bde_auth_role');
       localStorage.removeItem('bde_auth_name');
+      localStorage.removeItem('bde_auth_passcode');
       const gate = document.getElementById('consoleAuthGate');
       const app = document.getElementById('consoleApp');
       if (gate) gate.style.display = 'flex';
@@ -301,11 +325,12 @@ async function checkConsoleAuth() {
 
 async function logoutConsole() {
   try {
-    await fetch(`${API_BASE}/api/auth/console-logout`, { method: "POST" });
+    await fetch(`${API_BASE}/api/auth/console-logout`, { method: "POST", credentials: "include" });
   } catch (e) {}
   localStorage.removeItem('bde_auth_token');
   localStorage.removeItem('bde_auth_role');
   localStorage.removeItem('bde_auth_name');
+  localStorage.removeItem('bde_auth_passcode');
   isAdmin = false;
   currentRole = null;
   document.body.classList.remove('admin-unlocked');
@@ -354,6 +379,7 @@ async function verifyPin() {
     const res = await fetch(`${API_BASE}/api/staff/verify`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ passcode: pinVal, remember: true })
     });
 
@@ -372,6 +398,7 @@ async function verifyPin() {
       localStorage.setItem('bde_auth_token', data.token);
       localStorage.setItem('bde_auth_role', data.role);
       localStorage.setItem('bde_auth_name', data.name);
+      localStorage.setItem('bde_auth_passcode', pinVal);
     }
 
     if (data.role === 'owner') {

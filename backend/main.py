@@ -17,7 +17,7 @@ from fastapi import FastAPI, HTTPException, Depends, status, Query, Request, Upl
 from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func, desc, text
 
 from database import engine, Base, get_db
@@ -304,16 +304,45 @@ def verify_session_token(token: Optional[str]) -> Optional[str]:
 
 def get_console_role(request: Request) -> Optional[str]:
     token = None
-    auth_hdr = request.headers.get("Authorization") or request.headers.get("x-bde-auth")
+    auth_hdr = (
+        request.headers.get("Authorization")
+        or request.headers.get("x-bde-auth")
+        or request.headers.get("x-admin-token")
+    )
     if auth_hdr:
-        if auth_hdr.startswith("Bearer "):
-            token = auth_hdr.split(" ")[1]
-        else:
-            token = auth_hdr
+        raw = auth_hdr.split(" ")[1].strip() if auth_hdr.startswith("Bearer ") else auth_hdr.strip()
+        role = verify_session_token(raw)
+        if role:
+            return role
+        if ADMIN_PASSCODE and raw == ADMIN_PASSCODE:
+            return "owner"
+        elif STAFF_PASSCODE and raw == STAFF_PASSCODE:
+            return "staff"
     elif "bde_console_token" in request.cookies:
         token = request.cookies.get("bde_console_token")
+    elif "bde_console_session" in request.cookies:
+        token = request.cookies.get("bde_console_session")
 
-    return verify_session_token(token)
+    if token:
+        role = verify_session_token(token)
+        if role:
+            return role
+
+    p = (
+        request.headers.get("x-passcode")
+        or request.headers.get("x-admin-passcode")
+        or request.headers.get("x-bde-passcode")
+        or request.headers.get("x-admin-token")
+        or request.query_params.get("passcode")
+        or ""
+    ).strip()
+    if p:
+        if ADMIN_PASSCODE and p == ADMIN_PASSCODE:
+            return "owner"
+        elif STAFF_PASSCODE and p == STAFF_PASSCODE:
+            return "staff"
+
+    return None
 
 def authenticate_passcode(pin_clean: str):
     if not pin_clean:
@@ -331,16 +360,32 @@ def authenticate_passcode(pin_clean: str):
             detail="Incorrect Security Passcode. Access restricted to BDE Onda showroom personnel."
         )
 
+def verify_staff_or_owner(request: Request):
+    role = get_console_role(request)
+    if role in ("owner", "staff"):
+        name = "Proprietor (Dipanjan)" if role == "owner" else "Counter Staff"
+        return {"role": role, "name": name}
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Unauthorized: Staff or Owner access required"
+    )
+
 def verify_owner_access(request: Request, passcode: Optional[str] = None):
+    # Check if direct passcode string was passed imperatively
+    if passcode and passcode.strip() == ADMIN_PASSCODE:
+        return True
+
     role = get_console_role(request)
     if role == "owner":
         return True
-    p = (passcode or request.headers.get("x-admin-passcode") or request.headers.get("x-bde-passcode") or request.query_params.get("passcode") or "").strip()
-    if p and p == ADMIN_PASSCODE:
-        return True
+    if role == "staff":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Forbidden: Owner access required (Passcode Dip@1993)."
+        )
     raise HTTPException(
-        status_code=status.HTTP_403_FORBIDDEN,
-        detail="Owner authorization required (Passcode Dip@1993). Access restricted to Proprietor (Dipanjan)."
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Unauthorized: Owner authorization required (Passcode Dip@1993)."
     )
 
 @app.post("/api/staff/verify")
@@ -1326,7 +1371,7 @@ def get_user_me(phone: str, db: Session = Depends(get_db)):
 # ========================================================
 
 @app.get("/products")
-def list_products(db: Session = Depends(get_db)):
+def list_products(db: Session = Depends(get_db), auth: dict = Depends(verify_staff_or_owner)):
     prods = db.query(models.Product).order_by(models.Product.name.asc()).all()
     results = []
     
@@ -1384,7 +1429,7 @@ def list_products(db: Session = Depends(get_db)):
     return results
 
 @app.post("/products", status_code=status.HTTP_201_CREATED)
-def create_product(item: schemas.ProductCreate, db: Session = Depends(get_db)):
+def create_product(item: schemas.ProductCreate, db: Session = Depends(get_db), auth: dict = Depends(verify_staff_or_owner)):
     sku_clean = item.sku.strip().upper()
     if db.query(models.Product).filter(models.Product.sku == sku_clean).first():
         raise HTTPException(status_code=400, detail=f"Product with SKU '{sku_clean}' already exists.")
@@ -1419,7 +1464,7 @@ def create_product(item: schemas.ProductCreate, db: Session = Depends(get_db)):
     return prod
 
 @app.put("/products/{product_id}")
-def update_product(product_id: int, item: schemas.ProductUpdate, db: Session = Depends(get_db)):
+def update_product(product_id: int, item: schemas.ProductUpdate, db: Session = Depends(get_db), auth: dict = Depends(verify_staff_or_owner)):
     prod = db.query(models.Product).filter(models.Product.id == product_id).first()
     if not prod:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -1466,7 +1511,7 @@ def update_product(product_id: int, item: schemas.ProductUpdate, db: Session = D
     return prod
 
 @app.delete("/products/{product_id}")
-def delete_product(product_id: int, db: Session = Depends(get_db)):
+def delete_product(product_id: int, db: Session = Depends(get_db), auth: bool = Depends(verify_owner_access)):
     prod = db.query(models.Product).filter(models.Product.id == product_id).first()
     if not prod:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -1481,7 +1526,8 @@ async def upload_product_photo_endpoint(
     sku: str = Form(...),
     product_id: Optional[int] = Form(None),
     file: UploadFile = File(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    auth: dict = Depends(verify_staff_or_owner)
 ):
     contents = await file.read()
     if not contents:
@@ -1522,11 +1568,11 @@ async def upload_product_photo_endpoint(
     return {"success": True, "image_url": img_url, "sku": clean_sku}
 
 @app.get("/customers")
-def list_customers(db: Session = Depends(get_db)):
+def list_customers(db: Session = Depends(get_db), auth: dict = Depends(verify_staff_or_owner)):
     return db.query(models.Customer).order_by(models.Customer.name.asc()).all()
 
 @app.post("/customers")
-def create_customer(item: schemas.CustomerCreate, db: Session = Depends(get_db)):
+def create_customer(item: schemas.CustomerCreate, db: Session = Depends(get_db), auth: dict = Depends(verify_staff_or_owner)):
     phone_clean = (item.phone or "").strip()
     if not phone_clean or phone_clean in ["0", "0000000000", "NA", "-"]:
         phone_clean = f"NA-{int(datetime.utcnow().timestamp() * 1000) % 1000000:06d}"
@@ -1556,7 +1602,7 @@ def create_customer(item: schemas.CustomerCreate, db: Session = Depends(get_db))
 
 @app.get("/customers/{customer_id}")
 @app.get("/api/customers/{customer_id}")
-def get_customer(customer_id: int, db: Session = Depends(get_db)):
+def get_customer(customer_id: int, db: Session = Depends(get_db), auth: dict = Depends(verify_staff_or_owner)):
     cust = db.query(models.Customer).filter(models.Customer.id == customer_id).first()
     if not cust:
         raise HTTPException(status_code=404, detail=f"Customer #{customer_id} not found.")
@@ -1566,7 +1612,7 @@ def get_customer(customer_id: int, db: Session = Depends(get_db)):
 @app.put("/api/customers/{customer_id}")
 @app.post("/customers/{customer_id}")
 @app.patch("/customers/{customer_id}")
-def update_customer(customer_id: int, item: schemas.CustomerUpdate, db: Session = Depends(get_db)):
+def update_customer(customer_id: int, item: schemas.CustomerUpdate, db: Session = Depends(get_db), auth: dict = Depends(verify_staff_or_owner)):
     cust = db.query(models.Customer).filter(models.Customer.id == customer_id).first()
     if not cust:
         raise HTTPException(status_code=404, detail=f"Customer #{customer_id} not found.")
@@ -1619,7 +1665,7 @@ def update_customer(customer_id: int, item: schemas.CustomerUpdate, db: Session 
         raise HTTPException(status_code=500, detail=f"Database error updating customer: {str(e)}")
 
 @app.post("/sales/multi")
-def create_multi_sale(order: schemas.MultiSaleCreate, db: Session = Depends(get_db)):
+def create_multi_sale(order: schemas.MultiSaleCreate, db: Session = Depends(get_db), auth: dict = Depends(verify_staff_or_owner)):
     cust = db.query(models.Customer).filter(models.Customer.id == order.customer_id).first()
     if not cust:
         raise HTTPException(status_code=404, detail="Customer not found.")
@@ -1702,7 +1748,7 @@ def create_multi_sale(order: schemas.MultiSaleCreate, db: Session = Depends(get_
         raise e
 
 @app.post("/purchases")
-def log_purchase(p: schemas.PurchaseCreate, db: Session = Depends(get_db)):
+def log_purchase(p: schemas.PurchaseCreate, db: Session = Depends(get_db), auth: dict = Depends(verify_staff_or_owner)):
     prod = db.query(models.Product).filter(models.Product.id == p.product_id).first()
     if not prod:
         raise HTTPException(status_code=404, detail="Product not found.")
@@ -1736,7 +1782,7 @@ def log_purchase(p: schemas.PurchaseCreate, db: Session = Depends(get_db)):
     }
 
 @app.get("/dues/summary")
-def dues_summary(db: Session = Depends(get_db)):
+def dues_summary(db: Session = Depends(get_db), auth: dict = Depends(verify_staff_or_owner)):
     customers = db.query(models.Customer).all()
     results = []
     now = datetime.utcnow()
@@ -1771,7 +1817,7 @@ def dues_summary(db: Session = Depends(get_db)):
     return results
 
 @app.post("/dues/pay")
-def pay_due(payment: schemas.DuePaymentCreate, db: Session = Depends(get_db)):
+def pay_due(payment: schemas.DuePaymentCreate, db: Session = Depends(get_db), auth: dict = Depends(verify_staff_or_owner)):
     cust = db.query(models.Customer).filter(models.Customer.id == payment.customer_id).first()
     if not cust:
         raise HTTPException(status_code=404, detail="Customer not found.")
@@ -1804,8 +1850,17 @@ def pay_due(payment: schemas.DuePaymentCreate, db: Session = Depends(get_db)):
     return {"message": f"Successfully received payment of ₹{payment.amount}"}
 
 @app.get("/invoices/history")
-def sales_history(db: Session = Depends(get_db)):
-    invoices = db.query(models.Invoice).order_by(desc(models.Invoice.id)).limit(200).all()
+def sales_history(db: Session = Depends(get_db), auth: dict = Depends(verify_staff_or_owner)):
+    invoices = (
+        db.query(models.Invoice)
+        .options(
+            joinedload(models.Invoice.items).joinedload(models.SaleItem.product),
+            joinedload(models.Invoice.customer)
+        )
+        .order_by(desc(models.Invoice.id))
+        .limit(200)
+        .all()
+    )
     results = []
 
     for inv in invoices:
@@ -2025,13 +2080,7 @@ def edit_bill_customer(
         raise HTTPException(status_code=500, detail=f"Failed to update customer: {str(e)}")
 
 @app.get("/analytics/executive-summary")
-def executive_summary(request: Request, db: Session = Depends(get_db)):
-    role = get_console_role(request)
-    if not role:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authentication required. Please unlock the Business Console with Staff or Manager credentials."
-        )
+def executive_summary(request: Request, db: Session = Depends(get_db), auth: dict = Depends(verify_staff_or_owner)):
 
     invoices = db.query(models.Invoice).all()
     sale_items = db.query(models.SaleItem).all()
@@ -2269,7 +2318,8 @@ def executive_summary(request: Request, db: Session = Depends(get_db)):
 def get_website_quote_inquiries(
     status: Optional[str] = None,
     search: Optional[str] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    auth: dict = Depends(verify_staff_or_owner)
 ):
     query = db.query(models.QuoteInquiry)
     if status and status.lower() != "all":
@@ -2303,7 +2353,7 @@ def get_website_quote_inquiries(
     ]
 
 @app.post("/quote-inquiries/{inquiry_id}/resolve")
-def resolve_quote_inquiry(inquiry_id: int, db: Session = Depends(get_db)):
+def resolve_quote_inquiry(inquiry_id: int, db: Session = Depends(get_db), auth: dict = Depends(verify_staff_or_owner)):
     inquiry = db.query(models.QuoteInquiry).filter(models.QuoteInquiry.id == inquiry_id).first()
     if not inquiry:
         raise HTTPException(status_code=404, detail="Inquiry not found")
@@ -2312,7 +2362,7 @@ def resolve_quote_inquiry(inquiry_id: int, db: Session = Depends(get_db)):
     return {"success": True, "message": f"Inquiry #Q-{inquiry_id} marked as resolved."}
 
 @app.post("/quote-inquiries/{inquiry_id}/reopen")
-def reopen_quote_inquiry(inquiry_id: int, db: Session = Depends(get_db)):
+def reopen_quote_inquiry(inquiry_id: int, db: Session = Depends(get_db), auth: dict = Depends(verify_staff_or_owner)):
     inquiry = db.query(models.QuoteInquiry).filter(models.QuoteInquiry.id == inquiry_id).first()
     if not inquiry:
         raise HTTPException(status_code=404, detail="Inquiry not found")
@@ -2321,7 +2371,7 @@ def reopen_quote_inquiry(inquiry_id: int, db: Session = Depends(get_db)):
     return {"success": True, "message": f"Inquiry #Q-{inquiry_id} moved back to Pending."}
 
 @app.delete("/quote-inquiries/{inquiry_id}")
-def delete_quote_inquiry(inquiry_id: int, db: Session = Depends(get_db)):
+def delete_quote_inquiry(inquiry_id: int, db: Session = Depends(get_db), auth: dict = Depends(verify_staff_or_owner)):
     inquiry = db.query(models.QuoteInquiry).filter(models.QuoteInquiry.id == inquiry_id).first()
     if not inquiry:
         raise HTTPException(status_code=404, detail="Inquiry not found")
@@ -2400,7 +2450,7 @@ def find_item_by_identifier(item_id: str, db: Session):
 
 @app.get("/testimonials/admin")
 @app.get("/api/admin/cashback-claims")
-def get_all_testimonials_admin(db: Session = Depends(get_db)):
+def get_all_testimonials_admin(db: Session = Depends(get_db), auth: dict = Depends(verify_staff_or_owner)):
     craft_posts = db.query(models.CraftPost).order_by(models.CraftPost.id.desc()).all()
     testimonials = db.query(models.CustomerTestimonial).order_by(models.CustomerTestimonial.id.desc()).all()
     
@@ -2412,7 +2462,7 @@ def get_all_testimonials_admin(db: Session = Depends(get_db)):
 
 @app.post("/testimonials/{item_id}/cashback")
 @app.post("/api/admin/cashback-claims/{item_id}/cashback")
-def update_testimonial_cashback(item_id: str, req: schemas.CashbackUpdateRequest, db: Session = Depends(get_db)):
+def update_testimonial_cashback(item_id: str, req: schemas.CashbackUpdateRequest, db: Session = Depends(get_db), auth: dict = Depends(verify_staff_or_owner)):
     source, row = find_item_by_identifier(item_id, db)
     if not row:
         raise HTTPException(status_code=404, detail="Photo claim not found")
@@ -2428,7 +2478,7 @@ def update_testimonial_cashback(item_id: str, req: schemas.CashbackUpdateRequest
 
 @app.post("/testimonials/{item_id}/approve")
 @app.post("/api/admin/cashback-claims/{item_id}/approve")
-def approve_testimonial(item_id: str, db: Session = Depends(get_db)):
+def approve_testimonial(item_id: str, db: Session = Depends(get_db), auth: dict = Depends(verify_staff_or_owner)):
     source, row = find_item_by_identifier(item_id, db)
     if not row:
         raise HTTPException(status_code=404, detail="Photo claim not found")
@@ -2449,7 +2499,7 @@ def approve_testimonial(item_id: str, db: Session = Depends(get_db)):
 
 @app.post("/testimonials/{item_id}/reject")
 @app.post("/api/admin/cashback-claims/{item_id}/reject")
-def reject_testimonial(item_id: str, db: Session = Depends(get_db)):
+def reject_testimonial(item_id: str, db: Session = Depends(get_db), auth: dict = Depends(verify_staff_or_owner)):
     source, row = find_item_by_identifier(item_id, db)
     if not row:
         raise HTTPException(status_code=404, detail="Photo claim not found")
@@ -2469,7 +2519,7 @@ def reject_testimonial(item_id: str, db: Session = Depends(get_db)):
 
 @app.delete("/testimonials/{item_id}")
 @app.delete("/api/admin/cashback-claims/{item_id}")
-def delete_testimonial(item_id: str, db: Session = Depends(get_db)):
+def delete_testimonial(item_id: str, db: Session = Depends(get_db), auth: bool = Depends(verify_owner_access)):
     source, row = find_item_by_identifier(item_id, db)
     if row:
         db.delete(row)

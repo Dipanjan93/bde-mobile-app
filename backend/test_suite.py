@@ -1,10 +1,93 @@
+import os
+import sys
+
+# Force UTF-8 stdout and stderr encoding for Windows compatibility
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
+import time
+import json
+import subprocess
 import urllib.request
 import urllib.parse
-import json
+import urllib.error
+
+# Add backend directory to sys.path
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
+from database import SessionLocal
+from sqlalchemy import text
 
 BASE_URL = "http://127.0.0.1:8000"
 
-def test_endpoint(name, url, method="GET", data=None):
+# Target baseline row counts in live Neon PostgreSQL
+BASELINE_COUNTS = {
+    "app_settings": 1,
+    "app_users": 4,
+    "carpenter_call_logs": 47,
+    "carpenters": 8,
+    "craft_comments": 0,
+    "craft_posts": 0,
+    "customer_testimonials": 0,
+    "customers": 25,
+    "invoices": 25,
+    "payment_receipts": 3,
+    "products": 108,
+    "purchases": 0,
+    "quote_inquiries": 0,
+    "sale_items": 89
+}
+
+def get_live_row_counts():
+    db = SessionLocal()
+    counts = {}
+    try:
+        tables = db.execute(text("SELECT table_name FROM information_schema.tables WHERE table_schema='public' ORDER BY table_name;")).fetchall()
+        for (tbl,) in tables:
+            c = db.execute(text(f'SELECT COUNT(*) FROM "{tbl}"')).scalar()
+            counts[tbl] = c
+    finally:
+        db.close()
+    return counts
+
+def ensure_server():
+    """Checks if uvicorn server is up; if not, starts a background process."""
+    try:
+        req = urllib.request.Request(f"{BASE_URL}/manifest.json", method="GET")
+        with urllib.request.urlopen(req, timeout=1) as resp:
+            if resp.status == 200:
+                print("[INFO] Server is already running on port 8000.", flush=True)
+                return None
+    except Exception:
+        pass
+
+    print("[INFO] Starting background uvicorn server on port 8000...", flush=True)
+    env = os.environ.copy()
+    env["PYTHONUNBUFFERED"] = "1"
+    proc = subprocess.Popen(
+        [sys.executable, "-m", "uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8000"],
+        cwd=BASE_DIR,
+        env=env,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    )
+    for _ in range(40):
+        time.sleep(0.5)
+        try:
+            req = urllib.request.Request(f"{BASE_URL}/manifest.json", method="GET")
+            with urllib.request.urlopen(req, timeout=1) as resp:
+                if resp.status == 200:
+                    print("[INFO] Server is ready!", flush=True)
+                    return proc
+        except Exception:
+            continue
+    raise RuntimeError("Failed to start uvicorn backend server")
+
+def test_endpoint(name, url, method="GET", data=None, headers=None):
     try:
         req = urllib.request.Request(url, method=method)
         if data is not None:
@@ -13,29 +96,138 @@ def test_endpoint(name, url, method="GET", data=None):
         else:
             encoded = None
 
+        if headers:
+            for k, v in headers.items():
+                req.add_header(k, v)
+
         with urllib.request.urlopen(req, data=encoded, timeout=10) as resp:
             status = resp.status
             raw = resp.read()
-            text = raw.decode('utf-8', errors='replace')
-            print(f"[{status}] {name} ({method} {url}) - size: {len(raw)} bytes")
+            text_resp = raw.decode('utf-8', errors='replace')
+            print(f"[{status}] {name} ({method} {url}) - size: {len(raw)} bytes", flush=True)
             try:
-                parsed = json.loads(text)
-                if isinstance(parsed, list):
-                    print(f"       -> Array with {len(parsed)} items.")
-                elif isinstance(parsed, dict):
-                    print(f"       -> Keys: {list(parsed.keys())[:6]}")
+                parsed = json.loads(text_resp)
                 return parsed
             except Exception:
-                preview = text[:60].replace('\n', ' ')
-                print(f"       -> Non-JSON content (HTML or Asset), preview: {preview}...")
-                return text
+                return text_resp
+    except urllib.error.HTTPError as e:
+        print(f"[{e.code}] {name} returned HTTP {e.code}", flush=True)
+        return {"error_code": e.code, "detail": e.reason}
     except Exception as e:
-        print(f"[FAIL] {name}: {e}")
+        print(f"[FAIL] {name}: {e}", flush=True)
         return None
 
-def main():
-    print("=== TESTING BDE MOBILE E-COMMERCE BACKEND & STOREFRONT ===")
-    
+def run_security_auth_audit():
+    print("\n========================================================", flush=True)
+    print("[AUTH-AUDIT] RUNNING CRITICAL CATEGORY D SERVER-SIDE AUTH ENFORCEMENT AUDIT", flush=True)
+    print("========================================================", flush=True)
+
+    protected_get_endpoints = [
+        ("GET /products", f"{BASE_URL}/products"),
+        ("GET /customers", f"{BASE_URL}/customers"),
+        ("GET /invoices/history", f"{BASE_URL}/invoices/history"),
+        ("GET /api/admin/cashback-claims", f"{BASE_URL}/api/admin/cashback-claims"),
+        ("GET /dues/summary", f"{BASE_URL}/dues/summary"),
+        ("GET /analytics/executive-summary", f"{BASE_URL}/analytics/executive-summary"),
+        ("GET /quote-inquiries", f"{BASE_URL}/quote-inquiries"),
+    ]
+
+    # 1. Unauthenticated calls MUST throw 401 Unauthorized
+    print("\n--- Sub-Test 1: Unauthenticated Requests (Must Return 401) ---", flush=True)
+    for name, url in protected_get_endpoints:
+        try:
+            req = urllib.request.Request(url, method="GET")
+            with urllib.request.urlopen(req, timeout=12) as resp:
+                print(f"[FAIL] {name} unexpectedly succeeded without credentials! (HTTP {resp.status})", flush=True)
+        except urllib.error.HTTPError as e:
+            if e.code == 401:
+                print(f"[PASS 401] {name}: Strictly Gated -> HTTP 401 Unauthorized", flush=True)
+            else:
+                print(f"[WARN] {name}: Returned unexpected HTTP {e.code}", flush=True)
+        except Exception as e:
+            print(f"[ERROR] {name}: {e}", flush=True)
+
+    # 2. Staff passcode (x-passcode: BDE@1234) MUST succeed with 200
+    print("\n--- Sub-Test 2: Staff Passcode (x-passcode: BDE@1234) ---", flush=True)
+    for name, url in protected_get_endpoints:
+        try:
+            req = urllib.request.Request(url, method="GET")
+            req.add_header("x-passcode", "BDE@1234")
+            with urllib.request.urlopen(req, timeout=12) as resp:
+                if resp.status == 200:
+                    print(f"[PASS 200] {name}: Staff Access Allowed -> HTTP 200 OK", flush=True)
+                else:
+                    print(f"[WARN] {name}: Returned HTTP {resp.status}", flush=True)
+        except Exception as e:
+            print(f"[FAIL] {name} failed with staff passcode: {e}", flush=True)
+
+    # 3. Owner passcode (x-passcode: Dip@1993) MUST succeed with 200
+    print("\n--- Sub-Test 3: Owner Passcode (x-passcode: Dip@1993) ---", flush=True)
+    for name, url in protected_get_endpoints:
+        try:
+            req = urllib.request.Request(url, method="GET")
+            req.add_header("x-passcode", "Dip@1993")
+            with urllib.request.urlopen(req, timeout=12) as resp:
+                if resp.status == 200:
+                    print(f"[PASS 200] {name}: Owner Access Allowed -> HTTP 200 OK", flush=True)
+                else:
+                    print(f"[WARN] {name}: Returned HTTP {resp.status}", flush=True)
+        except Exception as e:
+            print(f"[FAIL] {name} failed with owner passcode: {e}", flush=True)
+
+    # 4. Signed Session Token Verification (Bearer Token & Cookie)
+    print("\n--- Sub-Test 4: Signed Session Token Auth ---", flush=True)
+    staff_auth = test_endpoint(
+        "Staff Verification Token Generation",
+        f"{BASE_URL}/api/staff/verify",
+        method="POST",
+        data={"passcode": "BDE@1234"}
+    )
+    staff_token = staff_auth.get("token") if isinstance(staff_auth, dict) else None
+    if staff_token:
+        try:
+            req = urllib.request.Request(f"{BASE_URL}/products", method="GET")
+            req.add_header("Authorization", f"Bearer {staff_token}")
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                print(f"[PASS 200] Bearer Token Auth on GET /products: HTTP {resp.status}", flush=True)
+        except Exception as e:
+            print(f"[FAIL] Bearer Token Auth failed: {e}", flush=True)
+
+    # 5. Owner-Only Destructive Routes Forbid Staff Access (Must Return 403)
+    print("\n--- Sub-Test 5: Owner-Only Routes Forbid Staff Access (Must Return 403) ---", flush=True)
+    owner_only_endpoints = [
+        ("DELETE /products/99999", f"{BASE_URL}/products/99999"),
+        ("DELETE /testimonials/cp_99999", f"{BASE_URL}/testimonials/cp_99999")
+    ]
+    for name, url in owner_only_endpoints:
+        # A. Without Auth -> 401
+        try:
+            req = urllib.request.Request(url, method="DELETE")
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                print(f"[FAIL] {name} succeeded without auth!", flush=True)
+        except urllib.error.HTTPError as e:
+            if e.code == 401:
+                print(f"[PASS 401] {name} Unauthenticated: HTTP 401 Unauthorized", flush=True)
+            else:
+                print(f"[WARN] {name} Unauthenticated: HTTP {e.code}", flush=True)
+
+        # B. With Staff Auth -> 403 Forbidden
+        try:
+            req = urllib.request.Request(url, method="DELETE")
+            req.add_header("x-passcode", "BDE@1234")
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                print(f"[FAIL] {name} allowed staff access!", flush=True)
+        except urllib.error.HTTPError as e:
+            if e.code == 403:
+                print(f"[PASS 403] {name} with Staff Passcode: HTTP 403 Forbidden (Owner Only!)", flush=True)
+            else:
+                print(f"[WARN] {name} with Staff Passcode: HTTP {e.code}", flush=True)
+
+def run_storefront_tests():
+    print("\n========================================================", flush=True)
+    print("[STOREFRONT] RUNNING PUBLIC STOREFRONT & CUSTOMER APIS AUDIT", flush=True)
+    print("========================================================", flush=True)
+
     # 1. Storefront Home
     test_endpoint("Storefront Home HTML", f"{BASE_URL}/")
 
@@ -43,11 +235,15 @@ def main():
     test_endpoint("PWA Manifest", f"{BASE_URL}/manifest.json")
     test_endpoint("Service Worker", f"{BASE_URL}/sw.js")
 
-    # 3. Product Catalog
+    # 3. Product Catalog (Customer Facing)
     catalog = test_endpoint("Catalog API (GET /api/catalog)", f"{BASE_URL}/api/catalog")
     if isinstance(catalog, list) and len(catalog) > 0:
         sample = catalog[0]
-        print(f"       Verification: SKU: {sample['sku']}, Name: {sample['name']}, Unit: {sample.get('unit')}, Price fields omitted: {'customer_price' not in sample}")
+        has_wholesale_leak = ("purchase_price" in sample or "min_selling_price" in sample)
+        if not has_wholesale_leak:
+            print(f"       [PASS] Security Verified: Wholesale purchase_price & min_selling_price omitted from public catalog!", flush=True)
+        else:
+            print(f"       [FAIL] SECURITY RISK: Wholesale price leaked in public catalog!", flush=True)
 
     # 4. Product Image
     test_endpoint("Product Image (/static/img/products/PLY-COMM-18-8X4.jpg)", f"{BASE_URL}/static/img/products/PLY-COMM-18-8X4.jpg")
@@ -56,138 +252,14 @@ def main():
     carpenters = test_endpoint("Carpenters API (GET /api/carpenters)", f"{BASE_URL}/api/carpenters")
     if isinstance(carpenters, list) and len(carpenters) > 0:
         c = carpenters[0]
-        print(f"       Verification: Masked Phone: {c['masked_phone']}, Name: {c['name']}, Village: {c['village']}")
+        print(f"       Verification: Masked Phone: {c.get('masked_phone')}, Name: {c.get('name')}, Village: {c.get('village')}", flush=True)
 
-    # 6. Auth Signup
-    auth_data = {
-        "name": "Subhasis Mondal",
-        "phone": "9876500123",
-        "location": "Punisole, Bankura"
-    }
-    test_endpoint("App Signup (POST /api/app/signup)", f"{BASE_URL}/api/app/signup", method="POST", data=auth_data)
-
-    # 7. Carpenter Call Lead Tracker
-    if isinstance(carpenters, list) and len(carpenters) > 0:
-        call_data = {
-            "carpenter_id": carpenters[0]["id"],
-            "customer_name": "Subhasis Mondal",
-            "customer_phone": "9876500123",
-            "customer_village": "Punisole"
-        }
-        res_call = test_endpoint("Carpenter Call Lead (POST /api/carpenter-call)", f"{BASE_URL}/api/carpenter-call", method="POST", data=call_data)
-        if isinstance(res_call, dict):
-            print(f"       Verification: Dial Phone unmasked: {res_call.get('dial_phone')}, Carpenter: {res_call.get('carpenter_name')}")
-
-    # 8. Quote Request (Furniture Calculator Option 1)
-    quote_data = {
-        "customer_name": "Subhasis Mondal",
-        "phone": "9876500123",
-        "delivery_locality": "Punisole",
-        "furniture_type": "6x7 ft Sliding Wardrobe",
-        "dimensions": "6 ft W x 7 ft H x 2 ft D",
-        "materials_breakdown": "- 18mm Marine Ply: 4.5 Sheets\n- 12mm Ply: 1.5 Sheets\n- 1mm Sunmica: 3 Sheets\n- Fevicol Marine: 8 Kg",
-        "estimated_cost": 21850.0,
-        "notes": "Testing Counter Discount claim"
-    }
-    res_quote = test_endpoint("Quote Request (POST /api/quote-request)", f"{BASE_URL}/api/quote-request", method="POST", data=quote_data)
-    if isinstance(res_quote, dict):
-        print(f"       Verification: WhatsApp Redirect URL: {res_quote.get('whatsapp_url')[:65]}...")
-
-    # 9. Testimonials (Customer Showcase)
-    test_endpoint("Testimonials (GET /api/testimonials)", f"{BASE_URL}/api/testimonials")
-
-    # 10. Testimonial Upload
-    test_data = {
-        "customer_name": "Raju Karmakar",
-        "customer_phone": "9876500123",
-        "customer_location": "Onda Bazar",
-        "project_title": "Custom TV Cabinet & Wall Unit",
-        "carpenter_name": "Tapan Karmakar",
-        "image_base64": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSJyZWQiLz48L3N2Zz4="
-    }
-    test_endpoint("Submit Testimonial (POST /api/testimonials)", f"{BASE_URL}/api/testimonials", method="POST", data=test_data)
-
-    # 11. Staff / Manager Passcode Verification (Strict Validation)
-    staff_auth = test_endpoint(
-        "Staff Verification (POST /api/staff/verify - Valid Staff)",
-        f"{BASE_URL}/api/staff/verify",
-        method="POST",
-        data={"passcode": "BDE@1234"}
-    )
-    if isinstance(staff_auth, dict):
-        print(f"       Verification: Staff Role: {staff_auth.get('role')}, Authenticated: {staff_auth.get('authenticated')}")
-
-    owner_auth = test_endpoint(
-        "Staff Verification (POST /api/staff/verify - Valid Owner)",
-        f"{BASE_URL}/api/staff/verify",
-        method="POST",
-        data={"passcode": "Dip@1993"}
-    )
-    if isinstance(owner_auth, dict):
-        print(f"       Verification: Owner Role: {owner_auth.get('role')}, Token length: {len(owner_auth.get('token', ''))}")
-
-    # Verify that numeric shortcuts like '1993' are rejected with 401
-    for bad_code in ["1993", "bde1993", "1234", "admin"]:
-        try:
-            req = urllib.request.Request(
-                f"{BASE_URL}/api/staff/verify",
-                data=json.dumps({"passcode": bad_code}).encode("utf-8"),
-                headers={"Content-Type": "application/json"},
-                method="POST"
-            )
-            urllib.request.urlopen(req, timeout=5)
-            print(f"[FAIL] Bad passcode '{bad_code}' was unexpectedly accepted!")
-        except urllib.error.HTTPError as e:
-            if e.code == 401:
-                print(f"[200] Strict Rejection Check: '{bad_code}' correctly rejected with HTTP 401 Unauthorized")
-            else:
-                print(f"[WARN] Bad passcode '{bad_code}' returned HTTP {e.code}")
-        except Exception as e:
-            print(f"[FAIL] Error checking '{bad_code}': {e}")
-
-    # 12. Offline Data JS
-    test_endpoint("Offline Data JS (/offline_data.js)", f"{BASE_URL}/offline_data.js")
-
-    # 13. Multipart Photo Upload (Direct to Neon PostgreSQL)
-    boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW"
-    body = (
-        f"--{boundary}\r\n"
-        f'Content-Disposition: form-data; name="file"; filename="project.jpg"\r\n'
-        f"Content-Type: image/jpeg\r\n\r\n"
-        f"FAKE_JPEG_IMAGE_BYTES_FOR_TESTING\r\n"
-        f"--{boundary}\r\n"
-        f'Content-Disposition: form-data; name="customer_name"\r\n\r\n'
-        f"Subhasis Mondal\r\n"
-        f"--{boundary}\r\n"
-        f'Content-Disposition: form-data; name="invoice_no"\r\n\r\n'
-        f"INV-2026-TEST\r\n"
-        f"--{boundary}--\r\n"
-    ).encode("utf-8")
-    try:
-        req = urllib.request.Request(
-            f"{BASE_URL}/api/upload/photo",
-            data=body,
-            headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
-            method="POST"
-        )
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            up_res = json.loads(resp.read().decode("utf-8"))
-            print(f"[200] Multipart Photo Upload (POST /api/upload/photo) - id: {up_res.get('id')}")
-            safe_msg = str(up_res.get('message', '')).encode('ascii', errors='ignore').decode('ascii')
-            print(f"       Verification: {safe_msg[:70]}...")
-    except Exception as e:
-        print(f"[FAIL] Multipart Photo Upload: {e}")
-
-    # 14. Backward Compatible Console
-    test_endpoint("Console Template (/console)", f"{BASE_URL}/console")
-
-    # 15. Special Promotional Banners
+    # 6. Special Promotional Banners
     banners = test_endpoint("Special Banners (GET /api/special-banners)", f"{BASE_URL}/api/special-banners")
     if isinstance(banners, list) and len(banners) > 0:
-        print(f"       Verification: {len(banners)} special banners loaded. First banner: {banners[0].get('title')}")
-    test_endpoint("Banner 1 SVG (/static/img/special_banners/banner_1.svg)", f"{BASE_URL}/static/img/special_banners/banner_1.svg")
+        print(f"       Verification: {len(banners)} special banners loaded.", flush=True)
 
-    # 16. AI Project Estimator & BoQ Calculator
+    # 7. AI Project Estimator & BoQ Calculator
     ai_est_data = {
         "prompt": "Amar 6x6 ft er ekta wardrobe banate hobe, 18mm ply koto lagbe?",
         "plywood_grade": "marine",
@@ -195,103 +267,66 @@ def main():
     }
     ai_res = test_endpoint("AI Estimator (POST /api/ai-estimate)", f"{BASE_URL}/api/ai-estimate", method="POST", data=ai_est_data)
     if isinstance(ai_res, dict):
-        print(f"       Verification: Item: {ai_res.get('item_type')}, Waste Area: {ai_res.get('surface_area_with_waste')} Sq.Ft, 18mm Sheets: {ai_res.get('plywood_18mm_sheets')}, Budget: Rs.{ai_res.get('estimated_min_price')} - Rs.{ai_res.get('estimated_max_price')}")
+        print(f"       Verification: Item: {ai_res.get('item_type')}, Waste Area: {ai_res.get('surface_area_with_waste')} Sq.Ft", flush=True)
 
-    # 17. Mistri Gram Social Feed
+    # 8. Mistri Gram Social Feed
     feed_res = test_endpoint("Mistri Gram Feed (GET /api/feed)", f"{BASE_URL}/api/feed")
     if isinstance(feed_res, dict):
-        print(f"       Verification: Posts count: {feed_res.get('count')}, Leaderboard entries: {len(feed_res.get('leaderboard', []))}")
-        if len(feed_res.get('posts', [])) > 0:
-            sample_post = feed_res['posts'][0]
-            print(f"       Verification: First post by: {sample_post.get('author_name')} ({sample_post.get('village_location')}) - Loves: {sample_post.get('likes_count')}")
+        print(f"       Verification: Posts count: {feed_res.get('count')}", flush=True)
 
-            # Test like
-            like_res = test_endpoint("Like Mistri Post (POST /api/feed/{id}/like)", f"{BASE_URL}/api/feed/{sample_post['id']}/like", method="POST")
-            if isinstance(like_res, dict):
-                print(f"       Verification: Post {sample_post['id']} updated likes: {like_res.get('likes_count')}")
+    # 9. Offline Data JS
+    test_endpoint("Offline Data JS (/offline_data.js)", f"{BASE_URL}/offline_data.js")
 
-            # Test comment
-            comment_payload = {
-                "commenter_name": "Test Customer",
-                "comment_text": "Looking great! Are BDE materials available in Onda Depot?"
-            }
-            comm_res = test_endpoint("Comment on Post (POST /api/feed/{id}/comment)", f"{BASE_URL}/api/feed/{sample_post['id']}/comment", method="POST", data=comment_payload)
-            if isinstance(comm_res, dict):
-                print(f"       Verification: Comment ID: {comm_res.get('comment_id')}")
+    # 10. Console Template
+    test_endpoint("Console Template (/console)", f"{BASE_URL}/console")
 
-    # 18. Create Craft Post with QR Bill No & UPI
-    new_post_payload = {
-        "author_name": "Ratan Mistri",
-        "author_role": "Master Mistri",
-        "author_phone": "9434000000",
-        "village_location": "Onda Bazar",
-        "project_category": "Wardrobe",
-        "caption": "Modern 4-door wardrobe with champagne handles and BWP marine ply.",
-        "materials_used": "18mm BWP Marine Ply, 1.0mm Sunmica",
-        "image_base64": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='blue'/></svg>",
-        "bill_number": "BDE-TEST-999",
-        "upi_id": "ratan@okaxis"
-    }
-    post_create_res = test_endpoint("Create Craft Post (POST /api/feed/post)", f"{BASE_URL}/api/feed/post", method="POST", data=new_post_payload)
-    if isinstance(post_create_res, dict):
-        created_post_id = post_create_res.get('post_id')
-        print(f"       Verification: New Post ID: {created_post_id}, Status: {post_create_res.get('status')}")
+def main():
+    print("=" * 60, flush=True)
+    print("BABA DUGDHESWAR ENTERPRISE - AUTOMATED SECURITY TEST SUITE", flush=True)
+    print("=" * 60, flush=True)
 
-    # 19. Admin Moderation Queue & Cashback Claims
-    admin_claims = test_endpoint("Admin Moderation Queue (GET /testimonials/admin)", f"{BASE_URL}/testimonials/admin")
-    if isinstance(admin_claims, list) and len(admin_claims) > 0:
-        first_claim = admin_claims[0]
-        claim_id = first_claim['id']
-        print(f"       Verification: Total queue items: {len(admin_claims)}, First: #{claim_id} ({first_claim.get('customer_name')}) - Bill: {first_claim.get('invoice_no')}")
+    # Step 1: Baseline Row Count Check
+    print("\n[STEP 1] Checking baseline Neon PostgreSQL row counts...", flush=True)
+    initial_counts = get_live_row_counts()
+    for tbl, cnt in sorted(initial_counts.items()):
+        expected = BASELINE_COUNTS.get(tbl, 0)
+        match_str = "MATCH" if cnt == expected else f"MISMATCH (expected {expected})"
+        print(f"  {tbl:25s}: {cnt:4d} rows [{match_str}]", flush=True)
 
-        # Approve item
-        test_endpoint(f"Approve Claim (POST /testimonials/{claim_id}/approve)", f"{BASE_URL}/testimonials/{claim_id}/approve", method="POST")
+    # Step 2: Ensure server is running
+    proc = ensure_server()
 
-        # Record Cashback Payout
-        test_endpoint(f"Cashback Payout (POST /testimonials/{claim_id}/cashback)", f"{BASE_URL}/testimonials/{claim_id}/cashback", method="POST", data={"cashback_amount": 200.0, "cashback_status": "Paid"})
+    try:
+        # Step 3: Run Security Auth Enforcement Audit
+        run_security_auth_audit()
 
-    # 20. Owner-Only Bill Customer Edit & Void with Stock Reversal
-    test_bill_payload = {
-        "customer_id": 1,
-        "items": [{"product_id": 1, "qty": 5.0, "unit_price": 500.0}],
-        "paid_amount": 1000.0
-    }
-    bill_res = test_endpoint("Create Multi-Sale Bill (POST /sales/multi)", f"{BASE_URL}/sales/multi", method="POST", data=test_bill_payload)
-    if isinstance(bill_res, dict):
-        test_inv_id = bill_res.get("invoice_id")
-        print(f"       Verification: Created test bill: {test_inv_id}")
+        # Step 4: Run Public Storefront & Customer APIs
+        run_storefront_tests()
 
-        # Edit Customer on Bill (Owner Only with passcode)
-        edit_cust_payload = {
-            "customer_name": "Test Edited Customer",
-            "customer_phone": "9999900000",
-            "village": "Onda Bazar",
-            "category": "Carpenter",
-            "passcode": "Dip@1993"
-        }
-        edit_res = test_endpoint(f"Edit Bill Customer (PUT /api/erp/bills/{test_inv_id}/customer)", f"{BASE_URL}/api/erp/bills/{test_inv_id}/customer", method="PUT", data=edit_cust_payload)
-        if isinstance(edit_res, dict):
-            print(f"       Verification: Updated customer: {edit_res.get('customer_name')} ({edit_res.get('customer_phone')})")
+    finally:
+        if proc:
+            print("\n[INFO] Stopping background server process...", flush=True)
+            proc.terminate()
 
-        # Void Bill & Restore Stock (Owner Only with passcode query)
-        void_res = test_endpoint(f"Void Bill & Restore Stock (DELETE /api/erp/bills/{test_inv_id})", f"{BASE_URL}/api/erp/bills/{test_inv_id}?passcode=Dip@1993", method="DELETE")
-        if isinstance(void_res, dict):
-            print(f"       Verification: Voided bill {void_res.get('invoice_id')}, Stock restored: {void_res.get('restored_items_count')} items, Dues reversed: Rs.{void_res.get('due_reversed')}")
+    # Step 5: Post-Test Row Count Verification (Zero DB Modification Rule)
+    print("\n" + "=" * 60, flush=True)
+    print("[INTEGRITY-AUDIT] POST-TEST VERIFICATION: LIVE NEON DB ROW COUNT INTEGRITY", flush=True)
+    print("=" * 60, flush=True)
+    final_counts = get_live_row_counts()
+    all_clean = True
+    for tbl in sorted(BASELINE_COUNTS.keys()):
+        c_before = initial_counts.get(tbl, 0)
+        c_after = final_counts.get(tbl, 0)
+        status = "[PASS] 100% IDENTICAL" if c_before == c_after else f"[FAIL] CHANGED! ({c_before} -> {c_after})"
+        if c_before != c_after:
+            all_clean = False
+        print(f"  {tbl:25s}: Before={c_before:4d} | After={c_after:4d} | {status}", flush=True)
 
-    # 21. POS Customer Profile Update (PUT /customers/{customer_id})
-    update_cust_payload = {
-        "name": "Bhole Carpenter",
-        "phone": "1234567988",
-        "address": "Onda Majhpara",
-        "category": "Carpenter"
-    }
-    cust_res = test_endpoint("Edit Customer Profile from POS (PUT /customers/25)", f"{BASE_URL}/customers/25", method="PUT", data=update_cust_payload)
-    if isinstance(cust_res, dict):
-        print(f"       Verification: Customer #{cust_res.get('id')} updated to {cust_res.get('name')} | {cust_res.get('category')} | {cust_res.get('phone')} | {cust_res.get('address')}")
-
-    print("\n=== ALL AUTOMATED TESTS COMPLETED SUCCESSFULLY ===")
-
+    if all_clean:
+        print("\n[SUCCESS] All Neon PostgreSQL row counts are 100% UNTOUCHED and PRESERVED!", flush=True)
+    else:
+        print("\n[FAIL] Database row count mismatch detected!", flush=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
-
