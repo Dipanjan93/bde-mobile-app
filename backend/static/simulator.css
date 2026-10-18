@@ -1,0 +1,854 @@
+/* =========================================================
+   BABA DUGDHESWAR ENTERPRISE — ONDA, BANKURA
+   3D FURNITURE & LAMINATE STUDIO SIMULATOR
+   Fixed Origin (0,0,0) WebGL Engine & Real-Time BOM Estimator
+   ========================================================= */
+
+.simulator-outer-wrap {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 16px 12px;
+  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #111827;
+}
+
+/* --- Top Header & Mode Switcher --- */
+.sim-top-banner {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .sim-top-banner {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.sim-title-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.sim-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sim-accent-bar {
+  width: 5px;
+  height: 24px;
+  background: #f59e0b;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.sim-main-title {
+  font-size: 19px;
+  font-weight: 900;
+  color: #111827;
+  letter-spacing: -0.4px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sim-fixed-origin-pill {
+  background: #ffd600;
+  color: #0f172a;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+}
+
+.sim-subtitle {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 4px 0 0 0;
+  font-weight: 500;
+}
+
+
+/* --- Main 2-Column Responsive Workspace Grid --- */
+.sim-workspace-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 1024px) {
+  .sim-workspace-grid {
+    grid-template-columns: 7fr 5fr;
+  }
+}
+
+/* Left Column: 3D Interactive Canvas & Controls */
+.sim-canvas-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 3D Viewport Box */
+.sim-viewport-container {
+  position: relative;
+  width: 100%;
+  height: 480px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #1a202c;
+  border: 2px solid #1f2937;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25);
+}
+
+@media (max-width: 640px) {
+  .sim-viewport-container {
+    height: 380px;
+  }
+}
+
+.sim-three-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+}
+
+.sim-three-canvas:active {
+  cursor: grabbing;
+}
+
+/* Floating Badges inside Canvas */
+.sim-badge-top-left {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.sim-rotate-icon {
+  font-size: 15px;
+  color: #ffd600;
+  animation: simSpin 6s linear infinite;
+  display: inline-block;
+}
+
+@keyframes simSpin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.sim-badge-title {
+  font-size: 11px;
+  font-weight: 900;
+  color: #fef08a;
+  letter-spacing: 0.3px;
+  display: block;
+  line-height: 1.2;
+}
+
+.sim-badge-subtext {
+  font-size: 9px;
+  color: #d1d5db;
+  display: block;
+  margin-top: 1px;
+}
+
+.sim-badge-bottom-left {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.sim-swatch-box-mini {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.sim-finish-name-mini {
+  font-size: 11px;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+  display: block;
+}
+
+.sim-finish-code-mini {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #facc15;
+  display: block;
+  margin-top: 1px;
+}
+
+/* Reset View Button (Top Right) */
+.sim-btn-reset-cam {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  z-index: 10;
+}
+
+.sim-btn-reset-cam:hover {
+  background: rgba(0, 0, 0, 0.9);
+  transform: scale(1.08);
+}
+
+/* Product & Room Configuration Card (Below Canvas) */
+.sim-config-card {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Product Category Strips (Standard Mode) */
+.sim-product-nav-strip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: none;
+}
+
+.sim-product-nav-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.sim-prod-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #f3f4f6;
+  color: #374151;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.sim-prod-btn:hover {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.sim-prod-btn.active {
+  background: #2874f0;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(40, 116, 240, 0.3);
+}
+
+/* Product Sub-options Row */
+.sim-suboptions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.sim-input-group label {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  color: #4b5563;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+}
+
+.sim-btn-group-row {
+  display: flex;
+  gap: 4px;
+}
+
+.sim-choice-btn {
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 5px;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.sim-choice-btn:hover {
+  background: #f9fafb;
+}
+
+.sim-choice-btn.active {
+  background: #eff6ff;
+  border-color: #2563eb;
+  color: #1d4ed8;
+  font-weight: 800;
+}
+
+.sim-select-input {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #f9fafb;
+  color: #111827;
+  outline: none;
+  cursor: pointer;
+}
+
+.sim-select-input:focus {
+  border-color: #2874f0;
+  background: #ffffff;
+}
+
+
+/* Right Column: 40+ Swatches Deck & BOM Estimate */
+.sim-sidebar-column {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* 40+ Laminates Deck Card */
+.sim-swatches-deck-card {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 14px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.sim-swatches-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.sim-swatches-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sim-swatches-count-pill {
+  font-size: 10px;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+/* 4 Category Tabs (GLOSSY, MATT, TEXTURED, 3D) */
+.sim-finish-category-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding: 4px;
+  background: #f3f4f6;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.sim-cat-btn {
+  padding: 6px 2px;
+  text-align: center;
+  font-size: 10.5px;
+  font-weight: 800;
+  border: none;
+  background: transparent;
+  color: #4b5563;
+  cursor: pointer;
+  border-radius: 5px;
+  text-transform: uppercase;
+  transition: all 0.15s ease;
+}
+
+.sim-cat-btn.active {
+  background: #2874f0;
+  color: #ffffff;
+  box-shadow: 0 1px 2px rgba(40, 116, 240, 0.3);
+}
+
+/* 10 Swatches Grid */
+.sim-swatches-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  padding: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.sim-swatch-item-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sim-swatch-item-btn:hover {
+  background: #f9fafb;
+}
+
+.sim-swatch-item-btn.selected {
+  background: #eff6ff;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1.5px #2563eb;
+}
+
+.sim-swatch-preview-square {
+  width: 36px;
+  height: 36px;
+  border-radius: 5px;
+  border: 1px solid #d1d5db;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+}
+
+.sim-swatch-check {
+  font-size: 14px;
+  font-weight: 900;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.sim-swatch-code-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: #374151;
+  margin-top: 4px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Applied to 3D Banner */
+.sim-applied-banner {
+  margin-top: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #f9fafb;
+  border: 1px solid #f3f4f6;
+  padding: 6px 10px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sim-applied-banner .finish-code-highlight {
+  font-weight: 800;
+  color: #2874f0;
+}
+
+/* BOM Calculation Card */
+.sim-bom-estimate-card {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 14px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.sim-bom-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f3f4f6;
+  margin-bottom: 10px;
+}
+
+.sim-bom-title {
+  font-size: 13px;
+  font-weight: 900;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.sim-verified-bom-pill {
+  background: #d1fae5;
+  color: #065f46;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.2px;
+}
+
+/* 6-Card Matrix Grid */
+.sim-bom-matrix-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.sim-bom-cell {
+  background: #f9fafb;
+  border: 1px solid #f3f4f6;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.sim-bom-cell-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #6b7280;
+  display: block;
+}
+
+.sim-bom-cell-val {
+  font-size: 16px;
+  font-weight: 900;
+  color: #111827;
+  display: inline-block;
+  margin-top: 2px;
+}
+
+.sim-bom-cell-val.blue-val {
+  color: #1d4ed8;
+}
+
+.sim-bom-cell-unit {
+  font-size: 10px;
+  font-weight: 600;
+  color: #4b5563;
+  margin-left: 3px;
+}
+
+/* Yellow Carpenter Labor Banner */
+.sim-labor-banner {
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11.5px;
+  color: #78350f;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.sim-labor-left {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sim-labor-days {
+  font-weight: 800;
+}
+
+/* Action Buttons */
+.sim-actions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sim-top-action-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.sim-btn-wa {
+  background: #059669;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 9px 8px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(5, 150, 105, 0.2);
+}
+
+.sim-btn-wa:hover {
+  background: #047857;
+}
+
+.sim-btn-call {
+  background: #1e293b;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 9px 8px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(30, 41, 59, 0.2);
+}
+
+.sim-btn-call:hover {
+  background: #0f172a;
+}
+
+.sim-btn-carpenter-lead {
+  background: #ffd600;
+  color: #0f172a;
+  font-size: 12.5px;
+  font-weight: 900;
+  padding: 11px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.15s ease;
+}
+
+.sim-btn-carpenter-lead:hover {
+  background: #facc15;
+}
+
+/* Lead Modal Popup */
+.sim-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.sim-modal-box {
+  background: #ffffff;
+  border-radius: 10px;
+  max-width: 440px;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  animation: simModalFadeIn 0.2s ease-out;
+}
+
+@keyframes simModalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.sim-modal-header {
+  background: #2874f0;
+  color: #ffffff;
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sim-modal-title {
+  font-size: 15px;
+  font-weight: 800;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sim-modal-close {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 20px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.sim-modal-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sim-modal-summary-box {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 11px;
+}
+
+.sim-modal-summary-tag {
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #1d4ed8;
+  text-transform: uppercase;
+}
+
+.sim-modal-summary-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #111827;
+  margin: 2px 0;
+}
+
+.sim-modal-summary-desc {
+  color: #4b5563;
+  margin: 0;
+}
+
+.sim-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sim-form-group label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #374151;
+}
+
+.sim-form-input {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  outline: none;
+  font-family: inherit;
+}
+
+.sim-form-input:focus {
+  border-color: #2874f0;
+  box-shadow: 0 0 0 2px rgba(40, 116, 240, 0.2);
+}
+
+.sim-modal-submit-btn {
+  background: #2874f0;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 12.5px;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.sim-modal-submit-btn:hover {
+  background: #1d4ed8;
+}
+
+.sim-modal-footer-note {
+  font-size: 10px;
+  color: #6b7280;
+  text-align: center;
+  margin: 0;
+}

@@ -66,7 +66,6 @@
   // 2. Simulator State
   // ----------------------------------------------------
   const state = {
-    studioMode: 'standard', // 'standard' | 'room'
     productType: 'wardrobe', // 'wardrobe' | 'bed' | 'kitchen' | 'table' | 'sofa' | 'dressing'
     wardrobeDoors: 4, // 2, 4, 6
     productStyle: 1, // 1 to 5
@@ -75,15 +74,6 @@
     tableShape: 'Rectangular (6-Seater)',
     sofaConfig: 'L-Shape Sectional',
     dressingModel: 'Vanity with Hollywood Lights',
-
-    // Room Mode State
-    roomType: 'Bedroom', // 'Bedroom' | 'Living Room' | 'Kitchen' | 'Office'
-    roomDim: { width: 14, length: 16, height: 10 },
-    roomItems: {
-      item1: true, // Wardrobe / Wall Unit
-      item2: true, // Bed / Sofa
-      item3: true  // Vanity / Desk
-    },
 
     // Laminate Finish
     finishCategory: 'glossy',
@@ -768,90 +758,69 @@
     let fevicolKg = 10;
     let carpenterDays = 6;
 
-    if (state.studioMode === 'standard') {
-      if (state.productType === 'wardrobe') {
-        const factor = state.wardrobeDoors / 2;
-        ply18mmSheets = Math.round(5 * factor);
-        ply12mmSheets = Math.round(3 * factor);
-        laminateFaceSheets = Math.round(3.5 * factor);
-        laminateBackerSheets = Math.round(2.5 * factor);
-        hingesPairs = state.wardrobeDoors * 4;
-        drawerChannels = state.wardrobeDoors * 2;
-        edgeBandMeters = Math.round(30 * factor);
-        fevicolKg = Math.round(8 * factor);
-        carpenterDays = Math.round(4 * factor);
-      } else if (state.productType === 'bed') {
-        const sizeMult = state.bedSize.includes('King') ? 1.25 : state.bedSize.includes('Queen') ? 1.0 : 0.7;
-        ply18mmSheets = Math.round(7 * sizeMult);
-        ply12mmSheets = Math.round(4 * sizeMult);
-        laminateFaceSheets = Math.round(4 * sizeMult);
-        laminateBackerSheets = Math.round(3 * sizeMult);
-        hingesPairs = 4; // Hydraulic lift kit
-        drawerChannels = 2;
-        edgeBandMeters = 28;
-        fevicolKg = 12;
-        carpenterDays = 5;
-      } else if (state.productType === 'kitchen') {
-        const kMult = state.kitchenLayout === 'U-Shape' ? 1.6 : state.kitchenLayout === 'L-Shape' ? 1.2 : 0.9;
-        ply18mmSheets = Math.round(10 * kMult);
-        ply12mmSheets = Math.round(6 * kMult);
-        laminateFaceSheets = Math.round(8 * kMult);
-        laminateBackerSheets = Math.round(6 * kMult);
-        hingesPairs = Math.round(18 * kMult);
-        drawerChannels = Math.round(8 * kMult);
-        edgeBandMeters = Math.round(55 * kMult);
-        fevicolKg = 18;
-        carpenterDays = 10;
-      } else if (state.productType === 'table') {
-        ply18mmSheets = 3;
-        ply12mmSheets = 1;
-        laminateFaceSheets = 2;
-        laminateBackerSheets = 1;
-        hingesPairs = 0;
-        drawerChannels = 2;
-        edgeBandMeters = 16;
-        fevicolKg = 4;
-        carpenterDays = 3;
-      } else if (state.productType === 'sofa') {
-        ply18mmSheets = 5;
-        ply12mmSheets = 2;
-        laminateFaceSheets = 2;
-        laminateBackerSheets = 1;
-        hingesPairs = 0;
-        drawerChannels = 0;
-        edgeBandMeters = 10;
-        fevicolKg = 6;
-        carpenterDays = 5;
-      } else if (state.productType === 'dressing') {
-        ply18mmSheets = 4;
-        ply12mmSheets = 2;
-        laminateFaceSheets = 3;
-        laminateBackerSheets = 2;
-        hingesPairs = 6;
-        drawerChannels = 3;
-        edgeBandMeters = 22;
-        fevicolKg = 6;
-        carpenterDays = 4;
-      }
-    } else {
-      // Room Mode calculation based on Room Sq.ft and items included
-      const sqft = state.roomDim.width * state.roomDim.length;
-      let itemsCount = 0;
-      if (state.roomItems.item1) itemsCount++;
-      if (state.roomItems.item2) itemsCount++;
-      if (state.roomItems.item3) itemsCount++;
-      const itemFactor = itemsCount / 3;
-
-      const mult = Math.max(0.8, (sqft / 180) * itemFactor);
-      ply18mmSheets = Math.max(4, Math.round(18 * mult));
-      ply12mmSheets = Math.max(2, Math.round(10 * mult));
-      laminateFaceSheets = Math.max(3, Math.round(14 * mult));
-      laminateBackerSheets = Math.max(2, Math.round(11 * mult));
-      hingesPairs = Math.max(4, Math.round(28 * mult));
-      drawerChannels = Math.max(2, Math.round(12 * mult));
-      edgeBandMeters = Math.max(25, Math.round(120 * mult));
-      fevicolKg = Math.max(8, Math.round(32 * mult));
-      carpenterDays = Math.max(4, Math.round(18 * mult));
+    if (state.productType === 'wardrobe') {
+      const factor = state.wardrobeDoors / 2;
+      ply18mmSheets = Math.round(5 * factor);
+      ply12mmSheets = Math.round(3 * factor);
+      laminateFaceSheets = Math.round(3.5 * factor);
+      laminateBackerSheets = Math.round(2.5 * factor);
+      hingesPairs = state.wardrobeDoors * 4;
+      drawerChannels = state.wardrobeDoors * 2;
+      edgeBandMeters = Math.round(30 * factor);
+      fevicolKg = Math.round(8 * factor);
+      carpenterDays = Math.round(4 * factor);
+    } else if (state.productType === 'bed') {
+      const sizeMult = state.bedSize.includes('King') ? 1.25 : state.bedSize.includes('Queen') ? 1.0 : 0.7;
+      ply18mmSheets = Math.round(7 * sizeMult);
+      ply12mmSheets = Math.round(4 * sizeMult);
+      laminateFaceSheets = Math.round(4 * sizeMult);
+      laminateBackerSheets = Math.round(3 * sizeMult);
+      hingesPairs = 4; // Hydraulic lift kit
+      drawerChannels = 2;
+      edgeBandMeters = 28;
+      fevicolKg = 12;
+      carpenterDays = 5;
+    } else if (state.productType === 'kitchen') {
+      const kMult = state.kitchenLayout === 'U-Shape' ? 1.6 : state.kitchenLayout === 'L-Shape' ? 1.2 : 0.9;
+      ply18mmSheets = Math.round(10 * kMult);
+      ply12mmSheets = Math.round(6 * kMult);
+      laminateFaceSheets = Math.round(8 * kMult);
+      laminateBackerSheets = Math.round(6 * kMult);
+      hingesPairs = Math.round(18 * kMult);
+      drawerChannels = Math.round(8 * kMult);
+      edgeBandMeters = Math.round(55 * kMult);
+      fevicolKg = 18;
+      carpenterDays = 10;
+    } else if (state.productType === 'table') {
+      ply18mmSheets = 3;
+      ply12mmSheets = 1;
+      laminateFaceSheets = 2;
+      laminateBackerSheets = 1;
+      hingesPairs = 0;
+      drawerChannels = 2;
+      edgeBandMeters = 16;
+      fevicolKg = 4;
+      carpenterDays = 3;
+    } else if (state.productType === 'sofa') {
+      ply18mmSheets = 5;
+      ply12mmSheets = 2;
+      laminateFaceSheets = 2;
+      laminateBackerSheets = 1;
+      hingesPairs = 0;
+      drawerChannels = 0;
+      edgeBandMeters = 10;
+      fevicolKg = 6;
+      carpenterDays = 5;
+    } else if (state.productType === 'dressing') {
+      ply18mmSheets = 4;
+      ply12mmSheets = 2;
+      laminateFaceSheets = 3;
+      laminateBackerSheets = 2;
+      hingesPairs = 6;
+      drawerChannels = 3;
+      edgeBandMeters = 22;
+      fevicolKg = 6;
+      carpenterDays = 4;
     }
 
     return {
@@ -866,35 +835,6 @@
       edgeBandMeters,
       fevicolKg,
       carpenterDays
-    };
-  }
-
-  // ----------------------------------------------------
-  // 5. Mathematical Room Clearance & Fit Engine
-  // ----------------------------------------------------
-  function calculateRoomClearance() {
-    const totalSqFt = state.roomDim.width * state.roomDim.length;
-    let furnitureSqFt = 0;
-
-    if (state.roomItems.item1) {
-      furnitureSqFt += (state.roomDim.width > 12 ? 8 : 5) * 2;
-    }
-    if (state.roomItems.item2) {
-      furnitureSqFt += 6.5 * 5.5;
-    }
-    if (state.roomItems.item3) {
-      furnitureSqFt += 4.0 * 2.0;
-    }
-
-    const freeSqFt = Math.max(0, totalSqFt - furnitureSqFt);
-    const clearancePct = Math.round((freeSqFt / totalSqFt) * 100);
-
-    return {
-      totalSqFt,
-      furnitureSqFt: Math.round(furnitureSqFt),
-      freeSqFt: Math.round(freeSqFt),
-      clearancePct,
-      isSpacious: clearancePct >= 40
     };
   }
 
@@ -1145,10 +1085,9 @@
     });
 
     // --------------------------------------------------
-    // MODE 1: STANDARD PRODUCTS
+    // BUILD 3D PRODUCT MODEL
     // --------------------------------------------------
-    if (state.studioMode === 'standard') {
-      if (state.productType === 'wardrobe') {
+    if (state.productType === 'wardrobe') {
         const width = state.wardrobeDoors === 2 ? 1.8 : state.wardrobeDoors === 4 ? 3.2 : 4.4;
         const height = 3.2;
         const depth = 1.0;
@@ -1357,107 +1296,6 @@
         archMesh.position.set(0, -1.5 + baseH + 1.0, -0.37);
         group.add(archMesh);
       }
-    } else {
-      // --------------------------------------------------
-      // MODE 2: CUSTOM ROOM DECOR STUDIO
-      // --------------------------------------------------
-      const scale = 0.22;
-      const w = state.roomDim.width * scale;
-      const l = state.roomDim.length * scale;
-      const h = state.roomDim.height * scale;
-
-      // Realistic Room Flooring
-      const rFloorGeo = new THREE.BoxGeometry(w, 0.08, l);
-      const rFloorMat = new THREE.MeshStandardMaterial({
-        color: 0x3d2c1d,
-        roughness: 0.45,
-        metalness: 0.1
-      });
-      const rFloor = new THREE.Mesh(rFloorGeo, rFloorMat);
-      rFloor.position.set(0, -1.5, 0);
-      rFloor.receiveShadow = true;
-      group.add(rFloor);
-
-      // Cutaway Back Wall
-      const bWallGeo = new THREE.BoxGeometry(w, h, 0.08);
-      const bWallMat = new THREE.MeshStandardMaterial({ color: 0x2d3748, roughness: 0.9 });
-      const bWall = new THREE.Mesh(bWallGeo, bWallMat);
-      bWall.position.set(0, -1.5 + h / 2, -l / 2);
-      bWall.receiveShadow = true;
-      group.add(bWall);
-
-      // Cutaway Left Wall
-      const lWallGeo = new THREE.BoxGeometry(0.08, h, l);
-      const lWallMat = new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.9 });
-      const lWall = new THREE.Mesh(lWallGeo, lWallMat);
-      lWall.position.set(-w / 2, -1.5 + h / 2, 0);
-      lWall.receiveShadow = true;
-      group.add(lWall);
-
-      // Baseboard Molding
-      const baseboardGeo = new THREE.BoxGeometry(w, 0.1, 0.04);
-      const baseboard = new THREE.Mesh(baseboardGeo, goldTrimMat);
-      baseboard.position.set(0, -1.5 + 0.05, -l / 2 + 0.03);
-      group.add(baseboard);
-
-      // Furniture Item 1: Wardrobe / Large Wall Storage
-      if (state.roomItems.item1) {
-        const item1W = Math.min(1.4, w * 0.35);
-        const item1H = Math.min(2.4, h * 0.85);
-        const item1D = 0.65;
-        const item1Geo = new THREE.BoxGeometry(item1W, item1H, item1D);
-        const item1 = new THREE.Mesh(item1Geo, laminateMat);
-        item1.position.set(-w / 2 + item1D / 2 + 0.05, -1.5 + item1H / 2, -l / 2 + item1W / 2 + 0.3);
-        item1.rotation.y = Math.PI / 2;
-        item1.castShadow = true;
-        group.add(item1);
-      }
-
-      // Furniture Item 2: Master Bed / Main Furniture
-      if (state.roomItems.item2) {
-        const bedWidth = Math.min(2.0, w * 0.5);
-        const bedLength = Math.min(2.4, l * 0.55);
-        const item2Geo = new THREE.BoxGeometry(bedWidth, 0.45, bedLength);
-        const item2 = new THREE.Mesh(item2Geo, laminateMat);
-        item2.position.set(0.15, -1.5 + 0.22, -l / 2 + bedLength / 2 + 0.2);
-        item2.castShadow = true;
-        group.add(item2);
-
-        // Mattress & Pillows
-        const bedMatMesh = new THREE.Mesh(
-          new THREE.BoxGeometry(bedWidth - 0.08, 0.25, bedLength - 0.08),
-          new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.85 })
-        );
-        bedMatMesh.position.set(0.15, -1.5 + 0.45 + 0.12, -l / 2 + bedLength / 2 + 0.2);
-        group.add(bedMatMesh);
-
-        // Headboard
-        const headH = Math.min(1.6, h * 0.6);
-        const headboard = new THREE.Mesh(
-          new THREE.BoxGeometry(bedWidth + 0.15, headH, 0.1),
-          goldTrimMat
-        );
-        headboard.position.set(0.15, -1.5 + headH / 2, -l / 2 + 0.1);
-        group.add(headboard);
-      }
-
-      // Furniture Item 3: Vanity / Study Desk
-      if (state.roomItems.item3) {
-        const item3W = Math.min(1.3, w * 0.35);
-        const item3H = 0.85;
-        const item3D = 0.5;
-        const item3Geo = new THREE.BoxGeometry(item3W, item3H, item3D);
-        const item3 = new THREE.Mesh(item3Geo, laminateMat);
-        item3.position.set(w / 2 - item3W / 2 - 0.2, -1.5 + item3H / 2, -l / 2 + item3D / 2 + 0.25);
-        item3.castShadow = true;
-        group.add(item3);
-
-        const scrGeo = new THREE.BoxGeometry(0.7, 0.6, 0.04);
-        const scrMesh = new THREE.Mesh(scrGeo, mirrorMat);
-        scrMesh.position.set(w / 2 - item3W / 2 - 0.2, -1.5 + item3H + 0.35, -l / 2 + 0.1);
-        group.add(scrMesh);
-      }
-    }
 
     scene.add(group);
   }
@@ -1467,28 +1305,17 @@
   // ----------------------------------------------------
   function renderSimulator() {
     const bom = calculateBOM();
-    const clearance = calculateRoomClearance();
     const texData = getLaminateTexture(state.selectedFinish);
 
-    // 1. Update Mode Switcher Active Classes
-    const btnModeStandard = document.getElementById('sim-btn-mode-standard');
-    const btnModeRoom = document.getElementById('sim-btn-mode-room');
-    if (btnModeStandard) btnModeStandard.className = `sim-mode-btn ${state.studioMode === 'standard' ? 'active' : ''}`;
-    if (btnModeRoom) btnModeRoom.className = `sim-mode-btn ${state.studioMode === 'room' ? 'active' : ''}`;
-
-    // 2. Update Top Left Viewport Badge
+    // 1. Update Top Left Viewport Badge
     const badgeTitleEl = document.getElementById('sim-badge-title');
     if (badgeTitleEl) {
-      if (state.studioMode === 'standard') {
-        const prodName = state.productType.toUpperCase();
-        const extra = state.productType === 'wardrobe' ? ` (${state.wardrobeDoors}-DOOR)` : '';
-        badgeTitleEl.textContent = `${prodName}${extra}`;
-      } else {
-        badgeTitleEl.textContent = `${state.roomType.toUpperCase()} STUDIO (${state.roomDim.width}×${state.roomDim.length} FT)`;
-      }
+      const prodName = state.productType.toUpperCase();
+      const extra = state.productType === 'wardrobe' ? ` (${state.wardrobeDoors}-DOOR)` : '';
+      badgeTitleEl.textContent = `${prodName}${extra}`;
     }
 
-    // 3. Update Bottom Left Viewport Badge with Real Texture Thumbnail
+    // 2. Update Bottom Left Viewport Badge with Real Texture Thumbnail
     const finishBoxEl = document.getElementById('sim-mini-swatch-box');
     const finishNameEl = document.getElementById('sim-mini-finish-name');
     const finishCodeEl = document.getElementById('sim-mini-finish-code');
@@ -1501,93 +1328,33 @@
     if (finishNameEl) finishNameEl.textContent = state.selectedFinish.name;
     if (finishCodeEl) finishCodeEl.textContent = `${state.finishCategory.toUpperCase()} • ${state.selectedFinish.code}`;
 
-    // 4. Update Below-Canvas Options (Standard vs Room Container)
-    const stdControlsEl = document.getElementById('sim-standard-controls');
-    const roomControlsEl = document.getElementById('sim-room-controls');
-    if (stdControlsEl) stdControlsEl.style.display = state.studioMode === 'standard' ? 'block' : 'none';
-    if (roomControlsEl) roomControlsEl.style.display = state.studioMode === 'room' ? 'block' : 'none';
+    // 3. Update Product Type Buttons & Active Sub-options
+    const prodButtons = document.querySelectorAll('.sim-prod-btn');
+    prodButtons.forEach(function (btn) {
+      const pType = btn.getAttribute('data-prod');
+      if (pType === state.productType) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
 
-    // In Standard Controls: Update Product Type Buttons & Active Sub-options
-    if (state.studioMode === 'standard') {
-      const prodButtons = document.querySelectorAll('.sim-prod-btn');
-      prodButtons.forEach(function (btn) {
-        const pType = btn.getAttribute('data-prod');
-        if (pType === state.productType) {
-          btn.classList.add('active');
-        } else {
-          btn.classList.remove('active');
-        }
-      });
+    ['wardrobe', 'bed', 'kitchen', 'table', 'sofa', 'dressing'].forEach(function (pt) {
+      const subSec = document.getElementById(`sim-subopt-${pt}`);
+      if (subSec) subSec.style.display = (pt === state.productType) ? 'grid' : 'none';
+    });
 
-      ['wardrobe', 'bed', 'kitchen', 'table', 'sofa', 'dressing'].forEach(function (pt) {
-        const subSec = document.getElementById(`sim-subopt-${pt}`);
-        if (subSec) subSec.style.display = (pt === state.productType) ? 'grid' : 'none';
-      });
-
-      if (state.productType === 'wardrobe') {
-        [2, 4, 6].forEach(function (d) {
-          const dBtn = document.getElementById(`sim-btn-doors-${d}`);
-          if (dBtn) {
-            if (d === state.wardrobeDoors) {
-              dBtn.classList.add('active');
-            } else {
-              dBtn.classList.remove('active');
-            }
+    if (state.productType === 'wardrobe') {
+      [2, 4, 6].forEach(function (d) {
+        const dBtn = document.getElementById(`sim-btn-doors-${d}`);
+        if (dBtn) {
+          if (d === state.wardrobeDoors) {
+            dBtn.classList.add('active');
+          } else {
+            dBtn.classList.remove('active');
           }
-        });
-      }
-    } else {
-      // In Room Controls: Update Room Type Buttons
-      const roomTypeBtns = document.querySelectorAll('.sim-room-type-btn');
-      roomTypeBtns.forEach(function (btn) {
-        const rt = btn.getAttribute('data-room-type');
-        if (rt === state.roomType) {
-          btn.classList.add('active');
-        } else {
-          btn.classList.remove('active');
         }
       });
-
-      // Update Sliders Display
-      const valW = document.getElementById('sim-room-val-w');
-      const valL = document.getElementById('sim-room-val-l');
-      const valH = document.getElementById('sim-room-val-h');
-      if (valW) valW.textContent = `${state.roomDim.width} ft`;
-      if (valL) valL.textContent = `${state.roomDim.length} ft`;
-      if (valH) valH.textContent = `${state.roomDim.height} ft`;
-
-      const sliderW = document.getElementById('sim-slider-room-w');
-      const sliderL = document.getElementById('sim-slider-room-l');
-      const sliderH = document.getElementById('sim-slider-room-h');
-      if (sliderW) sliderW.value = state.roomDim.width;
-      if (sliderL) sliderL.value = state.roomDim.length;
-      if (sliderH) sliderH.value = state.roomDim.height;
-
-      // Update Checkboxes
-      const chk1 = document.getElementById('sim-chk-room-item1');
-      const chk2 = document.getElementById('sim-chk-room-item2');
-      const chk3 = document.getElementById('sim-chk-room-item3');
-      if (chk1) chk1.checked = state.roomItems.item1;
-      if (chk2) chk2.checked = state.roomItems.item2;
-      if (chk3) chk3.checked = state.roomItems.item3;
-
-      // Update Mathematical Fit & Clearance Badge
-      const clearanceCard = document.getElementById('sim-clearance-card');
-      if (clearanceCard) {
-        if (clearance.isSpacious) {
-          clearanceCard.className = 'sim-clearance-card sim-clearance-good';
-          clearanceCard.innerHTML = `
-            <span>✅ <strong>Ergonomic &amp; Realistic Fit:</strong> ${clearance.clearancePct}% Free Walkway Space (${clearance.freeSqFt} sq.ft free aisle)</span>
-            <span style="font-size: 10px; font-weight: 700;">Optimal Door Clearance</span>
-          `;
-        } else {
-          clearanceCard.className = 'sim-clearance-card sim-clearance-warn';
-          clearanceCard.innerHTML = `
-            <span>⚠️ <strong>High Furniture Density (${clearance.clearancePct}% Free):</strong> Recommend increasing room size or removing an item for easy door clearance.</span>
-            <span style="font-size: 10px; font-weight: 700;">Tight Fit</span>
-          `;
-        }
-      }
     }
 
     // 5. Update 4 Category Swatch Tabs
@@ -1659,11 +1426,7 @@
   // ----------------------------------------------------
   // 9. Public Interaction Methods (Attached to window)
   // ----------------------------------------------------
-  window.simSetStudioMode = function (mode) {
-    state.studioMode = mode;
-    renderSimulator();
-    rebuild3DModel();
-  };
+  window.simSetStudioMode = function () {};
 
   window.simSetProductType = function (pType) {
     state.productType = pType;
@@ -1714,31 +1477,10 @@
     rebuild3DModel();
   };
 
-  window.simSetRoomType = function (rt) {
-    state.roomType = rt;
-    renderSimulator();
-    rebuild3DModel();
-  };
-
-  window.simSetRoomDim = function (dimension, val) {
-    state.roomDim[dimension] = parseInt(val, 10);
-    renderSimulator();
-    rebuild3DModel();
-  };
-
-  window.simSetRoomPreset = function (w, l, h) {
-    state.roomDim.width = w;
-    state.roomDim.length = l;
-    state.roomDim.height = h;
-    renderSimulator();
-    rebuild3DModel();
-  };
-
-  window.simToggleRoomItem = function (itemKey, checked) {
-    state.roomItems[itemKey] = !!checked;
-    renderSimulator();
-    rebuild3DModel();
-  };
+  window.simSetRoomType = function () {};
+  window.simSetRoomDim = function () {};
+  window.simSetRoomPreset = function () {};
+  window.simToggleRoomItem = function () {};
 
   window.simSetFinishCategory = function (cat) {
     state.finishCategory = cat;
@@ -1769,14 +1511,12 @@
   // WhatsApp Pre-filled Lead Message
   window.simSendWhatsApp = function () {
     const bom = calculateBOM();
-    const productName = state.studioMode === 'standard'
-      ? state.productType.toUpperCase() + (state.productType === 'wardrobe' ? ` (${state.wardrobeDoors}-Door)` : '')
-      : `${state.roomType} Room Decor (${state.roomDim.width}×${state.roomDim.length} ft)`;
+    const productName = state.productType.toUpperCase() + (state.productType === 'wardrobe' ? ` (${state.wardrobeDoors}-Door)` : '');
 
     const text = encodeURIComponent(
       `*Baba Dugdheswar Enterprise — 3D Studio Estimate*\n` +
       `(Plywood, Hardware & Complete Interior Solutions)\n` +
-      `Product / Room: ${productName}\n` +
+      `Product: ${productName}\n` +
       `Selected 3D Finish: ${state.selectedFinish.name} (${state.selectedFinish.code})\n` +
       `Calculated Product Requirement:\n` +
       `• 18mm Plywood (8×4 ft): ${bom.ply18mmSheets} Sheets\n` +
@@ -1801,9 +1541,7 @@
     const summaryDesc = document.getElementById('sim-modal-summary-desc');
 
     if (summaryTitle) {
-      summaryTitle.textContent = state.studioMode === 'standard'
-        ? `${state.productType.toUpperCase()} (${state.selectedFinish.name})`
-        : `${state.roomType} Decor (${state.selectedFinish.name})`;
+      summaryTitle.textContent = `${state.productType.toUpperCase()} (${state.selectedFinish.name})`;
     }
     if (summaryDesc) {
       summaryDesc.textContent = `Total Ply: ${bom.totalPlySheets} sheets • Laminates: ${bom.totalLaminateSheets} sheets • ~${bom.carpenterDays} days`;
@@ -1833,7 +1571,7 @@
     }
 
     const bom = calculateBOM();
-    const breakdown = `3D Studio Estimate: ${state.studioMode === 'standard' ? state.productType.toUpperCase() : state.roomType + ' Room'} | Finish: ${state.selectedFinish.name} (${state.selectedFinish.code}) | Ply: ${bom.totalPlySheets} sheets | Laminates: ${bom.totalLaminateSheets} sheets | Service: ${reason}`;
+    const breakdown = `3D Studio Estimate: ${state.productType.toUpperCase()} | Finish: ${state.selectedFinish.name} (${state.selectedFinish.code}) | Ply: ${bom.totalPlySheets} sheets | Laminates: ${bom.totalLaminateSheets} sheets | Service: ${reason}`;
 
     fetch('/api/quotes', {
       method: 'POST',

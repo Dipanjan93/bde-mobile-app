@@ -4625,20 +4625,8 @@
           </h1>
         </div>
         <p class="sim-subtitle">
-          Rotate in 360° X-Y-Z space. Configure Wardrobes, Beds, Kitchens, Tables, Sofas, or custom rooms with 40+ dynamic laminate finishes.
+          Rotate in 360° X-Y-Z space. Configure Wardrobes, Beds, Kitchens, Tables, Sofas, or Dressing Vanities with 40+ dynamic laminate finishes.
         </p>
-      </div>
-
-      <!-- Mode Selector (1. Standard Products vs 2. Custom Room Decor) -->
-      <div class="sim-mode-switcher">
-        <button id="sim-btn-mode-standard" class="sim-mode-btn active" onclick="simSetStudioMode('standard')">
-          <span>📦</span>
-          <span>1. Standard Products</span>
-        </button>
-        <button id="sim-btn-mode-room" class="sim-mode-btn" onclick="simSetStudioMode('room')">
-          <span>🧭</span>
-          <span>2. Custom Room Decor</span>
-        </button>
       </div>
     </div>
 
@@ -4807,75 +4795,6 @@
                   <option value="Wall Hung Floating Console">Wall Hung Floating Console</option>
                 </select>
               </div>
-            </div>
-          </div>
-
-          <!-- Custom Room Decor Mode Options -->
-          <div id="sim-room-controls" style="display: none;">
-            <!-- Room Type Selector Row -->
-            <div class="sim-room-types-row">
-              <span class="sim-room-types-label">Room Type:</span>
-              <button class="sim-room-type-btn active" data-room-type="Bedroom" onclick="simSetRoomType('Bedroom')">Bedroom</button>
-              <button class="sim-room-type-btn" data-room-type="Living Room" onclick="simSetRoomType('Living Room')">Living Room</button>
-              <button class="sim-room-type-btn" data-room-type="Kitchen" onclick="simSetRoomType('Kitchen')">Kitchen</button>
-              <button class="sim-room-type-btn" data-room-type="Office" onclick="simSetRoomType('Office')">Office</button>
-            </div>
-
-            <!-- Room Dimension Sliders -->
-            <div class="sim-room-dim-sliders">
-              <div>
-                <div class="sim-slider-label-line">
-                  <span>Width</span>
-                  <span id="sim-room-val-w">14 ft</span>
-                </div>
-                <input id="sim-slider-room-w" type="range" class="sim-slider-track" min="10" max="24" value="14" oninput="simSetRoomDim('width', this.value)">
-              </div>
-              <div>
-                <div class="sim-slider-label-line">
-                  <span>Length</span>
-                  <span id="sim-room-val-l">16 ft</span>
-                </div>
-                <input id="sim-slider-room-l" type="range" class="sim-slider-track" min="10" max="28" value="16" oninput="simSetRoomDim('length', this.value)">
-              </div>
-              <div>
-                <div class="sim-slider-label-line">
-                  <span>Height</span>
-                  <span id="sim-room-val-h">10 ft</span>
-                </div>
-                <input id="sim-slider-room-h" type="range" class="sim-slider-track" min="9" max="14" value="10" oninput="simSetRoomDim('height', this.value)">
-              </div>
-            </div>
-
-            <!-- Quick Presets -->
-            <div class="sim-room-presets-row">
-              <span style="font-size: 10.5px; font-weight: 700; color: #4b5563; align-self: center;">Quick Presets:</span>
-              <button class="sim-room-preset-chip" onclick="simSetRoomPreset(10, 10, 10)">10×10 Small</button>
-              <button class="sim-room-preset-chip" onclick="simSetRoomPreset(12, 10, 10)">12×10 Standard</button>
-              <button class="sim-room-preset-chip" onclick="simSetRoomPreset(14, 12, 10)">14×12 Master</button>
-              <button class="sim-room-preset-chip" onclick="simSetRoomPreset(16, 14, 10)">16×14 Luxury</button>
-            </div>
-
-            <!-- Include in Room Checklist -->
-            <div class="sim-furniture-toggles-row">
-              <span style="font-weight: 800; text-transform: uppercase; font-size: 11px;">Include in Room:</span>
-              <label class="sim-check-item">
-                <input id="sim-chk-room-item1" type="checkbox" checked onchange="simToggleRoomItem('item1', this.checked)">
-                <span>Wardrobe / Storage</span>
-              </label>
-              <label class="sim-check-item">
-                <input id="sim-chk-room-item2" type="checkbox" checked onchange="simToggleRoomItem('item2', this.checked)">
-                <span>Master Bed / Seating</span>
-              </label>
-              <label class="sim-check-item">
-                <input id="sim-chk-room-item3" type="checkbox" checked onchange="simToggleRoomItem('item3', this.checked)">
-                <span>Vanity / Side Desk</span>
-              </label>
-            </div>
-
-            <!-- Mathematical Fit & Walkway Clearance Card -->
-            <div id="sim-clearance-card" class="sim-clearance-card sim-clearance-good">
-              <span>✅ <strong>Ergonomic &amp; Realistic Fit:</strong> 58% Free Walkway Space (~130 sq.ft free aisle)</span>
-              <span style="font-size: 10px; font-weight: 700;">Optimal Door Clearance</span>
             </div>
           </div>
         </div>
