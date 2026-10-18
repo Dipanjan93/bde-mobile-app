@@ -2,62 +2,63 @@
  * Baba Dugdheswar Enterprise — Onda, Bankura
  * 3D Furniture & Laminate Studio Simulator Engine
  * Fixed Origin (0,0,0) Three.js WebGL Interactive Studio & Real-time BOM Estimator
+ * With Procedural 3D Bump & Realistic Multi-layered Texture Synthesis
  */
 
 (function () {
   'use strict';
 
   // ----------------------------------------------------
-  // 1. 40+ Master Laminate Catalog (Glossy, Matt, Textured, 3D)
+  // 1. 40+ Master Laminate Catalog with Realistic Texture Profiles
   // ----------------------------------------------------
   const LAMINATE_FINISHES = {
     glossy: [
-      { id: 'g1', name: 'Imperial White Gloss', hex: '#FFFFFF', gloss: 0.95, roughness: 0.05, code: 'GL-101', pattern: 'solid' },
-      { id: 'g2', name: 'Italian Carrara Marble', hex: '#F0F2F5', gloss: 0.9, roughness: 0.08, code: 'GL-102', pattern: 'marble' },
-      { id: 'g3', name: 'Piano Jet Black', hex: '#111111', gloss: 0.98, roughness: 0.02, code: 'GL-103', pattern: 'solid' },
-      { id: 'g4', name: 'High Gloss Ruby Wine', hex: '#7A1C2C', gloss: 0.92, roughness: 0.06, code: 'GL-104', pattern: 'metallic' },
-      { id: 'g5', name: 'Midnight Ocean Blue', hex: '#0B2545', gloss: 0.93, roughness: 0.05, code: 'GL-105', pattern: 'solid' },
-      { id: 'g6', name: 'Royal Emerald Gloss', hex: '#0F4D3A', gloss: 0.9, roughness: 0.07, code: 'GL-106', pattern: 'solid' },
-      { id: 'g7', name: 'Champagne Metallic Shimmer', hex: '#D4AF37', gloss: 0.88, roughness: 0.1, code: 'GL-107', pattern: 'metallic' },
-      { id: 'g8', name: 'American Walnut Gloss', hex: '#4A2E1B', gloss: 0.85, roughness: 0.12, code: 'GL-108', pattern: 'wood' },
-      { id: 'g9', name: 'Spanish Grey Mirror', hex: '#8E9AA8', gloss: 0.94, roughness: 0.04, code: 'GL-109', pattern: 'solid' },
-      { id: 'g10', name: 'Rose Gold Metallic', hex: '#B76E79', gloss: 0.9, roughness: 0.08, code: 'GL-110', pattern: 'metallic' }
+      { id: 'g1', name: 'Imperial White Gloss Lacquer', hex: '#FFFFFF', gloss: 0.95, roughness: 0.05, code: 'GL-101', pattern: 'lacquer', bumpScale: 0.01 },
+      { id: 'g2', name: 'Italian Carrara Marble', hex: '#F0F2F5', gloss: 0.90, roughness: 0.08, code: 'GL-102', pattern: 'carrara_marble', bumpScale: 0.03 },
+      { id: 'g3', name: 'Piano Jet Black Onyx', hex: '#111111', gloss: 0.98, roughness: 0.02, code: 'GL-103', pattern: 'black_onyx', bumpScale: 0.02 },
+      { id: 'g4', name: 'High Gloss Ruby Wine', hex: '#7A1C2C', gloss: 0.92, roughness: 0.06, code: 'GL-104', pattern: 'ruby_metallic', bumpScale: 0.02 },
+      { id: 'g5', name: 'Midnight Ocean Blue Resin', hex: '#0B2545', gloss: 0.93, roughness: 0.05, code: 'GL-105', pattern: 'ocean_swirl', bumpScale: 0.03 },
+      { id: 'g6', name: 'Royal Emerald Green Marble', hex: '#0F4D3A', gloss: 0.90, roughness: 0.07, code: 'GL-106', pattern: 'emerald_marble', bumpScale: 0.04 },
+      { id: 'g7', name: 'Champagne Metallic Shimmer', hex: '#D4AF37', gloss: 0.88, roughness: 0.10, code: 'GL-107', pattern: 'brushed_champagne', bumpScale: 0.03 },
+      { id: 'g8', name: 'American Walnut High Gloss', hex: '#4A2E1B', gloss: 0.85, roughness: 0.12, code: 'GL-108', pattern: 'walnut_gloss', bumpScale: 0.04 },
+      { id: 'g9', name: 'Spanish Grey Mirror Onyx', hex: '#8E9AA8', gloss: 0.94, roughness: 0.04, code: 'GL-109', pattern: 'grey_onyx', bumpScale: 0.03 },
+      { id: 'g10', name: 'Rose Gold Metallic Luster', hex: '#B76E79', gloss: 0.90, roughness: 0.08, code: 'GL-110', pattern: 'rose_gold', bumpScale: 0.03 }
     ],
     matt: [
-      { id: 'm1', name: 'Silk Slate Grey Matt', hex: '#4A5568', gloss: 0.1, roughness: 0.75, code: 'MT-201', pattern: 'solid' },
-      { id: 'm2', name: 'Powder Cashmere Matt', hex: '#D8C7B5', gloss: 0.15, roughness: 0.7, code: 'MT-202', pattern: 'solid' },
-      { id: 'm3', name: 'Urban Charcoal Matt', hex: '#262626', gloss: 0.08, roughness: 0.82, code: 'MT-203', pattern: 'solid' },
-      { id: 'm4', name: 'Desert Sand Warm Beige', hex: '#D2B48C', gloss: 0.12, roughness: 0.72, code: 'MT-204', pattern: 'solid' },
-      { id: 'm5', name: 'Nordic Sage Green Matt', hex: '#7D8C71', gloss: 0.14, roughness: 0.74, code: 'MT-205', pattern: 'solid' },
-      { id: 'm6', name: 'Terracotta Earth Matt', hex: '#B85D43', gloss: 0.1, roughness: 0.78, code: 'MT-206', pattern: 'solid' },
-      { id: 'm7', name: 'Deep Indigo Blue Matt', hex: '#1E293B', gloss: 0.09, roughness: 0.8, code: 'MT-207', pattern: 'solid' },
-      { id: 'm8', name: 'Bone Ivory Whisper', hex: '#FAF0E6', gloss: 0.15, roughness: 0.68, code: 'MT-208', pattern: 'solid' },
-      { id: 'm9', name: 'Mocha Espresso Matt', hex: '#3B2F2F', gloss: 0.11, roughness: 0.76, code: 'MT-209', pattern: 'solid' },
-      { id: 'm10', name: 'Smoky Olive Matt', hex: '#556B2F', gloss: 0.13, roughness: 0.73, code: 'MT-210', pattern: 'solid' }
+      { id: 'm1', name: 'Silk Slate Grey Matt', hex: '#4A5568', gloss: 0.10, roughness: 0.75, code: 'MT-201', pattern: 'fine_slate', bumpScale: 0.02 },
+      { id: 'm2', name: 'Powder Cashmere Matt', hex: '#D8C7B5', gloss: 0.15, roughness: 0.70, code: 'MT-202', pattern: 'cashmere_stipple', bumpScale: 0.02 },
+      { id: 'm3', name: 'Urban Charcoal Matt', hex: '#262626', gloss: 0.08, roughness: 0.82, code: 'MT-203', pattern: 'charcoal_matte', bumpScale: 0.02 },
+      { id: 'm4', name: 'Desert Sand Warm Beige', hex: '#D2B48C', gloss: 0.12, roughness: 0.72, code: 'MT-204', pattern: 'sand_limestone', bumpScale: 0.03 },
+      { id: 'm5', name: 'Nordic Sage Green Matt', hex: '#7D8C71', gloss: 0.14, roughness: 0.74, code: 'MT-205', pattern: 'sage_stipple', bumpScale: 0.02 },
+      { id: 'm6', name: 'Terracotta Earth Matt', hex: '#B85D43', gloss: 0.10, roughness: 0.78, code: 'MT-206', pattern: 'clay_matte', bumpScale: 0.03 },
+      { id: 'm7', name: 'Deep Indigo Blue Matt', hex: '#1E293B', gloss: 0.09, roughness: 0.80, code: 'MT-207', pattern: 'indigo_matte', bumpScale: 0.02 },
+      { id: 'm8', name: 'Bone Ivory Whisper', hex: '#FAF0E6', gloss: 0.15, roughness: 0.68, code: 'MT-208', pattern: 'ivory_matte', bumpScale: 0.02 },
+      { id: 'm9', name: 'Mocha Espresso Matt', hex: '#3B2F2F', gloss: 0.11, roughness: 0.76, code: 'MT-209', pattern: 'espresso_matte', bumpScale: 0.02 },
+      { id: 'm10', name: 'Smoky Olive Matt', hex: '#556B2F', gloss: 0.13, roughness: 0.73, code: 'MT-210', pattern: 'olive_matte', bumpScale: 0.02 }
     ],
     textured: [
-      { id: 't1', name: 'Natural Crown Teakwood', hex: '#8B5A2B', gloss: 0.35, roughness: 0.55, code: 'TX-301', pattern: 'teak' },
-      { id: 't2', name: 'Saw-Cut Golden Pine', hex: '#C19A6B', gloss: 0.28, roughness: 0.6, code: 'TX-302', pattern: 'pine' },
-      { id: 't3', name: 'Smoked Vintage Oak', hex: '#5C4033', gloss: 0.3, roughness: 0.58, code: 'TX-303', pattern: 'oak' },
-      { id: 't4', name: 'Woven Jute Fabric Texture', hex: '#C2B280', gloss: 0.18, roughness: 0.85, code: 'TX-304', pattern: 'fabric' },
-      { id: 't5', name: 'Industrial Concrete Stucco', hex: '#808080', gloss: 0.15, roughness: 0.9, code: 'TX-305', pattern: 'concrete' },
-      { id: 't6', name: 'Brushed Bronze Metal Texture', hex: '#6E4D25', gloss: 0.45, roughness: 0.42, code: 'TX-306', pattern: 'metal' },
-      { id: 't7', name: 'Silver Ashwood Relief', hex: '#A9A9A9', gloss: 0.32, roughness: 0.57, code: 'TX-307', pattern: 'wood' },
-      { id: 't8', name: 'Weathered Barnwood Rustic', hex: '#655345', gloss: 0.2, roughness: 0.8, code: 'TX-308', pattern: 'rustic' },
-      { id: 't9', name: 'Raw Travertine Stone', hex: '#E3DAC9', gloss: 0.25, roughness: 0.65, code: 'TX-309', pattern: 'stone' },
-      { id: 't10', name: 'Graphite Leatherette', hex: '#363636', gloss: 0.22, roughness: 0.7, code: 'TX-310', pattern: 'leather' }
+      { id: 't1', name: 'Natural Crown Teakwood', hex: '#8B5A2B', gloss: 0.35, roughness: 0.55, code: 'TX-301', pattern: 'crown_teak', bumpScale: 0.08 },
+      { id: 't2', name: 'Saw-Cut Golden Pine', hex: '#C19A6B', gloss: 0.28, roughness: 0.60, code: 'TX-302', pattern: 'sawcut_pine', bumpScale: 0.09 },
+      { id: 't3', name: 'Smoked Vintage Oak', hex: '#5C4033', gloss: 0.30, roughness: 0.58, code: 'TX-303', pattern: 'vintage_oak', bumpScale: 0.09 },
+      { id: 't4', name: 'Woven Jute & Linen Fabric', hex: '#C2B280', gloss: 0.18, roughness: 0.85, code: 'TX-304', pattern: 'woven_linen', bumpScale: 0.08 },
+      { id: 't5', name: 'Industrial Concrete Stucco', hex: '#808080', gloss: 0.15, roughness: 0.90, code: 'TX-305', pattern: 'concrete_stucco', bumpScale: 0.08 },
+      { id: 't6', name: 'Brushed Bronze Patina Metal', hex: '#6E4D25', gloss: 0.45, roughness: 0.42, code: 'TX-306', pattern: 'brushed_bronze', bumpScale: 0.06 },
+      { id: 't7', name: 'Silver Ashwood Relief', hex: '#A9A9A9', gloss: 0.32, roughness: 0.57, code: 'TX-307', pattern: 'ashwood_relief', bumpScale: 0.08 },
+      { id: 't8', name: 'Chiseled Black Rock Slate', hex: '#1E2430', gloss: 0.22, roughness: 0.75, code: 'TX-308', pattern: 'chiseled_rock', bumpScale: 0.12 },
+      { id: 't9', name: 'Raw Travertine & Banded Onyx', hex: '#E3DAC9', gloss: 0.25, roughness: 0.65, code: 'TX-309', pattern: 'banded_onyx', bumpScale: 0.07 },
+      { id: 't10', name: 'Terrazzo Quartz Stone Chips', hex: '#ECE9E2', gloss: 0.24, roughness: 0.68, code: 'TX-310', pattern: 'terrazzo_chips', bumpScale: 0.07 }
     ],
     '3d': [
-      { id: 'd1', name: 'Fluted Vertical Slat 3D', hex: '#7A5230', gloss: 0.4, roughness: 0.5, code: '3D-401', pattern: 'fluted' },
-      { id: 'd2', name: 'Geometric Diamond Prism 3D', hex: '#2C3E50', gloss: 0.5, roughness: 0.4, code: '3D-402', pattern: 'diamond' },
-      { id: 'd3', name: 'Acoustic Hexagon Hive 3D', hex: '#E67E22', gloss: 0.35, roughness: 0.55, code: '3D-403', pattern: 'hexagon' },
-      { id: 'd4', name: 'Sinuous Ripple Wavefront 3D', hex: '#16A085', gloss: 0.45, roughness: 0.45, code: '3D-404', pattern: 'wave' },
-      { id: 'd5', name: 'Origami Pyramid Relief 3D', hex: '#ECF0F1', gloss: 0.6, roughness: 0.35, code: '3D-405', pattern: 'pyramid' },
-      { id: 'd6', name: 'Chevron Slat Block 3D', hex: '#6E2C00', gloss: 0.38, roughness: 0.52, code: '3D-406', pattern: 'chevron' },
-      { id: 'd7', name: 'Ribbed Pillar Texture 3D', hex: '#95A5A6', gloss: 0.32, roughness: 0.6, code: '3D-407', pattern: 'ribbed' },
-      { id: 'd8', name: 'Dune Sand Curves 3D', hex: '#D4AC0D', gloss: 0.36, roughness: 0.58, code: '3D-408', pattern: 'dune' },
-      { id: 'd9', name: 'Faceted Crystal Geo 3D', hex: '#273746', gloss: 0.55, roughness: 0.38, code: '3D-409', pattern: 'crystal' },
-      { id: 'd10', name: 'Cyber Matrix Grid 3D', hex: '#17202A', gloss: 0.48, roughness: 0.42, code: '3D-410', pattern: 'grid' }
+      { id: 'd1', name: 'Fluted Vertical Slat 3D', hex: '#7A5230', gloss: 0.40, roughness: 0.50, code: '3D-401', pattern: 'fluted_slat', bumpScale: 0.14 },
+      { id: 'd2', name: 'Gold Hexagon Honeycomb 3D', hex: '#1C242D', gloss: 0.50, roughness: 0.38, code: '3D-402', pattern: 'gold_hexagon', bumpScale: 0.12 },
+      { id: 'd3', name: 'Scooped Dimpled Wood Relief 3D', hex: '#CFB79E', gloss: 0.35, roughness: 0.55, code: '3D-403', pattern: 'dimpled_wood', bumpScale: 0.13 },
+      { id: 'd4', name: 'Sinuous Ripple Wavefront 3D', hex: '#16A085', gloss: 0.45, roughness: 0.45, code: '3D-404', pattern: 'ripple_wave', bumpScale: 0.11 },
+      { id: 'd5', name: 'Origami Diamond Prism 3D', hex: '#ECF0F1', gloss: 0.60, roughness: 0.35, code: '3D-405', pattern: 'diamond_prism', bumpScale: 0.12 },
+      { id: 'd6', name: 'Chevron Parquet Herringbone 3D', hex: '#6E2C00', gloss: 0.38, roughness: 0.52, code: '3D-406', pattern: 'chevron_parquet', bumpScale: 0.10 },
+      { id: 'd7', name: 'Hammered Clay Gouged Stucco 3D', hex: '#B85D43', gloss: 0.25, roughness: 0.70, code: '3D-407', pattern: 'hammered_clay', bumpScale: 0.12 },
+      { id: 'd8', name: 'Crinkled Silk & Hammered Foil 3D', hex: '#D4AC0D', gloss: 0.50, roughness: 0.40, code: '3D-408', pattern: 'crinkled_foil', bumpScale: 0.11 },
+      { id: 'd9', name: 'Combed Bark Wood Relief 3D', hex: '#3E2718', gloss: 0.32, roughness: 0.62, code: '3D-409', pattern: 'bark_relief', bumpScale: 0.13 },
+      { id: 'd10', name: 'Acoustic Hexagon Hive 3D', hex: '#E67E22', gloss: 0.35, roughness: 0.55, code: '3D-410', pattern: 'acoustic_hive', bumpScale: 0.11 }
     ]
   };
 
@@ -107,7 +108,654 @@
   let initialPinchDistance = null;
 
   // ----------------------------------------------------
-  // 3. Mathematical Bill of Materials (BOM) Calculator
+  // 3. Photorealistic Procedural Texture & Bump Generator
+  // ----------------------------------------------------
+  const textureCache = {};
+
+  function getLaminateTexture(finish) {
+    if (!finish) finish = LAMINATE_FINISHES.glossy[0];
+    if (textureCache[finish.id]) {
+      return textureCache[finish.id];
+    }
+
+    const size = 512;
+    // 1. Color (Diffuse) Canvas
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+
+    // 2. Grayscale Bump Canvas
+    const bumpCanvas = document.createElement('canvas');
+    bumpCanvas.width = size;
+    bumpCanvas.height = size;
+    const bCtx = bumpCanvas.getContext('2d');
+
+    // Paint pattern into both canvases
+    drawLaminatePattern(ctx, bCtx, size, finish);
+
+    let map = null;
+    let bumpMap = null;
+    if (window.THREE) {
+      const THREE = window.THREE;
+      map = new THREE.CanvasTexture(canvas);
+      map.wrapS = THREE.RepeatWrapping;
+      map.wrapT = THREE.RepeatWrapping;
+
+      bumpMap = new THREE.CanvasTexture(bumpCanvas);
+      bumpMap.wrapS = THREE.RepeatWrapping;
+      bumpMap.wrapT = THREE.RepeatWrapping;
+    }
+
+    const previewDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+    const bumpScale = finish.bumpScale || 0.05;
+
+    const result = {
+      canvas,
+      bumpCanvas,
+      map,
+      bumpMap,
+      previewDataUrl,
+      bumpScale
+    };
+
+    textureCache[finish.id] = result;
+    return result;
+  }
+
+  function drawLaminatePattern(ctx, bCtx, size, finish) {
+    const p = finish.pattern;
+    const hex = finish.hex;
+
+    // Helper: Fill base background on both canvases
+    ctx.fillStyle = hex;
+    ctx.fillRect(0, 0, size, size);
+    bCtx.fillStyle = '#808080';
+    bCtx.fillRect(0, 0, size, size);
+
+    switch (p) {
+      // ------------------------------------------------
+      // 1. Woodgrains (Teak, Pine, Oak, Walnut, Ashwood)
+      // ------------------------------------------------
+      case 'crown_teak':
+      case 'walnut_gloss':
+      case 'vintage_oak':
+      case 'sawcut_pine':
+      case 'ashwood_relief': {
+        const isTeak = p === 'crown_teak';
+        const isPine = p === 'sawcut_pine';
+        const isOak = p === 'vintage_oak';
+        const darkTone = isTeak ? '#5a3517' : isOak ? '#2b1b12' : isPine ? '#916d41' : '#311a0c';
+        const lightTone = isTeak ? '#b88147' : isOak ? '#8c6145' : isPine ? '#e8be89' : '#6b432a';
+
+        // 1. Cathedral Grain Arches
+        for (let i = 0; i < 9; i++) {
+          const yPos = 40 + i * 55;
+          const curveWidth = 60 + (i % 3) * 40;
+
+          ctx.beginPath();
+          ctx.strokeStyle = (i % 2 === 0) ? darkTone : lightTone;
+          ctx.lineWidth = 3 + (i % 3);
+          ctx.globalAlpha = 0.55;
+          ctx.moveTo(0, yPos);
+          ctx.bezierCurveTo(size * 0.35, yPos - curveWidth, size * 0.65, yPos - curveWidth, size, yPos);
+          ctx.stroke();
+
+          // Bump Map
+          bCtx.beginPath();
+          bCtx.strokeStyle = (i % 2 === 0) ? '#404040' : '#c0c0c0';
+          bCtx.lineWidth = 3 + (i % 3);
+          bCtx.globalAlpha = 0.65;
+          bCtx.moveTo(0, yPos);
+          bCtx.bezierCurveTo(size * 0.35, yPos - curveWidth, size * 0.65, yPos - curveWidth, size, yPos);
+          bCtx.stroke();
+        }
+
+        // 2. Micro-grain linear fibers
+        ctx.globalAlpha = 0.25;
+        bCtx.globalAlpha = 0.35;
+        for (let x = 0; x < size; x += 3) {
+          const jitter = (Math.sin(x * 0.15) * 6);
+          ctx.beginPath();
+          ctx.strokeStyle = darkTone;
+          ctx.lineWidth = 1;
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x + jitter, size);
+          ctx.stroke();
+
+          bCtx.beginPath();
+          bCtx.strokeStyle = (x % 6 === 0) ? '#303030' : '#b0b0b0';
+          bCtx.lineWidth = 1;
+          bCtx.moveTo(x, 0);
+          bCtx.lineTo(x + jitter, size);
+          bCtx.stroke();
+        }
+
+        // 3. Saw-Cut Chatter Marks (Pine)
+        if (isPine) {
+          ctx.globalAlpha = 0.3;
+          bCtx.globalAlpha = 0.5;
+          for (let y = 0; y < size; y += 18) {
+            ctx.fillStyle = '#614320';
+            ctx.fillRect(0, y, size, 2);
+            bCtx.fillStyle = '#303030';
+            bCtx.fillRect(0, y, size, 2);
+          }
+        }
+
+        ctx.globalAlpha = 1.0;
+        bCtx.globalAlpha = 1.0;
+        break;
+      }
+
+      // ------------------------------------------------
+      // 2. 3D Fluted Slat Battens (Image 1 & 4)
+      // ------------------------------------------------
+      case 'fluted_slat': {
+        const slatCount = 16;
+        const slatWidth = size / slatCount;
+
+        for (let i = 0; i < slatCount; i++) {
+          const startX = i * slatWidth;
+
+          // Color Gradient: dark shadow -> warm wood -> bright crown highlight -> deep trough
+          const grad = ctx.createLinearGradient(startX, 0, startX + slatWidth, 0);
+          grad.addColorStop(0.00, '#381f0d');
+          grad.addColorStop(0.18, '#70431f');
+          grad.addColorStop(0.50, '#c79258');
+          grad.addColorStop(0.82, '#854f24');
+          grad.addColorStop(1.00, '#221206');
+          ctx.fillStyle = grad;
+          ctx.fillRect(startX, 0, slatWidth, size);
+
+          // Bump Gradient: Cylindrical curved batten
+          const bGrad = bCtx.createLinearGradient(startX, 0, startX + slatWidth, 0);
+          bGrad.addColorStop(0.00, '#101010'); // Deep recessed groove
+          bGrad.addColorStop(0.50, '#ffffff'); // Raised cylindrical crest
+          bGrad.addColorStop(1.00, '#101010'); // Deep recessed groove
+          bCtx.fillStyle = bGrad;
+          bCtx.fillRect(startX, 0, slatWidth, size);
+        }
+        break;
+      }
+
+      // ------------------------------------------------
+      // 3. Gold Hexagon Honeycomb Lattice (Image 4)
+      // ------------------------------------------------
+      case 'gold_hexagon': {
+        ctx.fillStyle = '#151b24';
+        ctx.fillRect(0, 0, size, size);
+        bCtx.fillStyle = '#181818';
+        bCtx.fillRect(0, 0, size, size);
+
+        const r = 36;
+        const h = r * Math.sqrt(3);
+
+        function drawHex(x, y, radius) {
+          ctx.beginPath();
+          bCtx.beginPath();
+          for (let a = 0; a < 6; a++) {
+            const angle = (Math.PI / 3) * a;
+            const px = x + radius * Math.cos(angle);
+            const py = y + radius * Math.sin(angle);
+            if (a === 0) {
+              ctx.moveTo(px, py);
+              bCtx.moveTo(px, py);
+            } else {
+              ctx.lineTo(px, py);
+              bCtx.lineTo(px, py);
+            }
+          }
+          ctx.closePath();
+          bCtx.closePath();
+
+          ctx.strokeStyle = '#d4af37';
+          ctx.lineWidth = 3.5;
+          ctx.stroke();
+
+          bCtx.strokeStyle = '#ffffff';
+          bCtx.lineWidth = 3.5;
+          bCtx.stroke();
+        }
+
+        for (let row = -1; row < 10; row++) {
+          for (let col = -1; col < 10; col++) {
+            const cx = col * (r * 1.5);
+            const cy = row * h + (col % 2 === 0 ? 0 : h / 2);
+            drawHex(cx, cy, r - 3);
+          }
+        }
+        break;
+      }
+
+      // ------------------------------------------------
+      // 4. Scooped Dimpled Wood Relief (Image 1 center-top)
+      // ------------------------------------------------
+      case 'dimpled_wood': {
+        ctx.fillStyle = '#cfb79e';
+        ctx.fillRect(0, 0, size, size);
+        bCtx.fillStyle = '#d0d0d0';
+        bCtx.fillRect(0, 0, size, size);
+
+        const cols = 7;
+        const rows = 7;
+        const spacing = size / cols;
+
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const offsetX = (r % 2 === 0) ? 0 : spacing / 2;
+            const cx = c * spacing + offsetX + (Math.sin(r + c) * 6);
+            const cy = r * spacing + (Math.cos(r * c) * 6);
+            const rad = 24 + ((r + c) % 3) * 3;
+
+            // Color: Inner scoop shadow top-left, bright highlight bottom-right
+            const grad = ctx.createRadialGradient(cx - 7, cy - 7, 2, cx, cy, rad);
+            grad.addColorStop(0.0, '#755b46');
+            grad.addColorStop(0.65, '#9f826a');
+            grad.addColorStop(0.90, '#e5d7c8');
+            grad.addColorStop(1.0, '#cfb79e');
+
+            ctx.beginPath();
+            ctx.arc(cx, cy, rad, 0, Math.PI * 2);
+            ctx.fillStyle = grad;
+            ctx.fill();
+
+            // Bump: Deep crater
+            const bGrad = bCtx.createRadialGradient(cx, cy, 2, cx, cy, rad);
+            bGrad.addColorStop(0.0, '#101010');
+            bGrad.addColorStop(0.85, '#e0e0e0');
+            bGrad.addColorStop(1.0, '#d0d0d0');
+
+            bCtx.beginPath();
+            bCtx.arc(cx, cy, rad, 0, Math.PI * 2);
+            bCtx.fillStyle = bGrad;
+            bCtx.fill();
+          }
+        }
+        break;
+      }
+
+      // ------------------------------------------------
+      // 5. Chiseled Black Rock Slate (Image 1 top-right & Image 2)
+      // ------------------------------------------------
+      case 'chiseled_rock': {
+        ctx.fillStyle = '#1c222b';
+        ctx.fillRect(0, 0, size, size);
+        bCtx.fillStyle = '#303030';
+        bCtx.fillRect(0, 0, size, size);
+
+        // Fractured Voronoi-like stone facets
+        const points = [];
+        for (let i = 0; i < 55; i++) {
+          points.push({
+            x: Math.random() * size,
+            y: Math.random() * size,
+            shade: Math.floor(25 + Math.random() * 80)
+          });
+        }
+
+        // Draw rocky angular facet strokes
+        points.forEach(function (pt) {
+          const w = 45 + Math.random() * 65;
+          const h = 30 + Math.random() * 45;
+
+          const grad = ctx.createLinearGradient(pt.x, pt.y, pt.x + w, pt.y + h);
+          grad.addColorStop(0.0, `rgb(${pt.shade + 40}, ${pt.shade + 45}, ${pt.shade + 55})`);
+          grad.addColorStop(0.8, `rgb(${pt.shade}, ${pt.shade + 5}, ${pt.shade + 10})`);
+          grad.addColorStop(1.0, '#0a0d11');
+
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.moveTo(pt.x, pt.y);
+          ctx.lineTo(pt.x + w, pt.y + h * 0.3);
+          ctx.lineTo(pt.x + w * 0.7, pt.y + h);
+          ctx.lineTo(pt.x - w * 0.3, pt.y + h * 0.8);
+          ctx.closePath();
+          ctx.fill();
+
+          // Bump map: sharp rocky height
+          const bGrad = bCtx.createLinearGradient(pt.x, pt.y, pt.x + w, pt.y + h);
+          bGrad.addColorStop(0.0, '#ffffff');
+          bGrad.addColorStop(0.5, '#707070');
+          bGrad.addColorStop(1.0, '#000000');
+
+          bCtx.fillStyle = bGrad;
+          bCtx.beginPath();
+          bCtx.moveTo(pt.x, pt.y);
+          bCtx.lineTo(pt.x + w, pt.y + h * 0.3);
+          bCtx.lineTo(pt.x + w * 0.7, pt.y + h);
+          bCtx.lineTo(pt.x - w * 0.3, pt.y + h * 0.8);
+          bCtx.closePath();
+          bCtx.fill();
+        });
+        break;
+      }
+
+      // ------------------------------------------------
+      // 6. Chevron Parquet Herringbone 3D (Image 4)
+      // ------------------------------------------------
+      case 'chevron_parquet': {
+        const colWidth = size / 4;
+        const blockHeight = 44;
+        const woodTones = ['#6e2c00', '#934008', '#4d1e02', '#ba5a12'];
+
+        for (let col = 0; col < 4; col++) {
+          const isLeft = col % 2 === 0;
+          for (let y = -blockHeight; y < size + blockHeight; y += blockHeight) {
+            const tone = woodTones[(col + Math.floor(y / blockHeight)) % woodTones.length];
+            const startX = col * colWidth;
+
+            ctx.fillStyle = tone;
+            ctx.beginPath();
+            ctx.moveTo(startX, y);
+            ctx.lineTo(startX + colWidth, y + (isLeft ? blockHeight : -blockHeight));
+            ctx.lineTo(startX + colWidth, y + (isLeft ? blockHeight * 2 : 0));
+            ctx.lineTo(startX, y + (isLeft ? blockHeight : -blockHeight) + blockHeight);
+            ctx.closePath();
+            ctx.fill();
+
+            // Recessed joint seam
+            ctx.strokeStyle = '#220e03';
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            // Bump
+            bCtx.fillStyle = '#b0b0b0';
+            bCtx.fill();
+            bCtx.strokeStyle = '#101010';
+            bCtx.lineWidth = 2.5;
+            bCtx.stroke();
+          }
+        }
+        break;
+      }
+
+      // ------------------------------------------------
+      // 7. Woven Jute & Linen Fabric (Image 5)
+      // ------------------------------------------------
+      case 'woven_linen': {
+        ctx.fillStyle = '#c2b280';
+        ctx.fillRect(0, 0, size, size);
+        bCtx.fillStyle = '#808080';
+        bCtx.fillRect(0, 0, size, size);
+
+        const thread = 5;
+        for (let y = 0; y < size; y += thread) {
+          ctx.fillStyle = (Math.floor(y / thread) % 2 === 0) ? '#a89868' : '#d8caa0';
+          ctx.fillRect(0, y, size, 2.5);
+          bCtx.fillStyle = (Math.floor(y / thread) % 2 === 0) ? '#505050' : '#b0b0b0';
+          bCtx.fillRect(0, y, size, 2.5);
+        }
+        for (let x = 0; x < size; x += thread) {
+          ctx.fillStyle = (Math.floor(x / thread) % 2 === 0) ? 'rgba(92,80,52,0.45)' : 'rgba(235,225,198,0.45)';
+          ctx.fillRect(x, 0, 2.5, size);
+          bCtx.fillStyle = (Math.floor(x / thread) % 2 === 0) ? 'rgba(30,30,30,0.5)' : 'rgba(220,220,220,0.5)';
+          bCtx.fillRect(x, 0, 2.5, size);
+        }
+        break;
+      }
+
+      // ------------------------------------------------
+      // 8. Terrazzo Stone Chips (Image 2 top-left)
+      // ------------------------------------------------
+      case 'terrazzo_chips': {
+        ctx.fillStyle = '#ece9e2';
+        ctx.fillRect(0, 0, size, size);
+        bCtx.fillStyle = '#909090';
+        bCtx.fillRect(0, 0, size, size);
+
+        const chipColors = ['#1e293b', '#b45309', '#d97706', '#64748b', '#78350f', '#0f172a'];
+        for (let i = 0; i < 90; i++) {
+          const cx = Math.random() * size;
+          const cy = Math.random() * size;
+          const rad = 4 + Math.random() * 16;
+          const color = chipColors[Math.floor(Math.random() * chipColors.length)];
+
+          ctx.fillStyle = color;
+          ctx.beginPath();
+          const sides = 4 + Math.floor(Math.random() * 3);
+          for (let s = 0; s < sides; s++) {
+            const angle = (Math.PI * 2 / sides) * s;
+            const px = cx + rad * Math.cos(angle) * (0.7 + Math.random() * 0.6);
+            const py = cy + rad * Math.sin(angle) * (0.7 + Math.random() * 0.6);
+            if (s === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.closePath();
+          ctx.fill();
+
+          // Bump elevation
+          bCtx.fillStyle = '#d0d0d0';
+          bCtx.fill();
+        }
+        break;
+      }
+
+      // ------------------------------------------------
+      // 9. Italian Carrara & Emerald Marble (Image 4)
+      // ------------------------------------------------
+      case 'carrara_marble':
+      case 'emerald_marble':
+      case 'black_onyx':
+      case 'grey_onyx': {
+        const isWhite = p === 'carrara_marble';
+        const isEmerald = p === 'emerald_marble';
+        const isBlack = p === 'black_onyx';
+
+        ctx.fillStyle = isWhite ? '#f8fafc' : isEmerald ? '#093628' : isBlack ? '#111111' : '#8e9aa8';
+        ctx.fillRect(0, 0, size, size);
+
+        const veinColor = isWhite ? 'rgba(100,116,139,0.5)' : isEmerald ? 'rgba(240,240,240,0.6)' : isBlack ? 'rgba(212,175,55,0.7)' : 'rgba(245,245,245,0.65)';
+        const smokyColor = isWhite ? 'rgba(148,163,184,0.18)' : isEmerald ? 'rgba(2,26,19,0.35)' : isBlack ? 'rgba(40,40,40,0.35)' : 'rgba(70,80,95,0.25)';
+
+        // Smoky cloudy patches
+        for (let s = 0; s < 8; s++) {
+          const sx = Math.random() * size;
+          const sy = Math.random() * size;
+          const sGrad = ctx.createRadialGradient(sx, sy, 10, sx, sy, 140);
+          sGrad.addColorStop(0, smokyColor);
+          sGrad.addColorStop(1, 'transparent');
+          ctx.fillStyle = sGrad;
+          ctx.fillRect(0, 0, size, size);
+        }
+
+        // Branching Veins
+        function drawVein(startX, startY, len, angle, width) {
+          ctx.beginPath();
+          bCtx.beginPath();
+          ctx.strokeStyle = veinColor;
+          bCtx.strokeStyle = isWhite ? '#404040' : '#e0e0e0';
+          ctx.lineWidth = width;
+          bCtx.lineWidth = width;
+
+          let cx = startX;
+          let cy = startY;
+          ctx.moveTo(cx, cy);
+          bCtx.moveTo(cx, cy);
+
+          for (let step = 0; step < len; step++) {
+            cx += Math.cos(angle) * 8 + (Math.random() - 0.5) * 6;
+            cy += Math.sin(angle) * 8 + (Math.random() - 0.5) * 6;
+            ctx.lineTo(cx, cy);
+            bCtx.lineTo(cx, cy);
+
+            if (Math.random() < 0.15 && width > 1) {
+              drawVein(cx, cy, Math.floor(len * 0.4), angle + (Math.random() - 0.5) * 1.2, width * 0.6);
+            }
+          }
+          ctx.stroke();
+          bCtx.stroke();
+        }
+
+        drawVein(20, 40, 50, Math.PI * 0.25, 3.5);
+        drawVein(120, 0, 45, Math.PI * 0.32, 2.5);
+        drawVein(0, 220, 40, Math.PI * 0.20, 2.8);
+        drawVein(size * 0.4, 0, 48, Math.PI * 0.35, 3.0);
+        break;
+      }
+
+      // ------------------------------------------------
+      // 10. Raw Travertine & Banded Onyx (Image 2 center)
+      // ------------------------------------------------
+      case 'banded_onyx': {
+        const bands = ['#e8ded1', '#c7ab91', '#f3ede4', '#9e8065', '#d9c5b2', '#7a604a'];
+        for (let y = 0; y < size; y += 14) {
+          const col = bands[Math.floor(y / 14) % bands.length];
+          ctx.fillStyle = col;
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          for (let x = 0; x <= size; x += 40) {
+            const wave = Math.sin(x * 0.02 + y * 0.05) * 12;
+            ctx.lineTo(x, y + wave);
+          }
+          ctx.lineTo(size, y + 25);
+          ctx.lineTo(0, y + 25);
+          ctx.closePath();
+          ctx.fill();
+
+          // Bump Map
+          bCtx.fillStyle = (Math.floor(y / 14) % 2 === 0) ? '#b0b0b0' : '#606060';
+          bCtx.fill();
+        }
+        break;
+      }
+
+      // ------------------------------------------------
+      // 11. Combed Bark Wood Relief 3D (Image 1 top-left & bottom-right)
+      // ------------------------------------------------
+      case 'bark_relief': {
+        ctx.fillStyle = '#3e2718';
+        ctx.fillRect(0, 0, size, size);
+        bCtx.fillStyle = '#404040';
+        bCtx.fillRect(0, 0, size, size);
+
+        for (let x = 0; x < size; x += 8) {
+          const isFissure = x % 24 === 0;
+          ctx.beginPath();
+          bCtx.beginPath();
+          ctx.strokeStyle = isFissure ? '#1a0f08' : '#784725';
+          bCtx.strokeStyle = isFissure ? '#000000' : '#ffffff';
+          ctx.lineWidth = isFissure ? 4 : 2;
+          bCtx.lineWidth = isFissure ? 4 : 2;
+
+          ctx.moveTo(x, 0);
+          bCtx.moveTo(x, 0);
+          for (let y = 0; y <= size; y += 20) {
+            const wX = x + Math.sin(y * 0.04) * 4;
+            ctx.lineTo(wX, y);
+            bCtx.lineTo(wX, y);
+          }
+          ctx.stroke();
+          bCtx.stroke();
+        }
+        break;
+      }
+
+      // ------------------------------------------------
+      // 12. Crinkled Silk & Hammered Foil 3D (Image 5 top-left)
+      // ------------------------------------------------
+      case 'crinkled_foil': {
+        ctx.fillStyle = '#d4ac0d';
+        ctx.fillRect(0, 0, size, size);
+        bCtx.fillStyle = '#808080';
+        bCtx.fillRect(0, 0, size, size);
+
+        for (let k = 0; k < 60; k++) {
+          const x1 = Math.random() * size;
+          const y1 = Math.random() * size;
+          const x2 = x1 + (Math.random() - 0.5) * 120;
+          const y2 = y1 + (Math.random() - 0.5) * 120;
+
+          ctx.beginPath();
+          bCtx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          bCtx.moveTo(x1, y1);
+          bCtx.lineTo(x2, y2);
+
+          ctx.strokeStyle = (k % 2 === 0) ? '#fff275' : '#735c03';
+          bCtx.strokeStyle = (k % 2 === 0) ? '#ffffff' : '#101010';
+          ctx.lineWidth = 2.5;
+          bCtx.lineWidth = 2.5;
+          ctx.stroke();
+          bCtx.stroke();
+        }
+        break;
+      }
+
+      // ------------------------------------------------
+      // 13. Hammered Clay Gouged Stucco 3D (Image 1 center-right)
+      // ------------------------------------------------
+      case 'hammered_clay': {
+        ctx.fillStyle = '#b85d43';
+        ctx.fillRect(0, 0, size, size);
+        bCtx.fillStyle = '#707070';
+        bCtx.fillRect(0, 0, size, size);
+
+        for (let k = 0; k < 50; k++) {
+          const cx = Math.random() * size;
+          const cy = Math.random() * size;
+          const rad = 18 + Math.random() * 26;
+
+          const grad = ctx.createRadialGradient(cx - 5, cy - 5, 2, cx, cy, rad);
+          grad.addColorStop(0, '#662817');
+          grad.addColorStop(0.7, '#a34830');
+          grad.addColorStop(1, '#e3846b');
+
+          ctx.beginPath();
+          ctx.arc(cx, cy, rad, 0, Math.PI * 2);
+          ctx.fillStyle = grad;
+          ctx.fill();
+
+          const bGrad = bCtx.createRadialGradient(cx, cy, 2, cx, cy, rad);
+          bGrad.addColorStop(0, '#101010');
+          bGrad.addColorStop(0.8, '#e0e0e0');
+          bGrad.addColorStop(1, '#808080');
+
+          bCtx.beginPath();
+          bCtx.arc(cx, cy, rad, 0, Math.PI * 2);
+          bCtx.fillStyle = bGrad;
+          bCtx.fill();
+        }
+        break;
+      }
+
+      // ------------------------------------------------
+      // Default: Clean Subtle Micro-stipple (Matt / Solids)
+      // ------------------------------------------------
+      default: {
+        ctx.fillStyle = hex;
+        ctx.fillRect(0, 0, size, size);
+        bCtx.fillStyle = '#808080';
+        bCtx.fillRect(0, 0, size, size);
+
+        // Add fine micro-texture stipple
+        ctx.globalAlpha = 0.08;
+        bCtx.globalAlpha = 0.15;
+        for (let y = 0; y < size; y += 4) {
+          for (let x = 0; x < size; x += 4) {
+            if ((x + y) % 3 === 0) {
+              ctx.fillStyle = '#ffffff';
+              ctx.fillRect(x, y, 2, 2);
+              bCtx.fillStyle = '#ffffff';
+              bCtx.fillRect(x, y, 2, 2);
+            } else if ((x + y) % 5 === 0) {
+              ctx.fillStyle = '#000000';
+              ctx.fillRect(x, y, 2, 2);
+              bCtx.fillStyle = '#000000';
+              bCtx.fillRect(x, y, 2, 2);
+            }
+          }
+        }
+        ctx.globalAlpha = 1.0;
+        bCtx.globalAlpha = 1.0;
+        break;
+      }
+    }
+  }
+
+  // ----------------------------------------------------
+  // 4. Mathematical Bill of Materials (BOM) Calculator
   // ----------------------------------------------------
   function calculateBOM() {
     let ply18mmSheets = 6;
@@ -222,21 +870,20 @@
   }
 
   // ----------------------------------------------------
-  // 4. Mathematical Room Clearance & Fit Engine
+  // 5. Mathematical Room Clearance & Fit Engine
   // ----------------------------------------------------
   function calculateRoomClearance() {
     const totalSqFt = state.roomDim.width * state.roomDim.length;
     let furnitureSqFt = 0;
 
-    // Approximate realistic floor footprint in sq. ft
     if (state.roomItems.item1) {
-      furnitureSqFt += (state.roomDim.width > 12 ? 8 : 5) * 2; // Wardrobe (approx 10-16 sq.ft)
+      furnitureSqFt += (state.roomDim.width > 12 ? 8 : 5) * 2;
     }
     if (state.roomItems.item2) {
-      furnitureSqFt += 6.5 * 5.5; // Bed / Divan (approx 35.75 sq.ft)
+      furnitureSqFt += 6.5 * 5.5;
     }
     if (state.roomItems.item3) {
-      furnitureSqFt += 4.0 * 2.0; // Desk / Vanity (approx 8.0 sq.ft)
+      furnitureSqFt += 4.0 * 2.0;
     }
 
     const freeSqFt = Math.max(0, totalSqFt - furnitureSqFt);
@@ -252,7 +899,7 @@
   }
 
   // ----------------------------------------------------
-  // 5. Three.js Scene Setup & Fixed Origin (0,0,0) Orbit
+  // 6. Three.js Scene Setup & Fixed Origin (0,0,0) Orbit
   // ----------------------------------------------------
   function updateCameraPosition() {
     if (!camera) return;
@@ -268,7 +915,6 @@
     if (!canvasContainer) return;
 
     if (!window.THREE) {
-      console.warn('Three.js is still loading...');
       setTimeout(initThreeScene, 200);
       return;
     }
@@ -444,7 +1090,7 @@
   }
 
   // ----------------------------------------------------
-  // 6. Dynamic 3D Model Generator
+  // 7. Dynamic 3D Model Generator with Procedural Bump Materials
   // ----------------------------------------------------
   function rebuild3DModel() {
     if (!scene || !window.THREE) return;
@@ -469,16 +1115,20 @@
     const group = new THREE.Group();
     currentMeshGroup = group;
 
-    // Selected Laminate Material Properties
-    const laminateColor = new THREE.Color(state.selectedFinish.hex);
+    // Generated Procedural Texture & Bump Map
+    const texData = getLaminateTexture(state.selectedFinish);
+
+    // Selected Laminate Material Properties with true 3D surface depth
     const laminateMat = new THREE.MeshStandardMaterial({
-      color: laminateColor,
+      map: texData.map,
+      bumpMap: texData.bumpMap,
+      bumpScale: texData.bumpScale || 0.08,
       roughness: state.selectedFinish.roughness,
-      metalness: state.selectedFinish.pattern === 'metallic' ? 0.65 : 0.05
+      metalness: state.selectedFinish.pattern.includes('metallic') || state.selectedFinish.pattern.includes('gold') ? 0.65 : 0.05
     });
 
     const carcassMat = new THREE.MeshStandardMaterial({
-      color: 0x242424,
+      color: 0x222222,
       roughness: 0.65
     });
 
@@ -492,11 +1142,6 @@
       color: 0xeef2f7,
       metalness: 0.96,
       roughness: 0.02
-    });
-
-    const fabricMat = new THREE.MeshStandardMaterial({
-      color: 0x334155,
-      roughness: 0.85
     });
 
     // --------------------------------------------------
@@ -715,9 +1360,8 @@
     } else {
       // --------------------------------------------------
       // MODE 2: CUSTOM ROOM DECOR STUDIO
-      // Realistic Cutaway Empty Room & Dynamically Sized Furniture
       // --------------------------------------------------
-      const scale = 0.22; // Scale feet to Three.js units
+      const scale = 0.22;
       const w = state.roomDim.width * scale;
       const l = state.roomDim.length * scale;
       const h = state.roomDim.height * scale;
@@ -725,7 +1369,7 @@
       // Realistic Room Flooring
       const rFloorGeo = new THREE.BoxGeometry(w, 0.08, l);
       const rFloorMat = new THREE.MeshStandardMaterial({
-        color: 0x3d2c1d, // Natural oak / timber tone
+        color: 0x3d2c1d,
         roughness: 0.45,
         metalness: 0.1
       });
@@ -750,13 +1394,13 @@
       lWall.receiveShadow = true;
       group.add(lWall);
 
-      // Floor Baseboard Molding
+      // Baseboard Molding
       const baseboardGeo = new THREE.BoxGeometry(w, 0.1, 0.04);
       const baseboard = new THREE.Mesh(baseboardGeo, goldTrimMat);
       baseboard.position.set(0, -1.5 + 0.05, -l / 2 + 0.03);
       group.add(baseboard);
 
-      // Furniture Item 1: Wardrobe / Large Wall Storage (placed against Left Wall)
+      // Furniture Item 1: Wardrobe / Large Wall Storage
       if (state.roomItems.item1) {
         const item1W = Math.min(1.4, w * 0.35);
         const item1H = Math.min(2.4, h * 0.85);
@@ -769,7 +1413,7 @@
         group.add(item1);
       }
 
-      // Furniture Item 2: Master Bed / Main Furniture (placed against Back Wall)
+      // Furniture Item 2: Master Bed / Main Furniture
       if (state.roomItems.item2) {
         const bedWidth = Math.min(2.0, w * 0.5);
         const bedLength = Math.min(2.4, l * 0.55);
@@ -787,7 +1431,7 @@
         bedMatMesh.position.set(0.15, -1.5 + 0.45 + 0.12, -l / 2 + bedLength / 2 + 0.2);
         group.add(bedMatMesh);
 
-        // Headboard on back wall
+        // Headboard
         const headH = Math.min(1.6, h * 0.6);
         const headboard = new THREE.Mesh(
           new THREE.BoxGeometry(bedWidth + 0.15, headH, 0.1),
@@ -797,7 +1441,7 @@
         group.add(headboard);
       }
 
-      // Furniture Item 3: Vanity / Study Desk / Side Console (placed along Right Perimeter)
+      // Furniture Item 3: Vanity / Study Desk
       if (state.roomItems.item3) {
         const item3W = Math.min(1.3, w * 0.35);
         const item3H = 0.85;
@@ -808,7 +1452,6 @@
         item3.castShadow = true;
         group.add(item3);
 
-        // Desk Mirror / Monitor
         const scrGeo = new THREE.BoxGeometry(0.7, 0.6, 0.04);
         const scrMesh = new THREE.Mesh(scrGeo, mirrorMat);
         scrMesh.position.set(w / 2 - item3W / 2 - 0.2, -1.5 + item3H + 0.35, -l / 2 + 0.1);
@@ -820,11 +1463,12 @@
   }
 
   // ----------------------------------------------------
-  // 7. UI Rendering & DOM Updates
+  // 8. UI Rendering & DOM Updates
   // ----------------------------------------------------
   function renderSimulator() {
     const bom = calculateBOM();
     const clearance = calculateRoomClearance();
+    const texData = getLaminateTexture(state.selectedFinish);
 
     // 1. Update Mode Switcher Active Classes
     const btnModeStandard = document.getElementById('sim-btn-mode-standard');
@@ -844,11 +1488,16 @@
       }
     }
 
-    // 3. Update Bottom Left Viewport Badge
+    // 3. Update Bottom Left Viewport Badge with Real Texture Thumbnail
     const finishBoxEl = document.getElementById('sim-mini-swatch-box');
     const finishNameEl = document.getElementById('sim-mini-finish-name');
     const finishCodeEl = document.getElementById('sim-mini-finish-code');
-    if (finishBoxEl) finishBoxEl.style.backgroundColor = state.selectedFinish.hex;
+    if (finishBoxEl) {
+      finishBoxEl.style.backgroundColor = state.selectedFinish.hex;
+      if (texData && texData.previewDataUrl) {
+        finishBoxEl.style.backgroundImage = `url('${texData.previewDataUrl}')`;
+      }
+    }
     if (finishNameEl) finishNameEl.textContent = state.selectedFinish.name;
     if (finishCodeEl) finishCodeEl.textContent = `${state.finishCategory.toUpperCase()} • ${state.selectedFinish.code}`;
 
@@ -870,13 +1519,11 @@
         }
       });
 
-      // Show relevant sub-options section
       ['wardrobe', 'bed', 'kitchen', 'table', 'sofa', 'dressing'].forEach(function (pt) {
         const subSec = document.getElementById(`sim-subopt-${pt}`);
         if (subSec) subSec.style.display = (pt === state.productType) ? 'grid' : 'none';
       });
 
-      // Wardrobe Doors Active Buttons
       if (state.productType === 'wardrobe') {
         [2, 4, 6].forEach(function (d) {
           const dBtn = document.getElementById(`sim-btn-doors-${d}`);
@@ -955,7 +1602,7 @@
       }
     });
 
-    // Render 10 Swatches Grid
+    // Render 10 Swatches Grid with Real Texture Previews
     renderSwatchesGrid();
 
     // Update Applied Banner
@@ -994,9 +1641,11 @@
     list.forEach(function (item) {
       const isSelected = item.id === state.selectedFinish.id;
       const checkColor = item.roughness < 0.25 && item.hex.toLowerCase() !== '#111111' ? '#1e3a8a' : '#ffffff';
+      const itemTex = getLaminateTexture(item);
+
       html += `
         <button class="sim-swatch-item-btn ${isSelected ? 'selected' : ''}" onclick="window.simSelectFinish('${item.id}')" title="${item.name} (${item.code})">
-          <div class="sim-swatch-preview-square" style="background-color: ${item.hex};">
+          <div class="sim-swatch-preview-square" style="background-color: ${item.hex}; background-image: url('${itemTex.previewDataUrl}');">
             ${isSelected ? `<span class="sim-swatch-check" style="color: ${checkColor};">✓</span>` : ''}
           </div>
           <span class="sim-swatch-code-label">${item.code}</span>
@@ -1008,7 +1657,7 @@
   }
 
   // ----------------------------------------------------
-  // 8. Public Interaction Methods (Attached to window)
+  // 9. Public Interaction Methods (Attached to window)
   // ----------------------------------------------------
   window.simSetStudioMode = function (mode) {
     state.studioMode = mode;
@@ -1018,7 +1667,7 @@
 
   window.simSetProductType = function (pType) {
     state.productType = pType;
-    state.productStyle = 1; // reset style to default
+    state.productStyle = 1;
     renderSimulator();
     rebuild3DModel();
   };
@@ -1186,7 +1835,6 @@
     const bom = calculateBOM();
     const breakdown = `3D Studio Estimate: ${state.studioMode === 'standard' ? state.productType.toUpperCase() : state.roomType + ' Room'} | Finish: ${state.selectedFinish.name} (${state.selectedFinish.code}) | Ply: ${bom.totalPlySheets} sheets | Laminates: ${bom.totalLaminateSheets} sheets | Service: ${reason}`;
 
-    // Post to API quotes/inquiry
     fetch('/api/quotes', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
