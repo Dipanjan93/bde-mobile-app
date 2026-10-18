@@ -87,6 +87,15 @@ class AppSignupRequest(BaseModel):
     location: Optional[str] = "Onda"
     pin_code: Optional[str] = "1234"
 
+class OAuthLoginRequest(BaseModel):
+    provider: Optional[str] = "google" # "google" or "facebook"
+    oauth_id: Optional[str] = ""
+    email: Optional[str] = ""
+    name: str
+    phone: Optional[str] = ""
+    location: Optional[str] = "Onda, Bankura"
+    avatar: Optional[str] = ""
+
 class ConsoleLoginRequest(BaseModel):
     pin: str
     remember: Optional[bool] = True
