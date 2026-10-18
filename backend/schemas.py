@@ -19,12 +19,33 @@ class ProductCreate(BaseModel):
     category: str
     subcategory: Optional[str] = "General"
     brand: Optional[str] = "Standard"
+    description: Optional[str] = ""
+    size: Optional[str] = ""
     unit: Optional[str] = "Pcs"
     sqft_per_piece: Optional[float] = 0.0
-    purchase_price: float
-    selling_price: float
-    min_selling_price: float
+    purchase_price: float = 0.0
+    selling_price: float = 0.0
+    min_selling_price: float = 0.0
     stock_qty: Optional[float] = 0.0
+    image_url: Optional[str] = None
+    image_base64: Optional[str] = None
+
+class ProductUpdate(BaseModel):
+    sku: Optional[str] = None
+    name: Optional[str] = None
+    category: Optional[str] = None
+    subcategory: Optional[str] = None
+    brand: Optional[str] = None
+    description: Optional[str] = None
+    size: Optional[str] = None
+    unit: Optional[str] = None
+    sqft_per_piece: Optional[float] = None
+    purchase_price: Optional[float] = None
+    selling_price: Optional[float] = None
+    min_selling_price: Optional[float] = None
+    stock_qty: Optional[float] = None
+    image_url: Optional[str] = None
+    image_base64: Optional[str] = None
 
 class SaleItemCreate(BaseModel):
     product_id: int

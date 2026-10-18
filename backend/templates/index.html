@@ -187,7 +187,7 @@
   <!-- Navigation Tabs -->
   <div class="nav-tabs">
     <button class="tab-btn active" onclick="switchTab('pos')">🧾 Multi-Item Billing POS</button>
-    <button class="tab-btn" onclick="switchTab('inventory')">📦 Live Inventory</button>
+    <button class="tab-btn" onclick="switchTab('inventory')">📦 Products &amp; Live Inventory</button>
     <button class="tab-btn" onclick="switchTab('rates')">🏷️ Product Rate Chart</button>
     <button class="tab-btn" onclick="switchTab('matcalc')">📐 Material Calculator</button>
     <button class="tab-btn" onclick="switchTab('dues')">📒 Khata / Due Ledger</button>
@@ -303,7 +303,7 @@
 
   <!-- 2. Live Inventory -->
   <div id="tab-inventory" class="panel">
-    <div class="sheet-banner">Baba Dugdheswar Enterprise &bull; Live Stock Inventory</div>
+    <div class="sheet-banner">Baba Dugdheswar Enterprise &bull; Products &amp; Live Stock Inventory</div>
     <div class="sheet-kpi-grid">
       <div class="sheet-kpi-item">
         <h3>Total Active SKUs</h3>
@@ -330,22 +330,27 @@
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; flex-wrap:wrap; gap:12px;">
       <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
         <span style="font-size:12px; font-weight:700; text-transform:uppercase; color:var(--text-muted);">Category:</span>
-        <select id="invCategoryFilter" onchange="filterInventory()" style="width:210px;">
+        <select id="invCategoryFilter" onchange="filterInventory()" style="width:200px;">
           <option value="ALL">All Categories</option>
         </select>
         <button class="btn btn-secondary" onclick="generateRestockPdf()" style="padding: 9px 14px; font-size: 12px; border-color: var(--amber); color: var(--amber);">
-          📄 Prepare Restock List (PDF)
+          📄 Restock List (PDF)
+        </button>
+        <button class="btn" onclick="openNewProductModal()" style="padding: 9px 16px; font-size: 13px; font-weight: 700; background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); display:inline-flex; align-items:center; gap:6px;">
+          <span>➕</span> Add New Product
         </button>
       </div>
-      <input type="text" id="invSearch" placeholder="🔍 Search by SKU, product, brand..." style="width: 300px;" oninput="filterInventory()" />
+      <input type="text" id="invSearch" placeholder="🔍 Search SKU, product, brand, size..." style="width: 290px;" oninput="filterInventory()" />
     </div>
 
     <div class="table-scroll">
       <table class="sheet-table">
         <thead>
           <tr>
+            <th style="width:48px; text-align:center;">Photo</th>
             <th>SKU</th>
             <th>Product Name</th>
+            <th>Size</th>
             <th>Category</th>
             <th>Subcategory</th>
             <th>Brand</th>
@@ -357,6 +362,7 @@
             <th style="text-align:center;">Reorder</th>
             <th style="text-align:center;">Status</th>
             <th style="text-align:right;">Valuation (₹)</th>
+            <th style="text-align:center; min-width:80px;">Action</th>
           </tr>
         </thead>
         <tbody id="inventoryBody"></tbody>
@@ -371,20 +377,28 @@
         <h3>Product Pricing &amp; Rate Matrix</h3>
         <p style="font-size: 12px; color: var(--text-muted);">Standard catalog selling rates with admin-gated purchase &amp; floor margins</p>
       </div>
-      <input type="text" id="rateSearch" placeholder="🔍 Search product or SKU..." style="width: 280px;" oninput="filterRates()" />
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <button class="btn" onclick="openNewProductModal()" style="padding: 8px 14px; font-size: 12px; font-weight: 700; background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); display:inline-flex; align-items:center; gap:6px;">
+          <span>➕</span> Add New Product
+        </button>
+        <input type="text" id="rateSearch" placeholder="🔍 Search product, SKU, size..." style="width: 250px;" oninput="filterRates()" />
+      </div>
     </div>
     <div class="table-scroll">
       <table>
         <thead>
           <tr>
+            <th style="width:48px; text-align:center;">Photo</th>
             <th>SKU</th>
-            <th>Product Description</th>
+            <th>Product Name / Description</th>
+            <th>Size</th>
             <th>Category</th>
             <th>Unit</th>
             <th class="admin-only" style="text-align:right;">Purchase Cost (P Code)</th>
             <th style="text-align:right;">Selling Rate (S Code)</th>
             <th class="admin-only" style="text-align:right;">Min Floor (MS Code)</th>
             <th class="admin-only" style="text-align:right;">Gross Margin %</th>
+            <th style="text-align:center; min-width:80px;">Action</th>
           </tr>
         </thead>
         <tbody id="rateChartBody"></tbody>
@@ -1070,37 +1084,134 @@
   </div>
 </div>
 
-<!-- Modal: Add New Product -->
+<!-- Modal: Add / Edit Product -->
 <div class="modal-overlay" id="newProdModal">
-  <div class="modal-card">
-    <h3 style="margin-bottom: 14px;">Add New Product to Catalogue</h3>
-    <div style="display:flex; flex-direction:column; gap:10px;">
-      <input type="text" id="npSku" placeholder="SKU (e.g. PLY-COMM-18-8X4)" />
-      <input type="text" id="npName" placeholder="Product Name" />
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-        <input type="text" id="npCategory" placeholder="Category (e.g. Plywood)" />
-        <input type="text" id="npSubcategory" placeholder="Subcategory" />
+  <div class="modal-card" style="width: 620px; max-width: 95vw; max-height: 92vh; overflow-y: auto; padding: 24px;">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 14px;">
+      <div>
+        <h3 id="productModalTitle" style="margin: 0; font-size:18px; display:flex; align-items:center; gap:8px;">📦 Add New Product to Inventory</h3>
+        <p id="productModalSub" style="font-size: 12px; color: var(--text-muted); margin: 3px 0 0 0;">Fill specifications, attach a photo, and sync instantly with customer website.</p>
       </div>
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-        <input type="text" id="npBrand" placeholder="Brand" />
-        <select id="npUnit">
-          <option value="Pcs">Pcs</option>
-          <option value="SqFt">SqFt</option>
-          <option value="Kg">Kg</option>
-          <option value="Set">Set</option>
-          <option value="Box">Box</option>
-        </select>
+      <button onclick="closeNewProductModal()" style="background:none; border:none; color:var(--text-muted); font-size:22px; cursor:pointer; line-height:1; padding:0 4px;">✕</button>
+    </div>
+
+    <input type="hidden" id="npProductId" value="" />
+
+    <!-- Photo Attachment Card -->
+    <div style="background: rgba(255,255,255,0.03); border: 1.5px dashed rgba(255,255,255,0.18); border-radius: 12px; padding: 14px; display:flex; align-items:center; gap: 16px; margin-bottom: 16px;">
+      <div id="npPhotoPreviewBox" style="width: 84px; height: 84px; border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.15); overflow:hidden; background:#0b1120; display:flex; align-items:center; justify-content:center; flex-shrink:0; position:relative;">
+        <img id="npPhotoPreview" src="" alt="Product Preview" style="width:100%; height:100%; object-fit:cover; display:none;" onerror="this.style.display='none'; document.getElementById('npPhotoPlaceholder').style.display='block';" />
+        <span id="npPhotoPlaceholder" style="font-size: 32px; color:var(--text-muted);">📷</span>
       </div>
-      <input type="number" id="npSqft" placeholder="SqFt Per Sheet (If Plywood, e.g. 32)" step="any" />
-      <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px;">
-        <input type="number" id="npPurchase" placeholder="Cost (₹)" step="any" />
-        <input type="number" id="npSelling" placeholder="Selling (₹)" step="any" />
-        <input type="number" id="npFloor" placeholder="Floor Min (₹)" step="any" />
+      <div style="flex:1;">
+        <div style="font-size: 13px; font-weight:700; margin-bottom:3px; color:var(--text-main);">Product Photo</div>
+        <div style="font-size: 11px; color:var(--text-muted); margin-bottom:8px;">Upload image (JPEG/PNG/WebP). Will be immediately displayed on customer storefront &amp; enquiries.</div>
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <label class="btn btn-secondary" style="padding: 6px 13px; font-size: 12px; cursor:pointer; margin:0; display:inline-flex; align-items:center; gap:5px;">
+            <span>📸</span> Choose File / Take Photo
+            <input type="file" id="npPhotoInput" accept="image/*" style="display:none;" onchange="handleProductPhotoChange(event)" />
+          </label>
+          <button type="button" class="btn btn-secondary" id="npPhotoRemoveBtn" onclick="removeProductPhoto()" style="padding: 6px 12px; font-size: 12px; display:none; color:var(--rose);">✕ Remove Photo</button>
+        </div>
+        <input type="hidden" id="npPhotoBase64" value="" />
       </div>
-      <input type="number" id="npStock" placeholder="Initial Opening Stock Qty" step="any" />
-      <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:10px;">
-        <button class="btn btn-secondary" onclick="closeNewProductModal()">Cancel</button>
-        <button class="btn" onclick="saveNewProduct()">Save Product</button>
+    </div>
+
+    <!-- Product Fields Form -->
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <!-- Row 1: SKU & Name -->
+      <div style="display:grid; grid-template-columns: 1fr 1.6fr; gap:10px;">
+        <div>
+          <label class="field-label">Product SKU *</label>
+          <input type="text" id="npSku" placeholder="e.g. PLY-COMM-18-8X4" style="text-transform:uppercase; font-weight:700; font-family:var(--font-mono);" />
+        </div>
+        <div>
+          <label class="field-label">Product Name *</label>
+          <input type="text" id="npName" placeholder="e.g. 18mm Commercial MR Grade Plywood" style="font-weight:600;" />
+        </div>
+      </div>
+
+      <!-- Row 2: Size & Brand -->
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <div>
+          <label class="field-label">Size / Dimensions (e.g. 8×4 ft, 12mm)</label>
+          <input type="text" id="npSize" placeholder="e.g. 8×4 ft, 7×4 ft, 18mm, 1mm" />
+        </div>
+        <div>
+          <label class="field-label">Brand</label>
+          <input type="text" id="npBrand" placeholder="e.g. Century, Greenply, Standard" />
+        </div>
+      </div>
+
+      <!-- Row 3: Category, Subcategory, Unit -->
+      <div style="display:grid; grid-template-columns: 1.2fr 1.2fr 0.9fr; gap:10px;">
+        <div>
+          <label class="field-label">Category *</label>
+          <input type="text" id="npCategory" placeholder="e.g. Plywood, Laminates" />
+        </div>
+        <div>
+          <label class="field-label">Subcategory</label>
+          <input type="text" id="npSubcategory" placeholder="e.g. Marine BWP 710, Gloss" />
+        </div>
+        <div>
+          <label class="field-label">Unit</label>
+          <select id="npUnit">
+            <option value="Pcs">Pcs (Piece)</option>
+            <option value="Sheet">Sheet</option>
+            <option value="SqFt">SqFt</option>
+            <option value="Kg">Kg</option>
+            <option value="Set">Set</option>
+            <option value="Box">Box</option>
+            <option value="Meter">Meter</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Row 4: SqFt Per Piece -->
+      <div style="display:grid; grid-template-columns: 1fr; gap:10px;">
+        <div>
+          <label class="field-label">Sq.Ft. Per Piece (Optional, for auto-sqft math)</label>
+          <input type="number" id="npSqft" placeholder="e.g. 32 (for standard 8×4 sheet)" step="any" />
+        </div>
+      </div>
+
+      <!-- Row 5: Description & Technical Specs -->
+      <div>
+        <label class="field-label">Product Description &amp; Technical Highlights</label>
+        <textarea id="npDescription" rows="2" placeholder="e.g. 100% Calibrated Gurjan Core, Boiling Water Proof IS:710, Termite &amp; Borer Proof with 25 Year Warranty." style="width:100%; border-radius:8px; padding:8px 12px; background:var(--input-bg); color:var(--text-main); border:1px solid var(--border-color); font-size:13px; resize:vertical; box-sizing:border-box;"></textarea>
+      </div>
+
+      <!-- Row 6: Pricing & Opening Stock -->
+      <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:10px; background:rgba(0,0,0,0.18); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
+        <div>
+          <label class="field-label">Purchase Cost (₹)</label>
+          <input type="number" id="npPurchase" placeholder="Cost (P)" step="any" style="font-family:var(--font-mono);" />
+        </div>
+        <div>
+          <label class="field-label">Selling Rate (₹) *</label>
+          <input type="number" id="npSelling" placeholder="Selling (S)" step="any" style="font-weight:700; color:var(--primary); font-family:var(--font-mono);" />
+        </div>
+        <div>
+          <label class="field-label">Floor Min (₹)</label>
+          <input type="number" id="npFloor" placeholder="Floor (MS)" step="any" style="font-family:var(--font-mono);" />
+        </div>
+        <div>
+          <label class="field-label">Stock Qty</label>
+          <input type="number" id="npStock" placeholder="Stock Qty" step="any" style="font-weight:700; font-family:var(--font-mono);" />
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+        <button type="button" class="btn btn-danger" id="npDeleteBtn" onclick="deleteProductCurrent()" style="display:none; padding:8px 14px; font-size:12px; background:#ef4444; color:#fff; border:none; border-radius:8px; cursor:pointer;">
+          🗑️ Delete Item
+        </button>
+        <div style="display:flex; gap:10px; margin-left:auto;">
+          <button type="button" class="btn btn-secondary" onclick="closeNewProductModal()">Cancel</button>
+          <button type="button" class="btn btn-primary" id="npSaveBtn" onclick="saveProductRecord()" style="font-weight:700; background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:9px 20px; border-radius:8px; box-shadow:0 4px 12px rgba(16,185,129,0.3); cursor:pointer;">
+            💾 Save &amp; Sync Product
+          </button>
+        </div>
       </div>
     </div>
   </div>

@@ -41,6 +41,9 @@ class Product(Base):
     selling_price = Column(Float, default=0.0)       # S Code (Store Counter Base)
     min_selling_price = Column(Float, default=0.0)   # MS Code
     stock_qty = Column(Float, default=0.0)
+    description = Column(Text, nullable=True)
+    size = Column(String(100), nullable=True)
+    image_url = Column(String(500), nullable=True)
 
     sale_items = relationship("SaleItem", back_populates="product")
     purchases = relationship("Purchase", back_populates="product")

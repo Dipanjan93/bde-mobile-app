@@ -28,7 +28,7 @@ from models import IST, get_now_ist
 # Ensure all tables are created in Neon PostgreSQL
 Base.metadata.create_all(bind=engine)
 
-# Safe column addition for CraftPost without touching live business tables
+# Safe column addition for CraftPost and Product without touching live business tables
 try:
     with engine.connect() as conn:
         for col_name, col_def in [
@@ -44,8 +44,59 @@ try:
                 conn.commit()
             except Exception:
                 pass
+
+        for col_name, col_def in [
+            ("description", "TEXT"),
+            ("size", "VARCHAR(100)"),
+            ("image_url", "VARCHAR(500)"),
+        ]:
+            try:
+                conn.execute(text(f"ALTER TABLE products ADD COLUMN IF NOT EXISTS {col_name} {col_def};"))
+                conn.commit()
+            except Exception:
+                pass
 except Exception as e:
     print(f"Safe column migration notice: {e}")
+
+def save_product_photo(sku: str, image_data: str) -> str:
+    """
+    Saves base64 image data to static/img/products/{sku}.jpg and returns relative URL.
+    Falls back gracefully to data URL or existing path if disk write fails.
+    """
+    if not image_data:
+        return ""
+    image_data = image_data.strip()
+    if not image_data.startswith("data:image/"):
+        return image_data
+
+    try:
+        clean_sku = sku.strip().upper().replace("/", "_").replace("\\", "_").replace(" ", "_")
+        prod_dir = os.path.join(STATIC_DIR, "img", "products")
+        os.makedirs(prod_dir, exist_ok=True)
+
+        header, encoded = image_data.split(",", 1) if "," in image_data else ("", image_data)
+        ext = "jpg"
+        if "png" in header:
+            ext = "png"
+        elif "webp" in header:
+            ext = "webp"
+        
+        filename = f"{clean_sku}.{ext}"
+        file_path = os.path.join(prod_dir, filename)
+        binary_data = base64.b64decode(encoded)
+        with open(file_path, "wb") as f:
+            f.write(binary_data)
+        
+        # Also ensure .jpg exists for endpoints looking for .jpg
+        if ext != "jpg":
+            jpg_path = os.path.join(prod_dir, f"{clean_sku}.jpg")
+            with open(jpg_path, "wb") as f:
+                f.write(binary_data)
+
+        return f"/static/img/products/{clean_sku}.{ext}?v={int(time.time())}"
+    except Exception as e:
+        print(f"Notice: Failed writing product image to disk for {sku}: {e}")
+        return image_data
 
 
 app = FastAPI(
@@ -529,10 +580,13 @@ def get_catalog(
             badge = "Genuine Certified"
             badge_color = "blue"
 
+        img_url = p.image_url if p.image_url else f"/static/img/products/{p.sku}.jpg"
         catalog_items.append({
             "id": p.id,
             "sku": p.sku,
             "name": p.name,
+            "description": p.description or "",
+            "size": p.size or "",
             "category": p.category or "General",
             "subcategory": p.subcategory or "General",
             "brand": p.brand or "Standard",
@@ -542,7 +596,7 @@ def get_catalog(
             "in_stock": (p.stock_qty or 0.0) > 0,
             "badge": badge,
             "badge_color": badge_color,
-            "image_url": f"/static/img/products/{p.sku}.jpg"
+            "image_url": img_url
         })
 
     # Optional sorting
@@ -1307,6 +1361,9 @@ def list_products(db: Session = Depends(get_db)):
             "id": p.id,
             "sku": p.sku,
             "name": p.name,
+            "description": p.description or "",
+            "size": p.size or "",
+            "image_url": p.image_url if p.image_url else f"/static/img/products/{p.sku}.jpg",
             "category": p.category or "General",
             "subcategory": p.subcategory or "General",
             "brand": p.brand or "Standard",
@@ -1332,23 +1389,137 @@ def create_product(item: schemas.ProductCreate, db: Session = Depends(get_db)):
     if db.query(models.Product).filter(models.Product.sku == sku_clean).first():
         raise HTTPException(status_code=400, detail=f"Product with SKU '{sku_clean}' already exists.")
     
+    image_url = None
+    if item.image_base64:
+        image_url = save_product_photo(sku_clean, item.image_base64)
+    elif item.image_url:
+        image_url = item.image_url.strip()
+    else:
+        image_url = f"/static/img/products/{sku_clean}.jpg"
+
     prod = models.Product(
         sku=sku_clean,
         name=item.name.strip(),
+        description=(item.description or "").strip(),
+        size=(item.size or "").strip(),
+        image_url=image_url,
         category=item.category.strip(),
         subcategory=item.subcategory.strip() if item.subcategory else "General",
         brand=item.brand.strip() if item.brand else "Standard",
-        unit=item.unit,
+        unit=item.unit or "Pcs",
         sqft_per_piece=item.sqft_per_piece or 0.0,
-        purchase_price=item.purchase_price,
-        selling_price=item.selling_price,
-        min_selling_price=item.min_selling_price,
+        purchase_price=item.purchase_price or 0.0,
+        selling_price=item.selling_price or 0.0,
+        min_selling_price=item.min_selling_price or 0.0,
         stock_qty=item.stock_qty or 0.0
     )
     db.add(prod)
     db.commit()
     db.refresh(prod)
     return prod
+
+@app.put("/products/{product_id}")
+def update_product(product_id: int, item: schemas.ProductUpdate, db: Session = Depends(get_db)):
+    prod = db.query(models.Product).filter(models.Product.id == product_id).first()
+    if not prod:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    if item.sku is not None and item.sku.strip():
+        sku_clean = item.sku.strip().upper()
+        existing = db.query(models.Product).filter(models.Product.sku == sku_clean, models.Product.id != product_id).first()
+        if existing:
+            raise HTTPException(status_code=400, detail=f"Product with SKU '{sku_clean}' already exists.")
+        prod.sku = sku_clean
+
+    if item.name is not None:
+        prod.name = item.name.strip()
+    if item.description is not None:
+        prod.description = item.description.strip()
+    if item.size is not None:
+        prod.size = item.size.strip()
+    if item.category is not None:
+        prod.category = item.category.strip()
+    if item.subcategory is not None:
+        prod.subcategory = item.subcategory.strip()
+    if item.brand is not None:
+        prod.brand = item.brand.strip()
+    if item.unit is not None:
+        prod.unit = item.unit.strip()
+    if item.sqft_per_piece is not None:
+        prod.sqft_per_piece = item.sqft_per_piece
+    if item.purchase_price is not None:
+        prod.purchase_price = item.purchase_price
+    if item.selling_price is not None:
+        prod.selling_price = item.selling_price
+    if item.min_selling_price is not None:
+        prod.min_selling_price = item.min_selling_price
+    if item.stock_qty is not None:
+        prod.stock_qty = item.stock_qty
+
+    if item.image_base64:
+        prod.image_url = save_product_photo(prod.sku, item.image_base64)
+    elif item.image_url is not None:
+        prod.image_url = item.image_url.strip()
+
+    db.commit()
+    db.refresh(prod)
+    return prod
+
+@app.delete("/products/{product_id}")
+def delete_product(product_id: int, db: Session = Depends(get_db)):
+    prod = db.query(models.Product).filter(models.Product.id == product_id).first()
+    if not prod:
+        raise HTTPException(status_code=404, detail="Product not found")
+    if db.query(models.SaleItem).filter(models.SaleItem.product_id == product_id).first():
+        raise HTTPException(status_code=400, detail="Cannot delete product because it has linked sales invoices.")
+    db.delete(prod)
+    db.commit()
+    return {"success": True, "message": f"Product {prod.sku} deleted"}
+
+@app.post("/api/products/upload-photo")
+async def upload_product_photo_endpoint(
+    sku: str = Form(...),
+    product_id: Optional[int] = Form(None),
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    contents = await file.read()
+    if not contents:
+        raise HTTPException(status_code=400, detail="Empty photo uploaded.")
+    
+    clean_sku = sku.strip().upper().replace("/", "_").replace("\\", "_").replace(" ", "_")
+    prod_dir = os.path.join(STATIC_DIR, "img", "products")
+    os.makedirs(prod_dir, exist_ok=True)
+    
+    ext = "jpg"
+    if file.filename:
+        _, file_ext = os.path.splitext(file.filename)
+        if file_ext.lower() in [".png", ".webp", ".jpeg", ".jpg"]:
+            ext = file_ext.lower().replace(".", "")
+    
+    filename = f"{clean_sku}.{ext}"
+    file_path = os.path.join(prod_dir, filename)
+    with open(file_path, "wb") as f:
+        f.write(contents)
+    
+    if ext != "jpg":
+        with open(os.path.join(prod_dir, f"{clean_sku}.jpg"), "wb") as f:
+            f.write(contents)
+            
+    img_url = f"/static/img/products/{clean_sku}.{ext}?v={int(time.time())}"
+    
+    if product_id:
+        prod = db.query(models.Product).filter(models.Product.id == product_id).first()
+        if prod:
+            prod.image_url = img_url
+            db.commit()
+    else:
+        prod = db.query(models.Product).filter(models.Product.sku == clean_sku).first()
+        if prod:
+            prod.image_url = img_url
+            db.commit()
+
+    return {"success": True, "image_url": img_url, "sku": clean_sku}
 
 @app.get("/customers")
 def list_customers(db: Session = Depends(get_db)):

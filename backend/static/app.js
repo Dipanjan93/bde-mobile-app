@@ -498,10 +498,18 @@ function renderInventory(list) {
       statusBadge = '<span class="badge-instock">IN STOCK</span>';
     }
 
+    const imgUrl = p.image_url || `/static/img/products/${p.sku}.jpg`;
+
     return `
       <tr>
+        <td style="text-align:center; padding: 6px;">
+          <div style="width:38px; height:38px; border-radius:6px; overflow:hidden; background:#0f172a; border:1px solid rgba(255,255,255,0.15); display:inline-flex; align-items:center; justify-content:center; cursor:pointer;" onclick="openEditProductModal(${p.id})" title="Click to view/edit photo">
+            <img src="${imgUrl}" alt="${p.sku}" style="width:100%; height:100%; object-fit:cover;" onerror="this.onerror=null; this.src='/static/img/products/PLY-COMM-18-8X4.jpg';" />
+          </div>
+        </td>
         <td class="mono" style="font-weight:700; color:var(--primary); cursor:pointer;" title="Click to copy SKU" onclick="copyText('${p.sku}', 'SKU')">${p.sku}</td>
         <td><strong>${p.name}</strong></td>
+        <td style="color:var(--text-muted); font-size:12px; white-space:nowrap;">${p.size || '-'}</td>
         <td>${p.category}</td>
         <td>${p.subcategory || 'General'}</td>
         <td>${p.brand || 'Standard'}</td>
@@ -518,6 +526,11 @@ function renderInventory(list) {
         <td class="mono" style="text-align:center;">${p.reorder_level}</td>
         <td style="text-align:center;">${statusBadge}</td>
         <td class="mono" style="text-align:right; font-weight:700;">${fmtInr(p.inventory_valuation)}</td>
+        <td style="text-align:center;">
+          <button class="btn btn-secondary" onclick="openEditProductModal(${p.id})" style="padding:4px 9px; font-size:11px; display:inline-flex; align-items:center; gap:3px; border-color:rgba(59,130,246,0.4); color:var(--primary);" title="Edit product details & photo">
+            ✏️ Edit
+          </button>
+        </td>
       </tr>
     `;
   }).join('');
@@ -527,7 +540,11 @@ function filterInventory() {
   const q = document.getElementById('invSearch').value.toLowerCase();
   const cat = document.getElementById('invCategoryFilter').value;
   const filtered = productsCache.filter(p => {
-    const matchText = p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q) || (p.brand && p.brand.toLowerCase().includes(q));
+    const matchText = p.name.toLowerCase().includes(q) ||
+                      p.sku.toLowerCase().includes(q) ||
+                      (p.brand && p.brand.toLowerCase().includes(q)) ||
+                      (p.size && p.size.toLowerCase().includes(q)) ||
+                      (p.description && p.description.toLowerCase().includes(q));
     const matchCat = (cat === 'ALL') || (p.category === cat);
     return matchText && matchCat;
   });
@@ -538,23 +555,41 @@ function filterInventory() {
 function renderRates(list) {
   const tbody = document.getElementById('rateChartBody');
   if (!tbody) return;
-  tbody.innerHTML = list.map(p => `
+  tbody.innerHTML = list.map(p => {
+    const imgUrl = p.image_url || `/static/img/products/${p.sku}.jpg`;
+    return `
     <tr>
+      <td style="text-align:center; padding: 6px;">
+        <div style="width:34px; height:34px; border-radius:6px; overflow:hidden; background:#0f172a; border:1px solid rgba(255,255,255,0.15); display:inline-flex; align-items:center; justify-content:center; cursor:pointer;" onclick="openEditProductModal(${p.id})" title="Click to view/edit photo">
+          <img src="${imgUrl}" alt="${p.sku}" style="width:100%; height:100%; object-fit:cover;" onerror="this.onerror=null; this.src='/static/img/products/PLY-COMM-18-8X4.jpg';" />
+        </div>
+      </td>
       <td class="mono" style="font-weight:700; color:var(--primary); cursor:pointer;" title="Click to copy SKU" onclick="copyText('${p.sku}', 'SKU')">${p.sku}</td>
       <td><strong>${p.name}</strong></td>
+      <td style="color:var(--text-muted); font-size:12px; white-space:nowrap;">${p.size || '-'}</td>
       <td>${p.category}</td>
       <td>${p.unit}</td>
       <td class="mono admin-only" style="text-align:right; font-weight:700; color:var(--text-muted);">${fmtInr(p.purchase_price)}</td>
       <td class="mono" style="text-align:right; font-weight:700; color:var(--primary); cursor:pointer;" title="Click to copy Selling Price" onclick="copyText('${p.selling_price}', 'Rate')">${fmtInr(p.selling_price)}</td>
       <td class="mono admin-only" style="text-align:right; color:var(--amber);">${fmtInr(p.min_selling_price)}</td>
       <td class="mono admin-only" style="text-align:right; color:${p.gross_margin_pct >= 0 ? 'var(--emerald)' : 'var(--rose)'}; font-weight:700;">${p.gross_margin_pct}%</td>
+      <td style="text-align:center;">
+        <button class="btn btn-secondary" onclick="openEditProductModal(${p.id})" style="padding:4px 9px; font-size:11px; display:inline-flex; align-items:center; gap:3px; border-color:rgba(59,130,246,0.4); color:var(--primary);" title="Edit product rates & details">
+          ✏️ Edit
+        </button>
+      </td>
     </tr>
-  `).join('');
+  `;
+  }).join('');
 }
 
 function filterRates() {
   const q = document.getElementById('rateSearch').value.toLowerCase();
-  const filtered = productsCache.filter(p => p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q));
+  const filtered = productsCache.filter(p =>
+    p.name.toLowerCase().includes(q) ||
+    p.sku.toLowerCase().includes(q) ||
+    (p.size && p.size.toLowerCase().includes(q))
+  );
   renderRates(filtered);
 }
 
@@ -1345,38 +1380,276 @@ async function loadExecutiveBI() {
 }
 
 /* --- New Product & Inward Purchases --- */
-function openNewProductModal() { document.getElementById('newProdModal').classList.add('show'); }
-function closeNewProductModal() { document.getElementById('newProdModal').classList.remove('show'); }
+let productPhotoFile = null;
+let productPhotoRemoved = false;
+
+function openNewProductModal() {
+  document.getElementById('productModalTitle').innerHTML = `<span>📦</span> Add New Product to Inventory`;
+  document.getElementById('productModalSub').textContent = `Fill specifications, attach a photo, and sync instantly with customer website.`;
+  document.getElementById('npProductId').value = '';
+  document.getElementById('npSku').value = '';
+  document.getElementById('npSku').readOnly = false;
+  document.getElementById('npName').value = '';
+  document.getElementById('npSize').value = '';
+  document.getElementById('npBrand').value = 'Standard';
+  document.getElementById('npCategory').value = '';
+  document.getElementById('npSubcategory').value = 'General';
+  document.getElementById('npUnit').value = 'Pcs';
+  document.getElementById('npSqft').value = '';
+  document.getElementById('npDescription').value = '';
+  document.getElementById('npPurchase').value = '';
+  document.getElementById('npSelling').value = '';
+  document.getElementById('npFloor').value = '';
+  document.getElementById('npStock').value = '0';
+  document.getElementById('npPhotoBase64').value = '';
+  document.getElementById('npPhotoInput').value = '';
+  productPhotoFile = null;
+  productPhotoRemoved = false;
+
+  // Reset photo preview
+  const imgPreview = document.getElementById('npPhotoPreview');
+  const placeholder = document.getElementById('npPhotoPlaceholder');
+  const removeBtn = document.getElementById('npPhotoRemoveBtn');
+  if (imgPreview) { imgPreview.src = ''; imgPreview.style.display = 'none'; }
+  if (placeholder) placeholder.style.display = 'block';
+  if (removeBtn) removeBtn.style.display = 'none';
+
+  // Delete button hidden in create mode
+  const delBtn = document.getElementById('npDeleteBtn');
+  if (delBtn) delBtn.style.display = 'none';
+
+  const saveBtn = document.getElementById('npSaveBtn');
+  if (saveBtn) saveBtn.textContent = '💾 Save & Sync Product';
+
+  document.getElementById('newProdModal').classList.add('show');
+}
+
+function openEditProductModal(productId) {
+  const prod = productsCache.find(p => p.id === productId);
+  if (!prod) return showToast("Product not found.", "warning");
+
+  document.getElementById('productModalTitle').innerHTML = `<span>✏️</span> Edit Product: ${prod.name}`;
+  document.getElementById('productModalSub').textContent = `Update specs, rates, or replace product photo (instantly synced to storefront).`;
+  document.getElementById('npProductId').value = prod.id;
+  document.getElementById('npSku').value = prod.sku || '';
+  document.getElementById('npName').value = prod.name || '';
+  document.getElementById('npSize').value = prod.size || '';
+  document.getElementById('npBrand').value = prod.brand || 'Standard';
+  document.getElementById('npCategory').value = prod.category || '';
+  document.getElementById('npSubcategory').value = prod.subcategory || 'General';
+  document.getElementById('npUnit').value = prod.unit || 'Pcs';
+  document.getElementById('npSqft').value = prod.sqft_per_piece || '';
+  document.getElementById('npDescription').value = prod.description || '';
+  document.getElementById('npPurchase').value = prod.purchase_price ?? 0;
+  document.getElementById('npSelling').value = prod.selling_price ?? 0;
+  document.getElementById('npFloor').value = prod.min_selling_price ?? 0;
+  document.getElementById('npStock').value = prod.stock_qty ?? 0;
+  document.getElementById('npPhotoBase64').value = '';
+  document.getElementById('npPhotoInput').value = '';
+  productPhotoFile = null;
+  productPhotoRemoved = false;
+
+  // Show existing photo if any
+  const imgPreview = document.getElementById('npPhotoPreview');
+  const placeholder = document.getElementById('npPhotoPlaceholder');
+  const removeBtn = document.getElementById('npPhotoRemoveBtn');
+  const currentImg = prod.image_url || `/static/img/products/${prod.sku}.jpg`;
+
+  if (imgPreview && placeholder) {
+    imgPreview.src = currentImg;
+    imgPreview.style.display = 'block';
+    placeholder.style.display = 'none';
+  }
+  if (removeBtn) removeBtn.style.display = 'inline-block';
+
+  // Show delete button in edit mode
+  const delBtn = document.getElementById('npDeleteBtn');
+  if (delBtn) delBtn.style.display = 'inline-block';
+
+  const saveBtn = document.getElementById('npSaveBtn');
+  if (saveBtn) saveBtn.textContent = '💾 Update & Sync Product';
+
+  document.getElementById('newProdModal').classList.add('show');
+}
+
+function closeNewProductModal() {
+  document.getElementById('newProdModal').classList.remove('show');
+}
+
+function handleProductPhotoChange(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  productPhotoFile = file;
+  productPhotoRemoved = false;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const rawData = e.target.result;
+    
+    // Auto-compress via HTML5 Canvas (max 1000px, 85% quality JPEG)
+    const img = new Image();
+    img.onload = function() {
+      const maxDim = 1000;
+      let width = img.width;
+      let height = img.height;
+      if (width > maxDim || height > maxDim) {
+        if (width > height) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+      document.getElementById('npPhotoBase64').value = compressedDataUrl;
+      const imgPreview = document.getElementById('npPhotoPreview');
+      const placeholder = document.getElementById('npPhotoPlaceholder');
+      const removeBtn = document.getElementById('npPhotoRemoveBtn');
+      if (imgPreview) {
+        imgPreview.src = compressedDataUrl;
+        imgPreview.style.display = 'block';
+      }
+      if (placeholder) placeholder.style.display = 'none';
+      if (removeBtn) removeBtn.style.display = 'inline-block';
+    };
+    img.src = rawData;
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeProductPhoto() {
+  productPhotoFile = null;
+  productPhotoRemoved = true;
+  document.getElementById('npPhotoBase64').value = '';
+  document.getElementById('npPhotoInput').value = '';
+  const imgPreview = document.getElementById('npPhotoPreview');
+  const placeholder = document.getElementById('npPhotoPlaceholder');
+  const removeBtn = document.getElementById('npPhotoRemoveBtn');
+  if (imgPreview) {
+    imgPreview.src = '';
+    imgPreview.style.display = 'none';
+  }
+  if (placeholder) placeholder.style.display = 'block';
+  if (removeBtn) removeBtn.style.display = 'none';
+}
+
+async function saveProductRecord() {
+  const productId = document.getElementById('npProductId').value;
+  const isEdit = Boolean(productId);
+
+  const sku = document.getElementById('npSku').value.trim().toUpperCase();
+  const name = document.getElementById('npName').value.trim();
+  const category = document.getElementById('npCategory').value.trim();
+  const subcategory = document.getElementById('npSubcategory').value.trim() || "General";
+  const brand = document.getElementById('npBrand').value.trim() || "Standard";
+  const size = document.getElementById('npSize').value.trim();
+  const unit = document.getElementById('npUnit').value;
+  const sqft = parseFloat(document.getElementById('npSqft').value) || 0.0;
+  const description = document.getElementById('npDescription').value.trim();
+  const purchase_price = parseFloat(document.getElementById('npPurchase').value) || 0.0;
+  const selling_price = parseFloat(document.getElementById('npSelling').value) || 0.0;
+  const min_selling_price = parseFloat(document.getElementById('npFloor').value) || 0.0;
+  const stock_qty = parseFloat(document.getElementById('npStock').value) || 0.0;
+  const image_base64 = document.getElementById('npPhotoBase64').value;
+
+  if (!sku || !name || !category) {
+    return showToast("Please fill all required fields: SKU, Name, and Category.", "warning");
+  }
+
+  const payload = {
+    sku,
+    name,
+    category,
+    subcategory,
+    brand,
+    size,
+    unit,
+    sqft_per_piece: sqft,
+    description,
+    purchase_price,
+    selling_price,
+    min_selling_price,
+    stock_qty
+  };
+
+  if (image_base64) {
+    payload.image_base64 = image_base64;
+  } else if (productPhotoRemoved) {
+    payload.image_url = `/static/img/products/${sku}.jpg`;
+  }
+
+  const saveBtn = document.getElementById('npSaveBtn');
+  const originalText = saveBtn.textContent;
+  saveBtn.disabled = true;
+  saveBtn.textContent = '⏳ Saving...';
+
+  try {
+    const url = isEdit ? `${API_BASE}/products/${productId}` : `${API_BASE}/products`;
+    const method = isEdit ? "PUT" : "POST";
+
+    const res = await authFetch(url, {
+      method: method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: "Failed to save product" }));
+      saveBtn.disabled = false;
+      saveBtn.textContent = originalText;
+      return showToast(err.detail || "Error saving product.", "error");
+    }
+
+    const updatedProd = await res.json();
+    closeNewProductModal();
+    showToast(`✅ Product "${name}" successfully ${isEdit ? 'updated' : 'added'}! Synced to catalog.`, "success");
+    await loadInventory();
+  } catch(e) {
+    console.error("Save product error:", e);
+    showToast("Network error while saving product.", "error");
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = originalText;
+  }
+}
 
 async function saveNewProduct() {
-  const payload = {
-    sku: document.getElementById('npSku').value.trim(),
-    name: document.getElementById('npName').value.trim(),
-    category: document.getElementById('npCategory').value.trim(),
-    subcategory: document.getElementById('npSubcategory').value.trim() || "General",
-    brand: document.getElementById('npBrand').value.trim() || "Standard",
-    unit: document.getElementById('npUnit').value,
-    sqft_per_piece: parseFloat(document.getElementById('npSqft').value) || 0.0,
-    purchase_price: parseFloat(document.getElementById('npPurchase').value) || 0.0,
-    selling_price: parseFloat(document.getElementById('npSelling').value) || 0.0,
-    min_selling_price: parseFloat(document.getElementById('npFloor').value) || 0.0,
-    stock_qty: parseFloat(document.getElementById('npStock').value) || 0.0
-  };
-  if (!payload.sku || !payload.name || !payload.category || !payload.selling_price) {
-    return showToast("Missing required fields (SKU, Name, Category, Selling Rate).", "warning");
+  return saveProductRecord();
+}
+
+async function deleteProductCurrent() {
+  const productId = document.getElementById('npProductId').value;
+  if (!productId) return;
+  const sku = document.getElementById('npSku').value;
+  const name = document.getElementById('npName').value;
+
+  if (!confirm(`Are you sure you want to delete product "${name}" (${sku}) from inventory? This cannot be undone.`)) {
+    return;
   }
-  const res = await authFetch(`${API_BASE}/products`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
-  if (!res.ok) {
-    const err = await res.json();
-    return showToast(err.detail || "Error registering product.", "error");
+
+  try {
+    const res = await authFetch(`${API_BASE}/products/${productId}`, {
+      method: "DELETE"
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: "Failed to delete product." }));
+      return showToast(err.detail || "Cannot delete product.", "error");
+    }
+    closeNewProductModal();
+    showToast(`Product "${name}" deleted from catalogue.`, "info");
+    await loadInventory();
+  } catch(e) {
+    console.error("Delete product error:", e);
+    showToast("Error deleting product.", "error");
   }
-  closeNewProductModal();
-  showToast(`Product "${payload.name}" added to catalogue!`, "success");
-  await loadInventory();
 }
 
 function onPurProductChange() {

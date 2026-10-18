@@ -6385,9 +6385,10 @@
 
             <div>
               <div class="product-spec-pill" style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 6px; padding: 5px 8px; background: rgba(13, 17, 23, 0.7); border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.2);">
-                <span style="font-size: 11px; font-weight: 700; color: #f0f6fc;">📦 Unit: ${p.unit || 'Standard Sheet'}</span>
-                <span style="font-size: 10px; font-weight: 700; color: #10b981;">● Onda Depot Dispatch</span>
+                <span style="font-size: 11px; font-weight: 700; color: #f0f6fc;">${p.size ? '📏 ' + p.size + ' • ' : ''}📦 ${p.unit || 'Standard Sheet'}</span>
+                <span style="font-size: 10px; font-weight: 700; color: #10b981;">● Onda Depot Stock</span>
               </div>
+              ${p.description ? `<div style="font-size: 11px; color: #94a3b8; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.35;">${p.description}</div>` : ''}
               <div class="sheet-rate-note" style="color: #8b949e; font-size: 11px; margin-bottom: 6px;">SKU: ${p.sku} • Verified Grade</div>
 
               <button class="btn-card-enquire" onclick="event.stopPropagation(); openProductEnquiry('${p.sku}')">
@@ -8359,7 +8360,9 @@ Please share current Onda Depot counter prices for these materials, sheet availa
       }
 
       const locality = STATE.user.location || STATE.currentLocality || 'Onda, Bankura';
-      const materialsText = `• Product: ${prod.name}\n• SKU: ${prod.sku}\n• Category: ${prod.category || 'General'}\n• Brand: ${prod.brand || 'Standard'}\n• Unit: ${prod.unit || 'Standard'}\n• Delivery Locality: ${locality}`;
+      const sizeInfo = prod.size ? `\n• Size: ${prod.size}` : '';
+      const descInfo = prod.description ? `\n• Specs: ${prod.description}` : '';
+      const materialsText = `• Product: ${prod.name}\n• SKU: ${prod.sku}${sizeInfo}${descInfo}\n• Category: ${prod.category || 'General'}\n• Brand: ${prod.brand || 'Standard'}\n• Unit: ${prod.unit || 'Standard'}\n• Delivery Locality: ${locality}`;
 
       const payload = {
         customer_name: STATE.user.name,
@@ -8367,14 +8370,14 @@ Please share current Onda Depot counter prices for these materials, sheet availa
         delivery_locality: locality,
         quote_type: 'Product Enquiry',
         furniture_type: prod.name,
-        dimensions: `SKU: ${prod.sku} | Unit: ${prod.unit || 'Standard'}`,
+        dimensions: `SKU: ${prod.sku} | Unit: ${prod.unit || 'Standard'}${prod.size ? ' | Size: ' + prod.size : ''}`,
         materials_breakdown: materialsText,
         notes: `Customer tapped Enquire / Order for ${prod.name}`
       };
 
       showToast('Sending enquiry to Onda Showroom...');
 
-      const defaultMsg = `Namaskar Baba Dugdheswar Enterprise! 🙏\nI want to enquire / order:\n• Product: ${prod.name}\n• SKU: ${prod.sku}\n• Unit: ${prod.unit || 'Standard'}\n• Locality: ${locality}\n• Quantity Required: [Enter Quantity]\n\nPlease confirm current stock availability and Onda depot dispatch timing.`;
+      const defaultMsg = `Namaskar Baba Dugdheswar Enterprise! 🙏\nI want to enquire / order:\n• Product: ${prod.name}\n• SKU: ${prod.sku}${sizeInfo}\n• Unit: ${prod.unit || 'Standard'}\n• Locality: ${locality}\n• Quantity Required: [Enter Quantity]\n\nPlease confirm current stock availability and Onda depot dispatch timing.`;
       const defaultWaUrl = `https://wa.me/919867098952?text=${encodeURIComponent(defaultMsg)}`;
 
       try {
