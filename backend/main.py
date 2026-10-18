@@ -2,7 +2,7 @@ import os
 import re
 import math
 import urllib.parse
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone, timedelta, date
 from typing import Optional, List
 from collections import defaultdict
 import hmac
@@ -1932,6 +1932,63 @@ def sales_history(db: Session = Depends(get_db), auth: dict = Depends(verify_sta
             "margin_pct": round(margin_pct, 1)
         })
     return results
+
+
+# ========================================================
+# OWNER-ONLY FULL BUSINESS DATABASE BACKUP EXPORT
+# ========================================================
+
+@app.get("/api/erp/backup-export")
+def export_database_backup(db: Session = Depends(get_db), auth: bool = Depends(verify_owner_access)):
+    """
+    Owner-Only Full Database Backup:
+    Performs 100% read-only queries of all core business tables in Neon PostgreSQL,
+    returning structured JSON with timestamp, row counts summary, and all records.
+    """
+    exported_at = get_now_ist().strftime("%Y-%m-%d %H:%M:%S IST")
+
+    # 100% READ-ONLY fetch of all core business tables
+    products = db.query(models.Product).order_by(models.Product.id).all()
+    customers = db.query(models.Customer).order_by(models.Customer.id).all()
+    invoices = db.query(models.Invoice).order_by(models.Invoice.id).all()
+    sale_items = db.query(models.SaleItem).order_by(models.SaleItem.id).all()
+    payment_receipts = db.query(models.PaymentReceipt).order_by(models.PaymentReceipt.id).all()
+    purchases = db.query(models.Purchase).order_by(models.Purchase.id).all()
+    carpenters = db.query(models.Carpenter).order_by(models.Carpenter.id).all()
+
+    def serialize_row(obj):
+        d = {}
+        for col in obj.__table__.columns:
+            val = getattr(obj, col.name)
+            if isinstance(val, (datetime, date)):
+                d[col.name] = val.isoformat()
+            else:
+                d[col.name] = val
+        return d
+
+    return {
+        "status": "success",
+        "exported_at": exported_at,
+        "database": "Neon PostgreSQL (Live Production)",
+        "summary": {
+            "products_count": len(products),
+            "customers_count": len(customers),
+            "invoices_count": len(invoices),
+            "sale_items_count": len(sale_items),
+            "payment_receipts_count": len(payment_receipts),
+            "purchases_count": len(purchases),
+            "carpenters_count": len(carpenters)
+        },
+        "tables": {
+            "products": [serialize_row(p) for p in products],
+            "customers": [serialize_row(c) for c in customers],
+            "invoices": [serialize_row(i) for i in invoices],
+            "sale_items": [serialize_row(s) for s in sale_items],
+            "payment_receipts": [serialize_row(pr) for pr in payment_receipts],
+            "purchases": [serialize_row(pu) for pu in purchases],
+            "carpenters": [serialize_row(cp) for cp in carpenters]
+        }
+    }
 
 
 # ========================================================

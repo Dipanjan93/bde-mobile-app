@@ -2786,4 +2786,133 @@ function sendEstimateWhatsApp() {
     : `https://wa.me/?text=${encodeURIComponent(msg)}`;
 
   window.open(waUrl, '_blank');
+}
+
+/* --- Material Calculator ➔ POS Multi-Item Billing Bridge --- */
+function sendEstimateToPOS() {
+  if (!materialEstimateList || materialEstimateList.length === 0) {
+    showToast("Estimate scratchpad is empty! Calculate and add cut-piece items first.", "warning");
+    return;
+  }
+
+  // Ensure productsCache is available
+  if (!productsCache || productsCache.length === 0) {
+    showToast("Inventory catalog is loading. Please wait a moment...", "info");
+    return;
+  }
+
+  let transferredCount = 0;
+
+  materialEstimateList.forEach((piece) => {
+    const rawName = (piece.itemName || '').trim();
+    const pLower = rawName.toLowerCase();
+
+    // 1. Match item in productsCache
+    let matchedProduct = productsCache.find(p =>
+      p.name.toLowerCase() === pLower ||
+      (p.sku && p.sku.toLowerCase() === pLower)
+    );
+
+    if (!matchedProduct) {
+      matchedProduct = productsCache.find(p =>
+        p.name.toLowerCase().includes(pLower) ||
+        pLower.includes(p.name.toLowerCase())
+      );
+    }
+
+    if (!matchedProduct) {
+      if (pLower.includes('fiber') || pLower.includes('sheet')) {
+        matchedProduct = productsCache.find(p => (p.category || '').toLowerCase().includes('sheet') || p.name.toLowerCase().includes('sheet'));
+      } else if (pLower.includes('ply') || pLower.includes('wood')) {
+        matchedProduct = productsCache.find(p => (p.category || '').toLowerCase().includes('plywood') || p.name.toLowerCase().includes('ply'));
+      } else if (pLower.includes('mica') || pLower.includes('laminate')) {
+        matchedProduct = productsCache.find(p => (p.category || '').toLowerCase().includes('laminate') || p.name.toLowerCase().includes('mica'));
+      }
+    }
+
+    if (!matchedProduct) {
+      matchedProduct = productsCache[0];
+    }
+
+    // Determine quantity and unit price to preserve exact calculated cut-piece line total
+    const unit = matchedProduct.unit || 'Sq.Ft.';
+    let qty = 1;
+    let unitPrice = piece.finalPrice;
+
+    if (unit.toLowerCase().includes('sq') && piece.totalBilledSqft > 0) {
+      qty = Number(piece.totalBilledSqft.toFixed(2));
+      unitPrice = Number((piece.finalPrice / qty).toFixed(2));
+    } else if (piece.qty > 0) {
+      qty = piece.qty;
+      unitPrice = Number((piece.finalPrice / piece.qty).toFixed(2));
+    }
+
+    // Format descriptive cut-piece name
+    const cutDesc = `${piece.billedL}"×${piece.billedW}"` + (piece.cutting > 0 ? ` +₹${piece.cutting} cut` : '');
+    const displayName = `${rawName || matchedProduct.name} [Cut: ${cutDesc}]`;
+
+    invoiceCart.push({
+      product_id: matchedProduct.id,
+      name: displayName,
+      sku: matchedProduct.sku,
+      unit: unit,
+      qty: qty,
+      unit_price: unitPrice,
+      total: Number((qty * unitPrice).toFixed(2))
+    });
+
+    transferredCount++;
+  });
+
+  // Re-render POS billing table
+  renderCart();
+
+  // Switch to POS tab
+  switchTab('pos');
+
+  // Smooth scroll to cart table
+  setTimeout(() => {
+    const target = document.getElementById('cartBody') || document.getElementById('tab-pos');
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, 100);
+
+  showToast(`✅ Transferred ${transferredCount} cut-piece item(s) to Multi-Item Billing POS!`, "success");
+}
+
+/* --- Owner-Only Live Neon Database Backup Download --- */
+async function downloadDatabaseBackup() {
+  try {
+    showToast("Generating live Neon database backup...", "info");
+    const res = await authFetch(`${API_BASE}/api/erp/backup-export`);
+    if (!res.ok) {
+      if (res.status === 401 || res.status === 403) {
+        showToast("Access Denied: Owner access required (Dip@1993)", "error");
+      } else {
+        showToast(`Failed to export backup (HTTP ${res.status})`, "error");
+      }
+      return;
+    }
+
+    const data = await res.json();
+    const dateStr = new Date().toISOString().slice(0, 10);
+
+    // 1. Download Full JSON Backup
+    const jsonStr = JSON.stringify(data, null, 2);
+    const jsonBlob = new Blob([jsonStr], { type: 'application/json' });
+    const jsonUrl = URL.createObjectURL(jsonBlob);
+    const a = document.createElement('a');
+    a.href = jsonUrl;
+    a.download = `BDE_NeonDB_Backup_${dateStr}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(jsonUrl);
+
+    showToast(`✅ Downloaded database backup (${data.summary.products_count} products, ${data.summary.invoices_count} invoices, ${data.summary.customers_count} customers)!`, "success");
+  } catch (err) {
+    console.error("Backup download error:", err);
+    showToast("Error generating backup: " + err.message, "error");
+  }
 }

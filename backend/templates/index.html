@@ -179,6 +179,7 @@
       <button class="btn btn-secondary" onclick="toggleTheme()" id="themeBtn">☀️ Day Mode</button>
       <button class="btn btn-secondary" id="authBtn" onclick="handleAuthClick()">🔒 Staff Mode (Unlock Admin)</button>
       <button class="btn btn-secondary admin-only" onclick="seedMasterCatalogue()">📥 Seed Master</button>
+      <button class="btn btn-secondary admin-only" onclick="downloadDatabaseBackup()" id="btnDownloadBackup" style="border-color:#F59E0B; color:#F59E0B; font-weight:700;" title="Download full offline JSON backup of live Neon PostgreSQL database">📥 Download DB Backup</button>
       <button class="btn btn-danger" onclick="logoutConsole()" id="lockConsoleBtn" title="Lock this terminal immediately">🔒 Lock</button>
       <div class="live-pill"><span class="live-dot"></span> Cloud Live</div>
     </div>
@@ -572,9 +573,10 @@
           📋 Counter Estimate Scratchpad
           <span id="estimateCountBadge" style="background:var(--primary); color:#fff; font-size:11px; font-weight:800; padding:2px 8px; border-radius:10px;">0 items</span>
         </h4>
-        <div style="display:flex; gap:8px;">
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
           <button class="btn btn-secondary" onclick="clearMaterialEstimateList()" style="padding:6px 12px; font-size:12px;">🗑️ Clear All</button>
           <button class="btn" onclick="sendEstimateWhatsApp()" style="padding:6px 14px; font-size:12px; background:#22c55e; border-color:#22c55e;">📲 Send Estimate to Customer WhatsApp</button>
+          <button class="btn" id="btnSendEstimateToPOS" onclick="sendEstimateToPOS()" style="padding:6px 16px; font-size:12px; font-weight:800; background:linear-gradient(135deg, #123B5D 0%, #1b4f7a 100%); color:#F59E0B; border:1px solid #F59E0B; display:flex; align-items:center; gap:6px; cursor:pointer;" title="Transfer all scratchpad cut-piece items directly into Multi-Item Billing POS">⚡ Send Estimate to POS Bill</button>
         </div>
       </div>
 
@@ -721,7 +723,10 @@
         <h3 style="margin-bottom: 4px;">Executive BI Dashboard &amp; Financial Intelligence</h3>
         <p style="font-size: 12px; color: var(--text-muted);">Live Counter Galla, Cash Realization, Category Profitability &amp; Working Capital Health</p>
       </div>
-      <button class="btn btn-secondary" onclick="loadExecutiveBI()" style="padding: 7px 14px; font-size: 12px;">🔄 Refresh Analytics</button>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn btn-secondary" onclick="loadExecutiveBI()" style="padding: 7px 14px; font-size: 12px;">🔄 Refresh Analytics</button>
+        <button class="btn btn-secondary" onclick="downloadDatabaseBackup()" style="padding: 7px 14px; font-size: 12px; border-color:#F59E0B; color:#F59E0B; font-weight:700;" title="Download complete Neon PostgreSQL database backup">📥 Download DB Backup</button>
+      </div>
     </div>
 
     <!-- 1. Today's Counter Pulse (Daily Galla Strip) -->

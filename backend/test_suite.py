@@ -223,6 +223,52 @@ def run_security_auth_audit():
             else:
                 print(f"[WARN] {name} with Staff Passcode: HTTP {e.code}", flush=True)
 
+    # 6. Owner-Only Full Database Backup Export Audit (GET /api/erp/backup-export)
+    print("\n--- Sub-Test 6: Owner-Only Full Database Backup Export (GET /api/erp/backup-export) ---", flush=True)
+    backup_url = f"{BASE_URL}/api/erp/backup-export"
+
+    # A. Unauthenticated -> Must return 401
+    try:
+        req = urllib.request.Request(backup_url, method="GET")
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            print("[FAIL] GET /api/erp/backup-export succeeded without auth!", flush=True)
+    except urllib.error.HTTPError as e:
+        if e.code == 401:
+            print("[PASS 401] GET /api/erp/backup-export Unauthenticated: HTTP 401 Unauthorized", flush=True)
+        else:
+            print(f"[WARN] GET /api/erp/backup-export Unauthenticated: HTTP {e.code}", flush=True)
+
+    # B. Staff Passcode -> Must return 403
+    try:
+        req = urllib.request.Request(backup_url, method="GET")
+        req.add_header("x-passcode", "BDE@1234")
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            print("[FAIL] GET /api/erp/backup-export allowed staff access!", flush=True)
+    except urllib.error.HTTPError as e:
+        if e.code == 403:
+            print("[PASS 403] GET /api/erp/backup-export with Staff Passcode: HTTP 403 Forbidden (Owner Only!)", flush=True)
+        else:
+            print(f"[WARN] GET /api/erp/backup-export with Staff Passcode: HTTP {e.code}", flush=True)
+
+    # C. Owner Passcode -> Must return 200 OK with full business data
+    try:
+        req = urllib.request.Request(backup_url, method="GET")
+        req.add_header("x-passcode", "Dip@1993")
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            if resp.status == 200:
+                body = json.loads(resp.read().decode('utf-8'))
+                summary = body.get("summary", {})
+                tables = body.get("tables", {})
+                p_cnt = summary.get("products_count", len(tables.get("products", [])))
+                i_cnt = summary.get("invoices_count", len(tables.get("invoices", [])))
+                s_cnt = summary.get("sale_items_count", len(tables.get("sale_items", [])))
+                c_cnt = summary.get("customers_count", len(tables.get("customers", [])))
+                print(f"[PASS 200] GET /api/erp/backup-export with Owner Passcode: HTTP 200 OK | Exported {p_cnt} products, {i_cnt} invoices, {s_cnt} sale items, {c_cnt} customers", flush=True)
+            else:
+                print(f"[FAIL] GET /api/erp/backup-export returned HTTP {resp.status}", flush=True)
+    except Exception as e:
+        print(f"[FAIL] GET /api/erp/backup-export Owner verification failed: {e}", flush=True)
+
 def run_storefront_tests():
     print("\n========================================================", flush=True)
     print("[STOREFRONT] RUNNING PUBLIC STOREFRONT & CUSTOMER APIS AUDIT", flush=True)
