@@ -274,6 +274,11 @@ def run_storefront_tests():
     if isinstance(feed_res, dict):
         print(f"       Verification: Posts count: {feed_res.get('count')}", flush=True)
 
+    # 8b. Customer Testimonials (Unified to CraftPost)
+    test_res = test_endpoint("Customer Testimonials (GET /api/testimonials)", f"{BASE_URL}/api/testimonials")
+    if isinstance(test_res, list):
+        print(f"       Verification: Approved testimonials count: {len(test_res)}", flush=True)
+
     # 9. Offline Data JS
     test_endpoint("Offline Data JS (/offline_data.js)", f"{BASE_URL}/offline_data.js")
 

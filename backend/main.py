@@ -993,41 +993,67 @@ def track_carpenter_call(call: schemas.CarpenterCallCreate, db: Session = Depend
     }
 
 
-# 5. GET /api/testimonials & POST /api/testimonials
+# 5. GET /api/testimonials & POST /api/testimonials (Unified to CraftPost)
 @app.get("/api/testimonials")
 def get_approved_testimonials(db: Session = Depends(get_db)):
-    rows = (
+    craft_rows = (
+        db.query(models.CraftPost)
+        .filter((models.CraftPost.is_approved == True) | (models.CraftPost.status == "approved"))
+        .order_by(models.CraftPost.id.desc())
+        .limit(50)
+        .all()
+    )
+    legacy_rows = (
         db.query(models.CustomerTestimonial)
         .filter(models.CustomerTestimonial.is_approved == True)
         .order_by(models.CustomerTestimonial.id.desc())
         .limit(50)
         .all()
     )
-    return [
-        {
+    items = []
+    for r in craft_rows:
+        items.append({
+            "id": r.id,
+            "customer_name": r.author_name,
+            "customer_location": r.village_location or "Onda, Bankura",
+            "project_title": r.caption or f"{r.project_category} Project",
+            "carpenter_name": r.author_name if (r.author_role or "").lower() == "mistri" else (r.materials_used or "Local BDE Mistri").replace("Mistri: ", ""),
+            "image_base64": r.image_base64,
+            "created_at": r.created_at.strftime("%d %b %Y") if r.created_at else "Recent",
+            "_dt": r.created_at or datetime.min
+        })
+    for r in legacy_rows:
+        items.append({
             "id": r.id,
             "customer_name": r.customer_name,
             "customer_location": r.customer_location,
             "project_title": r.project_title,
             "carpenter_name": r.carpenter_name or "Local BDE Mistri",
             "image_base64": r.image_base64,
-            "created_at": r.created_at.strftime("%d %b %Y") if r.created_at else "Recent"
-        }
-        for r in rows
-    ]
+            "created_at": r.created_at.strftime("%d %b %Y") if r.created_at else "Recent",
+            "_dt": r.created_at or datetime.min
+        })
+    items.sort(key=lambda x: x["_dt"], reverse=True)
+    for it in items:
+        it.pop("_dt", None)
+    return items[:50]
 
 @app.post("/api/testimonials")
 def submit_testimonial(item: schemas.TestimonialCreate, db: Session = Depends(get_db)):
-    record = models.CustomerTestimonial(
-        customer_name=item.customer_name.strip(),
-        customer_phone=item.customer_phone.strip(),
-        customer_location=item.customer_location.strip(),
-        project_title=item.project_title.strip(),
-        carpenter_name=item.carpenter_name.strip() if item.carpenter_name else "BDE Mistri",
+    record = models.CraftPost(
+        author_name=item.customer_name.strip() if item.customer_name else "Valued Customer",
+        author_role="Homeowner",
+        author_phone=item.customer_phone.strip() if item.customer_phone else None,
+        village_location=item.customer_location.strip() if item.customer_location else "Onda, Bankura",
+        project_category="Customer Showcase",
+        caption=item.project_title.strip() if item.project_title else "Finished Furniture Project",
+        materials_used=f"Mistri: {item.carpenter_name.strip()}" if item.carpenter_name else "BDE Mistri",
         image_base64=item.image_base64,
-        is_approved=False,  # Submissions require admin review before going live
-        invoice_no=item.invoice_no.strip() if item.invoice_no else None,
-        cashback_upi=item.cashback_upi.strip() if item.cashback_upi else None,
+        status="pending",
+        is_approved=False,
+        bill_number=item.invoice_no.strip() if item.invoice_no else None,
+        upi_id=item.cashback_upi.strip() if item.cashback_upi else None,
+        cashback_amount=0.0,
         cashback_status="Pending Review",
         created_at=datetime.utcnow()
     )
@@ -1064,16 +1090,20 @@ async def upload_testimonial_photo(
     b64_data = base64.b64encode(contents).decode("utf-8")
     data_url = f"data:{mime_type};base64,{b64_data}"
 
-    record = models.CustomerTestimonial(
-        customer_name=(customer_name or "Valued Customer").strip(),
-        customer_phone=(customer_phone or "").strip(),
-        customer_location=(customer_location or "Onda, Bankura").strip(),
-        project_title=(project_title or "Finished Furniture Project").strip(),
-        carpenter_name=(carpenter_name or "BDE Mistri").strip(),
+    record = models.CraftPost(
+        author_name=(customer_name or "Valued Customer").strip(),
+        author_role="Homeowner",
+        author_phone=(customer_phone or "").strip() if customer_phone else None,
+        village_location=(customer_location or "Onda, Bankura").strip(),
+        project_category="Customer Showcase",
+        caption=(project_title or "Finished Furniture Project").strip(),
+        materials_used=f"Mistri: {(carpenter_name or 'BDE Mistri').strip()}",
         image_base64=data_url,
+        status="pending",
         is_approved=False,
-        invoice_no=invoice_no.strip() if invoice_no else None,
-        cashback_upi=cashback_upi.strip() if cashback_upi else None,
+        bill_number=invoice_no.strip() if invoice_no else None,
+        upi_id=cashback_upi.strip() if cashback_upi else None,
+        cashback_amount=0.0,
         cashback_status="Pending Review",
         created_at=datetime.utcnow()
     )
