@@ -99,7 +99,34 @@
     // 3D Fluted Louvers & Metallics
     { id: 'fluted_wood', name: 'Fluted Teak Louvers', code: 'BDE-601', category: 'fluted', baseColor: '#a76a36', desc: 'Vertical 3D slatted acoustic wooden battens' },
     { id: 'fluted_charcoal', name: 'Fluted Midnight Louver', code: 'BDE-608', category: 'fluted', baseColor: '#1e2530', desc: 'Architectural ribbed acoustic charcoal slats' },
-    { id: 'metallic_brass', name: 'Brushed Champagne Brass', code: 'BDE-501', category: 'fluted', baseColor: '#d4af37', desc: 'Metallic reflective warm golden sheen' }
+    { id: 'metallic_brass', name: 'Brushed Champagne Brass', code: 'BDE-501', category: 'fluted', baseColor: '#d4af37', desc: 'Metallic reflective warm golden sheen' },
+    // --- Woodgrains (5 Added -> Total 10) ---
+    { id: 'ashwood', name: 'Bleached Scandinavian Ash', code: 'BDE-825', category: 'wood', baseColor: '#e5d7c3', desc: 'Airy Nordic blonde wood with subtle straight grain' },
+    { id: 'mahogany', name: 'Deep Royal Mahogany', code: 'BDE-830', category: 'wood', baseColor: '#4a150e', desc: 'Opulent crimson-chocolate antique timber tone' },
+    { id: 'maple', name: 'Canadian Honey Maple', code: 'BDE-835', category: 'wood', baseColor: '#c89657', desc: 'Silky golden amber grain with satin sheen' },
+    { id: 'elm', name: 'Smoked Alpine Grey Elm', code: 'BDE-840', category: 'wood', baseColor: '#59524c', desc: 'Contemporary weathered ash-grey architectural grain' },
+    { id: 'macassar', name: 'Macassar Zebra Ebony', code: 'BDE-845', category: 'wood', baseColor: '#1f1610', desc: 'Dramatic alternating obsidian and cognac stripes' },
+
+    // --- Italian Stone & Marble (5 Added -> Total 8) ---
+    { id: 'calacatta', name: 'Calacatta Gold Imperial', code: 'BDE-920', category: 'marble', baseColor: '#fbfcf8', desc: 'Warm ivory marble laced with honey-gold ribbon veins' },
+    { id: 'statuario', name: 'Statuario Extra White', code: 'BDE-925', category: 'marble', baseColor: '#ffffff', desc: 'Pure alpine white with bold charcoal feather fractures' },
+    { id: 'portoro', name: 'Portoro Italian Onyx', code: 'BDE-930', category: 'marble', baseColor: '#080b11', desc: 'Jet-black Italian marble with radiant gold striations' },
+    { id: 'terrazzo', name: 'Venetian Terrazzo Pearl', code: 'BDE-935', category: 'marble', baseColor: '#ede8df', desc: 'Modern terrazzo with terracotta and sage mineral flecks' },
+    { id: 'concrete', name: 'Industrial Slate Concrete', code: 'BDE-940', category: 'marble', baseColor: '#8c929a', desc: 'Urban micro-cement slate texture with matte stone pores' },
+
+    // --- Modern Super-Matte Solids (5 Added -> Total 10) ---
+    { id: 'blush', name: 'Cashmere Blush Rose', code: 'BDE-730', category: 'solid', baseColor: '#d4a59a', desc: 'Velvety warm dusty rose matte for luxury master vanity' },
+    { id: 'olive', name: 'Deep Olive Botanical', code: 'BDE-735', category: 'solid', baseColor: '#3c4a3e', desc: 'Rich earthbound moss green with anti-fingerprint surface' },
+    { id: 'mustard', name: 'Tuscan Ochre Mustard', code: 'BDE-740', category: 'solid', baseColor: '#d99b26', desc: 'Warm artisanal saffron ochre accent solid' },
+    { id: 'teal', name: 'Aegean Dusty Teal', code: 'BDE-745', category: 'solid', baseColor: '#2c5364', desc: 'Sophisticated deep sea-blue green with powdery matte feel' },
+    { id: 'greige', name: 'Milanese Minimal Greige', code: 'BDE-750', category: 'solid', baseColor: '#bdb4a6', desc: 'Timeless warm grey-beige neutral for full-wall closets' },
+
+    // --- 3D Fluted Louvers & Metallics (5 Added -> Total 8) ---
+    { id: 'fluted_rosegold', name: 'Rose Gold Fluted Louver', code: 'BDE-615', category: 'fluted', baseColor: '#b76e79', desc: '3D slatted acoustic louvers in shimmering rose gold' },
+    { id: 'fluted_marble', name: 'Carrara Fluted Scallop', code: 'BDE-620', category: 'fluted', baseColor: '#f1f5f9', desc: 'Vertical sculpted 3D acoustic ribs in white Italian marble' },
+    { id: 'metallic_copper', name: 'Brushed Patina Copper', code: 'BDE-508', category: 'fluted', baseColor: '#b87333', desc: 'Warm burnished architectural copper with directional sheen' },
+    { id: 'metallic_gunmetal', name: 'Smoked Titanium Gunmetal', code: 'BDE-515', category: 'fluted', baseColor: '#3a3d40', desc: 'High-tech aerospace smoked titanium with satin reflection' },
+    { id: 'carbon_fiber', name: 'Stealth Carbon Weave', code: 'BDE-520', category: 'fluted', baseColor: '#18181b', desc: '3D diagonal twill carbon fiber weave with holographic depth' }
   ];
 
   window.HARDWARE_CATALOG = [
@@ -113,9 +140,18 @@
     return window.LAMINATE_CATALOG.find(s => s.id === id) || window.LAMINATE_CATALOG[0];
   }
 
+  const PATTERNED_LAMINATES = [
+    'teak', 'walnut', 'oak', 'wenge', 'rosewood',
+    'ashwood', 'mahogany', 'maple', 'elm', 'macassar',
+    'carrara', 'marquina', 'travertine',
+    'calacatta', 'statuario', 'portoro', 'terrazzo', 'concrete',
+    'fluted_wood', 'fluted_charcoal', 'metallic_brass',
+    'fluted_rosegold', 'fluted_marble', 'metallic_copper', 'metallic_gunmetal', 'carbon_fiber'
+  ];
+
   function getLaminateFill(laminateId) {
     const swatch = getSwatch(laminateId);
-    if (['teak', 'walnut', 'oak', 'wenge', 'rosewood', 'carrara', 'marquina', 'travertine', 'fluted_wood', 'fluted_charcoal', 'metallic_brass'].includes(laminateId)) {
+    if (PATTERNED_LAMINATES.includes(laminateId)) {
       return `url(#pat-${laminateId})`;
     }
     return swatch.baseColor;
@@ -290,6 +326,112 @@
           <rect width="30" height="30" fill="#d4af37" />
           <line x1="0" y1="0" x2="30" y2="30" stroke="#fef08a" stroke-width="0.6" opacity="0.4" />
           <line x1="0" y1="15" x2="30" y2="45" stroke="#a16207" stroke-width="0.8" opacity="0.3" />
+        </pattern>
+
+        <!-- NEW PATTERNS (20 Added Finishes) -->
+        <!-- Woodgrains -->
+        <pattern id="pat-ashwood" width="30" height="90" patternUnits="userSpaceOnUse">
+          <rect width="30" height="90" fill="#e5d7c3" />
+          <line x1="8" y1="0" x2="8" y2="90" stroke="#cdbeaa" stroke-width="1.2" opacity="0.6" stroke-dasharray="25,5,15,3" />
+          <line x1="18" y1="0" x2="18" y2="90" stroke="#bdae99" stroke-width="1.5" opacity="0.5" stroke-dasharray="10,4,30,6" />
+        </pattern>
+
+        <pattern id="pat-mahogany" width="35" height="110" patternUnits="userSpaceOnUse">
+          <rect width="35" height="110" fill="#4a150e" />
+          <path d="M0,0 Q18,35 35,20 M0,40 Q22,70 35,55 M0,75 Q15,100 35,90" stroke="#2c0b06" stroke-width="2.2" fill="none" opacity="0.75" />
+          <path d="M5,15 Q25,50 5,85" stroke="#682218" stroke-width="1" fill="none" opacity="0.4" />
+        </pattern>
+
+        <pattern id="pat-maple" width="40" height="100" patternUnits="userSpaceOnUse">
+          <rect width="40" height="100" fill="#c89657" />
+          <path d="M0,15 Q20,40 40,25 M0,50 Q20,75 40,60 M0,85 Q20,110 40,95" stroke="#a47236" stroke-width="1.6" fill="none" opacity="0.55" />
+        </pattern>
+
+        <pattern id="pat-elm" width="30" height="90" patternUnits="userSpaceOnUse">
+          <rect width="30" height="90" fill="#59524c" />
+          <line x1="6" y1="0" x2="6" y2="90" stroke="#3e3833" stroke-width="1.8" opacity="0.7" stroke-dasharray="18,4,12,3" />
+          <line x1="18" y1="0" x2="18" y2="90" stroke="#756d66" stroke-width="1.2" opacity="0.45" />
+          <line x1="25" y1="0" x2="25" y2="90" stroke="#3e3833" stroke-width="2" opacity="0.65" />
+        </pattern>
+
+        <pattern id="pat-macassar" width="24" height="60" patternUnits="userSpaceOnUse">
+          <rect width="24" height="60" fill="#1f1610" />
+          <line x1="4" y1="0" x2="4" y2="60" stroke="#92541a" stroke-width="2.5" opacity="0.8" />
+          <line x1="12" y1="0" x2="12" y2="60" stroke="#000000" stroke-width="3" opacity="0.9" />
+          <line x1="18" y1="0" x2="18" y2="60" stroke="#783e0c" stroke-width="1.5" opacity="0.7" />
+        </pattern>
+
+        <!-- Marbles & Stone -->
+        <pattern id="pat-calacatta" width="130" height="130" patternUnits="userSpaceOnUse">
+          <rect width="130" height="130" fill="#fbfcf8" />
+          <path d="M0,25 Q45,35 70,10 T130,45 M15,130 Q55,65 90,85 T130,55" stroke="#d97706" stroke-width="2.2" fill="none" opacity="0.65" stroke-linecap="round" />
+          <path d="M5,30 Q48,40 73,15 M20,125 Q58,70 93,90" stroke="#94a3b8" stroke-width="1.2" fill="none" opacity="0.5" />
+        </pattern>
+
+        <pattern id="pat-statuario" width="140" height="140" patternUnits="userSpaceOnUse">
+          <rect width="140" height="140" fill="#ffffff" />
+          <path d="M0,15 Q50,55 85,25 T140,70 M10,140 Q40,80 80,105 T140,40" stroke="#334155" stroke-width="2.8" fill="none" opacity="0.8" stroke-linecap="round" />
+          <path d="M15,20 Q55,60 90,30" stroke="#64748b" stroke-width="1" fill="none" opacity="0.5" />
+        </pattern>
+
+        <pattern id="pat-portoro" width="120" height="120" patternUnits="userSpaceOnUse">
+          <rect width="120" height="120" fill="#080b11" />
+          <path d="M0,35 Q50,15 80,60 T120,25 M5,105 Q65,80 95,115 T120,75" stroke="#eab308" stroke-width="2.2" fill="none" opacity="0.85" />
+          <path d="M10,40 Q55,20 85,65" stroke="#fef08a" stroke-width="0.8" fill="none" opacity="0.65" />
+          <path d="M25,0 Q55,50 35,90" stroke="#ffffff" stroke-width="0.7" fill="none" opacity="0.45" />
+        </pattern>
+
+        <pattern id="pat-terrazzo" width="30" height="30" patternUnits="userSpaceOnUse">
+          <rect width="30" height="30" fill="#ede8df" />
+          <polygon points="5,5 9,3 8,8" fill="#b85d43" opacity="0.85" />
+          <polygon points="18,12 24,14 21,19" fill="#2c5364" opacity="0.8" />
+          <circle cx="12" cy="22" r="2" fill="#d97706" opacity="0.75" />
+          <polygon points="22,4 27,8 24,6" fill="#334155" opacity="0.7" />
+        </pattern>
+
+        <pattern id="pat-concrete" width="40" height="40" patternUnits="userSpaceOnUse">
+          <rect width="40" height="40" fill="#8c929a" />
+          <circle cx="8" cy="12" r="1.5" fill="#64748b" opacity="0.6" />
+          <circle cx="28" cy="8" r="1" fill="#475569" opacity="0.7" />
+          <circle cx="18" cy="28" r="1.8" fill="#475569" opacity="0.6" />
+          <circle cx="34" cy="32" r="1.2" fill="#cbd5e1" opacity="0.45" />
+        </pattern>
+
+        <!-- 3D Fluted & Metallics -->
+        <pattern id="pat-fluted_rosegold" width="16" height="40" patternUnits="userSpaceOnUse">
+          <rect width="16" height="40" fill="#b76e79" />
+          <rect x="0" y="0" width="8" height="40" fill="#d48a94" />
+          <rect x="8" y="0" width="8" height="40" fill="#8c4752" />
+          <line x1="0" y1="0" x2="0" y2="40" stroke="#fbcfe8" stroke-width="0.8" />
+          <line x1="8" y1="0" x2="8" y2="40" stroke="#5f252f" stroke-width="1.2" />
+        </pattern>
+
+        <pattern id="pat-fluted_marble" width="16" height="40" patternUnits="userSpaceOnUse">
+          <rect width="16" height="40" fill="#f1f5f9" />
+          <rect x="0" y="0" width="8" height="40" fill="#ffffff" />
+          <rect x="8" y="0" width="8" height="40" fill="#cbd5e1" />
+          <line x1="0" y1="0" x2="0" y2="40" stroke="#ffffff" stroke-width="0.8" />
+          <line x1="8" y1="0" x2="8" y2="40" stroke="#94a3b8" stroke-width="1.2" />
+        </pattern>
+
+        <pattern id="pat-metallic_copper" width="30" height="30" patternUnits="userSpaceOnUse">
+          <rect width="30" height="30" fill="#b87333" />
+          <line x1="0" y1="0" x2="30" y2="30" stroke="#fdba74" stroke-width="0.7" opacity="0.45" />
+          <line x1="0" y1="15" x2="30" y2="45" stroke="#7c2d12" stroke-width="0.9" opacity="0.4" />
+        </pattern>
+
+        <pattern id="pat-metallic_gunmetal" width="30" height="30" patternUnits="userSpaceOnUse">
+          <rect width="30" height="30" fill="#3a3d40" />
+          <line x1="0" y1="0" x2="30" y2="30" stroke="#6b7280" stroke-width="0.6" opacity="0.5" />
+          <line x1="0" y1="15" x2="30" y2="45" stroke="#1f2937" stroke-width="0.8" opacity="0.6" />
+        </pattern>
+
+        <pattern id="pat-carbon_fiber" width="12" height="12" patternUnits="userSpaceOnUse">
+          <rect width="12" height="12" fill="#18181b" />
+          <rect x="0" y="0" width="6" height="6" fill="#27272a" />
+          <rect x="6" y="6" width="6" height="6" fill="#27272a" />
+          <line x1="0" y1="0" x2="6" y2="6" stroke="#3f3f46" stroke-width="0.7" />
+          <line x1="6" y1="6" x2="12" y2="12" stroke="#3f3f46" stroke-width="0.7" />
         </pattern>
       </defs>
     `;
