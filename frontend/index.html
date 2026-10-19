@@ -5304,7 +5304,7 @@
         <span>🌲</span> 45+ Custom Engineered Doors Collection
       </h2>
       <p class="doors-hero-subtitle">
-        We don't sell stock off-the-shelf doors that shrink or bend. Every single door is custom-crafted to your home's exact frame dimensions using <strong>100% Solid Seasoned Pinewood Core (IS:2202)</strong>. Browse 45 exclusive 3D carved, 2D groove, and laminated designs below, check live approx price by size, and book our free onsite frame laser measurement in Onda, Bankura &amp; surrounding villages!
+        We don't sell stock off-the-shelf doors that shrink or bend. Every single door is custom-crafted to your home's exact frame dimensions using <strong>100% Solid Seasoned Pinewood Core (IS:2202)</strong>. Browse 45 exclusive 3D carved, 2D groove, and laminated designs below, calculate your frame area, and book our free onsite frame laser measurement in Onda, Bankura &amp; surrounding villages!
       </p>
       <div class="doors-trust-strip">
         <div class="doors-trust-pill">
@@ -5330,9 +5330,9 @@
     <div id="doors-calc-card" class="doors-calc-card">
       <div class="doors-calc-header">
         <div class="doors-calc-title">
-          <span>📐</span> Instant Door Price &amp; Size Estimator
+          <span>📐</span> Instant Door Frame Size &amp; Area Calculator
         </div>
-        <span class="doors-calc-tag">Live Onda Counter Rates</span>
+        <span class="doors-calc-tag">Custom Precision Sizing</span>
       </div>
 
       <!-- Step 1: Standard Frame Sizes or Custom -->
@@ -5379,22 +5379,22 @@
         <div class="doors-grade-card active" data-grade="3d" onclick="setDoorGrade('3d', this)">
           <div class="doors-grade-icon">✨</div>
           <div class="doors-grade-name">3D CNC Carved</div>
-          <div class="doors-grade-rate">₹380 - ₹480 / sq.ft</div>
+          <div class="doors-grade-rate">Deep CNC Relief Carving</div>
         </div>
         <div class="doors-grade-card" data-grade="2d" onclick="setDoorGrade('2d', this)">
           <div class="doors-grade-icon">📐</div>
           <div class="doors-grade-name">2D Groove &amp; Membrane</div>
-          <div class="doors-grade-rate">₹260 - ₹340 / sq.ft</div>
+          <div class="doors-grade-rate">Precision V-Grooves &amp; Metallic Inlays</div>
         </div>
         <div class="doors-grade-card" data-grade="laminated" onclick="setDoorGrade('laminated', this)">
           <div class="doors-grade-icon">🪵</div>
           <div class="doors-grade-name">Laminated &amp; Veneer</div>
-          <div class="doors-grade-rate">₹190 - ₹250 / sq.ft</div>
+          <div class="doors-grade-rate">0.8mm Textured HPL &amp; Parquet</div>
         </div>
         <div class="doors-grade-card" data-grade="mandir" onclick="setDoorGrade('mandir', this)">
           <div class="doors-grade-icon">🪔</div>
           <div class="doors-grade-name">Mandir &amp; Pooja Jali</div>
-          <div class="doors-grade-rate">₹420 - ₹540 / sq.ft</div>
+          <div class="doors-grade-rate">Auspicious Jali &amp; Sacred Relief</div>
         </div>
       </div>
 
@@ -5403,13 +5403,13 @@
         <span style="font-size: 11px; font-weight: 700; color: #94a3b8;">Solid Pinewood Core Thickness:</span>
         <div style="display: flex; gap: 6px; flex-wrap: wrap;">
           <label style="font-size: 11px; color: #e2e8f0; display: flex; align-items: center; gap: 4px; cursor: pointer;">
-            <input type="radio" name="door-thickness" value="30" checked onchange="setDoorThickness(this.value)"> 30mm Standard Core
+            <input type="radio" name="door-thickness" value="30" checked onchange="setDoorThickness(this.value)"> 30mm Standard Seasoned Pine (IS:2202)
           </label>
           <label style="font-size: 11px; color: #e2e8f0; display: flex; align-items: center; gap: 4px; cursor: pointer; margin-left: 8px;">
-            <input type="radio" name="door-thickness" value="32" onchange="setDoorThickness(this.value)"> 32mm Waterproof Marine (+₹25/sq.ft)
+            <input type="radio" name="door-thickness" value="32" onchange="setDoorThickness(this.value)"> 32mm Waterproof Marine Core
           </label>
           <label style="font-size: 11px; color: #e2e8f0; display: flex; align-items: center; gap: 4px; cursor: pointer; margin-left: 8px;">
-            <input type="radio" name="door-thickness" value="35" onchange="setDoorThickness(this.value)"> 35mm Heavy Main Entrance (+₹50/sq.ft)
+            <input type="radio" name="door-thickness" value="35" onchange="setDoorThickness(this.value)"> 35mm Heavy Main Entrance Solid Core
           </label>
         </div>
       </div>
@@ -5418,10 +5418,10 @@
       <div class="doors-estimate-banner">
         <div class="doors-est-left">
           <span class="doors-est-meta">
-            Calculated Area: <strong id="doors-est-sqft" style="color: #ffffff;">21.0 sq.ft</strong> • Rate: <strong id="doors-est-rate" style="color: #fbbf24;">₹380 – ₹480 / sq.ft</strong>
+            Calculated Area: <strong id="doors-est-sqft" style="color: #ffffff;">21.0 sq.ft</strong> • Sizing: <strong id="doors-est-rate" style="color: #fbbf24;">Custom Laser Frame Sizing</strong>
           </span>
-          <div id="doors-est-total" class="doors-est-total">₹7,980 – ₹10,080</div>
-          <span class="doors-est-sub">Includes pine solid core slab, precision CNC tooling, and edge sealing.</span>
+          <div id="doors-est-total" class="doors-est-total">Quote on Free Onsite Inspection</div>
+          <span class="doors-est-sub">Dipanjan Babu visits your home in Onda or Bankura with physical catalogue samples to measure frame rebate &amp; provide exact quote.</span>
         </div>
         <button class="doors-btn-book-visit" onclick="sendDoorWhatsAppQuote(window.DOOR_STATE.activeDoorId)">
           <span>🚗</span> Book Free Onsite Laser Measurement
@@ -5438,8 +5438,6 @@
         </div>
         <select class="doors-sort-select" onchange="sortDoors(this.value)">
           <option value="featured">🌟 Featured (45)</option>
-          <option value="price_asc">💰 Price: Low to High</option>
-          <option value="price_desc">💎 Price: High to Low</option>
           <option value="name">🔤 Model Name (A-Z)</option>
         </select>
       </div>
@@ -6304,12 +6302,12 @@
             <div id="door-modal-finish" class="door-spec-val">Natural Burma Teak 3D CNC</div>
           </div>
           <div class="door-spec-item">
-            <div class="door-spec-label">Indicative Sq.Ft Rate</div>
-            <div id="door-modal-rate" class="door-spec-val">₹390 – ₹480 / sq.ft</div>
+            <div class="door-spec-label">Pricing &amp; Quotation</div>
+            <div id="door-modal-rate" class="door-spec-val">Free Onsite Measurement &amp; Quote</div>
           </div>
           <div class="door-spec-item">
-            <div class="door-spec-label">Standard Frame Price</div>
-            <div id="door-modal-std-price" class="door-spec-val">~₹8,190 (7×3 ft)</div>
+            <div class="door-spec-label">Custom Frame Sizing</div>
+            <div id="door-modal-std-price" class="door-spec-val">Custom Fabricated to Exact Frame</div>
           </div>
         </div>
 

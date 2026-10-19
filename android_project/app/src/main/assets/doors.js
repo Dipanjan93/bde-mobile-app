@@ -758,39 +758,14 @@
     activeDoorId: 'dr-01'
   };
 
-  // Grade rates mapping for size estimator
-  const GRADE_PRICING = {
-    '3d': { min: 385, max: 485, name: '3D Deep CNC Carved' },
-    'mandir': { min: 430, max: 550, name: 'Mandir & Heritage Relief' },
-    '2d': { min: 285, max: 375, name: '2D Contemporary Groove' },
-    'laminated': { min: 215, max: 285, name: 'Laminated & Flush Inlay' }
-  };
-
   // =========================================================================
-  // 3. PRICE ESTIMATION ENGINE
+  // 3. FRAME SIZE & BOQ AREA ESTIMATION ENGINE
   // =========================================================================
   window.updateDoorEstimate = function () {
     const s = window.DOOR_STATE;
     const w = parseFloat(s.width) || 3.0;
     const h = parseFloat(s.height) || 7.0;
     const sqft = Math.round(w * h * 10) / 10;
-
-    // Base pricing according to selected grade
-    const grade = GRADE_PRICING[s.selectedGrade] || GRADE_PRICING['3d'];
-    let minRate = grade.min;
-    let maxRate = grade.max;
-
-    // Thickness adjustment
-    if (s.coreThickness === 32) {
-      minRate += 25;
-      maxRate += 25;
-    } else if (s.coreThickness === 35) {
-      minRate += 50;
-      maxRate += 50;
-    }
-
-    const estMin = Math.round(sqft * minRate);
-    const estMax = Math.round(sqft * maxRate);
 
     // Update UI elements
     const sqftEl = document.getElementById('doors-est-sqft');
@@ -800,8 +775,8 @@
     const heightValEl = document.getElementById('doors-slider-height-val');
 
     if (sqftEl) sqftEl.textContent = `${sqft.toFixed(1)} sq.ft`;
-    if (totalEl) totalEl.textContent = `₹${estMin.toLocaleString('en-IN')} – ₹${estMax.toLocaleString('en-IN')}`;
-    if (rateEl) rateEl.textContent = `₹${minRate} – ₹${maxRate} / sq.ft`;
+    if (totalEl) totalEl.textContent = `Quote on Free Onsite Inspection`;
+    if (rateEl) rateEl.textContent = `Custom Laser Frame Sizing`;
     if (widthValEl) widthValEl.textContent = `${w.toFixed(1)} ft`;
     if (heightValEl) heightValEl.textContent = `${h.toFixed(1)} ft`;
   };
@@ -874,11 +849,7 @@
     }
 
     // Sort
-    if (s.sortBy === 'price_asc') {
-      list.sort((a, b) => a.baseRateSqft - b.baseRateSqft);
-    } else if (s.sortBy === 'price_desc') {
-      list.sort((a, b) => b.baseRateSqft - a.baseRateSqft);
-    } else if (s.sortBy === 'name') {
+    if (s.sortBy === 'name') {
       list.sort((a, b) => a.name.localeCompare(b.name));
     }
 
@@ -904,14 +875,12 @@
     }
 
     grid.innerHTML = doorsList.map(door => {
-      const approxStdPrice = Math.round(door.baseRateSqft * 21); // 7x3 ft = 21 sq.ft
       const fallbackUrl = 'static/img/doors/door_' + String(door.num).padStart(2, '0') + '.jpg';
       return `
         <div class="door-card" id="door-card-${door.id}">
           <!-- Visual Door Composite Preview (Actual 1200x863 Catalogue Image) -->
           <div class="door-preview-stage" onclick="openDoorDetailModal('${door.id}')" title="Click to view full catalogue card & room preview">
             <span class="door-card-badge">${door.categoryLabel}</span>
-            <span class="door-rate-pill">From ₹${door.baseRateSqft}/sq.ft</span>
             <img src="${door.imageUrl}" alt="${door.name}" class="door-card-img" loading="lazy" onerror="this.onerror=null; this.src='${fallbackUrl}';" />
             <div class="door-preview-zoom-hint">🔍 Tap to inspect catalogue card & room view</div>
           </div>
@@ -920,14 +889,14 @@
           <div class="door-card-content">
             <div class="door-code-row">
               <span class="door-code">${door.code}</span>
-              <span class="door-approx-std">~₹${approxStdPrice.toLocaleString('en-IN')} (7×3 ft)</span>
+              <span class="door-approx-std">Custom Fit</span>
             </div>
             <h4 class="door-card-title">${door.name}</h4>
             <div class="door-card-desc">${door.desc}</div>
 
             <div class="door-actions-row">
               <button class="btn-door-calc" onclick="selectDoorForEstimate('${door.id}')">
-                📐 Calculate Size
+                📐 Frame Size
               </button>
               <button class="btn-door-wa" onclick="sendDoorWhatsAppQuote('${door.id}')">
                 <span>💬</span> WhatsApp Quote
@@ -994,10 +963,9 @@
     if (desc) desc.textContent = door.desc;
     if (core) core.textContent = door.core;
     if (finish) finish.textContent = door.finish;
-    if (rate) rate.textContent = `₹${door.baseRateSqft} – ₹${door.rateMaxSqft} / sq.ft`;
+    if (rate) rate.textContent = 'Free Onsite Measurement & Quote';
     if (stdPrice) {
-      const p = Math.round(door.baseRateSqft * 21);
-      stdPrice.textContent = `₹${p.toLocaleString('en-IN')} (Standard 7.0 × 3.0 ft frame)`;
+      stdPrice.textContent = 'Custom Fabricated to Exact Frame';
     }
 
     if (waBtn) {
@@ -1029,8 +997,6 @@
     const w = parseFloat(s.width) || 3.0;
     const h = parseFloat(s.height) || 7.0;
     const sqft = Math.round(w * h * 10) / 10;
-    const estMin = Math.round(sqft * door.baseRateSqft);
-    const estMax = Math.round(sqft * door.rateMaxSqft);
 
     if (window.STATE && !window.STATE.user) {
       window.STATE.pendingAction = () => window.sendDoorWhatsAppQuote(doorId);
@@ -1044,19 +1010,12 @@
     const locality = user.location || window.STATE?.currentLocality || 'Onda, Bankura';
 
     const materialsText =
-      `• Door Model: ${door.name} (${door.code})
-` +
-      `• Category: ${door.categoryLabel}
-` +
-      `• Estimated Frame Size: ${w.toFixed(1)} ft W × ${h.toFixed(1)} ft H (${sqft.toFixed(1)} sq.ft)
-` +
-      `• Core Grade: ${s.coreThickness}mm ${door.core}
-` +
-      `• Finish: ${door.finish}
-` +
-      `• Approximate Range: ₹${estMin.toLocaleString('en-IN')} – ₹${estMax.toLocaleString('en-IN')}
-` +
-      `• Customer Request: Free onsite frame laser measurement in ${locality}`;
+      `• Door Model: ${door.name} (${door.code})\n` +
+      `• Category: ${door.categoryLabel}\n` +
+      `• Estimated Frame Size: ${w.toFixed(1)} ft W × ${h.toFixed(1)} ft H (${sqft.toFixed(1)} sq.ft)\n` +
+      `• Core Grade: ${s.coreThickness}mm ${door.core}\n` +
+      `• Finish: ${door.finish}\n` +
+      `• Customer Request: Free onsite frame laser measurement & quotation in ${locality}`;
 
     const payload = {
       customer_name: user.name,
@@ -1077,11 +1036,10 @@
       `• Type: ${door.categoryLabel}\n` +
       `• Finish: ${door.finish}\n` +
       `• Core: ${s.coreThickness}mm Solid Seasoned Pinewood (IS:2202)\n\n` +
-      `📐 *Estimated Dimensions:*\n` +
-      `• Approx Size: ${w.toFixed(1)} ft W × ${h.toFixed(1)} ft H (~${sqft.toFixed(1)} sq.ft)\n` +
-      `• Approx Estimated Cost: ₹${estMin.toLocaleString('en-IN')} – ₹${estMax.toLocaleString('en-IN')}\n` +
+      `📐 *Dimensions & Quotation:*\n` +
+      `• Approx Frame Size: ${w.toFixed(1)} ft W × ${h.toFixed(1)} ft H (~${sqft.toFixed(1)} sq.ft)\n` +
       `• My Village / Location: ${locality}\n\n` +
-      `Please schedule a free visit to measure my door frame onsite in Bankura and confirm delivery timeline. Thank you!`;
+      `Please schedule a free visit to measure my door frame onsite in Bankura and give me the exact quotation and delivery timeline. Thank you!`;
 
     const encoded = encodeURIComponent(message);
     const defaultWaUrl = `https://wa.me/919867098952?text=${encoded}`;
