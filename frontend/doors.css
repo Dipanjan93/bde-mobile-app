@@ -468,35 +468,60 @@
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6), 0 0 16px rgba(245, 158, 11, 0.2);
 }
 
-/* Visual Door Preview Frame (Aspect Ratio ~2:1) */
+/* Visual Door Preview Frame (Aspect Ratio ~16:11 Matching Catalogue Card) */
 .door-preview-stage {
-  height: 240px;
-  background: radial-gradient(circle at 50% 35%, #1e293b 0%, #0a0f18 100%);
+  height: 200px;
+  background: #090d13;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   overflow: hidden;
-  border-bottom: 1px solid rgba(245, 158, 11, 0.15);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.2);
   cursor: pointer;
 }
 
-.door-preview-stage svg {
-  height: 90%;
-  max-width: 85%;
-  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.6));
-  transition: transform 0.25s ease;
+.door-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  display: block;
 }
 
-.door-card:hover .door-preview-stage svg {
-  transform: scale(1.03);
+.door-card:hover .door-card-img {
+  transform: scale(1.05);
+}
+
+.door-preview-zoom-hint {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: rgba(13, 17, 23, 0.88);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fbbf24;
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 3px 7px;
+  border-radius: 6px;
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+  opacity: 0.95;
+  transition: all 0.2s ease;
+}
+
+.door-card:hover .door-preview-zoom-hint {
+  background: rgba(245, 158, 11, 0.92);
+  color: #0d1117;
+  font-weight: 800;
 }
 
 .door-card-badge {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  background: rgba(13, 17, 23, 0.85);
+  top: 8px;
+  left: 8px;
+  background: rgba(13, 17, 23, 0.88);
   border: 1px solid rgba(245, 158, 11, 0.4);
   color: #fbbf24;
   font-size: 10px;
@@ -504,12 +529,13 @@
   padding: 3px 8px;
   border-radius: 6px;
   backdrop-filter: blur(8px);
+  z-index: 2;
 }
 
 .door-rate-pill {
   position: absolute;
-  bottom: 10px;
-  right: 10px;
+  top: 8px;
+  right: 8px;
   background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
   color: #0d1117;
   font-size: 10px;
@@ -517,6 +543,7 @@
   padding: 3px 8px;
   border-radius: 6px;
   box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+  z-index: 2;
 }
 
 /* Card Content Info */
@@ -689,19 +716,45 @@
 }
 
 .door-modal-preview-stage {
-  height: 280px;
-  background: radial-gradient(circle at 50% 35%, #1e293b 0%, #0a0f18 100%);
+  min-height: 240px;
+  max-height: 480px;
+  background: #090d13;
   border-radius: 14px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  overflow: hidden;
+  position: relative;
 }
 
-.door-modal-preview-stage svg {
-  height: 90%;
-  max-width: 80%;
-  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.7));
+.door-modal-img-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.door-modal-img {
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  object-fit: contain;
+  display: block;
+}
+
+.door-modal-img-caption {
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(13, 17, 23, 0.95);
+  border-top: 1px solid rgba(245, 158, 11, 0.2);
+  text-align: center;
+  color: #fbbf24;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
 }
 
 .door-specs-grid {
