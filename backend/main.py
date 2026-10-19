@@ -1421,7 +1421,7 @@ def list_products(db: Session = Depends(get_db), auth: dict = Depends(verify_sta
         opening_qty = max(0.0, current_stock + total_sold - total_restocked)
         inventory_valuation = round(current_stock * p.purchase_price, 2)
         capacity_base = max(opening_qty + total_restocked, current_stock, 1.0)
-        reorder_level = round(capacity_base * 0.25, 1)
+        reorder_level = round(capacity_base * 0.30, 1)
 
         if current_stock <= 0:
             stock_status = "NO STOCK"

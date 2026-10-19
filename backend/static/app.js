@@ -539,14 +539,14 @@ function renderInventory(list) {
     let barColor = 'var(--emerald)';
     const stock = p.stock_qty || 0;
     const reorder = p.reorder_level || 1;
-    const maxCap = Math.max(stock, reorder * 4, 1);
+    const maxCap = Math.max(stock, Math.round(reorder / 0.30), 1);
     const pct = Math.min(100, Math.max(4, Math.round((stock / maxCap) * 100)));
 
     if (stock <= 0) {
       statusBadge = '<span class="badge-nostock">NO STOCK</span>';
       barColor = 'var(--rose)';
     } else if (stock <= reorder) {
-      statusBadge = '<span class="badge-lowstock">LOW STOCK (&le;25%)</span>';
+      statusBadge = '<span class="badge-lowstock">LOW STOCK (&le;30%)</span>';
       barColor = 'var(--amber)';
     } else {
       statusBadge = '<span class="badge-instock">IN STOCK</span>';
@@ -1844,7 +1844,7 @@ async function seedMasterCatalogue() {
 function generateRestockPdf() {
   const lowStockItems = productsCache.filter(p => (p.stock_qty || 0) <= (p.reorder_level || 0));
   if (lowStockItems.length === 0) {
-    return showToast("All items are well-stocked above 25%! No restock needed.", "success");
+    return showToast("All items are well-stocked above 30%! No restock needed.", "success");
   }
 
   const now = new Date();
