@@ -1713,6 +1713,28 @@
 
     // 11. Recompute BOM & Goods Requirements
     renderSimBomDetails();
+
+    // 12. Update Cockpit Quick Status Pill & Persistent Bottom Bar
+    const s = window.SIM_STATE;
+    const curDim = s.dimensions[s.structure] || { width: 6, height: 7, label: s.structure };
+    const structLabel = curDim.label || s.structure;
+    const bomData = calculateSimulatorBom();
+
+    const quickStructName = document.getElementById('sim-quick-struct-name');
+    const quickDimLabel = document.getElementById('sim-quick-dim-label');
+    const quickSheetBadge = document.getElementById('sim-quick-sheet-badge');
+    const barSheetSummary = document.getElementById('sim-bar-sheet-summary');
+
+    if (quickStructName) quickStructName.textContent = structLabel;
+    if (quickDimLabel) quickDimLabel.textContent = `${curDim.width.toFixed(1)} × ${curDim.height.toFixed(1)} ft`;
+    if (quickSheetBadge) quickSheetBadge.textContent = `📋 ${bomData.totalPlySheets} Sheets`;
+    if (barSheetSummary) barSheetSummary.textContent = `Total: ${bomData.totalPlySheets} Ply + ${Math.round((bomData.laminateSheets + bomData.linerSheets) * 10) / 10} Sunmica`;
+
+    // 13. Update Swatch Card Selection States
+    document.querySelectorAll('.sim-swatch-card').forEach(card => {
+      const id = card.getAttribute('data-swatch-id');
+      card.classList.toggle('selected', id === currentSwatchId);
+    });
   };
 
   function renderSimBomDetails() {
@@ -1737,6 +1759,31 @@
       `).join('');
     }
   }
+
+
+  // --- ZERO-SCROLL COCKPIT TAB & FILTER CONTROLLERS ---
+  window.simSwitchDeckTab = function (tabName) {
+    document.querySelectorAll('.sim-deck-tab-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-tab') === tabName);
+    });
+    document.querySelectorAll('.sim-deck-panel').forEach(panel => {
+      panel.classList.toggle('active', panel.id === `sim-tab-${tabName}`);
+    });
+  };
+
+  window.simFilterLaminates = function (cat) {
+    document.querySelectorAll('.sim-filter-pill').forEach(pill => {
+      pill.classList.toggle('active', pill.getAttribute('data-cat') === cat);
+    });
+    document.querySelectorAll('.sim-swatch-card').forEach(card => {
+      const cardCat = card.getAttribute('data-cat');
+      if (cat === 'all' || cardCat === cat) {
+        card.style.display = 'flex';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  };
 
   // --- EVENT HANDLERS ---
   window.simSelectStructure = function (struct) {

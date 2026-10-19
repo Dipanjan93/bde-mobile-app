@@ -4609,190 +4609,36 @@
   <!-- =========================================================
        VIEW: INTERACTIVE 3D FURNITURE & LAMINATE STUDIO SIMULATOR
        ========================================================= -->
-  <section id="view-simulator" style="display: none;" class="simulator-container">
-    <div class="sim-card">
-      <!-- Header -->
-      <div class="sim-header">
-        <div class="sim-header-info">
-          <div class="sim-header-icon">🎨</div>
-          <div class="sim-header-text">
-            <h2>3D Furniture &amp; Laminate Studio</h2>
-            <p>Customize structures, test laminates &amp; calculate ply requirements in real-time</p>
-          </div>
-        </div>
-        <div class="sim-puja-badge">🪔 Durga Puja Studio Edition</div>
-      </div>
+    <section id="view-simulator" style="display: none;" class="simulator-container">
+    <div class="sim-cockpit-layout">
 
-      <!-- 1. Structure Selection (18 Furniture Templates) -->
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
-        <div style="font-size: 11.5px; font-weight: 800; color: #475569;">
-          1. CHOOSE FURNITURE STRUCTURE
-        </div>
-        <!-- Category Dropdown Filter -->
-        <div style="display: flex; align-items: center; gap: 6px;">
-          <span style="font-size: 11px; font-weight: 700; color: #4338CA;">Category:</span>
-          <select id="sim-cat-dropdown" onchange="simSelectCategory(this.value)" style="font-size: 11px; font-weight: 700; color: #1E1B4B; background: #EEF2FF; border: 1.5px solid #C7D2FE; border-radius: 8px; padding: 4px 8px; cursor: pointer; outline: none;">
-            <option value="all">🌟 All Categories (18 Models)</option>
-            <option value="wardrobe">🚪 Wardrobes &amp; Storage (5)</option>
-            <option value="kitchen">🍳 Modular Kitchen (4)</option>
-            <option value="living">🛋️ Living &amp; Media (3)</option>
-            <option value="bedroom">🛏️ Bedroom &amp; Vanity (5)</option>
-            <option value="office">💼 Office &amp; Study (3)</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="sim-struct-carousel">
-        <!-- WARDROBES & STORAGE -->
-        <div class="sim-struct-pill" data-struct="wardrobe2" data-cat="wardrobe" onclick="simSelectStructure('wardrobe2')">
-          <span class="pill-icon">🚪</span>
-          <span>2-Door Compact</span>
-        </div>
-        <div class="sim-struct-pill active" data-struct="wardrobe" data-cat="wardrobe" onclick="simSelectStructure('wardrobe')">
-          <span class="pill-icon">🚪🚪</span>
-          <span>4-Door Wardrobe</span>
-        </div>
-        <div class="sim-struct-pill" data-struct="wardrobe6" data-cat="wardrobe" onclick="simSelectStructure('wardrobe6')">
-          <span class="pill-icon">🏛️</span>
-          <span>Master 6-Door Wardrobe</span>
-        </div>
-        <div class="sim-struct-pill" data-struct="fullwall" data-cat="wardrobe" onclick="simSelectStructure('fullwall')">
-          <span class="pill-icon">🏰</span>
-          <span>Full-Wall Storage Suite</span>
-        </div>
-        <div class="sim-struct-pill" data-struct="almirah" data-cat="wardrobe bedroom" onclick="simSelectStructure('almirah')">
-          <span class="pill-icon">🗄️</span>
-          <span>Classic Almirah (Mirror)</span>
-        </div>
-
-        <!-- MODULAR KITCHEN -->
-        <div class="sim-struct-pill" data-struct="kitchen" data-cat="kitchen" onclick="simSelectStructure('kitchen')">
-          <span class="pill-icon">🍳</span>
-          <span>Straight Modular Kitchen</span>
-        </div>
-        <div class="sim-struct-pill" data-struct="kitchen_l" data-cat="kitchen" onclick="simSelectStructure('kitchen_l')">
-          <span class="pill-icon">📐</span>
-          <span>L-Shaped Corner Kitchen</span>
-        </div>
-        <div class="sim-struct-pill" data-struct="kitchen_parallel" data-cat="kitchen" onclick="simSelectStructure('kitchen_parallel')">
-          <span class="pill-icon">⚡</span>
-          <span>Parallel / Galley Kitchen</span>
-        </div>
-        <div class="sim-struct-pill" data-struct="kitchen_island" data-cat="kitchen" onclick="simSelectStructure('kitchen_island')">
-          <span class="pill-icon">🏝️</span>
-          <span>Island Luxury Kitchen</span>
-        </div>
-
-        <!-- LIVING & MEDIA -->
-        <div class="sim-struct-pill" data-struct="tvunit" data-cat="living" onclick="simSelectStructure('tvunit')">
-          <span class="pill-icon">📺</span>
-          <span>Floating TV Unit</span>
-        </div>
-        <div class="sim-struct-pill" data-struct="tvunit_console" data-cat="living" onclick="simSelectStructure('tvunit_console')">
-          <span class="pill-icon">🏛️</span>
-          <span>Console &amp; Display Towers</span>
-        </div>
-        <div class="sim-struct-pill" data-struct="tvunit_partition" data-cat="living" onclick="simSelectStructure('tvunit_partition')">
-          <span class="pill-icon">🪵</span>
-          <span>Room Divider TV Partition</span>
-        </div>
-
-        <!-- BEDROOM & VANITY -->
-        <div class="sim-struct-pill" data-struct="bed" data-cat="bedroom" onclick="simSelectStructure('bed')">
-          <span class="pill-icon">🛏️</span>
-          <span>Hydraulic Box Bed</span>
-        </div>
-        <div class="sim-struct-pill" data-struct="bed_drawers" data-cat="bedroom" onclick="simSelectStructure('bed_drawers')">
-          <span class="pill-icon">📦</span>
-          <span>Storage Divan Bed</span>
-        </div>
-        <div class="sim-struct-pill" data-struct="dressing" data-cat="bedroom" onclick="simSelectStructure('dressing')">
-          <span class="pill-icon">🪞</span>
-          <span>LED Arch Dressing Vanity</span>
-        </div>
-        <div class="sim-struct-pill" data-struct="dressing_tall" data-cat="bedroom" onclick="simSelectStructure('dressing_tall')">
-          <span class="pill-icon">✨</span>
-          <span>Full-Height Vanity Station</span>
-        </div>
-
-        <!-- OFFICE & STUDY -->
-        <div class="sim-struct-pill" data-struct="office" data-cat="office" onclick="simSelectStructure('office')">
-          <span class="pill-icon">💼</span>
-          <span>Executive Office Desk</span>
-        </div>
-        <div class="sim-struct-pill" data-struct="office_lshape" data-cat="office" onclick="simSelectStructure('office_lshape')">
-          <span class="pill-icon">📐</span>
-          <span>L-Shaped Workstation</span>
-        </div>
-        <div class="sim-struct-pill" data-struct="office_study" data-cat="office" onclick="simSelectStructure('office_study')">
-          <span class="pill-icon">📚</span>
-          <span>Study Table &amp; Bookshelf</span>
-        </div>
-      </div>
-
-      <!-- Custom Dimensions & Wall Configuration Panel (Active for All Categories) -->
-      <div id="sim-custom-dim-panel" class="sim-dim-panel">
-        <div class="sim-dim-panel-header">
-          <div class="sim-dim-title">
-            <span>📐</span> Custom Dimensions &amp; Layout
-          </div>
-          <span style="font-size: 11px; color: #4338CA; font-weight: 700;">Live Sheet Recalculation</span>
-        </div>
-
-        <div class="sim-dim-sliders-grid">
-          <!-- Width Slider -->
-          <div class="sim-slider-box">
-            <div class="sim-slider-label-row">
-              <span>Width (Length)</span>
-              <span id="sim-dim-width-val" class="sim-slider-val">12.0 ft</span>
-            </div>
-            <input type="range" id="sim-slider-width" class="sim-range-slider" min="3" max="20" step="0.5" value="12" oninput="simSetDimensionWidth(this.value)">
-            <div id="sim-width-presets" class="sim-quick-presets-row">
-              <button class="sim-preset-btn" onclick="simSetDimensionWidth(4)">4 ft</button>
-              <button class="sim-preset-btn" onclick="simSetDimensionWidth(6)">6 ft</button>
-              <button class="sim-preset-btn" onclick="simSetDimensionWidth(8)">8 ft</button>
-              <button class="sim-preset-btn" onclick="simSetDimensionWidth(10)">10 ft</button>
-              <button class="sim-preset-btn" onclick="simSetDimensionWidth(12)">12 ft</button>
-              <button class="sim-preset-btn" onclick="simSetDimensionWidth(16)">16 ft</button>
+      <!-- ==========================================
+           TOP / LEFT: PINNED 3D STAGE & STATUS COCKPIT
+           ========================================== -->
+      <div class="sim-stage-section">
+        <!-- Compact Showroom & Status Bar -->
+        <div class="sim-stage-header-bar">
+          <div class="sim-stage-header-left">
+            <span class="sim-live-indicator"></span>
+            <div class="sim-stage-title-wrap">
+              <span class="sim-cockpit-brand">BDE 3D STUDIO • ONDA</span>
+              <div class="sim-quick-status-pill">
+                <span id="sim-quick-struct-name" class="sim-pill-bold">4-Door Wardrobe</span>
+                <span class="sim-pill-dot">•</span>
+                <span id="sim-quick-dim-label" class="sim-pill-dim">6.0 × 7.0 ft</span>
+                <span id="sim-quick-sheet-badge" class="sim-pill-badge">📋 8.5 Sheets</span>
+              </div>
             </div>
           </div>
-
-          <!-- Height Slider -->
-          <div class="sim-slider-box">
-            <div class="sim-slider-label-row">
-              <span>Height</span>
-              <span id="sim-dim-height-val" class="sim-slider-val">8.5 ft</span>
-            </div>
-            <input type="range" id="sim-slider-height" class="sim-range-slider" min="2.5" max="11" step="0.25" value="8.5" oninput="simSetDimensionHeight(this.value)">
-            <div id="sim-height-presets" class="sim-quick-presets-row">
-              <button class="sim-preset-btn" onclick="simSetDimensionHeight(3)">3 ft</button>
-              <button class="sim-preset-btn" onclick="simSetDimensionHeight(6.5)">6.5 ft</button>
-              <button class="sim-preset-btn" onclick="simSetDimensionHeight(7)">7 ft</button>
-              <button class="sim-preset-btn" onclick="simSetDimensionHeight(8)">8 ft</button>
-              <button class="sim-preset-btn" onclick="simSetDimensionHeight(8.5)">8.5 ft</button>
-              <button class="sim-preset-btn" onclick="simSetDimensionHeight(10)">10 ft</button>
-            </div>
-          </div>
+          <button class="sim-quick-snapshot-btn" onclick="simDownloadSnapshot()" title="Save High-Res 3D Photo with BDE Watermark">
+            📸 Snapshot
+          </button>
         </div>
 
-        <!-- Full-Wall Storage Rack Layout Presets -->
-        <div id="sim-rack-config-row" class="sim-rack-config-row" style="display: none;">
-          <div class="sim-config-pill active" data-config="standard" onclick="simSetFullWallConfig('standard')">
-            🗄️ Wardrobe + Center Display Rack + Cabinet
-          </div>
-          <div class="sim-config-pill" data-config="entertainment" onclick="simSetFullWallConfig('entertainment')">
-            📺 Dual Wardrobes + Center Open Niche
-          </div>
-          <div class="sim-config-pill" data-config="full_wardrobe" onclick="simSetFullWallConfig('full_wardrobe')">
-            🚪 Full Continuous Wardrobe Wall + Lofts
-          </div>
-        </div>
-      </div>
-
-      <!-- 2. Interactive Showroom Viewport Canvas -->
-      <div class="sim-viewport-card">
-        <div class="sim-viewport-toolbar">
-          <div class="sim-ctrl-group">
+        <!-- 3D Stage Card & Live Canvas -->
+        <div class="sim-stage-viewport-card">
+          <!-- Toolbar Controls -->
+          <div class="sim-stage-toolbar">
             <button id="btn-sim-doors" class="sim-ctrl-btn" onclick="simToggleDoors()">
               🚪 Open Doors
             </button>
@@ -4803,159 +4649,468 @@
               📐 Tech Specs
             </button>
             <button id="btn-sim-human" class="sim-ctrl-btn active" onclick="simToggleHumanScale()">
-              🧍 5.5 ft Scale: ON
+              🧍 5.5 ft Scale
             </button>
           </div>
-          <div class="sim-ctrl-group">
-            <button class="sim-ctrl-btn" onclick="simDownloadSnapshot()" title="Save PNG with BDE Watermark">
-              📸 Save Photo
-            </button>
-          </div>
-        </div>
 
-        <!-- SVG Live Stage Viewport -->
-        <div id="sim-svg-stage" class="sim-stage-container">
-          <!-- Live SVG injected by simulator.js -->
-        </div>
-      </div>
-
-      <!-- 3. Dual-Zone Material Swatch Selector -->
-      <div class="sim-zone-selector-card">
-        <div style="font-size: 11.5px; font-weight: 800; color: #475569; margin-bottom: 8px;">
-          2. SELECT LAMINATE FINISH &amp; ZONE
-        </div>
-
-        <!-- Zone Tabs: Zone A (Carcass/Body) vs Zone B (Shutters/Fronts) -->
-        <div class="sim-zone-tabs-row">
-          <div class="sim-zone-tab" data-zone="A" onclick="simSelectZone('A')">
-            <div class="zone-title">Zone A: Body / Carcass</div>
-            <div id="sim-zone-label-a" class="zone-swatch-name">Royal Burma Teak</div>
-          </div>
-          <div class="sim-zone-tab active" data-zone="B" onclick="simSelectZone('B')">
-            <div class="zone-title">Zone B: Shutters / Fronts</div>
-            <div id="sim-zone-label-b" class="zone-swatch-name">Carrara White Marble</div>
-          </div>
-        </div>
-
-        <!-- Swatch Palettes -->
-        <!-- Woodgrain Collection -->
-        <div class="sim-swatch-group">
-          <div class="sim-swatch-group-title">🪵 Natural Woodgrain &amp; Veneer Textures</div>
-          <div class="sim-swatch-grid">
-            <div class="sim-swatch-circle" data-swatch-id="teak" onclick="simSelectLaminate('teak')" title="Royal Burma Teak (BDE-801)" style="background: #b47b48; background-image: repeating-linear-gradient(45deg, #8d5626, #8d5626 4px, #b47b48 4px, #b47b48 12px);"></div>
-            <div class="sim-swatch-circle" data-swatch-id="walnut" onclick="simSelectLaminate('walnut')" title="Smoked American Walnut (BDE-805)" style="background: #4a2e1b; background-image: repeating-linear-gradient(45deg, #311c0f, #311c0f 4px, #4a2e1b 4px, #4a2e1b 12px);"></div>
-            <div class="sim-swatch-circle" data-swatch-id="oak" onclick="simSelectLaminate('oak')" title="Scandinavian White Oak (BDE-809)" style="background: #d6c0a2; background-image: repeating-linear-gradient(90deg, #bfaa8f, #bfaa8f 2px, #d6c0a2 2px, #d6c0a2 8px);"></div>
-            <div class="sim-swatch-circle" data-swatch-id="wenge" onclick="simSelectLaminate('wenge')" title="Ebony Dark Wenge (BDE-814)" style="background: #241c18; background-image: repeating-linear-gradient(90deg, #120d0a, #120d0a 3px, #241c18 3px, #241c18 6px);"></div>
-            <div class="sim-swatch-circle" data-swatch-id="rosewood" onclick="simSelectLaminate('rosewood')" title="Sheesham Rosewood (BDE-820)" style="background: #7a2e20; background-image: repeating-linear-gradient(45deg, #4a180e, #4a180e 4px, #7a2e20 4px, #7a2e20 10px);"></div>
-          </div>
-        </div>
-
-        <!-- Italian Marble & Stone Collection -->
-        <div class="sim-swatch-group">
-          <div class="sim-swatch-group-title">🏛️ Italian Stone &amp; High-Gloss Marble</div>
-          <div class="sim-swatch-grid">
-            <div class="sim-swatch-circle selected" data-swatch-id="carrara" onclick="simSelectLaminate('carrara')" title="Carrara White Marble (BDE-901)" style="background: #f8fafc; border: 1.5px solid #cbd5e1; background-image: radial-gradient(#cbd5e1 15%, transparent 16%); background-size: 8px 8px;"></div>
-            <div class="sim-swatch-circle" data-swatch-id="marquina" onclick="simSelectLaminate('marquina')" title="Nero Marquina Black (BDE-908)" style="background: #0f172a; background-image: repeating-linear-gradient(45deg, #ca8a04, #ca8a04 1px, #0f172a 1px, #0f172a 14px);"></div>
-            <div class="sim-swatch-circle" data-swatch-id="travertine" onclick="simSelectLaminate('travertine')" title="Roman Travertine (BDE-915)" style="background: #e7dec8; background-image: repeating-linear-gradient(0deg, #d5c8ab, #d5c8ab 2px, #e7dec8 2px, #e7dec8 10px);"></div>
-          </div>
-        </div>
-
-        <!-- Modern Super-Matte Solids -->
-        <div class="sim-swatch-group">
-          <div class="sim-swatch-group-title">🎨 Modern Super-Matte Solids</div>
-          <div class="sim-swatch-grid">
-            <div class="sim-swatch-circle" data-swatch-id="charcoal" onclick="simSelectLaminate('charcoal')" title="Slate Charcoal Matte (BDE-701)" style="background: #334155;"></div>
-            <div class="sim-swatch-circle" data-swatch-id="white" onclick="simSelectLaminate('white')" title="Nordic Off-White / Pearl (BDE-704)" style="background: #fdfbf7; border: 1px solid #cbd5e1;"></div>
-            <div class="sim-swatch-circle" data-swatch-id="sage" onclick="simSelectLaminate('sage')" title="Earthy Sage Green (BDE-711)" style="background: #627264;"></div>
-            <div class="sim-swatch-circle" data-swatch-id="navy" onclick="simSelectLaminate('navy')" title="Royal Midnight Navy (BDE-718)" style="background: #1e293b;"></div>
-            <div class="sim-swatch-circle" data-swatch-id="terracotta" onclick="simSelectLaminate('terracotta')" title="Tuscan Terracotta (BDE-725)" style="background: #b85d43;"></div>
-          </div>
-        </div>
-
-        <!-- 3D Fluted Louvers & Metallics -->
-        <div class="sim-swatch-group">
-          <div class="sim-swatch-group-title">📐 3D Fluted Louvers &amp; Metallic Accents</div>
-          <div class="sim-swatch-grid">
-            <div class="sim-swatch-circle" data-swatch-id="fluted_wood" onclick="simSelectLaminate('fluted_wood')" title="Fluted Teak Louvers (BDE-601)" style="background: repeating-linear-gradient(90deg, #c4854d, #c4854d 4px, #78471e 4px, #78471e 8px);"></div>
-            <div class="sim-swatch-circle" data-swatch-id="fluted_charcoal" onclick="simSelectLaminate('fluted_charcoal')" title="Fluted Midnight Louver (BDE-608)" style="background: repeating-linear-gradient(90deg, #334155, #334155 4px, #0f172a 4px, #0f172a 8px);"></div>
-            <div class="sim-swatch-circle" data-swatch-id="metallic_brass" onclick="simSelectLaminate('metallic_brass')" title="Brushed Champagne Brass (BDE-501)" style="background: linear-gradient(135deg, #d4af37 0%, #fef08a 50%, #a16207 100%);"></div>
-          </div>
-        </div>
-
-        <!-- Hardware & Handle Finish Selection -->
-        <div style="font-size: 11.5px; font-weight: 800; color: #475569; margin: 12px 0 6px 0;">
-          3. HARDWARE &amp; PROFILE HANDLE FINISH
-        </div>
-        <div class="sim-hardware-row">
-          <div class="sim-hw-btn active" data-hw="gold" onclick="simSelectHardware('gold')">
-            <span>✨</span> Champagne Gold
-          </div>
-          <div class="sim-hw-btn" data-hw="black" onclick="simSelectHardware('black')">
-            <span>🖤</span> Matte Black
-          </div>
-          <div class="sim-hw-btn" data-hw="chrome" onclick="simSelectHardware('chrome')">
-            <span>🔘</span> Polished Chrome
-          </div>
-          <div class="sim-hw-btn" data-hw="concealed" onclick="simSelectHardware('concealed')">
-            <span>➖</span> J-Profile Minimal
+          <!-- SVG Canvas Stage -->
+          <div id="sim-svg-stage" class="sim-stage-container">
+            <!-- Injected via simulator.js -->
           </div>
         </div>
       </div>
 
-      <!-- 4. Plywood Grade & Material Selection Bridge -->
-      <div class="sim-bom-container">
-        <div class="sim-bom-header">
-          <h3 id="sim-bom-title">📋 Estimated Materials Needed</h3>
-          <span class="sim-counter-pill">Onda Counter Rates</span>
+      <!-- ==========================================
+           BOTTOM / RIGHT: INTERACTIVE 4-TAB CONTROL DECK
+           ========================================== -->
+      <div class="sim-deck-section">
+        <!-- 4-Tab Deck Navigation -->
+        <div class="sim-deck-tabs-nav">
+          <button class="sim-deck-tab-btn active" data-tab="laminates" onclick="simSwitchDeckTab('laminates')">
+            <span class="sim-tab-icon">🎨</span>
+            <span class="sim-tab-text">Laminates</span>
+          </button>
+          <button class="sim-deck-tab-btn" data-tab="structure" onclick="simSwitchDeckTab('structure')">
+            <span class="sim-tab-icon">🚪</span>
+            <span class="sim-tab-text">Structure &amp; Size</span>
+          </button>
+          <button class="sim-deck-tab-btn" data-tab="hardware" onclick="simSwitchDeckTab('hardware')">
+            <span class="sim-tab-icon">✨</span>
+            <span class="sim-tab-text">Hardware</span>
+          </button>
+          <button class="sim-deck-tab-btn" data-tab="estimate" onclick="simSwitchDeckTab('estimate')">
+            <span class="sim-tab-icon">📋</span>
+            <span class="sim-tab-text">Estimate &amp; Quote</span>
+          </button>
         </div>
 
-        <div class="sim-grade-select-row">
-          <div class="sim-select-group">
-            <label>Plywood Grade</label>
-            <select class="sim-select-box" onchange="simChangePlyGrade(this.value)">
-              <option value="marine" selected>Club Waterproof Marine (IS:710)</option>
-              <option value="commercial">Tycon BWR Commercial (IS:303)</option>
-            </select>
+        <!-- TAB PANEL 1: LAMINATES -->
+        <div id="sim-tab-laminates" class="sim-deck-panel active">
+          <div class="sim-card-box">
+            <div class="sim-box-title">1. CHOOSE APPLICATION ZONE</div>
+            <!-- Zone Tabs: Zone A (Carcass/Body) vs Zone B (Shutters/Fronts) -->
+            <div class="sim-zone-tabs-row">
+              <div class="sim-zone-tab" data-zone="A" onclick="simSelectZone('A')">
+                <div class="zone-title">Zone A: Body / Carcass</div>
+                <div id="sim-zone-label-a" class="zone-swatch-name">Royal Burma Teak</div>
+              </div>
+              <div class="sim-zone-tab active" data-zone="B" onclick="simSelectZone('B')">
+                <div class="zone-title">Zone B: Shutters / Fronts</div>
+                <div id="sim-zone-label-b" class="zone-swatch-name">Carrara White Marble</div>
+              </div>
+            </div>
+
+            <!-- Laminate Category Filter Pills -->
+            <div class="sim-box-title" style="margin-top: 14px;">2. BROWSE FINISHES (16 EXCLUSIVE PATTERNS)</div>
+            <div class="sim-filter-pills-row">
+              <button class="sim-filter-pill active" data-cat="all" onclick="simFilterLaminates('all')">🌟 All (16)</button>
+              <button class="sim-filter-pill" data-cat="wood" onclick="simFilterLaminates('wood')">🪵 Woodgrain</button>
+              <button class="sim-filter-pill" data-cat="marble" onclick="simFilterLaminates('marble')">🏛️ Italian Stone</button>
+              <button class="sim-filter-pill" data-cat="solid" onclick="simFilterLaminates('solid')">🎨 Matte Solids</button>
+              <button class="sim-filter-pill" data-cat="fluted" onclick="simFilterLaminates('fluted')">📐 3D Fluted</button>
+            </div>
+
+            <!-- Swatches Grid with 56px Swatch Cards -->
+            <div class="sim-swatch-cards-grid">
+              <!-- Woodgrain Collection -->
+              <div class="sim-swatch-card" data-swatch-id="teak" data-cat="wood" onclick="simSelectLaminate('teak')">
+                <div class="sim-swatch-circle" data-swatch-id="teak" style="background: #b47b48; background-image: repeating-linear-gradient(45deg, #8d5626, #8d5626 4px, #b47b48 4px, #b47b48 12px);"></div>
+                <div class="sim-swatch-meta">
+                  <span class="sim-swatch-name">Royal Burma Teak</span>
+                  <span class="sim-swatch-code">BDE-801 • Wood</span>
+                </div>
+              </div>
+              <div class="sim-swatch-card" data-swatch-id="walnut" data-cat="wood" onclick="simSelectLaminate('walnut')">
+                <div class="sim-swatch-circle" data-swatch-id="walnut" style="background: #4a2e1b; background-image: repeating-linear-gradient(45deg, #311c0f, #311c0f 4px, #4a2e1b 4px, #4a2e1b 12px);"></div>
+                <div class="sim-swatch-meta">
+                  <span class="sim-swatch-name">American Walnut</span>
+                  <span class="sim-swatch-code">BDE-805 • Wood</span>
+                </div>
+              </div>
+              <div class="sim-swatch-card" data-swatch-id="oak" data-cat="wood" onclick="simSelectLaminate('oak')">
+                <div class="sim-swatch-circle" data-swatch-id="oak" style="background: #d6c0a2; background-image: repeating-linear-gradient(90deg, #bfaa8f, #bfaa8f 2px, #d6c0a2 2px, #d6c0a2 8px);"></div>
+                <div class="sim-swatch-meta">
+                  <span class="sim-swatch-name">White Oak</span>
+                  <span class="sim-swatch-code">BDE-809 • Wood</span>
+                </div>
+              </div>
+              <div class="sim-swatch-card" data-swatch-id="wenge" data-cat="wood" onclick="simSelectLaminate('wenge')">
+                <div class="sim-swatch-circle" data-swatch-id="wenge" style="background: #241c18; background-image: repeating-linear-gradient(90deg, #120d0a, #120d0a 3px, #241c18 3px, #241c18 6px);"></div>
+                <div class="sim-swatch-meta">
+                  <span class="sim-swatch-name">Dark Wenge</span>
+                  <span class="sim-swatch-code">BDE-814 • Wood</span>
+                </div>
+              </div>
+              <div class="sim-swatch-card" data-swatch-id="rosewood" data-cat="wood" onclick="simSelectLaminate('rosewood')">
+                <div class="sim-swatch-circle" data-swatch-id="rosewood" style="background: #7a2e20; background-image: repeating-linear-gradient(45deg, #4a180e, #4a180e 4px, #7a2e20 4px, #7a2e20 10px);"></div>
+                <div class="sim-swatch-meta">
+                  <span class="sim-swatch-name">Sheesham Rosewood</span>
+                  <span class="sim-swatch-code">BDE-820 • Wood</span>
+                </div>
+              </div>
+
+              <!-- Italian Marble & Stones -->
+              <div class="sim-swatch-card selected" data-swatch-id="carrara" data-cat="marble" onclick="simSelectLaminate('carrara')">
+                <div class="sim-swatch-circle selected" data-swatch-id="carrara" style="background: #f8fafc; border: 1.5px solid #cbd5e1; background-image: radial-gradient(#cbd5e1 15%, transparent 16%); background-size: 8px 8px;"></div>
+                <div class="sim-swatch-meta">
+                  <span class="sim-swatch-name">Carrara White</span>
+                  <span class="sim-swatch-code">BDE-901 • Marble</span>
+                </div>
+              </div>
+              <div class="sim-swatch-card" data-swatch-id="marquina" data-cat="marble" onclick="simSelectLaminate('marquina')">
+                <div class="sim-swatch-circle" data-swatch-id="marquina" style="background: #0f172a; background-image: repeating-linear-gradient(45deg, #ca8a04, #ca8a04 1px, #0f172a 1px, #0f172a 14px);"></div>
+                <div class="sim-swatch-meta">
+                  <span class="sim-swatch-name">Nero Marquina</span>
+                  <span class="sim-swatch-code">BDE-908 • Marble</span>
+                </div>
+              </div>
+              <div class="sim-swatch-card" data-swatch-id="travertine" data-cat="marble" onclick="simSelectLaminate('travertine')">
+                <div class="sim-swatch-circle" data-swatch-id="travertine" style="background: #e7dec8; background-image: repeating-linear-gradient(0deg, #d5c8ab, #d5c8ab 2px, #e7dec8 2px, #e7dec8 10px);"></div>
+                <div class="sim-swatch-meta">
+                  <span class="sim-swatch-name">Roman Travertine</span>
+                  <span class="sim-swatch-code">BDE-915 • Marble</span>
+                </div>
+              </div>
+
+              <!-- Modern Super-Matte Solids -->
+              <div class="sim-swatch-card" data-swatch-id="charcoal" data-cat="solid" onclick="simSelectLaminate('charcoal')">
+                <div class="sim-swatch-circle" data-swatch-id="charcoal" style="background: #334155;"></div>
+                <div class="sim-swatch-meta">
+                  <span class="sim-swatch-name">Slate Charcoal</span>
+                  <span class="sim-swatch-code">BDE-701 • Solid</span>
+                </div>
+              </div>
+              <div class="sim-swatch-card" data-swatch-id="white" data-cat="solid" onclick="simSelectLaminate('white')">
+                <div class="sim-swatch-circle" data-swatch-id="white" style="background: #fdfbf7; border: 1px solid #cbd5e1;"></div>
+                <div class="sim-swatch-meta">
+                  <span class="sim-swatch-name">Nordic Off-White</span>
+                  <span class="sim-swatch-code">BDE-704 • Solid</span>
+                </div>
+              </div>
+              <div class="sim-swatch-card" data-swatch-id="sage" data-cat="solid" onclick="simSelectLaminate('sage')">
+                <div class="sim-swatch-circle" data-swatch-id="sage" style="background: #627264;"></div>
+                <div class="sim-swatch-meta">
+                  <span class="sim-swatch-name">Earthy Sage</span>
+                  <span class="sim-swatch-code">BDE-711 • Solid</span>
+                </div>
+              </div>
+              <div class="sim-swatch-card" data-swatch-id="navy" data-cat="solid" onclick="simSelectLaminate('navy')">
+                <div class="sim-swatch-circle" data-swatch-id="navy" style="background: #1e293b;"></div>
+                <div class="sim-swatch-meta">
+                  <span class="sim-swatch-name">Midnight Navy</span>
+                  <span class="sim-swatch-code">BDE-718 • Solid</span>
+                </div>
+              </div>
+              <div class="sim-swatch-card" data-swatch-id="terracotta" data-cat="solid" onclick="simSelectLaminate('terracotta')">
+                <div class="sim-swatch-circle" data-swatch-id="terracotta" style="background: #b85d43;"></div>
+                <div class="sim-swatch-meta">
+                  <span class="sim-swatch-name">Tuscan Terracotta</span>
+                  <span class="sim-swatch-code">BDE-725 • Solid</span>
+                </div>
+              </div>
+
+              <!-- 3D Fluted Louvers & Metallics -->
+              <div class="sim-swatch-card" data-swatch-id="fluted_wood" data-cat="fluted" onclick="simSelectLaminate('fluted_wood')">
+                <div class="sim-swatch-circle" data-swatch-id="fluted_wood" style="background: repeating-linear-gradient(90deg, #c4854d, #c4854d 4px, #78471e 4px, #78471e 8px);"></div>
+                <div class="sim-swatch-meta">
+                  <span class="sim-swatch-name">Fluted Teak Louver</span>
+                  <span class="sim-swatch-code">BDE-601 • Fluted</span>
+                </div>
+              </div>
+              <div class="sim-swatch-card" data-swatch-id="fluted_charcoal" data-cat="fluted" onclick="simSelectLaminate('fluted_charcoal')">
+                <div class="sim-swatch-circle" data-swatch-id="fluted_charcoal" style="background: repeating-linear-gradient(90deg, #334155, #334155 4px, #0f172a 4px, #0f172a 8px);"></div>
+                <div class="sim-swatch-meta">
+                  <span class="sim-swatch-name">Fluted Charcoal</span>
+                  <span class="sim-swatch-code">BDE-608 • Fluted</span>
+                </div>
+              </div>
+              <div class="sim-swatch-card" data-swatch-id="metallic_brass" data-cat="fluted" onclick="simSelectLaminate('metallic_brass')">
+                <div class="sim-swatch-circle" data-swatch-id="metallic_brass" style="background: linear-gradient(135deg, #d4af37 0%, #fef08a 50%, #a16207 100%);"></div>
+                <div class="sim-swatch-meta">
+                  <span class="sim-swatch-name">Champagne Brass</span>
+                  <span class="sim-swatch-code">BDE-501 • Metallic</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="sim-select-group">
-            <label>Laminate Thickness</label>
-            <select class="sim-select-box" onchange="simChangeLaminateType(this.value)">
-              <option value="gloss" selected>1.0mm Premium Gloss / Suede</option>
-              <option value="matt">0.8mm Standard Matt Liner</option>
-            </select>
+        </div>
+
+        <!-- TAB PANEL 2: STRUCTURE & SIZE -->
+        <div id="sim-tab-structure" class="sim-deck-panel">
+          <div class="sim-card-box">
+            <!-- Category Filter Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+              <div class="sim-box-title" style="margin: 0;">1. CHOOSE FURNITURE STRUCTURE</div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 11px; font-weight: 700; color: #4338CA;">Category:</span>
+                <select id="sim-cat-dropdown" onchange="simSelectCategory(this.value)" style="font-size: 11px; font-weight: 700; color: #1E1B4B; background: #EEF2FF; border: 1.5px solid #C7D2FE; border-radius: 8px; padding: 4px 8px; cursor: pointer; outline: none;">
+                  <option value="all">🌟 All Categories (18 Models)</option>
+                  <option value="wardrobe">🚪 Wardrobes &amp; Storage (5)</option>
+                  <option value="kitchen">🍳 Modular Kitchen (4)</option>
+                  <option value="living">🛋️ Living &amp; Media (3)</option>
+                  <option value="bedroom">🛏️ Bedroom &amp; Vanity (5)</option>
+                  <option value="office">💼 Office &amp; Study (3)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 18 Furniture Structure Pills -->
+            <div class="sim-struct-carousel">
+              <!-- WARDROBES & STORAGE -->
+              <div class="sim-struct-pill" data-struct="wardrobe2" data-cat="wardrobe" onclick="simSelectStructure('wardrobe2')">
+                <span class="pill-icon">🚪</span>
+                <span>2-Door Compact</span>
+              </div>
+              <div class="sim-struct-pill active" data-struct="wardrobe" data-cat="wardrobe" onclick="simSelectStructure('wardrobe')">
+                <span class="pill-icon">🚪🚪</span>
+                <span>4-Door Wardrobe</span>
+              </div>
+              <div class="sim-struct-pill" data-struct="wardrobe6" data-cat="wardrobe" onclick="simSelectStructure('wardrobe6')">
+                <span class="pill-icon">🏛️</span>
+                <span>Master 6-Door Wardrobe</span>
+              </div>
+              <div class="sim-struct-pill" data-struct="fullwall" data-cat="wardrobe" onclick="simSelectStructure('fullwall')">
+                <span class="pill-icon">🏰</span>
+                <span>Full-Wall Storage Suite</span>
+              </div>
+              <div class="sim-struct-pill" data-struct="almirah" data-cat="wardrobe bedroom" onclick="simSelectStructure('almirah')">
+                <span class="pill-icon">🗄️</span>
+                <span>Classic Almirah (Mirror)</span>
+              </div>
+
+              <!-- MODULAR KITCHEN -->
+              <div class="sim-struct-pill" data-struct="kitchen" data-cat="kitchen" onclick="simSelectStructure('kitchen')">
+                <span class="pill-icon">🍳</span>
+                <span>Straight Modular Kitchen</span>
+              </div>
+              <div class="sim-struct-pill" data-struct="kitchen_l" data-cat="kitchen" onclick="simSelectStructure('kitchen_l')">
+                <span class="pill-icon">📐</span>
+                <span>L-Shaped Corner Kitchen</span>
+              </div>
+              <div class="sim-struct-pill" data-struct="kitchen_parallel" data-cat="kitchen" onclick="simSelectStructure('kitchen_parallel')">
+                <span class="pill-icon">⚡</span>
+                <span>Parallel / Galley Kitchen</span>
+              </div>
+              <div class="sim-struct-pill" data-struct="kitchen_island" data-cat="kitchen" onclick="simSelectStructure('kitchen_island')">
+                <span class="pill-icon">🏝️</span>
+                <span>Island Luxury Kitchen</span>
+              </div>
+
+              <!-- LIVING & MEDIA -->
+              <div class="sim-struct-pill" data-struct="tvunit" data-cat="living" onclick="simSelectStructure('tvunit')">
+                <span class="pill-icon">📺</span>
+                <span>Floating TV Unit</span>
+              </div>
+              <div class="sim-struct-pill" data-struct="tvunit_console" data-cat="living" onclick="simSelectStructure('tvunit_console')">
+                <span class="pill-icon">🏛️</span>
+                <span>Console &amp; Display Towers</span>
+              </div>
+              <div class="sim-struct-pill" data-struct="tvunit_partition" data-cat="living" onclick="simSelectStructure('tvunit_partition')">
+                <span class="pill-icon">🪵</span>
+                <span>Room Divider TV Partition</span>
+              </div>
+
+              <!-- BEDROOM & VANITY -->
+              <div class="sim-struct-pill" data-struct="bed" data-cat="bedroom" onclick="simSelectStructure('bed')">
+                <span class="pill-icon">🛏️</span>
+                <span>Hydraulic Box Bed</span>
+              </div>
+              <div class="sim-struct-pill" data-struct="bed_drawers" data-cat="bedroom" onclick="simSelectStructure('bed_drawers')">
+                <span class="pill-icon">📦</span>
+                <span>Storage Divan Bed</span>
+              </div>
+              <div class="sim-struct-pill" data-struct="dressing" data-cat="bedroom" onclick="simSelectStructure('dressing')">
+                <span class="pill-icon">🪞</span>
+                <span>LED Arch Dressing Vanity</span>
+              </div>
+              <div class="sim-struct-pill" data-struct="dressing_tall" data-cat="bedroom" onclick="simSelectStructure('dressing_tall')">
+                <span class="pill-icon">✨</span>
+                <span>Full-Height Vanity Station</span>
+              </div>
+
+              <!-- OFFICE & STUDY -->
+              <div class="sim-struct-pill" data-struct="office" data-cat="office" onclick="simSelectStructure('office')">
+                <span class="pill-icon">💼</span>
+                <span>Executive Office Desk</span>
+              </div>
+              <div class="sim-struct-pill" data-struct="office_lshape" data-cat="office" onclick="simSelectStructure('office_lshape')">
+                <span class="pill-icon">📐</span>
+                <span>L-Shaped Workstation</span>
+              </div>
+              <div class="sim-struct-pill" data-struct="office_study" data-cat="office" onclick="simSelectStructure('office_study')">
+                <span class="pill-icon">📚</span>
+                <span>Study Table &amp; Bookshelf</span>
+              </div>
+            </div>
+
+            <!-- Custom Dimensions & Wall Configuration Panel -->
+            <div id="sim-custom-dim-panel" class="sim-dim-panel" style="margin-top: 14px;">
+              <div class="sim-dim-panel-header">
+                <div class="sim-dim-title">
+                  <span>📐</span> Custom Dimensions &amp; Layout
+                </div>
+                <span style="font-size: 11px; color: #4338CA; font-weight: 700;">Live Sheet Recalculation</span>
+              </div>
+
+              <div class="sim-dim-sliders-grid">
+                <!-- Width Slider -->
+                <div class="sim-slider-box">
+                  <div class="sim-slider-label-row">
+                    <span>Width (Length)</span>
+                    <span id="sim-dim-width-val" class="sim-slider-val">6.0 ft</span>
+                  </div>
+                  <input type="range" id="sim-slider-width" class="sim-range-slider" min="3" max="20" step="0.5" value="6" oninput="simSetDimensionWidth(this.value)">
+                  <div id="sim-width-presets" class="sim-quick-presets-row">
+                    <button class="sim-preset-btn" onclick="simSetDimensionWidth(4)">4 ft</button>
+                    <button class="sim-preset-btn" onclick="simSetDimensionWidth(6)">6 ft</button>
+                    <button class="sim-preset-btn" onclick="simSetDimensionWidth(8)">8 ft</button>
+                    <button class="sim-preset-btn" onclick="simSetDimensionWidth(10)">10 ft</button>
+                    <button class="sim-preset-btn" onclick="simSetDimensionWidth(12)">12 ft</button>
+                    <button class="sim-preset-btn" onclick="simSetDimensionWidth(16)">16 ft</button>
+                  </div>
+                </div>
+
+                <!-- Height Slider -->
+                <div class="sim-slider-box">
+                  <div class="sim-slider-label-row">
+                    <span>Height</span>
+                    <span id="sim-dim-height-val" class="sim-slider-val">7.0 ft</span>
+                  </div>
+                  <input type="range" id="sim-slider-height" class="sim-range-slider" min="2.5" max="11" step="0.25" value="7" oninput="simSetDimensionHeight(this.value)">
+                  <div id="sim-height-presets" class="sim-quick-presets-row">
+                    <button class="sim-preset-btn" onclick="simSetDimensionHeight(3)">3 ft</button>
+                    <button class="sim-preset-btn" onclick="simSetDimensionHeight(6.5)">6.5 ft</button>
+                    <button class="sim-preset-btn" onclick="simSetDimensionHeight(7)">7 ft</button>
+                    <button class="sim-preset-btn" onclick="simSetDimensionHeight(8)">8 ft</button>
+                    <button class="sim-preset-btn" onclick="simSetDimensionHeight(8.5)">8.5 ft</button>
+                    <button class="sim-preset-btn" onclick="simSetDimensionHeight(10)">10 ft</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Full-Wall Storage Rack Layout Presets -->
+              <div id="sim-rack-config-row" class="sim-rack-config-row" style="display: none;">
+                <div class="sim-config-pill active" data-config="standard" onclick="simSetFullWallConfig('standard')">
+                  🗄️ Wardrobe + Center Display Rack + Cabinet
+                </div>
+                <div class="sim-config-pill" data-config="entertainment" onclick="simSetFullWallConfig('entertainment')">
+                  📺 Dual Wardrobes + Center Open Niche
+                </div>
+                <div class="sim-config-pill" data-config="full_wardrobe" onclick="simSetFullWallConfig('full_wardrobe')">
+                  🚪 Full Continuous Wardrobe Wall + Lofts
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Injected BOM Items List -->
-        <div id="sim-bom-items" style="margin-bottom: 10px;">
-          <!-- Injected via simulator.js -->
-        </div>
+        <!-- TAB PANEL 3: HARDWARE -->
+        <div id="sim-tab-hardware" class="sim-deck-panel">
+          <div class="sim-card-box">
+            <div class="sim-box-title">HARDWARE &amp; PROFILE HANDLE FINISH</div>
+            <p style="font-size: 11.5px; color: #94a3b8; margin-bottom: 12px;">Select premium architectural handles, hinges, and profile channels stocked at Onda Depot:</p>
+            <div class="sim-hardware-row">
+              <div class="sim-hw-btn active" data-hw="gold" onclick="simSelectHardware('gold')">
+                <span>✨</span> Champagne Gold
+              </div>
+              <div class="sim-hw-btn" data-hw="black" onclick="simSelectHardware('black')">
+                <span>🖤</span> Matte Black
+              </div>
+              <div class="sim-hw-btn" data-hw="chrome" onclick="simSelectHardware('chrome')">
+                <span>🔘</span> Polished Chrome
+              </div>
+              <div class="sim-hw-btn" data-hw="concealed" onclick="simSelectHardware('concealed')">
+                <span>➖</span> J-Profile Minimal
+              </div>
+            </div>
 
-        <!-- Grand Total Banner (Material Quantity Only - No Prices) -->
-        <div class="sim-total-banner">
-          <div class="sim-total-left">
-            <h4>Total Goods Required</h4>
-            <div id="sim-grand-total" class="grand-price">8.5 Total Sheets</div>
-            <div class="note">Ready for live stock check &amp; loading at Onda Depot</div>
+            <div class="sim-box-title" style="margin-top: 18px;">LIGHTING &amp; AMBIANCE MODES</div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
+              <button class="sim-preset-btn" style="padding: 8px 14px; font-size: 12px;" onclick="simToggleLighting()">
+                💡 Toggle 3000K Warm Spotlight
+              </button>
+              <button class="sim-preset-btn" style="padding: 8px 14px; font-size: 12px;" onclick="simToggleDoors()">
+                🚪 Toggle Open/Close Shutters
+              </button>
+              <button class="sim-preset-btn" style="padding: 8px 14px; font-size: 12px;" onclick="simToggleHumanScale()">
+                🧍 Toggle 5.5 ft Human Scale
+              </button>
+            </div>
           </div>
-          <div style="font-size: 32px;">🪵</div>
         </div>
-      </div>
 
-      <!-- 5. High-Conversion Lead Capture Actions -->
-      <div class="sim-actions-grid">
-        <button class="btn-sim-wa" onclick="simSendToWhatsApp()">
-          <span style="font-size: 18px;">💬</span> WhatsApp Material List to Dipanjan
-        </button>
-        <button class="btn-sim-dl" onclick="simDownloadSnapshot()">
-          <span style="font-size: 18px;">📸</span> Download 3D Snapshot (PNG)
-        </button>
-        <button class="btn-sim-mistri" onclick="simFindMistri()">
-          <span>🪚</span> Find Verified Onda Mistri
-        </button>
-        <button class="btn-sim-coupon" onclick="simClaimDiscount()">
-          <span>🏢</span> Onda Depot Stock &amp; Delivery
-        </button>
+        <!-- TAB PANEL 4: ESTIMATE & QUOTE -->
+        <div id="sim-tab-estimate" class="sim-deck-panel">
+          <div class="sim-card-box">
+            <div class="sim-bom-header">
+              <h3 id="sim-bom-title">📋 Estimated Materials Needed</h3>
+              <span class="sim-counter-pill">Onda Counter Rates</span>
+            </div>
+
+            <div class="sim-grade-select-row">
+              <div class="sim-select-group">
+                <label>Plywood Grade</label>
+                <select class="sim-select-box" onchange="simChangePlyGrade(this.value)">
+                  <option value="marine" selected>Club Waterproof Marine (IS:710)</option>
+                  <option value="commercial">Tycon BWR Commercial (IS:303)</option>
+                </select>
+              </div>
+              <div class="sim-select-group">
+                <label>Laminate Thickness</label>
+                <select class="sim-select-box" onchange="simChangeLaminateType(this.value)">
+                  <option value="gloss" selected>1.0mm Premium Gloss / Suede</option>
+                  <option value="matt">0.8mm Standard Matt Liner</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Injected BOM Items List -->
+            <div id="sim-bom-items" style="margin-bottom: 12px;">
+              <!-- Injected via simulator.js -->
+            </div>
+
+            <!-- Grand Total Banner -->
+            <div class="sim-total-banner">
+              <div class="sim-total-left">
+                <h4>Total Goods Required</h4>
+                <div id="sim-grand-total" class="grand-price">8.5 Total Sheets</div>
+                <div class="note">Ready for live stock check &amp; loading at Onda Depot</div>
+              </div>
+              <div style="font-size: 32px;">🪵</div>
+            </div>
+
+            <!-- Lead Capture Actions Grid -->
+            <div class="sim-actions-grid" style="margin-top: 14px;">
+              <button class="btn-sim-wa" onclick="simSendToWhatsApp()">
+                <span style="font-size: 18px;">💬</span> WhatsApp Material List to Dipanjan
+              </button>
+              <button class="btn-sim-dl" onclick="simDownloadSnapshot()">
+                <span style="font-size: 18px;">📸</span> Download 3D Snapshot (PNG)
+              </button>
+              <button class="btn-sim-mistri" onclick="simFindMistri()">
+                <span>🪚</span> Find Verified Onda Mistri
+              </button>
+              <button class="btn-sim-coupon" onclick="simClaimDiscount()">
+                <span>🏢</span> Onda Depot Stock &amp; Delivery
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PERSISTENT MINI DOCK BOTTOM BAR -->
+        <div class="sim-dock-bottom-bar">
+          <div class="sim-dock-summary">
+            <span class="sim-dock-icon">🪵</span>
+            <div class="sim-dock-text">
+              <span class="sim-dock-label">BDE Onda Studio Estimate</span>
+              <span id="sim-bar-sheet-summary" class="sim-dock-value">Total: 8.5 Sheets</span>
+            </div>
+          </div>
+          <button class="sim-dock-btn" onclick="simSendToWhatsApp()">
+            <span>📲</span> Order / Quote
+          </button>
+        </div>
+
       </div>
     </div>
   </section>

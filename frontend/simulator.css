@@ -702,3 +702,510 @@
   font-weight: 800;
   box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
 }
+
+
+/* =========================================================
+   ZERO-SCROLL APP COCKPIT ARCHITECTURE (Mobile & Desktop)
+   ========================================================= */
+
+.simulator-container {
+  padding: 8px 10px 80px 10px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.sim-cockpit-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* TOP HALF: STAGE SECTION (Sticky on mobile below header) */
+.sim-stage-section {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 54px;
+  z-index: 40;
+  background: #0d1117;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+.sim-stage-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(22, 27, 34, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-bottom: none;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  gap: 8px;
+}
+
+.sim-stage-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.sim-live-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  flex-shrink: 0;
+  animation: simPulse 2s infinite;
+}
+
+@keyframes simPulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.sim-stage-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.sim-cockpit-brand {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #fbbf24;
+  white-space: nowrap;
+}
+
+.sim-quick-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  color: #e2e8f0;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sim-pill-bold {
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.sim-pill-dot {
+  color: #f59e0b;
+}
+
+.sim-pill-dim {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.sim-pill-badge {
+  background: #f59e0b;
+  color: #0d1117;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+}
+
+.sim-quick-snapshot-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #f8fafc;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.sim-quick-snapshot-btn:hover {
+  background: #f59e0b;
+  color: #0d1117;
+}
+
+/* Stage Viewport Card */
+.sim-stage-viewport-card {
+  background: #0d1117;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  overflow: hidden;
+}
+
+.sim-stage-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 6px 10px;
+  background: rgba(15, 23, 42, 0.9);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.15);
+  gap: 6px;
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Responsive SVG Canvas Container */
+.sim-stage-container {
+  width: 100%;
+  height: clamp(230px, 40vh, 340px);
+  background: radial-gradient(circle at 50% 30%, #1e293b 0%, #0a0f18 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.sim-stage-container svg {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* BOTTOM HALF: 4-TAB DECK */
+.sim-deck-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Tab Navigation Strip */
+.sim-deck-tabs-nav {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  background: rgba(22, 27, 34, 0.95);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 12px;
+  padding: 4px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.sim-deck-tab-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  gap: 2px;
+}
+
+.sim-deck-tab-btn:hover {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f8fafc;
+}
+
+.sim-deck-tab-btn.active {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(217, 119, 6, 0.35) 100%);
+  border: 1px solid #f59e0b;
+  color: #fbbf24;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.25);
+}
+
+.sim-tab-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.sim-tab-text {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+}
+
+/* Panels */
+.sim-deck-panel {
+  display: none;
+  animation: simFadeIn 0.2s ease-out;
+}
+
+.sim-deck-panel.active {
+  display: block;
+}
+
+@keyframes simFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.sim-card-box {
+  background: rgba(22, 27, 34, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+
+.sim-box-title {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #94a3b8;
+  letter-spacing: 0.3px;
+  margin-bottom: 8px;
+}
+
+/* Category Filter Pills */
+.sim-filter-pills-row {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sim-filter-pill {
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  color: #cbd5e1;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.sim-filter-pill:hover {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+}
+
+.sim-filter-pill.active {
+  background: #f59e0b;
+  border-color: #fbbf24;
+  color: #0d1117;
+  font-weight: 800;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+}
+
+/* Modern Swatch Cards Grid (56px thumbnails) */
+.sim-swatch-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sim-swatch-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1.5px solid rgba(245, 158, 11, 0.15);
+  border-radius: 10px;
+  padding: 6px 8px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  position: relative;
+}
+
+.sim-swatch-card:hover {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(245, 158, 11, 0.45);
+  transform: translateY(-1px);
+}
+
+.sim-swatch-card.selected {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: #f59e0b;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+}
+
+.sim-swatch-card.selected::after {
+  content: "✓";
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 11px;
+  font-weight: 900;
+  color: #f59e0b;
+}
+
+.sim-swatch-card .sim-swatch-circle {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.sim-swatch-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.sim-swatch-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #f8fafc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
+}
+
+.sim-swatch-code {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+/* Persistent Mini Bottom Bar */
+.sim-dock-bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 90;
+  background: rgba(13, 17, 23, 0.95);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.6);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.sim-dock-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sim-dock-icon {
+  font-size: 20px;
+}
+
+.sim-dock-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.sim-dock-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.3px;
+}
+
+.sim-dock-value {
+  font-size: 13px;
+  font-weight: 900;
+  color: #fbbf24;
+}
+
+.sim-dock-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #0d1117;
+  border: none;
+  font-size: 12.5px;
+  font-weight: 900;
+  padding: 8px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+  transition: all 0.2s ease;
+}
+
+.sim-dock-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+/* DESKTOP SIDE-BY-SIDE 2-COLUMN GRID (>= 900px) */
+@media (min-width: 900px) {
+  .simulator-container {
+    padding: 16px 20px 80px 20px;
+  }
+
+  .sim-cockpit-layout {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .sim-stage-section {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 70px;
+    max-height: calc(100vh - 90px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sim-stage-viewport-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sim-stage-container {
+    height: 420px;
+    flex: 1;
+  }
+
+  .sim-deck-section {
+    max-height: calc(100vh - 90px);
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .sim-swatch-cards-grid {
+    max-height: 380px;
+  }
+}
