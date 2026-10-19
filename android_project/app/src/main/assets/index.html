@@ -18,6 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/frontend/simulator.css" onerror="this.onerror=null;this.href='simulator.css';">
+  <link rel="stylesheet" href="/frontend/doors.css" onerror="this.onerror=null;this.href='doors.css';">
   <link rel="stylesheet" href="/frontend/ar_visualizer.css" onerror="this.onerror=null;this.href='ar_visualizer.css';">
   <!-- Interactive Leaflet Map Picker (No Paid API Key Required) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
@@ -4419,11 +4420,11 @@
           <div class="category-underline"></div>
         </div>
 
-        <div class="category-item" data-category="Doors" onclick="selectCategory('Doors', this)">
+        <div class="category-item" id="cat-item-doors" data-category="Doors" onclick="switchView('doors')">
           <div class="category-icon-wrap">
             <div class="category-icon-circle">🚪</div>
           </div>
-          <span class="category-label">Doors</span>
+          <span class="category-label">Doors (45)</span>
           <div class="category-underline"></div>
         </div>
 
@@ -4478,6 +4479,31 @@
       <div class="trust-item"><span class="icon">✅</span> 100% Genuine Brands</div>
       <div class="trust-item"><span class="icon">🚚</span> Fast Onda Delivery</div>
       <div class="trust-item"><span class="icon">💰</span> Best Counter Rates</div>
+    </div>
+
+    <!-- Engineered Doors Custom Crafting Showcase Spotlight -->
+    <div style="background: linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(15, 23, 42, 0.9) 100%); border: 1.5px solid rgba(245, 158, 11, 0.35); border-radius: 16px; padding: 16px; margin: 0 0 16px 0; box-shadow: 0 8px 24px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+      <div style="display: flex; align-items: center; gap: 14px; min-width: 260px; flex: 1;">
+        <div style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);">
+          🚪
+        </div>
+        <div>
+          <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+            <span style="font-size: 10px; font-weight: 800; background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; padding: 2px 7px; border-radius: 12px; letter-spacing: 0.3px;">NEW CATALOGUE</span>
+            <span style="font-size: 10px; font-weight: 800; background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; padding: 2px 7px; border-radius: 12px;">FREE ONSITE MEASUREMENT</span>
+          </div>
+          <h3 style="font-size: 15px; font-weight: 900; color: #ffffff; margin: 0 0 2px 0;">
+            Custom Engineered Doors • 45 Design Models
+          </h3>
+          <p style="font-size: 11.5px; color: #94a3b8; margin: 0; line-height: 1.4;">
+            3D CNC Deep Carved, 2D Groove &amp; Laminated Flush Doors crafted from 100% Solid Seasoned Pine Core (IS:2202). Check live approx price &amp; book free frame laser measurement in Onda!
+          </p>
+        </div>
+      </div>
+      <button type="button" onclick="switchView('doors')" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #0d1117; border: none; font-size: 12px; font-weight: 900; padding: 10px 18px; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35); display: flex; align-items: center; gap: 6px; white-space: nowrap;">
+        <span>Browse 45 Designs</span>
+        <span style="font-size: 14px;">➔</span>
+      </button>
     </div>
 
     <!-- Flipkart-Style "Products by Category" Horizontal Deal Shelves -->
@@ -5263,7 +5289,178 @@
   </section>
 
 
+  
   <!-- =========================================================
+       VIEW: ENGINEERED DOORS STUDIO & 45-DESIGN CATALOGUE
+       ========================================================= -->
+  <section id="view-doors" style="display: none;" class="doors-container">
+    <!-- 1. Hero & Value Proposition Banner -->
+    <div class="doors-hero-card">
+      <div class="doors-hero-top">
+        <span class="doors-hero-badge">🚪 BDE ENGINEERED DOORS STUDIO • ONDA</span>
+        <span class="doors-hero-free-visit">🚗 Free Onsite Frame Laser Measurement</span>
+      </div>
+      <h2 class="doors-hero-title">
+        <span>🌲</span> 45+ Custom Engineered Doors Collection
+      </h2>
+      <p class="doors-hero-subtitle">
+        We don't sell stock off-the-shelf doors that shrink or bend. Every single door is custom-crafted to your home's exact frame dimensions using <strong>100% Solid Seasoned Pinewood Core (IS:2202)</strong>. Browse 45 exclusive 3D carved, 2D groove, and laminated designs below, check live approx price by size, and book our free onsite frame laser measurement in Onda, Bankura &amp; surrounding villages!
+      </p>
+      <div class="doors-trust-strip">
+        <div class="doors-trust-pill">
+          <span class="icon">🪵</span>
+          <span>100% Solid Seasoned Pine Core (IS:2202)</span>
+        </div>
+        <div class="doors-trust-pill">
+          <span class="icon">🛡️</span>
+          <span>Borer, Termite &amp; Warp-Proof Warranty</span>
+        </div>
+        <div class="doors-trust-pill">
+          <span class="icon">📐</span>
+          <span>Laser-Accurate Custom Frame Sizing</span>
+        </div>
+        <div class="doors-trust-pill">
+          <span class="icon">🚚</span>
+          <span>Direct Onda Depot Delivery &amp; Fitting</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Interactive Instant Price & Measurement Estimator -->
+    <div id="doors-calc-card" class="doors-calc-card">
+      <div class="doors-calc-header">
+        <div class="doors-calc-title">
+          <span>📐</span> Instant Door Price &amp; Size Estimator
+        </div>
+        <span class="doors-calc-tag">Live Onda Counter Rates</span>
+      </div>
+
+      <!-- Step 1: Standard Frame Sizes or Custom -->
+      <div class="doors-step-label">
+        <span>1. CHOOSE STANDARD DOOR SIZE OR ADJUST SLIDERS:</span>
+      </div>
+      <div class="doors-presets-row">
+        <button class="doors-preset-btn active" onclick="setDoorSizePreset(3.0, 7.0, this)">
+          🚪 Master Bedroom (7.0 × 3.0 ft • 21 sq.ft)
+        </button>
+        <button class="doors-preset-btn" onclick="setDoorSizePreset(3.5, 7.0, this)">
+          🏰 Main Entrance (7.0 × 3.5 ft • 24.5 sq.ft)
+        </button>
+        <button class="doors-preset-btn" onclick="setDoorSizePreset(2.75, 6.5, this)">
+          🍳 Kitchen / Pooja (6.5 × 2.75 ft • 17.9 sq.ft)
+        </button>
+        <button class="doors-preset-btn" onclick="setDoorSizePreset(2.5, 6.5, this)">
+          🚿 Bathroom / Balcony (6.5 × 2.5 ft • 16.3 sq.ft)
+        </button>
+      </div>
+
+      <div class="doors-dims-grid">
+        <div class="doors-dim-box">
+          <div class="doors-dim-label-row">
+            <span>Width (Breadth)</span>
+            <span id="doors-slider-width-val" class="doors-dim-val-highlight">3.0 ft</span>
+          </div>
+          <input type="range" id="doors-slider-width" class="doors-range-slider" min="2.0" max="4.5" step="0.25" value="3.0" oninput="window.DOOR_STATE.width=this.value; updateDoorEstimate()">
+        </div>
+        <div class="doors-dim-box">
+          <div class="doors-dim-label-row">
+            <span>Height</span>
+            <span id="doors-slider-height-val" class="doors-dim-val-highlight">7.0 ft</span>
+          </div>
+          <input type="range" id="doors-slider-height" class="doors-range-slider" min="5.5" max="8.5" step="0.25" value="7.0" oninput="window.DOOR_STATE.height=this.value; updateDoorEstimate()">
+        </div>
+      </div>
+
+      <!-- Step 2: Choose Design Finish Grade -->
+      <div class="doors-step-label">
+        <span>2. SELECT DESIGN &amp; FINISH CATEGORY:</span>
+      </div>
+      <div class="doors-grades-grid">
+        <div class="doors-grade-card active" data-grade="3d" onclick="setDoorGrade('3d', this)">
+          <div class="doors-grade-icon">✨</div>
+          <div class="doors-grade-name">3D CNC Carved</div>
+          <div class="doors-grade-rate">₹380 - ₹480 / sq.ft</div>
+        </div>
+        <div class="doors-grade-card" data-grade="2d" onclick="setDoorGrade('2d', this)">
+          <div class="doors-grade-icon">📐</div>
+          <div class="doors-grade-name">2D Groove &amp; Membrane</div>
+          <div class="doors-grade-rate">₹260 - ₹340 / sq.ft</div>
+        </div>
+        <div class="doors-grade-card" data-grade="laminated" onclick="setDoorGrade('laminated', this)">
+          <div class="doors-grade-icon">🪵</div>
+          <div class="doors-grade-name">Laminated &amp; Veneer</div>
+          <div class="doors-grade-rate">₹190 - ₹250 / sq.ft</div>
+        </div>
+        <div class="doors-grade-card" data-grade="mandir" onclick="setDoorGrade('mandir', this)">
+          <div class="doors-grade-icon">🪔</div>
+          <div class="doors-grade-name">Mandir &amp; Pooja Jali</div>
+          <div class="doors-grade-rate">₹420 - ₹540 / sq.ft</div>
+        </div>
+      </div>
+
+      <!-- Step 3: Core Thickness Option -->
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;">
+        <span style="font-size: 11px; font-weight: 700; color: #94a3b8;">Solid Pinewood Core Thickness:</span>
+        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+          <label style="font-size: 11px; color: #e2e8f0; display: flex; align-items: center; gap: 4px; cursor: pointer;">
+            <input type="radio" name="door-thickness" value="30" checked onchange="setDoorThickness(this.value)"> 30mm Standard Core
+          </label>
+          <label style="font-size: 11px; color: #e2e8f0; display: flex; align-items: center; gap: 4px; cursor: pointer; margin-left: 8px;">
+            <input type="radio" name="door-thickness" value="32" onchange="setDoorThickness(this.value)"> 32mm Waterproof Marine (+₹25/sq.ft)
+          </label>
+          <label style="font-size: 11px; color: #e2e8f0; display: flex; align-items: center; gap: 4px; cursor: pointer; margin-left: 8px;">
+            <input type="radio" name="door-thickness" value="35" onchange="setDoorThickness(this.value)"> 35mm Heavy Main Entrance (+₹50/sq.ft)
+          </label>
+        </div>
+      </div>
+
+      <!-- Live Calculation Banner -->
+      <div class="doors-estimate-banner">
+        <div class="doors-est-left">
+          <span class="doors-est-meta">
+            Calculated Area: <strong id="doors-est-sqft" style="color: #ffffff;">21.0 sq.ft</strong> • Rate: <strong id="doors-est-rate" style="color: #fbbf24;">₹380 – ₹480 / sq.ft</strong>
+          </span>
+          <div id="doors-est-total" class="doors-est-total">₹7,980 – ₹10,080</div>
+          <span class="doors-est-sub">Includes pine solid core slab, precision CNC tooling, and edge sealing.</span>
+        </div>
+        <button class="doors-btn-book-visit" onclick="sendDoorWhatsAppQuote(window.DOOR_STATE.activeDoorId)">
+          <span>🚗</span> Book Free Onsite Laser Measurement
+        </button>
+      </div>
+    </div>
+
+    <!-- 3. Catalogue Filter Bar & Search -->
+    <div class="doors-filter-bar">
+      <div class="doors-search-row">
+        <div class="doors-search-box">
+          <span class="doors-search-icon">🔍</span>
+          <input type="text" class="doors-search-input" placeholder="Search 45 door models by name, code or keyword (e.g. Teak, Mandir, Jali, 3D)..." oninput="searchDoors(this.value)">
+        </div>
+        <select class="doors-sort-select" onchange="sortDoors(this.value)">
+          <option value="featured">🌟 Featured (45)</option>
+          <option value="price_asc">💰 Price: Low to High</option>
+          <option value="price_desc">💎 Price: High to Low</option>
+          <option value="name">🔤 Model Name (A-Z)</option>
+        </select>
+      </div>
+
+      <div class="doors-category-pills">
+        <button class="doors-cat-pill active" onclick="filterDoorsCategory('all', this)">🌟 All Designs (45)</button>
+        <button class="doors-cat-pill" onclick="filterDoorsCategory('3d', this)">✨ 3D Deep CNC Carved (12)</button>
+        <button class="doors-cat-pill" onclick="filterDoorsCategory('2d', this)">📐 2D Contemporary Groove (12)</button>
+        <button class="doors-cat-pill" onclick="filterDoorsCategory('laminated', this)">🪵 Laminated &amp; Veneer (12)</button>
+        <button class="doors-cat-pill" onclick="filterDoorsCategory('mandir', this)">🪔 Mandir &amp; Pooja Jali (9)</button>
+      </div>
+    </div>
+
+    <!-- 4. 45 Door Designs Grid Container -->
+    <div id="doors-grid" class="doors-grid">
+      <!-- Injected via doors.js -->
+    </div>
+  </section>
+
+
+<!-- =========================================================
        VIEW: AI PROJECT ESTIMATOR & MATERIAL CALCULATOR
        ========================================================= -->
   <section id="view-ai-estimator" style="display: none;" class="ai-estimator-container">
@@ -6080,7 +6277,55 @@
     </div>
   </nav>
 
-  <!-- Notification Toast -->
+  
+  <!-- Engineered Door Detail Modal -->
+  <div id="door-detail-modal" class="door-modal-overlay" onclick="if(event.target===this)closeDoorDetailModal()">
+    <div class="door-modal-card">
+      <div class="door-modal-header">
+        <h3 id="door-modal-title" class="door-modal-title">Maharaja Imperial 3D Teak (BDE-DR-301)</h3>
+        <button class="door-modal-close" onclick="closeDoorDetailModal()">✕</button>
+      </div>
+      <div class="door-modal-body">
+        <div id="door-modal-stage" class="door-modal-preview-stage">
+          <!-- Injected SVG -->
+        </div>
+
+        <p id="door-modal-desc" style="font-size: 12.5px; color: #cbd5e1; line-height: 1.5; margin: 0;">
+          Description
+        </p>
+
+        <div class="door-specs-grid">
+          <div class="door-spec-item">
+            <div class="door-spec-label">Core Construction</div>
+            <div id="door-modal-core" class="door-spec-val">100% Solid Seasoned Pine (IS:2202)</div>
+          </div>
+          <div class="door-spec-item">
+            <div class="door-spec-label">Surface Finish</div>
+            <div id="door-modal-finish" class="door-spec-val">Natural Burma Teak 3D CNC</div>
+          </div>
+          <div class="door-spec-item">
+            <div class="door-spec-label">Indicative Sq.Ft Rate</div>
+            <div id="door-modal-rate" class="door-spec-val">₹390 – ₹480 / sq.ft</div>
+          </div>
+          <div class="door-spec-item">
+            <div class="door-spec-label">Standard Frame Price</div>
+            <div id="door-modal-std-price" class="door-spec-val">~₹8,190 (7×3 ft)</div>
+          </div>
+        </div>
+
+        <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; padding: 10px 12px; font-size: 11.5px; color: #34d399; line-height: 1.4;">
+          <strong>🚗 Free Onsite Frame Laser Measurement:</strong> We will visit your home in Onda or Bankura with our physical finish samples to measure your door frame accurately before crafting.
+        </div>
+
+        <button id="door-modal-wa-btn" class="doors-btn-book-visit" style="width: 100%; justify-content: center; padding: 12px; font-size: 13px;">
+          <span>📲</span> Book Free Frame Measurement on WhatsApp
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+<!-- Notification Toast -->
   <div id="toast-message" class="toast-msg">
     <span id="toast-text">Message</span>
   </div>
@@ -7082,7 +7327,7 @@
       if (targetTab) targetTab.classList.add('active');
 
       // Hide all views
-      ['home', 'simulator', 'mistris', 'showcase', 'account', 'ai-estimator'].forEach(v => {
+      ['home', 'simulator', 'doors', 'mistris', 'showcase', 'account', 'ai-estimator'].forEach(v => {
         const el = document.getElementById(`view-${v}`);
         if (el) el.style.display = (v === viewName) ? 'block' : 'none';
       });
@@ -7101,6 +7346,14 @@
 
       if (viewName === 'simulator' && window.updateSimulatorUI) {
         window.updateSimulatorUI();
+      }
+
+      if (viewName === 'doors') {
+        const catDoors = document.getElementById('cat-item-doors');
+        if (catDoors) catDoors.classList.add('active');
+        const pillDoors = document.getElementById('pill-doors');
+        if (pillDoors) pillDoors.classList.add('active');
+        if (window.initDoorsStudio) window.initDoorsStudio();
       }
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -8764,5 +9017,7 @@ Please share current Onda Depot counter prices for these materials, sheet availa
   <script src="/frontend/simulator.js" onerror="this.onerror=null;this.src='simulator.js';"></script>
   <!-- AR Laminate on Your Wall Visualizer Engine -->
   <script src="/frontend/ar_visualizer.js" onerror="this.onerror=null;this.src='ar_visualizer.js';"></script>
+  <!-- Engineered Doors Studio Engine -->
+  <script src="/frontend/doors.js" onerror="this.onerror=null;this.src='doors.js';"></script>
 </body>
 </html>
