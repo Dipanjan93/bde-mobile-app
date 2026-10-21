@@ -625,7 +625,8 @@ def get_catalog(
             badge = "Genuine Certified"
             badge_color = "blue"
 
-        img_url = p.image_url if p.image_url else f"/static/img/products/{p.sku}.jpg"
+        base_img = p.image_url.split("?")[0] if p.image_url else f"/static/img/products/{p.sku}.jpg"
+        img_url = f"{base_img}?v=2"
         catalog_items.append({
             "id": p.id,
             "sku": p.sku,
@@ -1438,7 +1439,7 @@ def list_products(db: Session = Depends(get_db), auth: dict = Depends(verify_sta
             "name": p.name,
             "description": p.description or "",
             "size": p.size or "",
-            "image_url": p.image_url if p.image_url else f"/static/img/products/{p.sku}.jpg",
+            "image_url": (p.image_url.split("?")[0] if p.image_url else f"/static/img/products/{p.sku}.jpg") + "?v=2",
             "category": p.category or "General",
             "subcategory": p.subcategory or "General",
             "brand": p.brand or "Standard",
