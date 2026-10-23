@@ -552,7 +552,7 @@ function renderInventory(list) {
       statusBadge = '<span class="badge-instock">IN STOCK</span>';
     }
 
-    const imgUrl = (p.image_url ? p.image_url.split('?')[0] : `/static/img/products/${p.sku}.jpg`) + '?v=2';
+    const imgUrl = (p.image_url ? p.image_url.split('?')[0] : `/static/img/products/${p.sku}.jpg`) + '?v=3';
 
     return `
       <tr>
@@ -610,7 +610,7 @@ function renderRates(list) {
   const tbody = document.getElementById('rateChartBody');
   if (!tbody) return;
   tbody.innerHTML = list.map(p => {
-    const imgUrl = (p.image_url ? p.image_url.split('?')[0] : `/static/img/products/${p.sku}.jpg`) + '?v=2';
+    const imgUrl = (p.image_url ? p.image_url.split('?')[0] : `/static/img/products/${p.sku}.jpg`) + '?v=3';
     return `
     <tr>
       <td style="text-align:center; padding: 6px;">
@@ -2915,4 +2915,4 @@ async function downloadDatabaseBackup() {
     console.error("Backup download error:", err);
     showToast("Error generating backup: " + err.message, "error");
   }
-}
+}
