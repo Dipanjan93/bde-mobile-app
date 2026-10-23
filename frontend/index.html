@@ -5624,14 +5624,14 @@
     </div>
 
     <!-- Village Filter Chips -->
-    <div class="village-filter-row">
-      <div class="village-chip active" onclick="filterMistrisVillage('All', this)">All Bankura</div>
-      <div class="village-chip" onclick="filterMistrisVillage('Onda', this)">Onda Bazar</div>
-      <div class="village-chip" onclick="filterMistrisVillage('Punisole', this)">Punisole</div>
-      <div class="village-chip" onclick="filterMistrisVillage('Ramsagar', this)">Ramsagar</div>
-      <div class="village-chip" onclick="filterMistrisVillage('Taldangra', this)">Taldangra</div>
-      <div class="village-chip" onclick="filterMistrisVillage('Bishnupur', this)">Bishnupur</div>
-      <div class="village-chip" onclick="filterMistrisVillage('Bankura', this)">Bankura Town</div>
+    <div class="village-filter-row" id="mistri-village-filter-row">
+      <div class="village-chip active" onclick="filterMistrisVillage('All', this)">All Localities</div>
+      <div class="village-chip" onclick="filterMistrisVillage('Onda', this)">Onda</div>
+      <div class="village-chip" onclick="filterMistrisVillage('Nakaijuri', this)">Nakaijuri</div>
+      <div class="village-chip" onclick="filterMistrisVillage('Kochkhalui', this)">Kochkhalui</div>
+      <div class="village-chip" onclick="filterMistrisVillage('M Pur', this)">M Pur</div>
+      <div class="village-chip" onclick="filterMistrisVillage('Royen', this)">Royen</div>
+      <div class="village-chip" onclick="filterMistrisVillage('Onda Majhpara', this)">Onda Majhpara</div>
     </div>
 
     <!-- Carpenter Cards -->
@@ -6846,54 +6846,95 @@
       }
     }
 
+    function updateMistriVillageChips(items, currentVillage = 'All') {
+      const row = document.getElementById('mistri-village-filter-row');
+      if (!row || !items || items.length === 0) return;
+      const uniqueVillages = Array.from(new Set(items.map(c => (c.village || 'Onda').trim()))).filter(Boolean);
+      
+      uniqueVillages.sort((a, b) => {
+        if (a.toLowerCase().includes('onda') && !b.toLowerCase().includes('onda')) return -1;
+        if (!a.toLowerCase().includes('onda') && b.toLowerCase().includes('onda')) return 1;
+        return a.localeCompare(b);
+      });
+
+      const allActive = (!currentVillage || currentVillage === 'All') ? 'active' : '';
+      let chipsHtml = `<div class="village-chip ${allActive}" onclick="filterMistrisVillage('All', this)">All Bankura (${items.length})</div>`;
+      
+      uniqueVillages.forEach(v => {
+        const count = items.filter(c => (c.village || '').toLowerCase().includes(v.toLowerCase())).length;
+        const isActive = (currentVillage && currentVillage.toLowerCase() === v.toLowerCase()) ? 'active' : '';
+        chipsHtml += `<div class="village-chip ${isActive}" onclick="filterMistrisVillage('${v.replace(/'/g, "\\'")}', this)">${v} (${count})</div>`;
+      });
+      
+      row.innerHTML = chipsHtml;
+    }
+
     async function loadCarpenters(village = '') {
-      // 1. Immediately render offline carpenters list
-      if (window.BDE_OFFLINE_CARPENTERS && window.BDE_OFFLINE_CARPENTERS.length > 0 && (!STATE.carpenters || STATE.carpenters.length === 0)) {
-        let list = window.BDE_OFFLINE_CARPENTERS;
+      STATE.currentMistriVillage = village || 'All';
+
+      // 1. Immediately render offline cached carpenters from console
+      if (window.BDE_OFFLINE_CARPENTERS && window.BDE_OFFLINE_CARPENTERS.length > 0) {
+        if (!STATE.allCarpenters || STATE.allCarpenters.length === 0) {
+          STATE.allCarpenters = window.BDE_OFFLINE_CARPENTERS;
+        }
+        let list = STATE.allCarpenters;
         if (village && village !== 'All') {
-          list = list.filter(c => c.village.toLowerCase().includes(village.toLowerCase()));
+          list = list.filter(c => (c.village || '').toLowerCase().includes(village.toLowerCase()));
         }
         STATE.carpenters = list;
+        updateMistriVillageChips(STATE.allCarpenters, village);
         renderCarpenters(list);
       }
 
-      // 2. 5-second cold-start timeout
+      // 2. Fetch live carpenters from console ERP database
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
 
       try {
-        const url = village && village !== 'All' ? `/api/carpenters?village=${encodeURIComponent(village)}` : '/api/carpenters';
+        const url = '/api/carpenters';
         const res = await fetch(url, { signal: controller.signal });
         clearTimeout(timeoutId);
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const liveCarpenters = await res.json();
         if (Array.isArray(liveCarpenters) && liveCarpenters.length > 0) {
-          STATE.carpenters = liveCarpenters;
-          renderCarpenters(STATE.carpenters);
+          STATE.allCarpenters = liveCarpenters;
+          let filtered = liveCarpenters;
+          if (village && village !== 'All') {
+            filtered = liveCarpenters.filter(c => (c.village || '').toLowerCase().includes(village.toLowerCase()));
+          }
+          STATE.carpenters = filtered;
+          updateMistriVillageChips(liveCarpenters, village);
+          renderCarpenters(filtered);
         }
       } catch (err) {
         clearTimeout(timeoutId);
         console.warn('Backend cold start / offline carpenters fallback:', err);
         if (window.BDE_OFFLINE_CARPENTERS) {
-          let list = window.BDE_OFFLINE_CARPENTERS;
+          if (!STATE.allCarpenters) STATE.allCarpenters = window.BDE_OFFLINE_CARPENTERS;
+          let list = STATE.allCarpenters;
           if (village && village !== 'All') {
-            list = list.filter(c => c.village.toLowerCase().includes(village.toLowerCase()));
+            list = list.filter(c => (c.village || '').toLowerCase().includes(village.toLowerCase()));
           }
-          if (!STATE.carpenters || STATE.carpenters.length === 0) {
-            STATE.carpenters = list;
-            renderCarpenters(list);
-          }
+          STATE.carpenters = list;
+          updateMistriVillageChips(STATE.allCarpenters, village);
+          renderCarpenters(list);
         }
         // Silently retry in the background
         setTimeout(async () => {
           try {
-            const url = village && village !== 'All' ? `/api/carpenters?village=${encodeURIComponent(village)}` : '/api/carpenters';
-            const retryRes = await fetch(url);
+            const retryRes = await fetch('/api/carpenters');
             if (retryRes.ok) {
               const fresh = await retryRes.json();
               if (Array.isArray(fresh) && fresh.length > 0) {
-                STATE.carpenters = fresh;
-                renderCarpenters(STATE.carpenters);
+                STATE.allCarpenters = fresh;
+                let filtered = fresh;
+                const v = STATE.currentMistriVillage || 'All';
+                if (v && v !== 'All') {
+                  filtered = fresh.filter(c => (c.village || '').toLowerCase().includes(v.toLowerCase()));
+                }
+                STATE.carpenters = filtered;
+                updateMistriVillageChips(fresh, v);
+                renderCarpenters(filtered);
               }
             }
           } catch (e) {}
@@ -7275,7 +7316,17 @@
         document.querySelectorAll('.village-chip').forEach(el => el.classList.remove('active'));
         elem.classList.add('active');
       }
-      loadCarpenters(village);
+      STATE.currentMistriVillage = village;
+      if (STATE.allCarpenters && STATE.allCarpenters.length > 0) {
+        let filtered = STATE.allCarpenters;
+        if (village && village !== 'All') {
+          filtered = filtered.filter(c => (c.village || '').toLowerCase().includes(village.toLowerCase()));
+        }
+        STATE.carpenters = filtered;
+        renderCarpenters(filtered);
+      } else {
+        loadCarpenters(village);
+      }
     }
 
     /* =========================================================
