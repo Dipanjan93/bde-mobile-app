@@ -3395,9 +3395,7 @@ function sharePoOnWhatsApp() {
 ⏳ *Coverage Window:* Next ${supplierPoState.targetDays} Days Zero-Stockout
 
 *ORDERED ITEMS LIST:*
-${itemLines.join('
-
-')}
+${itemLines.join('\n\n')}
 
 -----------------------------------
 🪵 *Total Plywood Sheets:* ${totalSheets} Sheets
