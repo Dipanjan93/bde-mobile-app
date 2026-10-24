@@ -2115,6 +2115,27 @@ def get_purchase_order_suggestions(
         sqft_piece = float(p.sqft_per_piece or 0.0)
         is_sheet = (p.unit or "").lower() == "sqft" and sqft_piece > 0
 
+        # Derive exact product dimension if size column is empty
+        size_val = (p.size or "").strip()
+        if not size_val:
+            m = re.search(r'\b(\d+)\s*[xX*]\s*(\d+)\b', f"{p.sku or ''} {p.name or ''}")
+            if m:
+                size_val = f"{m.group(1)}x{m.group(2)}"
+            elif sqft_piece == 32.0:
+                size_val = "8x4"
+            elif sqft_piece == 28.0:
+                size_val = "7x4"
+            elif sqft_piece == 24.0:
+                size_val = "6x4"
+            elif sqft_piece == 21.0:
+                size_val = "7x3"
+            elif sqft_piece == 20.0:
+                size_val = "5x4"
+            elif sqft_piece == 18.0:
+                size_val = "6x3"
+            elif sqft_piece == 15.0:
+                size_val = "5x3"
+
         suggested_qty = 0.0
         suggested_sheets = 0
 
@@ -2166,7 +2187,7 @@ def get_purchase_order_suggestions(
                 "category": p.category or "General",
                 "subcategory": p.subcategory or "",
                 "brand": p.brand or "Standard",
-                "size": p.size or "",
+                "size": size_val or (p.size or ""),
                 "unit": p.unit or "Pcs",
                 "sqft_per_piece": sqft_piece,
                 "is_sheet": is_sheet,
@@ -2187,6 +2208,23 @@ def get_purchase_order_suggestions(
 
     items.sort(key=lambda x: (x["urgency"], x["days_remaining"], -x["total_sold"]))
 
+    def _extract_catalog_size(p):
+        s = (p.size or "").strip()
+        if s:
+            return s
+        m = re.search(r'\b(\d+)\s*[xX*]\s*(\d+)\b', f"{p.sku or ''} {p.name or ''}")
+        if m:
+            return f"{m.group(1)}x{m.group(2)}"
+        sq = float(p.sqft_per_piece or 0.0)
+        if sq == 32.0: return "8x4"
+        if sq == 28.0: return "7x4"
+        if sq == 24.0: return "6x4"
+        if sq == 21.0: return "7x3"
+        if sq == 20.0: return "5x4"
+        if sq == 18.0: return "6x3"
+        if sq == 15.0: return "5x3"
+        return ""
+
     all_catalog = [
         {
             "id": p.id,
@@ -2194,7 +2232,7 @@ def get_purchase_order_suggestions(
             "name": p.name,
             "category": p.category or "General",
             "brand": p.brand or "",
-            "size": p.size or "",
+            "size": _extract_catalog_size(p),
             "unit": p.unit or "Pcs",
             "sqft_per_piece": float(p.sqft_per_piece or 0.0),
             "purchase_price": float(p.purchase_price or 0.0),

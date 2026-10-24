@@ -3015,6 +3015,26 @@ function populatePoManualCatalogSelect() {
   sel.innerHTML = `<option value="">-- Choose any catalog item to add to PO --</option>` + opts.join('');
 }
 
+function getItemDimension(it) {
+  if (it.size && it.size.trim()) {
+    return it.size.trim().replace(/x/gi, '×');
+  }
+  const text = `${it.sku || ''} ${it.name || ''}`;
+  const m = text.match(/\b(\d+)\s*[xX*]\s*(\d+)\b/);
+  if (m) {
+    return `${m[1]}×${m[2]}`;
+  }
+  const sq = parseFloat(it.sqft_per_piece) || 0;
+  if (sq === 32) return '8×4';
+  if (sq === 28) return '7×4';
+  if (sq === 24) return '6×4';
+  if (sq === 21) return '7×3';
+  if (sq === 20) return '5×4';
+  if (sq === 18) return '6×3';
+  if (sq === 15) return '5×3';
+  return it.unit || 'Standard';
+}
+
 function renderSupplierPOTable() {
   const tbody = document.getElementById('poTableBody');
   if (!tbody) return;
@@ -3076,12 +3096,13 @@ function renderSupplierPOTable() {
       statusBadge = `<span style="background: rgba(59, 130, 246, 0.15); color: #60A5FA; border: 1px solid #3B82F6; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px;">${it.days_remaining}d Left</span>`;
     }
 
+    const dim = getItemDimension(it);
     const stepVal = it.is_sheet && it.sqft_per_piece > 0 ? it.sqft_per_piece : 1;
     const sheetNote = it.is_sheet && it.sqft_per_piece > 0
-      ? `<div style="font-size: 11px; font-weight: 700; color: #F59E0B; margin-top: 3px;">
-          ➔ ${it.suggested_sheets || Math.ceil(it.suggested_qty / it.sqft_per_piece)} Sheets (${it.size || '8×4'})
+      ? `<div id="po-sheet-note-${it.id}" style="font-size: 11px; font-weight: 700; color: #F59E0B; margin-top: 3px;">
+          ➔ <span id="po-sheet-count-${it.id}" style="font-weight: 800;">${it.suggested_sheets || Math.ceil(it.suggested_qty / it.sqft_per_piece)} Sheets</span> (${dim})
          </div>`
-      : `<div style="font-size: 10.5px; color: var(--text-muted); margin-top: 2px;">${it.unit}</div>`;
+      : `<div id="po-sheet-note-${it.id}" style="font-size: 10.5px; color: var(--text-muted); margin-top: 2px;">${it.unit}</div>`;
 
     return `
       <tr id="po-row-${it.id}" style="${it.current_stock <= 0 ? 'background: rgba(239,68,68,0.05);' : ''}">
@@ -3096,7 +3117,7 @@ function renderSupplierPOTable() {
             <span>&bull;</span>
             <span>${it.category}</span>
             ${it.brand ? `<span>&bull; ${it.brand}</span>` : ''}
-            ${it.size ? `<span>&bull; 📏 ${it.size}</span>` : ''}
+            <span>&bull; 📏 ${dim}</span>
           </div>
         </td>
         <td style="text-align: right;" class="mono">
@@ -3160,8 +3181,20 @@ function updatePoItemQty(id, newQtyStr) {
   const val = parseFloat(newQtyStr);
   it.suggested_qty = isNaN(val) || val < 0 ? 0 : val;
 
-  if (it.is_sheet && it.sqft_per_piece > 0) {
-    it.suggested_sheets = Math.ceil(it.suggested_qty / it.sqft_per_piece);
+  const sqftPerPiece = parseFloat(it.sqft_per_piece) || 0;
+  if (it.is_sheet && sqftPerPiece > 0) {
+    it.suggested_sheets = Math.ceil(it.suggested_qty / sqftPerPiece);
+  }
+
+  // Dynamically update sheet note right below the editable input box
+  const noteEl = document.getElementById(`po-sheet-note-${id}`);
+  if (noteEl) {
+    if (it.is_sheet && sqftPerPiece > 0) {
+      const dim = getItemDimension(it);
+      noteEl.innerHTML = `➔ <span id="po-sheet-count-${id}" style="font-weight: 800;">${it.suggested_sheets} Sheets</span> (${dim})`;
+    } else {
+      noteEl.textContent = `${it.suggested_qty} ${it.unit}`;
+    }
   }
 
   it.line_cost = Math.round(it.suggested_qty * it.purchase_price * 100) / 100;
@@ -3263,18 +3296,13 @@ function resetPoToRecommended() {
 function updatePoPrintDetails() {
   const supplier = document.getElementById('poSupplierName')?.value || "Onda Wholesale Depot";
   const refNo = document.getElementById('poRefNumber')?.value || "BDE/PO/2026-10/24";
-  const deliv = document.getElementById('poDeliveryDate')?.value || "Within 48 Hours";
 
   const pSupplier = document.getElementById('printPoSupplier');
   const pRefNo = document.getElementById('printPoRefNumber');
-  const pDeliv = document.getElementById('printPoDeliveryDate');
-  const pCov = document.getElementById('printPoCoverageWindow');
   const pDate = document.getElementById('printPoDate');
 
   if (pSupplier) pSupplier.textContent = supplier;
   if (pRefNo) pRefNo.textContent = refNo;
-  if (pDeliv) pDeliv.textContent = deliv;
-  if (pCov) pCov.textContent = `Next ${supplierPoState.targetDays} Days Zero-Stockout Guarantee`;
   if (pDate) {
     const now = new Date();
     pDate.textContent = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -3293,16 +3321,12 @@ function exportPoToPdf() {
   const tbody = document.getElementById('printPoTableBody');
   if (!tbody) return;
 
-  let grandTotal = 0;
   let totalSheets = 0;
   let totalUnits = 0;
 
   tbody.innerHTML = validItems.map((it, idx) => {
-    const cost = (it.suggested_qty || 0) * (it.purchase_price || 0);
-    grandTotal += cost;
-
     let qtyStr = `${it.suggested_qty} ${it.unit}`;
-    let specStr = it.size || 'Standard';
+    const specStr = getItemDimension(it);
 
     if (it.is_sheet && it.sqft_per_piece > 0) {
       const sheets = it.suggested_sheets || Math.ceil(it.suggested_qty / it.sqft_per_piece);
@@ -3320,10 +3344,10 @@ function exportPoToPdf() {
           <strong>${it.name}</strong>
           <div style="font-size: 10px; color: #555;">Category: ${it.category} &bull; Brand: ${it.brand || 'Standard'}</div>
         </td>
-        <td style="padding: 6px 6px; border: 1px solid #000; text-align: center;">${specStr}</td>
+        <td style="padding: 6px 6px; border: 1px solid #000; text-align: center; font-weight:600;">${specStr}</td>
         <td style="padding: 6px 8px; border: 1px solid #000; text-align: center;">${qtyStr}</td>
-        <td style="padding: 6px 8px; border: 1px solid #000; text-align: right; font-family: monospace;">₹${fmtInr(it.purchase_price)}</td>
-        <td style="padding: 6px 8px; border: 1px solid #000; text-align: right; font-family: monospace; font-weight: 800;">₹${fmtInr(cost)}</td>
+        <td style="padding: 6px 8px; border: 1px solid #000; text-align: right;"></td>
+        <td style="padding: 6px 8px; border: 1px solid #000; text-align: right;"></td>
       </tr>
     `;
   }).join('');
@@ -3332,14 +3356,14 @@ function exportPoToPdf() {
   const elQty = document.getElementById('printPoTotalQty');
   const elWords = document.getElementById('printPoAmountWords');
 
-  if (elGrand) elGrand.textContent = `₹${fmtInr(grandTotal)}`;
+  if (elGrand) elGrand.textContent = "";
   if (elQty) {
     elQty.innerHTML = totalSheets > 0 
       ? `<strong>${totalSheets} Sheets</strong>${totalUnits > 0 ? ` + ${totalUnits} Pcs` : ''}`
       : `${totalUnits} Items`;
   }
-  if (elWords && typeof numberToIndianWords === 'function') {
-    elWords.textContent = numberToIndianWords(grandTotal) + " Rupees Only";
+  if (elWords) {
+    elWords.textContent = "";
   }
 
   document.body.classList.add('printing-po');
@@ -3368,14 +3392,14 @@ function sharePoOnWhatsApp() {
     const cost = (it.suggested_qty || 0) * (it.purchase_price || 0);
     totalCost += cost;
 
+    const dim = getItemDimension(it);
     if (it.is_sheet && it.sqft_per_piece > 0) {
       const sheets = it.suggested_sheets || Math.ceil(it.suggested_qty / it.sqft_per_piece);
       totalSheets += sheets;
       return `${idx + 1}. *${it.name}*
    • SKU: ${it.sku}
-   • Quantity: *${sheets} Sheets* (${it.suggested_qty} Sq.Ft)
-   • Rate: ₹${fmtInr(it.purchase_price)}/Sq.Ft
-   • Amount: ₹${fmtInr(cost)}`;
+   • Size: ${dim}
+   • Quantity: *${sheets} Sheets* (${it.suggested_qty} Sq.Ft)`;
     } else {
       return `${idx + 1}. *${it.name}*
    • SKU: ${it.sku}

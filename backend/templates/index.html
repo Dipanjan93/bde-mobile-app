@@ -769,11 +769,6 @@
           <label class="field-label">Purchase Order (PO) Number</label>
           <input type="text" id="poRefNumber" value="BDE/PO/2026-10/24" oninput="updatePoPrintDetails()" />
         </div>
-
-        <div>
-          <label class="field-label">Expected Delivery Date</label>
-          <input type="date" id="poDeliveryDate" onchange="updatePoPrintDetails()" />
-        </div>
       </div>
 
       <!-- Add Manual Product Row -->
@@ -1537,16 +1532,14 @@
     </div>
 
     <!-- PO Metadata Row -->
-    <div style="display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 12px; line-height: 1.6; border-bottom: 1px dashed #666; padding-bottom: 10px;">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 12px; line-height: 1.8; border-bottom: 1px dashed #666; padding-bottom: 10px;">
       <div>
         <div><strong>Supplier / Distributor:</strong> <span id="printPoSupplier">Onda Wholesale Depot</span></div>
         <div><strong>Delivery Location:</strong> Baba Dugdheswar Enterprise, Onda Majhpara, Bankura - 722144</div>
-        <div><strong>Expected Delivery:</strong> <span id="printPoDeliveryDate">Within 48 Hours</span></div>
       </div>
       <div style="text-align: right;">
         <div><strong>PO Number:</strong> <span id="printPoRefNumber" class="mono" style="font-weight:700;">BDE/PO/2026-10/24</span></div>
         <div><strong>PO Date:</strong> <span id="printPoDate">24-Oct-2026</span></div>
-        <div><strong>Stock Coverage Target:</strong> <span id="printPoCoverageWindow">Next 20 Days Guarantee</span></div>
       </div>
     </div>
 
@@ -1567,18 +1560,18 @@
       <tfoot>
         <tr style="background: #f8fafc; font-weight: 800; border-top: 2px solid #000;">
           <td colspan="4" style="padding: 8px 10px; border: 1px solid #000; text-align: right; text-transform: uppercase;">
-            Total Procurement Billable Value:
+            Total Order Quantity:
           </td>
           <td id="printPoTotalQty" style="padding: 8px 6px; border: 1px solid #000; text-align: center;">0</td>
-          <td style="padding: 8px 6px; border: 1px solid #000; text-align: center;">—</td>
-          <td id="printPoGrandTotal" style="padding: 8px 8px; border: 1px solid #000; text-align: right; font-size: 13px;">₹0.00</td>
+          <td style="padding: 8px 6px; border: 1px solid #000; text-align: center;">&nbsp;</td>
+          <td id="printPoGrandTotal" style="padding: 8px 8px; border: 1px solid #000; text-align: right; font-size: 13px;">&nbsp;</td>
         </tr>
       </tfoot>
     </table>
 
     <!-- Amount in Words -->
-    <div style="font-size: 11.5px; margin-bottom: 16px; padding: 6px 10px; background: #fafafa; border: 1px solid #ddd;">
-      <strong>Amount in Words:</strong> <span id="printPoAmountWords">Zero Rupees Only</span>
+    <div style="font-size: 11.5px; margin-bottom: 16px; padding: 6px 10px; background: #fafafa; border: 1px solid #ddd; min-height: 28px;">
+      <strong>Amount in Words:</strong> <span id="printPoAmountWords"></span>
     </div>
 
     <!-- Notes & Terms -->
