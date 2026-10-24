@@ -269,6 +269,35 @@ def run_security_auth_audit():
     except Exception as e:
         print(f"[FAIL] GET /api/erp/backup-export Owner verification failed: {e}", flush=True)
 
+    # 7. Supplier Purchase Order Generator Audit (GET /api/erp/purchase-order-suggestions)
+    print("\n--- Sub-Test 7: Supplier Purchase Order Generator (GET /api/erp/purchase-order-suggestions) ---", flush=True)
+    po_url = f"{BASE_URL}/api/erp/purchase-order-suggestions?days=20"
+    try:
+        req = urllib.request.Request(po_url, method="GET")
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            print("[FAIL] GET /api/erp/purchase-order-suggestions succeeded without auth!", flush=True)
+    except urllib.error.HTTPError as e:
+        if e.code == 401:
+            print("[PASS 401] GET /api/erp/purchase-order-suggestions Unauthenticated: HTTP 401 Unauthorized", flush=True)
+        else:
+            print(f"[WARN] GET /api/erp/purchase-order-suggestions Unauthenticated: HTTP {e.code}", flush=True)
+    except Exception as e:
+        print(f"[ERROR] GET /api/erp/purchase-order-suggestions request failed: {e}", flush=True)
+
+    try:
+        req = urllib.request.Request(po_url, headers={"x-passcode": "BDE@1234"}, method="GET")
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            if resp.status == 200:
+                po_data = json.loads(resp.read().decode("utf-8"))
+                items_cnt = po_data.get("total_items", 0)
+                sheets_cnt = po_data.get("total_sheets", 0)
+                est_cost = po_data.get("total_est_cost", 0.0)
+                print(f"[PASS 200] GET /api/erp/purchase-order-suggestions with Staff Passcode: HTTP 200 OK | 20-Day Target: {items_cnt} SKUs, {sheets_cnt} Sheets, Total: Rs. {est_cost:,.2f}", flush=True)
+            else:
+                print(f"[FAIL] GET /api/erp/purchase-order-suggestions returned HTTP {resp.status}", flush=True)
+    except Exception as e:
+        print(f"[FAIL] GET /api/erp/purchase-order-suggestions Staff verification failed: {e}", flush=True)
+
 def run_storefront_tests():
     print("\n========================================================", flush=True)
     print("[STOREFRONT] RUNNING PUBLIC STOREFRONT & CUSTOMER APIS AUDIT", flush=True)

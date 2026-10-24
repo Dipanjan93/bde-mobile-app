@@ -473,7 +473,7 @@ body.admin-unlocked .admin-tab { display: inline-flex !important; }
 .chart-container { position: relative; height: 290px; width: 100%; }
 
 /* Printable Documents Layout */
-#printBillWrapper, #printRestockWrapper { display: none; }
+#printBillWrapper, #printRestockWrapper, #printPoWrapper { display: none; }
 
 @media print {
   body * { visibility: hidden !important; }
@@ -488,6 +488,14 @@ body.admin-unlocked .admin-tab { display: inline-flex !important; }
   body.printing-restock #printRestockWrapper,
   body.printing-restock #printRestockWrapper * { visibility: visible !important; }
   body.printing-restock #printRestockWrapper {
+    display: block !important;
+    position: absolute;
+    left: 0; top: 0; width: 100%;
+    padding: 20px; background: #fff; color: #000;
+  }
+  body.printing-po #printPoWrapper,
+  body.printing-po #printPoWrapper * { visibility: visible !important; }
+  body.printing-po #printPoWrapper {
     display: block !important;
     position: absolute;
     left: 0; top: 0; width: 100%;

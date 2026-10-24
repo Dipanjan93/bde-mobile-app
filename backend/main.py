@@ -2071,6 +2071,151 @@ def export_database_backup(db: Session = Depends(get_db), auth: bool = Depends(v
 
 
 # ========================================================
+# CONSOLIDATED SUPPLIER PURCHASE ORDER (PO) GENERATOR
+# ========================================================
+
+@app.get("/api/erp/purchase-order-suggestions")
+def get_purchase_order_suggestions(
+    days: int = 20,
+    db: Session = Depends(get_db),
+    auth: dict = Depends(verify_staff_or_owner)
+):
+    """
+    Computes dynamic supplier purchase order recommendations based on actual
+    sales velocity and current stock to ensure zero stockout over the selected day period.
+    """
+    days = max(5, min(90, days))
+
+    min_inv_date = db.query(func.min(models.Invoice.created_at)).scalar()
+    now_date = datetime.utcnow()
+    days_active = max(1.0, (now_date - min_inv_date).total_seconds() / 86400.0) if min_inv_date else 14.0
+
+    prods = db.query(models.Product).order_by(models.Product.category, models.Product.name).all()
+
+    sold_map = dict(
+        db.query(models.SaleItem.product_id, func.coalesce(func.sum(models.SaleItem.qty), 0.0))
+        .group_by(models.SaleItem.product_id).all()
+    )
+
+    items = []
+    total_est_cost = 0.0
+    total_sheets = 0
+
+    for p in prods:
+        total_sold = float(sold_map.get(p.id, 0.0))
+        current_stock = float(p.stock_qty or 0.0)
+        p_price = float(p.purchase_price or 0.0)
+        daily_velocity = total_sold / days_active if total_sold > 0 else 0.0
+
+        projected_demand = daily_velocity * float(days)
+        safety_buffer = max(daily_velocity * 3.0, projected_demand * 0.15)
+        total_needed = projected_demand + safety_buffer
+
+        days_remaining = (current_stock / daily_velocity) if daily_velocity > 0 else 999.0
+        sqft_piece = float(p.sqft_per_piece or 0.0)
+        is_sheet = (p.unit or "").lower() == "sqft" and sqft_piece > 0
+
+        suggested_qty = 0.0
+        suggested_sheets = 0
+
+        if current_stock <= 0:
+            deficit = max(total_needed, 5.0 * (sqft_piece if is_sheet else 1.0))
+        elif total_needed > current_stock or days_remaining <= float(days):
+            deficit = max(0.0, total_needed - current_stock)
+        else:
+            deficit = 0.0
+
+        if deficit > 0:
+            if is_sheet:
+                suggested_sheets = int(math.ceil(deficit / sqft_piece))
+                suggested_qty = float(suggested_sheets * sqft_piece)
+            else:
+                suggested_qty = float(math.ceil(deficit))
+                suggested_sheets = 0
+
+        if suggested_qty > 0 or current_stock <= 0 or days_remaining <= float(days):
+            if suggested_qty <= 0 and current_stock <= 0:
+                if is_sheet:
+                    suggested_sheets = 5
+                    suggested_qty = float(5 * sqft_piece)
+                else:
+                    suggested_qty = 5.0
+
+            line_cost = round(suggested_qty * p_price, 2)
+            total_est_cost += line_cost
+            if is_sheet:
+                total_sheets += suggested_sheets
+
+            if current_stock <= 0:
+                stock_status = "OUT OF STOCK"
+                urgency = 1
+            elif days_remaining <= 7.0:
+                urgency = 2
+                stock_status = "CRITICAL (<7D)"
+            elif days_remaining <= float(days):
+                urgency = 3
+                stock_status = f"REORDER (<{days}D)"
+            else:
+                urgency = 4
+                stock_status = "HEALTHY"
+
+            items.append({
+                "id": p.id,
+                "sku": p.sku,
+                "name": p.name,
+                "category": p.category or "General",
+                "subcategory": p.subcategory or "",
+                "brand": p.brand or "Standard",
+                "size": p.size or "",
+                "unit": p.unit or "Pcs",
+                "sqft_per_piece": sqft_piece,
+                "is_sheet": is_sheet,
+                "current_stock": round(current_stock, 1),
+                "total_sold": round(total_sold, 1),
+                "daily_velocity": round(daily_velocity, 2),
+                "days_remaining": round(days_remaining, 1),
+                "projected_demand": round(projected_demand, 1),
+                "safety_buffer": round(safety_buffer, 1),
+                "suggested_qty": round(suggested_qty, 1),
+                "suggested_sheets": suggested_sheets,
+                "purchase_price": round(p_price, 2),
+                "selling_price": round(float(p.selling_price or 0.0), 2),
+                "line_cost": line_cost,
+                "stock_status": stock_status,
+                "urgency": urgency
+            })
+
+    items.sort(key=lambda x: (x["urgency"], x["days_remaining"], -x["total_sold"]))
+
+    all_catalog = [
+        {
+            "id": p.id,
+            "sku": p.sku,
+            "name": p.name,
+            "category": p.category or "General",
+            "brand": p.brand or "",
+            "size": p.size or "",
+            "unit": p.unit or "Pcs",
+            "sqft_per_piece": float(p.sqft_per_piece or 0.0),
+            "purchase_price": float(p.purchase_price or 0.0),
+            "current_stock": float(p.stock_qty or 0.0)
+        }
+        for p in prods
+    ]
+
+    return {
+        "status": "success",
+        "target_days": days,
+        "days_history": round(days_active, 1),
+        "total_est_cost": round(total_est_cost, 2),
+        "total_sheets": total_sheets,
+        "total_items": len(items),
+        "items": items,
+        "all_catalog": all_catalog
+    }
+
+
+# ========================================================
 # OWNER-ONLY BILL CORRECTION & VOID WITH STOCK RESTORATION
 # ========================================================
 

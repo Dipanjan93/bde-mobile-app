@@ -194,6 +194,7 @@
     <button class="tab-btn" onclick="switchTab('dues')">📒 Khata / Due Ledger</button>
     <button class="tab-btn" onclick="switchTab('history')">🕒 Sales History</button>
     <button class="tab-btn admin-tab admin-only" onclick="switchTab('purchase')">🚛 Inward Purchase Register</button>
+    <button class="tab-btn" onclick="switchTab('po'); initSupplierPO();">📋 Supplier PO Generator</button>
     <button class="tab-btn admin-tab admin-only" onclick="switchTab('exec')">📊 Executive BI Dashboard</button>
     <button class="tab-btn" onclick="switchTab('broadcast')">💬 WhatsApp Broadcast</button>
     <button class="tab-btn" onclick="switchTab('inquiries'); loadWebsiteInquiries();">🌐 Website Enquiries <span id="inquiriesCountBadge" class="badge" style="display:none; background:#ef4444; color:#fff; font-size:10px; font-weight:800; padding:2px 7px; border-radius:10px; margin-left:4px;">0</span></button>
@@ -713,6 +714,130 @@
         </div>
       </div>
       <button class="btn" onclick="submitPurchase()">📥 Log Inward Stock &amp; Update Rates</button>
+    </div>
+  </div>
+
+  <!-- 6B. Consolidated Supplier Purchase Order (PO) Sheet -->
+  <div id="tab-po" class="panel">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; flex-wrap:wrap; gap:12px;">
+      <div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <h3 style="margin:0; font-size:18px;">📋 Consolidated Supplier Purchase Order (PO) Sheet</h3>
+          <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid #F59E0B; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px;">Zero-Stockout Engine</span>
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
+          Dynamic stock-runout forecasting based on live sales run rate. Ensures zero reorder is needed for your chosen time window.
+        </p>
+      </div>
+
+      <!-- Action Buttons Top -->
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn btn-secondary" onclick="resetPoToRecommended()" title="Reset all quantities back to AI velocity recommendation">
+          🔄 Reset Recommended
+        </button>
+        <button class="btn btn-whatsapp" onclick="sharePoOnWhatsApp()" style="background:#25D366; color:#fff; border:none; display:inline-flex; align-items:center; gap:6px; font-weight:700;">
+          <span>💬</span> Share PO on WhatsApp
+        </button>
+        <button class="btn" onclick="exportPoToPdf()" style="background: linear-gradient(135deg, #F59E0B, #D97706); color:#fff; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+          <span>🖨️</span> Export as Final PDF (PO)
+        </button>
+      </div>
+    </div>
+
+    <!-- Controls Bar -->
+    <div class="card-box" style="margin-bottom: 16px; padding: 16px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; align-items: flex-end;">
+        <div>
+          <label class="field-label" style="font-weight:700; color: #F59E0B; display:flex; align-items:center; gap:4px;">
+            ⏳ Days I Want Stock Should Run
+          </label>
+          <select id="poDaysSelect" onchange="onPoDaysChange()" style="font-size: 13.5px; font-weight: 700; border: 2px solid #F59E0B; background: var(--surface); color: var(--text-main);">
+            <option value="15">15 Days Stock Coverage</option>
+            <option value="20" selected>20 Days Stock Coverage (Recommended)</option>
+            <option value="30">30 Days Stock Coverage (1 Month)</option>
+            <option value="45">45 Days Stock Coverage (1.5 Months)</option>
+            <option value="60">60 Days Stock Coverage (2 Months)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="field-label">Supplier / Mill / Distributor Name</label>
+          <input type="text" id="poSupplierName" placeholder="e.g. Century / Greenpanel / Onda Wholesale Depot" value="Onda Wholesale Plywood &amp; Hardware Depot" oninput="updatePoPrintDetails()" />
+        </div>
+
+        <div>
+          <label class="field-label">Purchase Order (PO) Number</label>
+          <input type="text" id="poRefNumber" value="BDE/PO/2026-10/24" oninput="updatePoPrintDetails()" />
+        </div>
+
+        <div>
+          <label class="field-label">Expected Delivery Date</label>
+          <input type="date" id="poDeliveryDate" onchange="updatePoPrintDetails()" />
+        </div>
+      </div>
+
+      <!-- Add Manual Product Row -->
+      <div style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--surface-highlight); display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <span style="font-size: 12px; font-weight: 700; color: var(--text-muted);">➕ Manually Add Extra SKU to PO:</span>
+        <select id="poManualAddSelect" style="max-width: 380px; font-size: 12.5px;">
+          <option value="">-- Choose any catalog item to add --</option>
+        </select>
+        <button class="btn btn-secondary" style="padding: 6px 14px; font-size: 12px;" onclick="addManualProductToPo()">
+          + Add Item to PO
+        </button>
+      </div>
+    </div>
+
+    <!-- KPI Summary Strip -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px;">
+      <div class="card-box" style="margin-bottom:0; padding:14px; border-left: 4px solid #10B981;">
+        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Total Purchase Cost</div>
+        <div id="poKpiTotalCost" style="font-size: 22px; font-weight: 800; color: #10B981; margin-top: 4px;">₹0.00</div>
+        <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Estimated procurement budget</div>
+      </div>
+      <div class="card-box" style="margin-bottom:0; padding:14px; border-left: 4px solid #3B82F6;">
+        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Total SKUs to Order</div>
+        <div id="poKpiItemCount" style="font-size: 22px; font-weight: 800; color: #3B82F6; margin-top: 4px;">0 Items</div>
+        <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Items needing restock</div>
+      </div>
+      <div class="card-box" style="margin-bottom:0; padding:14px; border-left: 4px solid #F59E0B;">
+        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Total Plywood Volume</div>
+        <div id="poKpiSheetCount" style="font-size: 22px; font-weight: 800; color: #F59E0B; margin-top: 4px;">0 Sheets</div>
+        <div id="poKpiSqftCount" style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">0 Sq.Ft coverage</div>
+      </div>
+      <div class="card-box" style="margin-bottom:0; padding:14px; border-left: 4px solid #8B5CF6;">
+        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Coverage Window</div>
+        <div id="poKpiCoverageDays" style="font-size: 22px; font-weight: 800; color: #8B5CF6; margin-top: 4px;">20 Days</div>
+        <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Zero stockout guarantee</div>
+      </div>
+    </div>
+
+    <!-- PO Items Table -->
+    <div class="card-box" style="padding: 0; overflow: hidden; margin-bottom: 0;">
+      <div class="table-scroll">
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th style="width: 40px; text-align: center;">#</th>
+              <th>Product Details &amp; SKU</th>
+              <th style="text-align: right; width: 110px;">Live Stock</th>
+              <th style="text-align: right; width: 110px;">Daily Run Rate</th>
+              <th style="text-align: right; width: 120px;">Days Left</th>
+              <th style="text-align: center; width: 170px; background: rgba(245, 158, 11, 0.1); color: #F59E0B;">Order Qty (Editable)</th>
+              <th style="text-align: right; width: 110px;">Unit Rate (₹)</th>
+              <th style="text-align: right; width: 130px;">Line Total (₹)</th>
+              <th style="text-align: center; width: 70px;">Remove</th>
+            </tr>
+          </thead>
+          <tbody id="poTableBody">
+            <tr>
+              <td colspan="9" style="text-align:center; padding: 40px; color: var(--text-muted);">
+                Calculating dynamic purchase requirements...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -1386,6 +1511,96 @@
   <div style="margin-top: 40px; display: flex; justify-content: space-between; font-size: 12px;">
     <div>Store Manager Verification</div>
     <div>Proprietor Authorization Signature</div>
+  </div>
+</div>
+
+<!-- Printable Consolidated Supplier Purchase Order (PO) Sheet -->
+<div id="printPoWrapper">
+  <div style="border: 2px solid #000; padding: 22px; font-family: 'Segoe UI', Arial, sans-serif; color: #000; background: #fff;">
+    <!-- Showroom Letterhead Header -->
+    <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 14px;">
+      <div style="display:flex; justify-content:center; align-items:center; gap:12px; margin-bottom:4px;">
+        <img src="/static/img/logo/bde_logo.png" style="width: 48px; height: 48px; object-fit: contain;" alt="BDE Emblem" />
+        <h1 style="font-size: 24px; font-weight: 900; letter-spacing: 0.8px; margin: 0; color: #000;">BABA DUGDHESWAR ENTERPRISE</h1>
+      </div>
+      <p style="font-size: 12px; margin: 3px 0; color: #333;">
+        Plywood, Laminate &amp; Hardware Merchant &bull; Onda Majhpara, State Bank - Dol Tola Road, Onda, Bankura, West Bengal - 722144
+      </p>
+      <p style="font-size: 11.5px; margin: 2px 0; color: #444;">
+        Mobile: +91 98670 98952 / +91 94341 98273 &bull; Wholesale &amp; Retail Supply Order
+      </p>
+      <div style="margin-top: 8px;">
+        <span style="display:inline-block; background:#000; color:#fff; font-size: 12.5px; font-weight: 800; padding: 4px 18px; letter-spacing: 1.5px; text-transform: uppercase;">
+          CONSOLIDATED SUPPLIER PURCHASE ORDER (PO)
+        </span>
+      </div>
+    </div>
+
+    <!-- PO Metadata Row -->
+    <div style="display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 12px; line-height: 1.6; border-bottom: 1px dashed #666; padding-bottom: 10px;">
+      <div>
+        <div><strong>Supplier / Distributor:</strong> <span id="printPoSupplier">Onda Wholesale Depot</span></div>
+        <div><strong>Delivery Location:</strong> Baba Dugdheswar Enterprise, Onda Majhpara, Bankura - 722144</div>
+        <div><strong>Expected Delivery:</strong> <span id="printPoDeliveryDate">Within 48 Hours</span></div>
+      </div>
+      <div style="text-align: right;">
+        <div><strong>PO Number:</strong> <span id="printPoRefNumber" class="mono" style="font-weight:700;">BDE/PO/2026-10/24</span></div>
+        <div><strong>PO Date:</strong> <span id="printPoDate">24-Oct-2026</span></div>
+        <div><strong>Stock Coverage Target:</strong> <span id="printPoCoverageWindow">Next 20 Days Guarantee</span></div>
+      </div>
+    </div>
+
+    <!-- Itemized Order Table -->
+    <table style="width: 100%; border: 1.5px solid #000; border-collapse: collapse; font-size: 11.5px; margin-bottom: 14px;">
+      <thead>
+        <tr style="background: #f1f5f9; border-bottom: 1.5px solid #000;">
+          <th style="padding: 7px 6px; border: 1px solid #000; width: 4%; text-align: center;">#</th>
+          <th style="padding: 7px 8px; border: 1px solid #000; width: 16%; text-align: left;">Product SKU</th>
+          <th style="padding: 7px 8px; border: 1px solid #000; width: 34%; text-align: left;">Item Description &amp; Specifications</th>
+          <th style="padding: 7px 6px; border: 1px solid #000; width: 10%; text-align: center;">Size / Spec</th>
+          <th style="padding: 7px 8px; border: 1px solid #000; width: 12%; text-align: center; font-weight:800;">Order Qty</th>
+          <th style="padding: 7px 8px; border: 1px solid #000; width: 11%; text-align: right;">Unit Rate (₹)</th>
+          <th style="padding: 7px 8px; border: 1px solid #000; width: 13%; text-align: right; font-weight:800;">Amount (₹)</th>
+        </tr>
+      </thead>
+      <tbody id="printPoTableBody"></tbody>
+      <tfoot>
+        <tr style="background: #f8fafc; font-weight: 800; border-top: 2px solid #000;">
+          <td colspan="4" style="padding: 8px 10px; border: 1px solid #000; text-align: right; text-transform: uppercase;">
+            Total Procurement Billable Value:
+          </td>
+          <td id="printPoTotalQty" style="padding: 8px 6px; border: 1px solid #000; text-align: center;">0</td>
+          <td style="padding: 8px 6px; border: 1px solid #000; text-align: center;">—</td>
+          <td id="printPoGrandTotal" style="padding: 8px 8px; border: 1px solid #000; text-align: right; font-size: 13px;">₹0.00</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <!-- Amount in Words -->
+    <div style="font-size: 11.5px; margin-bottom: 16px; padding: 6px 10px; background: #fafafa; border: 1px solid #ddd;">
+      <strong>Amount in Words:</strong> <span id="printPoAmountWords">Zero Rupees Only</span>
+    </div>
+
+    <!-- Notes & Terms -->
+    <div style="font-size: 10.5px; color: #444; line-height: 1.5; margin-bottom: 24px;">
+      <strong>Terms &amp; Instructions:</strong>
+      <ol style="margin: 4px 0 0 16px; padding: 0;">
+        <li>All plywood sheets must be 100% calibrated, borer &amp; termite proof, with clean square edges.</li>
+        <li>Damaged, warped, or chipped materials will be rejected at the Onda depot receiving dock.</li>
+        <li>Please send physical delivery invoice/challan alongside the delivery truck.</li>
+      </ol>
+    </div>
+
+    <!-- Signatures Row -->
+    <div style="display: flex; justify-content: space-between; font-size: 12px; margin-top: 30px;">
+      <div style="border-top: 1px solid #000; padding-top: 4px; width: 220px; text-align: center;">
+        Supplier Acceptance &amp; Stamp
+      </div>
+      <div style="border-top: 1px solid #000; padding-top: 4px; width: 250px; text-align: center; font-weight: 800;">
+        For BABA DUGDHESWAR ENTERPRISE<br>
+        <span style="font-size: 10px; font-weight: normal; color: #666;">(Proprietor / Authorized Signatory)</span>
+      </div>
+    </div>
   </div>
 </div>
 

@@ -477,6 +477,7 @@ function switchTab(name) {
   if (name === 'dues') loadDues();
   if (name === 'history') loadSalesHistory();
   if (name === 'inquiries') loadWebsiteInquiries();
+  if (name === 'po') initSupplierPO();
 }
 
 /* --- Inventory & Products --- */
@@ -2915,4 +2916,495 @@ async function downloadDatabaseBackup() {
     console.error("Backup download error:", err);
     showToast("Error generating backup: " + err.message, "error");
   }
+}
+
+
+/* ==========================================================================
+   CONSOLIDATED SUPPLIER PURCHASE ORDER (PO) GENERATOR
+   ========================================================================== */
+
+let supplierPoState = {
+  targetDays: 20,
+  items: [],
+  rawRecommended: [],
+  allCatalog: [],
+  loaded: false,
+  isLoading: false
+};
+
+async function initSupplierPO(forceRefresh = false) {
+  if (supplierPoState.loaded && !forceRefresh) {
+    renderSupplierPOTable();
+    return;
+  }
+
+  const tbody = document.getElementById('poTableBody');
+  if (tbody) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="9" style="text-align:center; padding: 40px; color: var(--text-muted);">
+          <div style="font-size: 26px; margin-bottom: 8px;">⏳</div>
+          <strong>Analyzing live sales run rate &amp; inventory for ${supplierPoState.targetDays}-day coverage...</strong>
+        </td>
+      </tr>
+    `;
+  }
+
+  supplierPoState.isLoading = true;
+  try {
+    const res = await authFetch(`${API_BASE}/api/erp/purchase-order-suggestions?days=${supplierPoState.targetDays}`);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+
+    supplierPoState.items = (data.items || []).map(it => ({ ...it }));
+    supplierPoState.rawRecommended = (data.items || []).map(it => ({ ...it }));
+    supplierPoState.allCatalog = data.all_catalog || [];
+    supplierPoState.loaded = true;
+
+    // Set auto-generated PO fields if empty
+    const dateInput = document.getElementById('poDeliveryDate');
+    if (dateInput && !dateInput.value) {
+      const d = new Date();
+      d.setDate(d.getDate() + 2);
+      dateInput.value = d.toISOString().slice(0, 10);
+    }
+
+    const refInput = document.getElementById('poRefNumber');
+    if (refInput && (!refInput.value || refInput.value === 'BDE/PO/2026-10/24')) {
+      const now = new Date();
+      const yr = now.getFullYear();
+      const mo = String(now.getMonth() + 1).padStart(2, '0');
+      const da = String(now.getDate()).padStart(2, '0');
+      refInput.value = `BDE/PO/${yr}-${mo}/${da}`;
+    }
+
+    populatePoManualCatalogSelect();
+    renderSupplierPOTable();
+  } catch (err) {
+    console.error("Failed to load PO suggestions:", err);
+    showToast("Error loading supplier order recommendations: " + err.message, "error");
+    if (tbody) {
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:var(--rose); padding:30px;">Failed to load order suggestions. Please ensure server is running.</td></tr>`;
+    }
+  } finally {
+    supplierPoState.isLoading = false;
+  }
+}
+
+function onPoDaysChange() {
+  const sel = document.getElementById('poDaysSelect');
+  if (!sel) return;
+  supplierPoState.targetDays = parseInt(sel.value) || 20;
+  initSupplierPO(true);
+}
+
+function populatePoManualCatalogSelect() {
+  const sel = document.getElementById('poManualAddSelect');
+  if (!sel) return;
+  const currentItemIds = new Set(supplierPoState.items.map(it => it.id));
+  
+  const opts = supplierPoState.allCatalog
+    .filter(p => !currentItemIds.has(p.id))
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map(p => `
+      <option value="${p.id}">
+        ${p.name} (${p.sku}) — [Stock: ${p.current_stock} ${p.unit} | ₹${fmtInr(p.purchase_price)}]
+      </option>
+    `);
+
+  sel.innerHTML = `<option value="">-- Choose any catalog item to add to PO --</option>` + opts.join('');
+}
+
+function renderSupplierPOTable() {
+  const tbody = document.getElementById('poTableBody');
+  if (!tbody) return;
+
+  const items = supplierPoState.items;
+
+  let totalCost = 0;
+  let totalSheets = 0;
+  let totalSqft = 0;
+
+  items.forEach(it => {
+    const cost = (parseFloat(it.suggested_qty) || 0) * (parseFloat(it.purchase_price) || 0);
+    it.line_cost = Math.round(cost * 100) / 100;
+    totalCost += it.line_cost;
+
+    if (it.is_sheet && it.sqft_per_piece > 0) {
+      const sheets = it.suggested_sheets || Math.ceil((it.suggested_qty || 0) / it.sqft_per_piece);
+      it.suggested_sheets = sheets;
+      totalSheets += sheets;
+      totalSqft += it.suggested_qty || 0;
+    }
+  });
+
+  const elCost = document.getElementById('poKpiTotalCost');
+  const elItems = document.getElementById('poKpiItemCount');
+  const elSheets = document.getElementById('poKpiSheetCount');
+  const elSqft = document.getElementById('poKpiSqftCount');
+  const elCov = document.getElementById('poKpiCoverageDays');
+
+  if (elCost) elCost.textContent = `₹${fmtInr(totalCost)}`;
+  if (elItems) elItems.textContent = `${items.length} SKUs`;
+  if (elSheets) elSheets.textContent = `${totalSheets} Sheets`;
+  if (elSqft) elSqft.textContent = `${fmtInr(totalSqft)} Sq.Ft coverage`;
+  if (elCov) elCov.textContent = `${supplierPoState.targetDays} Days`;
+
+  if (items.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="9" style="text-align:center; padding: 40px; color: var(--emerald);">
+          <div style="font-size: 32px; margin-bottom: 8px;">🎉</div>
+          <strong style="font-size: 15px;">Zero Stockouts Anticipated!</strong>
+          <p style="margin: 4px 0 0; color: var(--text-muted); font-size: 12px;">
+            Every product in your catalog has sufficient inventory to cover the next ${supplierPoState.targetDays} days.
+          </p>
+        </td>
+      </tr>
+    `;
+    populatePoManualCatalogSelect();
+    return;
+  }
+
+  tbody.innerHTML = items.map((it, idx) => {
+    let statusBadge = '';
+    if (it.current_stock <= 0) {
+      statusBadge = '<span style="background: rgba(239, 68, 68, 0.2); color: #EF4444; border: 1px solid #EF4444; font-size: 10px; font-weight: 800; padding: 1px 6px; border-radius: 4px;">OUT OF STOCK</span>';
+    } else if (it.days_remaining <= 7) {
+      statusBadge = `<span style="background: rgba(245, 158, 11, 0.2); color: #F59E0B; border: 1px solid #F59E0B; font-size: 10px; font-weight: 800; padding: 1px 6px; border-radius: 4px;">${it.days_remaining}d Left</span>`;
+    } else {
+      statusBadge = `<span style="background: rgba(59, 130, 246, 0.15); color: #60A5FA; border: 1px solid #3B82F6; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px;">${it.days_remaining}d Left</span>`;
+    }
+
+    const stepVal = it.is_sheet && it.sqft_per_piece > 0 ? it.sqft_per_piece : 1;
+    const sheetNote = it.is_sheet && it.sqft_per_piece > 0
+      ? `<div style="font-size: 11px; font-weight: 700; color: #F59E0B; margin-top: 3px;">
+          ➔ ${it.suggested_sheets || Math.ceil(it.suggested_qty / it.sqft_per_piece)} Sheets (${it.size || '8×4'})
+         </div>`
+      : `<div style="font-size: 10.5px; color: var(--text-muted); margin-top: 2px;">${it.unit}</div>`;
+
+    return `
+      <tr id="po-row-${it.id}" style="${it.current_stock <= 0 ? 'background: rgba(239,68,68,0.05);' : ''}">
+        <td style="text-align: center; color: var(--text-muted); font-weight: 700;">${idx + 1}</td>
+        <td>
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:2px;">
+            <strong style="color: var(--text-main); font-size: 13.5px;">${it.name}</strong>
+            ${statusBadge}
+          </div>
+          <div style="font-size: 11.5px; color: var(--text-muted); display:flex; gap:8px; flex-wrap:wrap;">
+            <span class="mono" style="color: var(--primary); font-weight: 700;">${it.sku}</span>
+            <span>&bull;</span>
+            <span>${it.category}</span>
+            ${it.brand ? `<span>&bull; ${it.brand}</span>` : ''}
+            ${it.size ? `<span>&bull; 📏 ${it.size}</span>` : ''}
+          </div>
+        </td>
+        <td style="text-align: right;" class="mono">
+          <strong style="color: ${it.current_stock <= 0 ? 'var(--rose)' : 'var(--text-main)'}; font-size: 13px;">
+            ${it.current_stock}
+          </strong>
+          <div style="font-size: 10px; color: var(--text-muted);">${it.unit}</div>
+        </td>
+        <td style="text-align: right;" class="mono">
+          <span style="font-weight: 700; color: #38BDF8;">${it.daily_velocity}</span>
+          <div style="font-size: 10px; color: var(--text-muted);">${it.unit}/day</div>
+        </td>
+        <td style="text-align: right;" class="mono">
+          <span style="font-weight: 700; color: #F59E0B;">${it.projected_demand}</span>
+          <div style="font-size: 10px; color: var(--text-muted);">+${it.safety_buffer || 0} buffer</div>
+        </td>
+        <td style="text-align: center; background: rgba(245, 158, 11, 0.04);">
+          <input 
+            type="number" 
+            class="form-input po-qty-input"
+            min="0" 
+            step="${stepVal}"
+            value="${it.suggested_qty}"
+            oninput="updatePoItemQty(${it.id}, this.value)"
+            style="width: 105px; padding: 5px 8px; font-weight: 800; font-size: 13.5px; text-align: center; border: 1.5px solid #F59E0B; border-radius: 6px; background: var(--surface); color: var(--text-main);"
+            title="Edit quantity to manually override recommended purchase amount"
+          />
+          ${sheetNote}
+        </td>
+        <td style="text-align: right;" class="mono">
+          ₹${fmtInr(it.purchase_price)}
+          <div style="font-size: 10px; color: var(--text-muted);">per ${it.unit}</div>
+        </td>
+        <td style="text-align: right;" class="mono">
+          <strong id="po-line-cost-${it.id}" style="color: #10B981; font-size: 13px;">
+            ₹${fmtInr(it.line_cost)}
+          </strong>
+        </td>
+        <td style="text-align: center;">
+          <button 
+            type="button" 
+            class="btn btn-secondary" 
+            onclick="removePoItem(${it.id})"
+            style="padding: 4px 8px; font-size: 13px; color: #EF4444; border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.08); cursor: pointer;"
+            title="Exclude this item from Purchase Order"
+          >
+            🗑️
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  populatePoManualCatalogSelect();
+}
+
+function updatePoItemQty(id, newQtyStr) {
+  const it = supplierPoState.items.find(x => x.id === id);
+  if (!it) return;
+
+  const val = parseFloat(newQtyStr);
+  it.suggested_qty = isNaN(val) || val < 0 ? 0 : val;
+
+  if (it.is_sheet && it.sqft_per_piece > 0) {
+    it.suggested_sheets = Math.ceil(it.suggested_qty / it.sqft_per_piece);
+  }
+
+  it.line_cost = Math.round(it.suggested_qty * it.purchase_price * 100) / 100;
+
+  const costEl = document.getElementById(`po-line-cost-${id}`);
+  if (costEl) costEl.textContent = `₹${fmtInr(it.line_cost)}`;
+
+  let totalCost = 0;
+  let totalSheets = 0;
+  let totalSqft = 0;
+
+  supplierPoState.items.forEach(item => {
+    totalCost += item.line_cost || 0;
+    if (item.is_sheet && item.sqft_per_piece > 0) {
+      totalSheets += item.suggested_sheets || 0;
+      totalSqft += item.suggested_qty || 0;
+    }
+  });
+
+  const elCost = document.getElementById('poKpiTotalCost');
+  const elSheets = document.getElementById('poKpiSheetCount');
+  const elSqft = document.getElementById('poKpiSqftCount');
+
+  if (elCost) elCost.textContent = `₹${fmtInr(totalCost)}`;
+  if (elSheets) elSheets.textContent = `${totalSheets} Sheets`;
+  if (elSqft) elSqft.textContent = `${fmtInr(totalSqft)} Sq.Ft coverage`;
+}
+
+function removePoItem(id) {
+  const item = supplierPoState.items.find(x => x.id === id);
+  supplierPoState.items = supplierPoState.items.filter(x => x.id !== id);
+  renderSupplierPOTable();
+  showToast(`Excluded "${item ? item.name : 'Item'}" from PO.`, "info");
+}
+
+function addManualProductToPo() {
+  const sel = document.getElementById('poManualAddSelect');
+  if (!sel || !sel.value) {
+    showToast("Please choose a catalog item from the dropdown to add.", "warning");
+    return;
+  }
+
+  const prodId = parseInt(sel.value);
+  const existing = supplierPoState.items.find(x => x.id === prodId);
+  if (existing) {
+    showToast(`"${existing.name}" is already in this PO. You can edit its quantity directly.`, "warning");
+    return;
+  }
+
+  const prod = supplierPoState.allCatalog.find(x => x.id === prodId);
+  if (!prod) return;
+
+  const sqft_piece = parseFloat(prod.sqft_per_piece || 0);
+  const is_sheet = (prod.unit || '').toLowerCase() === 'sqft' && sqft_piece > 0;
+  const defSheets = is_sheet ? 5 : 0;
+  const defQty = is_sheet ? (5 * sqft_piece) : 5.0;
+
+  const newItem = {
+    id: prod.id,
+    sku: prod.sku,
+    name: prod.name,
+    category: prod.category || 'General',
+    subcategory: '',
+    brand: prod.brand || 'Standard',
+    size: prod.size || '',
+    unit: prod.unit || 'Pcs',
+    sqft_per_piece: sqft_piece,
+    is_sheet: is_sheet,
+    current_stock: prod.current_stock || 0,
+    total_sold: 0,
+    daily_velocity: 0,
+    days_remaining: 999,
+    projected_demand: 0,
+    safety_buffer: 0,
+    suggested_qty: defQty,
+    suggested_sheets: defSheets,
+    purchase_price: prod.purchase_price || 0,
+    selling_price: 0,
+    line_cost: defQty * (prod.purchase_price || 0),
+    stock_status: "MANUAL ADDITION",
+    urgency: 5
+  };
+
+  supplierPoState.items.push(newItem);
+  renderSupplierPOTable();
+  showToast(`Added "${newItem.name}" to PO.`, "success");
+}
+
+function resetPoToRecommended() {
+  if (!supplierPoState.rawRecommended || supplierPoState.rawRecommended.length === 0) {
+    initSupplierPO(true);
+    return;
+  }
+  supplierPoState.items = supplierPoState.rawRecommended.map(x => ({ ...x }));
+  renderSupplierPOTable();
+  showToast(`Reset PO items to recommended ${supplierPoState.targetDays}-day requirements!`, "success");
+}
+
+function updatePoPrintDetails() {
+  const supplier = document.getElementById('poSupplierName')?.value || "Onda Wholesale Depot";
+  const refNo = document.getElementById('poRefNumber')?.value || "BDE/PO/2026-10/24";
+  const deliv = document.getElementById('poDeliveryDate')?.value || "Within 48 Hours";
+
+  const pSupplier = document.getElementById('printPoSupplier');
+  const pRefNo = document.getElementById('printPoRefNumber');
+  const pDeliv = document.getElementById('printPoDeliveryDate');
+  const pCov = document.getElementById('printPoCoverageWindow');
+  const pDate = document.getElementById('printPoDate');
+
+  if (pSupplier) pSupplier.textContent = supplier;
+  if (pRefNo) pRefNo.textContent = refNo;
+  if (pDeliv) pDeliv.textContent = deliv;
+  if (pCov) pCov.textContent = `Next ${supplierPoState.targetDays} Days Zero-Stockout Guarantee`;
+  if (pDate) {
+    const now = new Date();
+    pDate.textContent = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+}
+
+function exportPoToPdf() {
+  const validItems = supplierPoState.items.filter(it => (it.suggested_qty || 0) > 0);
+  if (validItems.length === 0) {
+    showToast("Cannot export an empty PO. Please ensure at least one item has an order quantity.", "warning");
+    return;
+  }
+
+  updatePoPrintDetails();
+
+  const tbody = document.getElementById('printPoTableBody');
+  if (!tbody) return;
+
+  let grandTotal = 0;
+  let totalSheets = 0;
+  let totalUnits = 0;
+
+  tbody.innerHTML = validItems.map((it, idx) => {
+    const cost = (it.suggested_qty || 0) * (it.purchase_price || 0);
+    grandTotal += cost;
+
+    let qtyStr = `${it.suggested_qty} ${it.unit}`;
+    let specStr = it.size || 'Standard';
+
+    if (it.is_sheet && it.sqft_per_piece > 0) {
+      const sheets = it.suggested_sheets || Math.ceil(it.suggested_qty / it.sqft_per_piece);
+      qtyStr = `<strong>${sheets} Sheets</strong><br><span style="font-size:10px; color:#555;">(${it.suggested_qty} Sq.Ft)</span>`;
+      totalSheets += sheets;
+    } else {
+      totalUnits += it.suggested_qty;
+    }
+
+    return `
+      <tr style="border-bottom: 1px solid #ccc;">
+        <td style="padding: 6px 4px; border: 1px solid #000; text-align: center;">${idx + 1}</td>
+        <td style="padding: 6px 8px; border: 1px solid #000; font-family: monospace; font-weight: 700;">${it.sku}</td>
+        <td style="padding: 6px 8px; border: 1px solid #000;">
+          <strong>${it.name}</strong>
+          <div style="font-size: 10px; color: #555;">Category: ${it.category} &bull; Brand: ${it.brand || 'Standard'}</div>
+        </td>
+        <td style="padding: 6px 6px; border: 1px solid #000; text-align: center;">${specStr}</td>
+        <td style="padding: 6px 8px; border: 1px solid #000; text-align: center;">${qtyStr}</td>
+        <td style="padding: 6px 8px; border: 1px solid #000; text-align: right; font-family: monospace;">₹${fmtInr(it.purchase_price)}</td>
+        <td style="padding: 6px 8px; border: 1px solid #000; text-align: right; font-family: monospace; font-weight: 800;">₹${fmtInr(cost)}</td>
+      </tr>
+    `;
+  }).join('');
+
+  const elGrand = document.getElementById('printPoGrandTotal');
+  const elQty = document.getElementById('printPoTotalQty');
+  const elWords = document.getElementById('printPoAmountWords');
+
+  if (elGrand) elGrand.textContent = `₹${fmtInr(grandTotal)}`;
+  if (elQty) {
+    elQty.innerHTML = totalSheets > 0 
+      ? `<strong>${totalSheets} Sheets</strong>${totalUnits > 0 ? ` + ${totalUnits} Pcs` : ''}`
+      : `${totalUnits} Items`;
+  }
+  if (elWords && typeof numberToIndianWords === 'function') {
+    elWords.textContent = numberToIndianWords(grandTotal) + " Rupees Only";
+  }
+
+  document.body.classList.add('printing-po');
+  window.print();
+  setTimeout(() => {
+    document.body.classList.remove('printing-po');
+  }, 1000);
+}
+
+function sharePoOnWhatsApp() {
+  const validItems = supplierPoState.items.filter(it => (it.suggested_qty || 0) > 0);
+  if (validItems.length === 0) {
+    showToast("No items with order quantity to share on WhatsApp.", "warning");
+    return;
+  }
+
+  const supplier = document.getElementById('poSupplierName')?.value || "Mill Stockist / Distributor";
+  const refNo = document.getElementById('poRefNumber')?.value || "BDE/PO/2026-10/24";
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+
+  let totalCost = 0;
+  let totalSheets = 0;
+
+  const itemLines = validItems.map((it, idx) => {
+    const cost = (it.suggested_qty || 0) * (it.purchase_price || 0);
+    totalCost += cost;
+
+    if (it.is_sheet && it.sqft_per_piece > 0) {
+      const sheets = it.suggested_sheets || Math.ceil(it.suggested_qty / it.sqft_per_piece);
+      totalSheets += sheets;
+      return `${idx + 1}. *${it.name}*
+   • SKU: ${it.sku}
+   • Quantity: *${sheets} Sheets* (${it.suggested_qty} Sq.Ft)
+   • Rate: ₹${fmtInr(it.purchase_price)}/Sq.Ft
+   • Amount: ₹${fmtInr(cost)}`;
+    } else {
+      return `${idx + 1}. *${it.name}*
+   • SKU: ${it.sku}
+   • Quantity: *${it.suggested_qty} ${it.unit}*
+   • Rate: ₹${fmtInr(it.purchase_price)}
+   • Amount: ₹${fmtInr(cost)}`;
+    }
+  });
+
+  const msg = 
+`*BABA DUGDHESWAR ENTERPRISE • ONDA SHOWROOM*
+*CONSOLIDATED PURCHASE ORDER (PO)*
+-----------------------------------
+📋 *PO Number:* ${refNo}
+📅 *Date:* ${dateStr}
+🏭 *To Supplier:* ${supplier}
+⏳ *Coverage Window:* Next ${supplierPoState.targetDays} Days Zero-Stockout
+
+*ORDERED ITEMS LIST:*
+${itemLines.join('
+
+')}
+
+-----------------------------------
+🪵 *Total Plywood Sheets:* ${totalSheets} Sheets
+💰 *Total Estimated Bill Value:* ₹${fmtInr(totalCost)}
+
+_Please confirm dispatch schedule and send delivery challan to Onda Depot receiving dock._
+*Baba Dugdheswar Enterprise, Onda Majhpara, Bankura*`;
+
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
 }
