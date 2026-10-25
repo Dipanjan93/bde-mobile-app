@@ -110,6 +110,15 @@
       align-items: center;
       justify-content: center;
       transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1), transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: splashAutoDismiss 0.45s cubic-bezier(0.4, 0, 0.2, 1) 2.2s forwards;
+    }
+
+    @keyframes splashAutoDismiss {
+      to {
+        opacity: 0;
+        pointer-events: none;
+        visibility: hidden;
+      }
     }
 
     #splash-screen.splash-exit {
@@ -4332,7 +4341,7 @@
   <!-- =========================================================
        1. SPLASH SCREEN (Golden-yellow #FACC15, Pulsing BDE badge, 1.3s)
        ========================================================= -->
-  <div id="splash-screen">
+  <div id="splash-screen" onclick="this.classList.add('splash-exit'); setTimeout(() => this.remove(), 450);">
     <div class="splash-content">
       <div class="splash-logo-badge">
         <img src="/static/img/logo/bde_logo.png" onerror="if(!this.src.endsWith('.svg')){this.src='/static/img/logo/bde_logo.svg';}else if(this.src.includes('/static/')){this.src='static/img/logo/bde_logo.svg';}" alt="BDE Emblem" class="splash-logo-img">
@@ -8287,7 +8296,7 @@ Please verify current stock availability at Onda Depot, share final counter quot
           <div class="mg-lb-name" title="${item.name}">${item.name}</div>
           <div class="mg-lb-loc">📍 ${item.village}</div>
           <div class="mg-lb-likes">❤️ ${item.total_likes} Loves</div>
-          <button type="button" class="mg-lb-hire-btn" onclick="hireMistriFromPost('${item.name.replace(/'/g, "\\'")}', '', '${item.village.replace(/'/g, "\\')}')">
+          <button type="button" class="mg-lb-hire-btn" onclick="hireMistriByIndex(${idx})">
             📞 Hire Mistri
           </button>
         </div>
@@ -8370,7 +8379,7 @@ Please verify current stock availability at Onda Depot, share final counter quot
 
             <!-- 2 Direct Business Conversion CTAs -->
             <div class="mg-conversion-btns">
-              <button type="button" class="mg-btn-hire" onclick="hireMistriFromPost('${p.author_name.replace(/'/g, "\\'")}', '${p.author_phone || ''}', '${p.village_location.replace(/'/g, "\\')}')">
+              <button type="button" class="mg-btn-hire" onclick="hireMistriByPostId(${p.id})">
                 <span>📞</span> Hire This Mistri
               </button>
               <button type="button" class="mg-btn-buy" onclick="buyPostMaterialsOnWhatsApp(${p.id})">
@@ -8506,6 +8515,20 @@ Please verify current stock availability at Onda Depot, share final counter quot
                   `👉 View & calculate exact materials on BDE App: https://bde-onda.com`;
       const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
       window.open(url, '_blank');
+    }
+
+    function hireMistriByIndex(idx) {
+      const item = (MISTRI_GRAM_STATE.leaderboard || [])[idx];
+      if (item) {
+        hireMistriFromPost(item.name, '', item.village || '');
+      }
+    }
+
+    function hireMistriByPostId(postId) {
+      const post = (MISTRI_GRAM_STATE.posts || []).find(p => p.id === postId);
+      if (post) {
+        hireMistriFromPost(post.author_name, post.author_phone || '', post.village_location || '');
+      }
     }
 
     function hireMistriFromPost(authorName, authorPhone, village) {
