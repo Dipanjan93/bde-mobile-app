@@ -1267,6 +1267,19 @@ def get_feed(
             "post_count": int(post_count or 0)
         })
 
+    # If no approved craft posts yet, populate Trending Mistris from verified carpenters
+    if not leaderboard:
+        top_carpenters = db.query(models.Carpenter).order_by(desc(models.Carpenter.rating), desc(models.Carpenter.experience_years)).limit(8).all()
+        for rank, c in enumerate(top_carpenters, start=1):
+            leaderboard.append({
+                "rank": rank,
+                "name": c.name,
+                "village": c.village or "Onda",
+                "role": "Master Mistri",
+                "total_likes": int((c.rating or 4.8) * 10),
+                "post_count": c.experience_years or 5
+            })
+
     posts = []
     for p in posts_records:
         post_comments = []

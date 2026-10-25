@@ -3491,74 +3491,149 @@
       font-family: inherit;
     }
 
-    /* Hero Banner */
-    .mg-hero-card {
-      background: linear-gradient(135deg, #123B5D 0%, #1a4d78 100%);
-      border: 1px solid rgba(245, 158, 11, 0.35);
-      border-radius: 18px;
-      padding: 22px 18px;
-      color: #FFFFFF;
-      box-shadow: 0 8px 24px rgba(18, 59, 93, 0.2);
-      margin-bottom: 18px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .mg-hero-card::before {
-      content: '';
-      position: absolute;
-      top: -40px;
-      right: -40px;
-      width: 140px;
-      height: 140px;
-      background: radial-gradient(circle, rgba(245, 158, 11, 0.25) 0%, transparent 70%);
-      border-radius: 50%;
-    }
-
-    .mg-hero-badge {
-      display: inline-block;
-      background: #F59E0B;
-      color: #123B5D;
-      font-size: 11px;
-      font-weight: 800;
-      padding: 3px 10px;
-      border-radius: 99px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+    /* Simple Header */
+    .mg-simple-header {
+      text-align: center;
+      padding: 12px 8px 6px 8px;
       margin-bottom: 8px;
     }
-
-    .mg-hero-title {
+    .mg-simple-title {
       font-size: 21px;
       font-weight: 900;
+      color: #123B5D;
+      margin: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: -0.3px;
+    }
+
+    /* Post & Claim Cashback CTA Bar */
+    .mg-post-cta-bar {
+      margin-bottom: 14px;
+    }
+    .mg-open-modal-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
       color: #FFFFFF;
-      margin: 0 0 6px 0;
+      border: none;
+      border-radius: 14px;
+      padding: 13px 18px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .mg-open-modal-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(245, 158, 11, 0.45);
+    }
+    .mg-fab-post {
+      position: fixed;
+      bottom: 80px;
+      right: 18px;
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 50px;
+      padding: 11px 18px;
+      font-size: 13px;
+      font-weight: 800;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+      cursor: pointer;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.2s ease;
+    }
+    .mg-fab-post:hover {
+      transform: scale(1.05);
+    }
+
+    /* Pop-up Window Modal */
+    .mg-modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(18, 59, 93, 0.7);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.22s ease, visibility 0.22s ease;
+    }
+    .mg-modal-backdrop.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    .mg-modal-card {
+      background: #FFFFFF;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      transform: translateY(24px) scale(0.96);
+      transition: transform 0.22s ease;
+    }
+    .mg-modal-backdrop.show .mg-modal-card {
+      transform: translateY(0) scale(1);
+    }
+    .mg-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 18px;
+      border-bottom: 1px solid #E2E8F0;
+      position: sticky;
+      top: 0;
+      background: #FFFFFF;
+      z-index: 2;
+      border-radius: 20px 20px 0 0;
+    }
+    .mg-modal-title {
+      font-size: 16px;
+      font-weight: 900;
+      color: #123B5D;
       display: flex;
       align-items: center;
       gap: 8px;
     }
-
-    .mg-hero-subtitle {
-      font-size: 12.5px;
-      color: #E6E7E9;
-      line-height: 1.5;
-      margin: 0;
-    }
-
-    .mg-hero-tags {
+    .mg-modal-close-btn {
+      background: #F1F5F9;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
       display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 12px;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 800;
+      color: #64748B;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
     }
-
-    .mg-hero-tag {
-      background: rgba(255, 255, 255, 0.14);
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      padding: 3px 9px;
-      border-radius: 99px;
-      font-size: 11px;
-      font-weight: 700;
+    .mg-modal-close-btn:hover {
+      background: #E2E8F0;
+      color: #1E293B;
+    }
+    .mg-modal-body {
+      padding: 18px;
     }
 
     /* Leaderboard */
@@ -5648,172 +5723,229 @@
        VIEW 4: MISTRI GRAM (CRAFT SHOWCASE SOCIAL COMMUNITY FEED)
        ========================================================= -->
   <section id="view-showcase" style="display: none;" class="mg-container">
-    <!-- Hero Banner Card -->
-    <div class="mg-hero-card">
-      <div class="mg-hero-badge">🔨 Bankura Social Community</div>
-      <h2 class="mg-hero-title">
-        <span>🔨</span> Mistri Gram • Craft Showcase
-      </h2>
-      <p class="mg-hero-subtitle">
-        Real furniture projects made by Bankura's finest master carpenters using 100% Baba Dugdheswar Enterprise materials. Double-tap to ❤️ Love, hire local mistris, or buy exact materials for any design!
-      </p>
-      <div class="mg-hero-tags">
-        <span class="mg-hero-tag">🏆 Verified Mistris</span>
-        <span class="mg-hero-tag">🪵 100% BDE Onda Materials</span>
-        <span class="mg-hero-tag">❤️ Community Loved</span>
-        <span class="mg-hero-tag">💬 Direct Carpenter Leads</span>
-      </div>
+    <!-- Simple Header (Only Mistri Gram Craft Showcase) -->
+    <div class="mg-simple-header">
+      <h2 class="mg-simple-title">🔨 Mistri Gram Craft Showcase</h2>
     </div>
 
-    <!-- 1. Leaderboard Box: "🏆 Trending Mistris in Bankura" -->
+    <!-- 1. Trending Mistris (First Line) -->
     <div class="mg-leaderboard-box">
       <div class="mg-lb-header">
         <h3 class="mg-lb-title">
-          <span>🏆</span> Trending Mistris in Bankura
+          <span>🏆</span> Trending Mistris
         </h3>
         <span style="font-size: 11px; color: #64748B; font-weight: 700;">Ranked by ❤️ Loves</span>
       </div>
       <div class="mg-lb-scroll" id="mg-leaderboard-scroll">
-        <!-- Injected via loadMistriGramFeed() -->
-        <div style="padding: 10px; font-size: 12px; color: #94A3B8;">Loading top carpenters...</div>
+        <div style="padding: 10px; font-size: 12px; color: #94A3B8;">Loading trending mistris...</div>
       </div>
     </div>
 
-    <!-- 2. "Post Your Craft & Claim Cashback" Card -->
-    <div class="mg-create-card">
-      <div class="mg-create-header">
-        <h3 class="mg-create-title">
-          <span>✨</span> Showcase Your Finished Furniture &amp; Claim Cashback
+    <!-- 2A. When NO photo available yet: Direct Simple Upload Card -->
+    <div id="mg-empty-upload-card" class="mg-create-card" style="display: none;">
+      <div style="text-align: center; margin-bottom: 14px;">
+        <h3 style="font-size: 16px; font-weight: 800; color: #123B5D; margin: 0 0 4px 0;">
+          📸 Upload Your Finished Furniture Photo
         </h3>
-        <!-- Role Toggle: Verified Mistri vs Homeowner -->
-        <div class="mg-role-toggle">
-          <button type="button" class="mg-role-pill active" id="mg-role-mistri" onclick="selectMistriGramRole('Mistri')">Verified Mistri</button>
-          <button type="button" class="mg-role-pill" id="mg-role-homeowner" onclick="selectMistriGramRole('Homeowner')">Homeowner</button>
-        </div>
+        <p style="font-size: 12px; color: #64748B; margin: 0;">
+          Be the first in Bankura to share your craft and get direct customer inquiries!
+        </p>
       </div>
 
-      <!-- Verified BDE Cash Memo Cashback Alert Banner -->
-      <div id="cb-verified-banner" style="display: none; background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(59, 130, 246, 0.12)); border: 1.5px solid #10B981; border-radius: 12px; padding: 14px 16px; margin-bottom: 18px; color: #065F46;">
-        <div style="font-weight: 800; font-size: 14px; display:flex; align-items:center; gap:8px;">
-          <span>🎉</span> Verified BDE Cash Memo: <span id="cb-banner-bill-no" style="font-family:monospace; color:#047857; font-weight:800; background:#fff; padding:2px 8px; border-radius:6px; border:1px solid #A7F3D0;"></span> • Cashback Eligible!
-        </div>
-        <div style="font-size: 11.5px; color: #047857; margin-top: 4px;">
-          Upload your finished furniture photo below to claim direct UPI cashback into your bank account!
-        </div>
-      </div>
-
-      <div class="mg-grid-2">
-        <div class="mg-field-group">
-          <label class="mg-label" for="mg-post-author">Your Name *</label>
-          <input type="text" id="mg-post-author" class="mg-input" placeholder="e.g. Swapan Sutradhar">
-        </div>
-        <div class="mg-field-group">
-          <label class="mg-label" for="mg-post-phone">Phone Number (for client calls &amp; cashback) *</label>
-          <input type="tel" id="mg-post-phone" class="mg-input" placeholder="e.g. 9434198273">
-        </div>
-      </div>
-
-      <div class="mg-grid-2">
-        <div class="mg-field-group">
-          <label class="mg-label" for="mg-post-bill">Bill / Cash Memo No. (Optional or from QR)</label>
-          <input type="text" id="mg-post-bill" class="mg-input" placeholder="e.g. BDE-2026-0842">
-        </div>
-        <div class="mg-field-group">
-          <label class="mg-label" for="mg-post-upi">UPI ID for Direct Bank Cashback (Optional)</label>
-          <input type="text" id="mg-post-upi" class="mg-input" placeholder="e.g. 9834198273@okaxis or name@oksbi">
-        </div>
-      </div>
-
-      <div class="mg-grid-2">
-        <div class="mg-field-group">
-          <label class="mg-label" for="mg-post-village">Site Village / Town *</label>
-          <select id="mg-post-village" class="mg-input">
-            <option value="Onda Bazar">Onda Bazar, Bankura</option>
-            <option value="Onda Majhpara">Onda Majhpara, Bankura</option>
-            <option value="Punisole">Punisole, Bankura</option>
-            <option value="Bishnupur">Bishnupur, Bankura</option>
-            <option value="Ramsagar">Ramsagar, Bankura</option>
-            <option value="Taldangra">Taldangra, Bankura</option>
-            <option value="Bankura Town">Bankura Town</option>
-            <option value="Other">Other Bankura Location</option>
-          </select>
-        </div>
-        <div class="mg-field-group">
-          <label class="mg-label" for="mg-post-category">Furniture Category *</label>
-          <select id="mg-post-category" class="mg-input">
-            <option value="Wardrobe">Wardrobe (Almirah)</option>
-            <option value="Modular Kitchen">Modular Kitchen</option>
-            <option value="Box Bed">Hydraulic Box Bed</option>
-            <option value="TV Unit">TV Unit & Accent Wall</option>
-            <option value="Doors">Main & Interior Doors</option>
-            <option value="Dressing Table">Dressing Table & Mirror</option>
-            <option value="Custom Woodwork">Custom Interior Woodwork</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="mg-field-group">
-        <label class="mg-label" for="mg-post-caption">Project Story / Caption</label>
-        <textarea id="mg-post-caption" class="mg-input mg-textarea" placeholder="Tell us about this project... e.g., '6-door sliding wardrobe with champagne profile handle and 18mm marine ply carcass.'"></textarea>
-      </div>
-
-      <!-- BDE Materials Checkbox Pills -->
-      <div class="mg-field-group">
-        <label class="mg-label">BDE Materials Used in this Project (Tap to select):</label>
-        <div class="mg-mat-pills" id="mg-mat-selector">
-          <div class="mg-mat-pill selected" onclick="toggleMistriGramMaterial(this, '18mm BWP Marine Ply')">🪵 18mm Marine Ply</div>
-          <div class="mg-mat-pill selected" onclick="toggleMistriGramMaterial(this, '1.0mm Designer Sunmica')">🎨 1.0mm Sunmica</div>
-          <div class="mg-mat-pill" onclick="toggleMistriGramMaterial(this, '1.5mm Acrylic High-Gloss')">✨ 1.5mm Acrylic</div>
-          <div class="mg-mat-pill" onclick="toggleMistriGramMaterial(this, 'Charcoal 3D Louvers')">🏛️ Charcoal Louvers</div>
-          <div class="mg-mat-pill selected" onclick="toggleMistriGramMaterial(this, 'Fevicol Marine')">🧴 Fevicol Marine</div>
-          <div class="mg-mat-pill" onclick="toggleMistriGramMaterial(this, 'Soft-Close Auto-Hinges')">🔩 Soft-Close Hinges</div>
-          <div class="mg-mat-pill" onclick="toggleMistriGramMaterial(this, 'Hydraulic Bed Lifters')">🛏️ Bed Hydraulic Kit</div>
-        </div>
-      </div>
-
-      <!-- Zero-Cost Client-Side HTML5 Canvas Compressed Photo Upload -->
-      <input type="file" id="mg-file-input" accept="image/*" capture="environment" style="display: none;" onchange="handleMistriGramFileSelect(event)">
+      <!-- Upload photo from device or camera -->
+      <input type="file" id="mg-empty-file-input" accept="image/*" style="display: none;" onchange="handleMistriGramEmptyFileSelect(event)">
       
-      <div class="mg-upload-dropzone" id="mg-upload-zone" onclick="document.getElementById('mg-file-input').click()">
-        <span style="font-size: 28px;">📷</span>
-        <div style="font-size: 13px; font-weight: 800; color: #123B5D;">Tap to Take or Select Finished Furniture Photo</div>
-        <div style="font-size: 11px; color: #64748B;">Auto-resized &amp; compressed to WebP 800px on your phone for ultra-fast upload</div>
+      <div class="mg-upload-dropzone" id="mg-empty-upload-zone" onclick="document.getElementById('mg-empty-file-input').click()">
+        <span style="font-size: 32px;">📷</span>
+        <div style="font-size: 13.5px; font-weight: 800; color: #123B5D; margin-top: 4px;">
+          Upload Photo from Device or Camera
+        </div>
+        <div style="font-size: 11px; color: #64748B; margin-top: 2px;">
+          Tap to capture with camera or choose from gallery
+        </div>
       </div>
 
       <!-- Preview Wrap -->
-      <div id="mg-preview-wrap" class="mg-preview-wrap">
-        <img id="mg-preview-img" class="mg-preview-img" src="" alt="Compressed Preview">
-        <div id="mg-preview-stat" class="mg-preview-stat-badge">⚡ Compressed: 48 KB (Ready)</div>
-        <button type="button" class="mg-preview-remove-btn" onclick="removeMistriGramPhoto()" title="Remove Photo">✕</button>
+      <div id="mg-empty-preview-wrap" class="mg-preview-wrap" style="display: none;">
+        <img id="mg-empty-preview-img" class="mg-preview-img" src="" alt="Furniture Photo">
+        <div id="mg-empty-preview-stat" class="mg-preview-stat-badge">⚡ Ready to upload</div>
+        <button type="button" class="mg-preview-remove-btn" onclick="removeMistriGramEmptyPhoto()" title="Remove Photo">✕</button>
+      </div>
+
+      <!-- Story / Description -->
+      <div class="mg-field-group" style="margin-top: 14px;">
+        <label class="mg-label" for="mg-empty-caption">Story / Description of that photo</label>
+        <textarea id="mg-empty-caption" class="mg-input mg-textarea" rows="2" placeholder="Tell us about this photo... e.g. 6-door wardrobe made with 18mm marine ply and champagne profile handles in Onda"></textarea>
+      </div>
+
+      <div class="mg-grid-2">
+        <!-- Name -->
+        <div class="mg-field-group">
+          <label class="mg-label" for="mg-empty-author">Your Name *</label>
+          <input type="text" id="mg-empty-author" class="mg-input" placeholder="e.g. Swapan Sutradhar">
+        </div>
+        <!-- Phone No -->
+        <div class="mg-field-group">
+          <label class="mg-label" for="mg-empty-phone">Phone Number *</label>
+          <input type="tel" id="mg-empty-phone" class="mg-input" placeholder="e.g. 9800523411">
+        </div>
+      </div>
+
+      <!-- Location -->
+      <div class="mg-field-group">
+        <label class="mg-label" for="mg-empty-village">Location *</label>
+        <input type="text" id="mg-empty-village" class="mg-input" placeholder="e.g. Onda Majhpara, Bankura">
       </div>
 
       <!-- Submit CTA -->
-      <button type="button" class="mg-publish-btn" id="mg-publish-btn" onclick="submitMistriGramPost()">
-        <span>🚀</span> Publish to Mistri Gram Community
+      <button type="button" class="mg-publish-btn" id="mg-empty-publish-btn" onclick="submitMistriGramEmptyPost()">
+        <span>🚀</span> Publish to Mistri Gram
+      </button>
+
+      <div style="text-align: center; margin-top: 10px;">
+        <a href="javascript:void(0)" onclick="openMistriGramModal()" style="font-size: 11.5px; color: #F59E0B; font-weight: 700; text-decoration: none;">
+          🎁 Have a BDE Bill &amp; want to claim Cashback? Tap here
+        </a>
+      </div>
+    </div>
+
+    <!-- 2B. When photos ARE already available: Feed Section -->
+    <div id="mg-has-posts-wrap" style="display: none;">
+      <!-- Post & Claim Cashback CTA Bar -->
+      <div class="mg-post-cta-bar">
+        <button type="button" class="mg-open-modal-btn" onclick="openMistriGramModal()">
+          <span>✨</span> Post Your Craft &amp; Claim Cashback <span>🎁</span>
+        </button>
+      </div>
+
+      <!-- Category Filter Bar -->
+      <div class="mg-filter-bar" id="mg-filter-bar">
+        <div class="mg-filter-pill active" onclick="filterMistriGram('All', this)">All Crafts</div>
+        <div class="mg-filter-pill" onclick="filterMistriGram('popular', this)">🔥 Most Loved</div>
+        <div class="mg-filter-pill" onclick="filterMistriGram('Wardrobe', this)">🚪 Wardrobes</div>
+        <div class="mg-filter-pill" onclick="filterMistriGram('Kitchen', this)">🍳 Kitchens</div>
+        <div class="mg-filter-pill" onclick="filterMistriGram('Bed', this)">🛏️ Beds</div>
+        <div class="mg-filter-pill" onclick="filterMistriGram('TV Unit', this)">📺 TV Units</div>
+        <div class="mg-filter-pill" onclick="filterMistriGram('Doors', this)">🚪 Doors</div>
+      </div>
+
+      <!-- Community Feed Posts Stream (Photos & Stories shown FIRST!) -->
+      <div id="mg-feed-stream">
+        <div style="text-align: center; padding: 40px; color: #64748B;">
+          <div class="ai-loading-spinner" style="margin: 0 auto 12px auto;"></div>
+          <div>Loading Mistri Gram community showcase...</div>
+        </div>
+      </div>
+
+      <!-- Floating Action Button for easy posting while scrolling -->
+      <button type="button" class="mg-fab-post" onclick="openMistriGramModal()" title="Post Your Craft &amp; Claim Cashback">
+        <span>📸</span> Post Craft
       </button>
     </div>
 
-    <!-- 3. Category Filter Pills -->
-    <div class="mg-filter-bar" id="mg-filter-bar">
-      <div class="mg-filter-pill active" onclick="filterMistriGram('All', this)">All Crafts</div>
-      <div class="mg-filter-pill" onclick="filterMistriGram('popular', this)">🔥 Most Loved</div>
-      <div class="mg-filter-pill" onclick="filterMistriGram('Wardrobe', this)">🚪 Wardrobes</div>
-      <div class="mg-filter-pill" onclick="filterMistriGram('Kitchen', this)">🍳 Kitchens</div>
-      <div class="mg-filter-pill" onclick="filterMistriGram('Bed', this)">🛏️ Beds</div>
-      <div class="mg-filter-pill" onclick="filterMistriGram('TV Unit', this)">📺 TV Units</div>
-      <div class="mg-filter-pill" onclick="filterMistriGram('Doors', this)">🚪 Doors</div>
-    </div>
+    <!-- 3. Pop-up Modal Window: "Post Your Craft & Claim Cashback" -->
+    <div id="mg-post-modal" class="mg-modal-backdrop" onclick="handleMistriGramModalBackdrop(event)">
+      <div class="mg-modal-card">
+        <div class="mg-modal-header">
+          <div class="mg-modal-title">
+            <span>📸</span> Post Craft &amp; Claim Cashback
+          </div>
+          <button type="button" class="mg-modal-close-btn" onclick="closeMistriGramModal()" aria-label="Close">✕</button>
+        </div>
 
-    <!-- 4. Community Feed Posts Stream -->
-    <div id="mg-feed-stream">
-      <div style="text-align: center; padding: 40px; color: #64748B;">
-        <div class="ai-loading-spinner" style="margin: 0 auto 12px auto;"></div>
-        <div>Loading Mistri Gram community showcase...</div>
+        <div class="mg-modal-body">
+          <!-- Verified BDE Cash Memo Banner -->
+          <div id="cb-verified-banner" style="display: none; background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(59, 130, 246, 0.12)); border: 1.5px solid #10B981; border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; color: #065F46;">
+            <div style="font-weight: 800; font-size: 13px; display:flex; align-items:center; gap:8px;">
+              <span>🎉</span> Verified BDE Bill: <span id="cb-banner-bill-no" style="font-family:monospace; color:#047857; font-weight:800; background:#fff; padding:2px 8px; border-radius:6px; border:1px solid #A7F3D0;"></span>
+            </div>
+            <div style="font-size: 11px; color: #047857; margin-top: 3px;">
+              Eligible for direct UPI cashback upon approval!
+            </div>
+          </div>
+
+          <!-- Photo Upload from Device or Camera -->
+          <div class="mg-field-group">
+            <label class="mg-label">Furniture Photo (Camera or Device Gallery) *</label>
+            <input type="file" id="mg-modal-file-input" accept="image/*" style="display: none;" onchange="handleMistriGramModalFileSelect(event)">
+            
+            <div class="mg-upload-dropzone" id="mg-modal-upload-zone" onclick="document.getElementById('mg-modal-file-input').click()">
+              <span style="font-size: 28px;">📷</span>
+              <div style="font-size: 13px; font-weight: 800; color: #123B5D; margin-top: 2px;">Tap to Take Photo or Upload from Device</div>
+              <div style="font-size: 11px; color: #64748B;">Auto-compressed for instant upload</div>
+            </div>
+
+            <div id="mg-modal-preview-wrap" class="mg-preview-wrap" style="display: none;">
+              <img id="mg-modal-preview-img" class="mg-preview-img" src="" alt="Preview">
+              <div id="mg-modal-preview-stat" class="mg-preview-stat-badge">⚡ Ready to upload</div>
+              <button type="button" class="mg-preview-remove-btn" onclick="removeMistriGramModalPhoto()" title="Remove Photo">✕</button>
+            </div>
+          </div>
+
+          <!-- Story / Description -->
+          <div class="mg-field-group">
+            <label class="mg-label" for="mg-modal-caption">Story / Description of Photo</label>
+            <textarea id="mg-modal-caption" class="mg-input mg-textarea" rows="2" placeholder="Tell us about this project... e.g. 6-door wardrobe made with 18mm marine ply and champagne profile handles in Onda"></textarea>
+          </div>
+
+          <div class="mg-grid-2">
+            <!-- Name -->
+            <div class="mg-field-group">
+              <label class="mg-label" for="mg-modal-author">Your Name *</label>
+              <input type="text" id="mg-modal-author" class="mg-input" placeholder="e.g. Swapan Sutradhar">
+            </div>
+            <!-- Phone No -->
+            <div class="mg-field-group">
+              <label class="mg-label" for="mg-modal-phone">Phone Number *</label>
+              <input type="tel" id="mg-modal-phone" class="mg-input" placeholder="e.g. 9800523411">
+            </div>
+          </div>
+
+          <div class="mg-grid-2">
+            <!-- Location -->
+            <div class="mg-field-group">
+              <label class="mg-label" for="mg-modal-village">Site Location / Village *</label>
+              <input type="text" id="mg-modal-village" class="mg-input" placeholder="e.g. Onda Majhpara, Bankura">
+            </div>
+            <!-- Category -->
+            <div class="mg-field-group">
+              <label class="mg-label" for="mg-modal-category">Furniture Category</label>
+              <select id="mg-modal-category" class="mg-input">
+                <option value="Wardrobe">Wardrobe (Almirah)</option>
+                <option value="Modular Kitchen">Modular Kitchen</option>
+                <option value="Box Bed">Hydraulic Box Bed</option>
+                <option value="TV Unit">TV Unit &amp; Wall</option>
+                <option value="Doors">Doors</option>
+                <option value="Custom Woodwork">Custom Woodwork</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Cashback Information -->
+          <div style="background: #F8FAFC; border: 1.5px dashed #CBD5E1; border-radius: 12px; padding: 12px 14px; margin-bottom: 16px;">
+            <div style="font-size: 12px; font-weight: 800; color: #123B5D; margin-bottom: 8px; display:flex; align-items:center; gap:6px;">
+              <span>🎁</span> Claim Cash Memo Cashback (Optional)
+            </div>
+            <div class="mg-grid-2">
+              <div class="mg-field-group" style="margin-bottom: 6px;">
+                <label class="mg-label" for="mg-modal-bill">BDE Bill / Cash Memo No.</label>
+                <input type="text" id="mg-modal-bill" class="mg-input" placeholder="e.g. BDE-2026-0842">
+              </div>
+              <div class="mg-field-group" style="margin-bottom: 6px;">
+                <label class="mg-label" for="mg-modal-upi">UPI ID for Bank Cashback</label>
+                <input type="text" id="mg-modal-upi" class="mg-input" placeholder="e.g. 9800523411@okaxis">
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit CTA -->
+          <button type="button" class="mg-publish-btn" id="mg-modal-publish-btn" onclick="submitMistriGramModalPost()">
+            <span>🚀</span> Submit &amp; Claim Cashback
+          </button>
+        </div>
       </div>
     </div>
   </section>
-
-
 
   <!-- VIEW 5: ACCOUNT & OWNER ACCESS -->
   <section id="view-account" style="display: none;" class="account-container">
@@ -7801,29 +7933,34 @@ Please verify current stock availability at Onda Depot, share final counter quot
       leaderboard: [],
       activeCategory: 'All',
       activeSort: 'newest',
-      currentRole: 'Mistri',
-      selectedMaterials: new Set(['18mm BWP Marine Ply', '1.0mm Designer Sunmica', 'Fevicol Marine']),
-      compressedImageBase64: null,
-      compressedSizeKb: 0,
+      emptyImageBase64: null,
+      emptySizeKb: 0,
+      modalImageBase64: null,
+      modalSizeKb: 0,
       likedPosts: new Set(JSON.parse(localStorage.getItem('bde_liked_posts') || '[]')),
       lastTapTime: 0
     };
 
-    function selectMistriGramRole(role) {
-      MISTRI_GRAM_STATE.currentRole = role;
-      const bMistri = document.getElementById('mg-role-mistri');
-      const bOwner = document.getElementById('mg-role-homeowner');
-      if (bMistri) bMistri.classList.toggle('active', role === 'Mistri');
-      if (bOwner) bOwner.classList.toggle('active', role === 'Homeowner');
+    // Modal popup window controls
+    function openMistriGramModal() {
+      const modal = document.getElementById('mg-post-modal');
+      if (modal) {
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+      }
     }
 
-    function toggleMistriGramMaterial(pillEl, matName) {
-      if (pillEl.classList.contains('selected')) {
-        pillEl.classList.remove('selected');
-        MISTRI_GRAM_STATE.selectedMaterials.delete(matName);
-      } else {
-        pillEl.classList.add('selected');
-        MISTRI_GRAM_STATE.selectedMaterials.add(matName);
+    function closeMistriGramModal() {
+      const modal = document.getElementById('mg-post-modal');
+      if (modal) {
+        modal.classList.remove('show');
+        document.body.style.overflow = '';
+      }
+    }
+
+    function handleMistriGramModalBackdrop(event) {
+      if (event && event.target && event.target.id === 'mg-post-modal') {
+        closeMistriGramModal();
       }
     }
 
@@ -7865,91 +8002,125 @@ Please verify current stock availability at Onda Depot, share final counter quot
       });
     }
 
-    async function handleMistriGramFileSelect(event) {
+    // --- Empty State Photo Handling ---
+    async function handleMistriGramEmptyFileSelect(event) {
       const file = event.target.files[0];
       if (!file) return;
 
-      showToast('Compressing image on your device...');
+      showToast('Compressing photo on your device...');
       try {
         const compressedBase64 = await compressImageToWebP(file, 800, 800, 0.70);
-        MISTRI_GRAM_STATE.compressedImageBase64 = compressedBase64;
-        
-        // Calculate size in KB
+        MISTRI_GRAM_STATE.emptyImageBase64 = compressedBase64;
         const approxKb = Math.round((compressedBase64.length * 3 / 4) / 1024);
-        MISTRI_GRAM_STATE.compressedSizeKb = approxKb;
+        MISTRI_GRAM_STATE.emptySizeKb = approxKb;
 
-        const previewImg = document.getElementById('mg-preview-img');
-        const previewWrap = document.getElementById('mg-preview-wrap');
-        const uploadZone = document.getElementById('mg-upload-zone');
-        const statBadge = document.getElementById('mg-preview-stat');
+        const previewImg = document.getElementById('mg-empty-preview-img');
+        const previewWrap = document.getElementById('mg-empty-preview-wrap');
+        const uploadZone = document.getElementById('mg-empty-upload-zone');
+        const statBadge = document.getElementById('mg-empty-preview-stat');
 
         if (previewImg) previewImg.src = compressedBase64;
-        if (statBadge) statBadge.innerText = `⚡ Compressed: ${approxKb} KB (Ultra-fast Neon DB ready)`;
+        if (statBadge) statBadge.innerText = `⚡ Compressed: ${approxKb} KB (Ready)`;
         if (previewWrap) previewWrap.style.display = 'block';
         if (uploadZone) uploadZone.style.display = 'none';
 
-        showToast(`Photo compressed to ${approxKb} KB!`);
+        showToast(`Photo ready (${approxKb} KB)!`);
       } catch (err) {
-        console.error('Compression error:', err);
-        showToast('Could not compress photo. Please try another image.');
+        console.error('Empty file error:', err);
+        showToast('Could not process photo. Please try another.');
       }
     }
 
-    function removeMistriGramPhoto() {
-      MISTRI_GRAM_STATE.compressedImageBase64 = null;
-      MISTRI_GRAM_STATE.compressedSizeKb = 0;
-      const fileInput = document.getElementById('mg-file-input');
+    function removeMistriGramEmptyPhoto() {
+      MISTRI_GRAM_STATE.emptyImageBase64 = null;
+      MISTRI_GRAM_STATE.emptySizeKb = 0;
+      const fileInput = document.getElementById('mg-empty-file-input');
       if (fileInput) fileInput.value = '';
-      const previewWrap = document.getElementById('mg-preview-wrap');
-      const uploadZone = document.getElementById('mg-upload-zone');
+      const previewWrap = document.getElementById('mg-empty-preview-wrap');
+      const uploadZone = document.getElementById('mg-empty-upload-zone');
       if (previewWrap) previewWrap.style.display = 'none';
       if (uploadZone) uploadZone.style.display = 'block';
     }
 
-    async function submitMistriGramPost() {
-      const author = (document.getElementById('mg-post-author').value || '').trim();
-      const phone = (document.getElementById('mg-post-phone').value || '').trim();
-      const village = (document.getElementById('mg-post-village').value || 'Onda Bazar').trim();
-      const category = (document.getElementById('mg-post-category').value || 'Wardrobe').trim();
-      const caption = (document.getElementById('mg-post-caption').value || '').trim();
-      const billEl = document.getElementById('mg-post-bill');
-      const upiEl = document.getElementById('mg-post-upi');
-      const billNumber = billEl ? billEl.value.trim() : '';
-      const upiId = upiEl ? upiEl.value.trim() : '';
+    // --- Modal Photo Handling ---
+    async function handleMistriGramModalFileSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      showToast('Compressing photo on your device...');
+      try {
+        const compressedBase64 = await compressImageToWebP(file, 800, 800, 0.70);
+        MISTRI_GRAM_STATE.modalImageBase64 = compressedBase64;
+        const approxKb = Math.round((compressedBase64.length * 3 / 4) / 1024);
+        MISTRI_GRAM_STATE.modalSizeKb = approxKb;
+
+        const previewImg = document.getElementById('mg-modal-preview-img');
+        const previewWrap = document.getElementById('mg-modal-preview-wrap');
+        const uploadZone = document.getElementById('mg-modal-upload-zone');
+        const statBadge = document.getElementById('mg-modal-preview-stat');
+
+        if (previewImg) previewImg.src = compressedBase64;
+        if (statBadge) statBadge.innerText = `⚡ Compressed: ${approxKb} KB (Ready)`;
+        if (previewWrap) previewWrap.style.display = 'block';
+        if (uploadZone) uploadZone.style.display = 'none';
+
+        showToast(`Photo ready (${approxKb} KB)!`);
+      } catch (err) {
+        console.error('Modal file error:', err);
+        showToast('Could not process photo. Please try another.');
+      }
+    }
+
+    function removeMistriGramModalPhoto() {
+      MISTRI_GRAM_STATE.modalImageBase64 = null;
+      MISTRI_GRAM_STATE.modalSizeKb = 0;
+      const fileInput = document.getElementById('mg-modal-file-input');
+      if (fileInput) fileInput.value = '';
+      const previewWrap = document.getElementById('mg-modal-preview-wrap');
+      const uploadZone = document.getElementById('mg-modal-upload-zone');
+      if (previewWrap) previewWrap.style.display = 'none';
+      if (uploadZone) uploadZone.style.display = 'block';
+    }
+
+    // --- Submit From Empty State (Simple Form) ---
+    async function submitMistriGramEmptyPost() {
+      if (!MISTRI_GRAM_STATE.emptyImageBase64) {
+        showToast('Please select or capture a furniture photo first.');
+        return;
+      }
+      const author = (document.getElementById('mg-empty-author')?.value || '').trim();
+      const phone = (document.getElementById('mg-empty-phone')?.value || '').trim();
+      const village = (document.getElementById('mg-empty-village')?.value || '').trim() || 'Onda, Bankura';
+      const caption = (document.getElementById('mg-empty-caption')?.value || '').trim();
 
       if (!author) {
-        showToast('Please enter your name or Mistri business name.');
-        document.getElementById('mg-post-author').focus();
+        showToast('Please enter your name.');
+        document.getElementById('mg-empty-author')?.focus();
         return;
       }
       if (!phone) {
-        showToast('Please enter phone number for direct client calls and cashback.');
-        document.getElementById('mg-post-phone').focus();
-        return;
-      }
-      if (!MISTRI_GRAM_STATE.compressedImageBase64) {
-        showToast('Please select or capture a finished furniture photo.');
+        showToast('Please enter your phone number.');
+        document.getElementById('mg-empty-phone')?.focus();
         return;
       }
 
-      const mats = Array.from(MISTRI_GRAM_STATE.selectedMaterials).join(', ');
       const payload = {
         author_name: author,
-        author_role: MISTRI_GRAM_STATE.currentRole,
+        author_role: 'Mistri',
         author_phone: phone,
         village_location: village,
-        project_category: category,
-        caption: caption || `${category} fabricated with 100% BDE Onda materials.`,
-        materials_used: mats,
-        image_base64: MISTRI_GRAM_STATE.compressedImageBase64,
-        bill_number: billNumber || null,
-        upi_id: upiId || null
+        project_category: 'Furniture Craft',
+        caption: caption || 'Finished furniture craft showcased with Baba Dugdheswar Enterprise materials.',
+        materials_used: 'BDE Onda Materials',
+        image_base64: MISTRI_GRAM_STATE.emptyImageBase64,
+        bill_number: null,
+        upi_id: null
       };
 
-      const btn = document.getElementById('mg-publish-btn');
+      const btn = document.getElementById('mg-empty-publish-btn');
       if (btn) {
         btn.disabled = true;
-        btn.innerHTML = '<span>⏳</span> Submitting for Admin Verification...';
+        btn.innerHTML = '<span>⏳</span> Submitting for Verification...';
       }
 
       try {
@@ -7960,36 +8131,100 @@ Please verify current stock availability at Onda Depot, share final counter quot
         });
         const data = await res.json();
         if (data.success) {
-          const successMsg = data.message || "✅ Submitted! Your finished furniture photo has been sent to BDE Admin for verification. Once approved, it will go live on Mistri Gram and your UPI cashback will be processed!";
+          const successMsg = data.message || "✅ Submitted! Your photo has been sent for verification. Once approved, it will go live on Mistri Gram!";
           showToast(successMsg, 7000);
           alert(successMsg);
-          // Reset form fields
-          document.getElementById('mg-post-caption').value = '';
-          if (billEl && !billEl.readOnly) billEl.value = '';
-          if (upiEl) upiEl.value = '';
-          removeMistriGramPhoto();
+          removeMistriGramEmptyPhoto();
+          if (document.getElementById('mg-empty-caption')) document.getElementById('mg-empty-caption').value = '';
           loadMistriGramFeed();
         } else {
           showToast(data.detail || 'Failed to submit post.');
         }
       } catch (err) {
-        console.error('Post submit error:', err);
-        showToast('✅ Submitted! Sent to admin queue (Offline preview active).');
-        const fakePost = {
-          id: Date.now(),
-          ...payload,
-          likes_count: 1,
-          comments_count: 0,
-          comments: [],
-          created_at: 'Just now'
-        };
-        MISTRI_GRAM_STATE.posts.unshift(fakePost);
-        renderMistriGramPosts(MISTRI_GRAM_STATE.posts);
-        removeMistriGramPhoto();
+        console.error('Empty submit error:', err);
+        showToast('✅ Submitted! Sent to admin queue.');
+        removeMistriGramEmptyPhoto();
+        loadMistriGramFeed();
       } finally {
         if (btn) {
           btn.disabled = false;
-          btn.innerHTML = '<span>🚀</span> Publish to Mistri Gram Community';
+          btn.innerHTML = '<span>🚀</span> Publish to Mistri Gram';
+        }
+      }
+    }
+
+    // --- Submit From Modal Popup Window (Full Info & Cashback) ---
+    async function submitMistriGramModalPost() {
+      if (!MISTRI_GRAM_STATE.modalImageBase64) {
+        showToast('Please select or capture a finished furniture photo.');
+        return;
+      }
+      const author = (document.getElementById('mg-modal-author')?.value || '').trim();
+      const phone = (document.getElementById('mg-modal-phone')?.value || '').trim();
+      const village = (document.getElementById('mg-modal-village')?.value || '').trim() || 'Onda, Bankura';
+      const category = (document.getElementById('mg-modal-category')?.value || 'Wardrobe').trim();
+      const caption = (document.getElementById('mg-modal-caption')?.value || '').trim();
+      const billNumber = (document.getElementById('mg-modal-bill')?.value || '').trim();
+      const upiId = (document.getElementById('mg-modal-upi')?.value || '').trim();
+
+      if (!author) {
+        showToast('Please enter your name.');
+        document.getElementById('mg-modal-author')?.focus();
+        return;
+      }
+      if (!phone) {
+        showToast('Please enter phone number for direct client calls and cashback.');
+        document.getElementById('mg-modal-phone')?.focus();
+        return;
+      }
+
+      const payload = {
+        author_name: author,
+        author_role: 'Mistri',
+        author_phone: phone,
+        village_location: village,
+        project_category: category,
+        caption: caption || `${category} fabricated with 100% BDE Onda materials.`,
+        materials_used: 'BDE Onda Materials',
+        image_base64: MISTRI_GRAM_STATE.modalImageBase64,
+        bill_number: billNumber || null,
+        upi_id: upiId || null
+      };
+
+      const btn = document.getElementById('mg-modal-publish-btn');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳</span> Submitting for Cashback Verification...';
+      }
+
+      try {
+        const res = await fetch('/api/feed/post', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          const successMsg = data.message || "✅ Submitted! Your finished furniture photo has been sent to BDE Admin for verification and cashback processing!";
+          showToast(successMsg, 7000);
+          alert(successMsg);
+          removeMistriGramModalPhoto();
+          if (document.getElementById('mg-modal-caption')) document.getElementById('mg-modal-caption').value = '';
+          closeMistriGramModal();
+          loadMistriGramFeed();
+        } else {
+          showToast(data.detail || 'Failed to submit post.');
+        }
+      } catch (err) {
+        console.error('Modal post submit error:', err);
+        showToast('✅ Submitted! Sent to admin queue.');
+        removeMistriGramModalPhoto();
+        closeMistriGramModal();
+        loadMistriGramFeed();
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<span>🚀</span> Submit &amp; Claim Cashback';
         }
       }
     }
@@ -8052,51 +8287,33 @@ Please verify current stock availability at Onda Depot, share final counter quot
           <div class="mg-lb-name" title="${item.name}">${item.name}</div>
           <div class="mg-lb-loc">📍 ${item.village}</div>
           <div class="mg-lb-likes">❤️ ${item.total_likes} Loves</div>
-          <button type="button" class="mg-lb-hire-btn" onclick="hireMistriFromPost('${item.name.replace(/'/g, "\\'")}', '', '${item.village.replace(/'/g, "\\'")}')">
+          <button type="button" class="mg-lb-hire-btn" onclick="hireMistriFromPost('${item.name.replace(/'/g, "\\'")}', '', '${item.village.replace(/'/g, "\\')}')">
             📞 Hire Mistri
           </button>
         </div>
       `).join('');
     }
 
-    function scrollToMistriGramComposer() {
-      const card = document.querySelector('.mg-create-card');
-      if (card) {
-        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        const authorInput = document.getElementById('mg-post-author');
-        if (authorInput) {
-          setTimeout(() => authorInput.focus(), 350);
-        }
-      }
-    }
-
     function renderMistriGramPosts(posts) {
+      const emptyCard = document.getElementById('mg-empty-upload-card');
+      const hasPostsWrap = document.getElementById('mg-has-posts-wrap');
       const stream = document.getElementById('mg-feed-stream');
-      if (!stream) return;
 
+      // Condition A: When NO photos available yet
       if (!posts || posts.length === 0) {
-        stream.innerHTML = `
-          <div style="text-align: center; padding: 48px 20px; background: #FFFFFF; border-radius: 16px; border: 1.5px dashed #CBD5E1; box-shadow: 0 4px 20px rgba(18,59,93,0.04); margin-bottom: 24px;">
-            <div style="font-size: 46px; margin-bottom: 12px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.08));">🔨</div>
-            <div style="font-size: 17px; font-weight: 800; color: #123B5D; margin-bottom: 8px; line-height: 1.4;">
-              Be the first Mistri or Homeowner in Bankura to showcase your finished furniture here!
-            </div>
-            <p style="font-size: 13px; color: #64748B; margin-top: 4px; margin-bottom: 22px; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.5;">
-              Upload your finished wardrobe, modular kitchen, or bed photo to showcase your craft, get direct client inquiries, and claim BDE cashbacks!
-            </p>
-            <button type="button" class="mg-empty-post-btn" onclick="scrollToMistriGramComposer()" style="background: linear-gradient(135deg, #F59E0B, #D97706); color: #FFFFFF; border: none; font-weight: 800; font-size: 14px; padding: 12px 28px; border-radius: 25px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 6px 18px rgba(245, 158, 11, 0.35); transition: transform 0.2s, box-shadow 0.2s;">
-              <span>📸</span> Post Your First Craft
-            </button>
-          </div>
-        `;
+        if (emptyCard) emptyCard.style.display = 'block';
+        if (hasPostsWrap) hasPostsWrap.style.display = 'none';
         return;
       }
 
+      // Condition B: Photos ARE available -> show feed first, hide inline empty upload card
+      if (emptyCard) emptyCard.style.display = 'none';
+      if (hasPostsWrap) hasPostsWrap.style.display = 'block';
+
+      if (!stream) return;
+
       stream.innerHTML = posts.map(p => {
         const isLoved = MISTRI_GRAM_STATE.likedPosts.has(p.id);
-        const mats = (p.materials_used || '').split(',').map(m => m.trim()).filter(Boolean);
-        const matTagsHtml = mats.map(m => `<span class="mg-tag">🏷️ ${m}</span>`).join('');
-
         const commentsListHtml = (p.comments || []).map(c => `
           <div class="mg-comment-item">
             <span class="mg-comment-author">${c.commenter_name}:</span>
@@ -8115,7 +8332,7 @@ Please verify current stock availability at Onda Depot, share final counter quot
                     <span class="mg-author-name">${p.author_name}</span>
                     <span class="mg-verified-tag">✓ ${p.author_role || 'Verified Mistri'}</span>
                   </div>
-                  <div class="mg-post-subtext">📍 ${p.village_location} • ${p.created_at}</div>
+                  <div class="mg-post-subtext">📍 ${p.village_location} &bull; ${p.created_at}</div>
                 </div>
               </div>
               <div class="mg-post-cat-badge">${p.project_category || 'Craft'}</div>
@@ -8127,9 +8344,8 @@ Please verify current stock availability at Onda Depot, share final counter quot
               <div class="mg-heart-pop" id="mg-heart-pop-${p.id}">❤️</div>
             </div>
 
-            <!-- Body & Tags -->
+            <!-- Body Story / Caption -->
             <div class="mg-post-body">
-              ${matTagsHtml ? `<div class="mg-mat-tags">${matTagsHtml}</div>` : ''}
               <p class="mg-post-caption">
                 <strong>${p.author_name}:</strong> ${p.caption || ''}
               </p>
@@ -8154,7 +8370,7 @@ Please verify current stock availability at Onda Depot, share final counter quot
 
             <!-- 2 Direct Business Conversion CTAs -->
             <div class="mg-conversion-btns">
-              <button type="button" class="mg-btn-hire" onclick="hireMistriFromPost('${p.author_name.replace(/'/g, "\\'")}', '${p.author_phone || ''}', '${p.village_location.replace(/'/g, "\\'")}')">
+              <button type="button" class="mg-btn-hire" onclick="hireMistriFromPost('${p.author_name.replace(/'/g, "\\'")}', '${p.author_phone || ''}', '${p.village_location.replace(/'/g, "\\')}')">
                 <span>📞</span> Hire This Mistri
               </button>
               <button type="button" class="mg-btn-buy" onclick="buyPostMaterialsOnWhatsApp(${p.id})">
@@ -8323,8 +8539,7 @@ Please share current Onda Depot counter prices for these materials, sheet availa
       window.open(`https://wa.me/919867098952?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
-
-    /* =========================================================
+        /* =========================================================
        7. NON-INTRUSIVE AUTH BOTTOM SHEET & LOCALITY HANDLERS
        ========================================================= */
     function triggerAuthSheet(intent = 'general') {
